@@ -1,0 +1,93 @@
+/**
+ * Provider-neutral types for AI operations.
+ *
+ * The whole AI layer is built around one principle: the rest of the app must
+ * NEVER import an SDK directly. It calls `generateStoryText()`, `generateImage()`,
+ * `generateSpeech()` — these functions read env vars and dispatch to the right
+ * provider. Swapping Anthropic→OpenAI or OpenAI→Replicate = flip one env var.
+ */
+
+// ---------- Text ----------
+
+export type Language = "fr" | "en";
+
+export type AgeRange = "3-5" | "6-8" | "9-11";
+
+export interface StoryGenerationInput {
+  language: Language;
+  ageRange: AgeRange;
+  /** Free-form prompt: theme, characters, moral, etc. */
+  prompt: string;
+  /** Character reference sheet URLs or names to include consistently. */
+  characters?: Array<{ name: string; description: string }>;
+  /** Target word count — enforced loosely. */
+  targetWords?: number;
+  /** SEO keyword to weave in naturally, library stories only. */
+  seoKeyword?: string;
+}
+
+export interface StoryGenerationOutput {
+  title: string;
+  /** Story broken into scenes so each can later be paired with an illustration. */
+  scenes: Array<{
+    text: string;
+    /** Prompt the image provider will receive for this scene. */
+    imagePrompt: string;
+  }>;
+  /** Full running text, useful for TTS and full-page view. */
+  fullText: string;
+  /** Model that generated this, for provenance + debugging. */
+  model: string;
+}
+
+export interface TextProvider {
+  generateStory(input: StoryGenerationInput): Promise<StoryGenerationOutput>;
+}
+
+// ---------- Image ----------
+
+export type ImageTier = "library" | "personalized";
+
+export interface ImageGenerationInput {
+  prompt: string;
+  /** If set, forces stylistic consistency with an existing reference. */
+  referenceImageUrl?: string;
+  /** 1024x1024 recommended for web display, 2048 for print-ready. */
+  size?: "1024x1024" | "1792x1024" | "1024x1792" | "2048x2048";
+  /** Passed through to provider; useful for picking between quality tiers. */
+  quality?: "standard" | "hd";
+}
+
+export interface ImageGenerationOutput {
+  /** Either a hosted URL or a base64 data URL — caller uploads to storage. */
+  imageUrl: string;
+  model: string;
+}
+
+export interface ImageProvider {
+  generateImage(input: ImageGenerationInput): Promise<ImageGenerationOutput>;
+}
+
+// ---------- Audio ----------
+
+export type AudioTier = "library" | "personalized";
+
+export interface SpeechGenerationInput {
+  text: string;
+  language: Language;
+  /** Provider-specific voice id; the factory maps friendly names to these. */
+  voice?: string;
+  /** 1.0 = normal speed. Gentle slowdown for young ears: 0.9. */
+  speed?: number;
+}
+
+export interface SpeechGenerationOutput {
+  /** mp3 bytes; caller writes to Supabase Storage and stores the URL. */
+  audio: Buffer;
+  mimeType: string;
+  model: string;
+}
+
+export interface AudioProvider {
+  generateSpeech(input: SpeechGenerationInput): Promise<SpeechGenerationOutput>;
+}

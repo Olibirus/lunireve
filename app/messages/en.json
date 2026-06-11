@@ -210,5 +210,66 @@
   "theme": {
     "toDark": "Switch to night mode",
     "toLight": "Switch to day mode"
+  },
+  "search": {
+    "label": "Search for a story",
+    "placeholder": "A title, a character, a theme…",
+    "noResults": "No stories found for \"{query}\""
+  },
+  "funnel": {
+    "breadcrumbLibrary": "Library",
+    "all": "All",
+    "refineAge": "Age",
+    "refineGenre": "Genre",
+    "refineTheme": "Theme",
+    "refineCharacter": "Character",
+    "refineDuration": "Length",
+    "clearFilters": "Clear filters",
+    "genreSubtitle": "Refine by age, theme or character to find tonight's story.",
+    "ageTitle": "Stories for ages {age}",
+    "ageSubtitle": "Stories written for their age — never too simple, never too long.",
+    "audioTitle": "Audio stories",
+    "audioSubtitle": "Stories read aloud, to listen to snuggled up in the dark.",
+    "durationSubtitle": "Pick by how much time is left before lights out.",
+    "emptyTitle": "No stories match — yet.",
+    "emptyBody": "Try widening a filter, or come back soon: the library grows every week."
+  },
+  "genres": {
+    "conte": "Fairy tales",
+    "aventure": "Adventure stories",
+    "fete": "Holiday stories",
+    "mystere": "Mystery & detective",
+    "science-fiction": "Science fiction",
+    "educative": "Educational stories",
+    "fantastique": "Fantasy stories",
+    "rigolote": "Funny stories",
+    "metier": "Stories about jobs"
+  },
+  "themes": {
+    "aventure": "Adventure",
+    "amitie": "Friendship",
+    "emotions": "Emotions",
+    "nature": "Nature",
+    "fantastique": "Fantasy",
+    "humour": "Humour",
+    "courage": "Courage",
+    "decouverte": "Discovery"
+  },
+  "characters": {
+    "renard": "Fox",
+    "enfant-fille": "Little girl",
+    "enfant-garcon": "Little boy",
+    "grand-mere": "Grandmother",
+    "dragon": "Dragon",
+    "ours": "Bear",
+    "marchand": "Merchant",
+    "gateau": "Cake",
+    "phare": "Lighthouse",
+    "reine": "Queen"
+  },
+  "durations": {
+    "short": "Short stories (under 5 min)",
+    "medium": "Medium stories (5–10 min)",
+    "long": "Longer stories (over 10 min)"
   }
 }

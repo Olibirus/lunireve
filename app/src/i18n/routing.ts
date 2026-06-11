@@ -29,6 +29,22 @@ export const routing = defineRouting({
       fr: "/histoires/[slug]",
       en: "/stories/[slug]",
     },
+    "/histoires/genre/[genre]": {
+      fr: "/histoires/genre/[genre]",
+      en: "/stories/genre/[genre]",
+    },
+    "/histoires/age/[range]": {
+      fr: "/histoires/age/[range]",
+      en: "/stories/age/[range]",
+    },
+    "/histoires/audio": {
+      fr: "/histoires/audio",
+      en: "/stories/audio",
+    },
+    "/histoires/duree/[bucket]": {
+      fr: "/histoires/duree/[bucket]",
+      en: "/stories/duration/[bucket]",
+    },
     "/creer": {
       fr: "/creer",
       en: "/create",

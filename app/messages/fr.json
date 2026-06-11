@@ -210,5 +210,66 @@
   "theme": {
     "toDark": "Passer en mode nuit",
     "toLight": "Passer en mode jour"
+  },
+  "search": {
+    "label": "Rechercher une histoire",
+    "placeholder": "Un titre, un personnage, un thème…",
+    "noResults": "Aucune histoire trouvée pour « {query} »"
+  },
+  "funnel": {
+    "breadcrumbLibrary": "Bibliothèque",
+    "all": "Tout",
+    "refineAge": "Âge",
+    "refineGenre": "Genre",
+    "refineTheme": "Thème",
+    "refineCharacter": "Personnage",
+    "refineDuration": "Durée",
+    "clearFilters": "Effacer les filtres",
+    "genreSubtitle": "Affinez par âge, thème ou personnage pour trouver l'histoire de ce soir.",
+    "ageTitle": "Histoires pour les {age}",
+    "ageSubtitle": "Des histoires écrites pour leur âge — ni trop simples, ni trop longues.",
+    "audioTitle": "Histoires audio",
+    "audioSubtitle": "Des histoires lues à voix haute, pour écouter blotti dans le noir.",
+    "durationSubtitle": "Choisissez selon le temps qu'il vous reste avant l'extinction des feux.",
+    "emptyTitle": "Aucune histoire ne correspond — pour l'instant.",
+    "emptyBody": "Essayez d'élargir un filtre, ou revenez bientôt : la bibliothèque grandit chaque semaine."
+  },
+  "genres": {
+    "conte": "Contes",
+    "aventure": "Histoires d'aventure",
+    "fete": "Histoires de fête",
+    "mystere": "Mystère et enquête",
+    "science-fiction": "Science-fiction",
+    "educative": "Histoires éducatives",
+    "fantastique": "Histoires fantastiques",
+    "rigolote": "Histoires rigolotes",
+    "metier": "Histoires de métiers"
+  },
+  "themes": {
+    "aventure": "Aventure",
+    "amitie": "Amitié",
+    "emotions": "Émotions",
+    "nature": "Nature",
+    "fantastique": "Fantastique",
+    "humour": "Humour",
+    "courage": "Courage",
+    "decouverte": "Découverte"
+  },
+  "characters": {
+    "renard": "Renard",
+    "enfant-fille": "Petite fille",
+    "enfant-garcon": "Petit garçon",
+    "grand-mere": "Grand-mère",
+    "dragon": "Dragon",
+    "ours": "Ours",
+    "marchand": "Marchand",
+    "gateau": "Gâteau",
+    "phare": "Phare",
+    "reine": "Reine"
+  },
+  "durations": {
+    "short": "Histoires courtes (moins de 5 min)",
+    "medium": "Histoires moyennes (5 à 10 min)",
+    "long": "Grandes histoires (plus de 10 min)"
   }
 }

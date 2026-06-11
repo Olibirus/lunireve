@@ -1,10 +1,12 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { StoryFilters } from "@/components/story/StoryFilters";
 import { StoryCard } from "@/components/story/StoryCard";
-import { mockStories } from "@/data/mock-stories";
+import { StorySearch } from "@/components/story/StorySearch";
+import { mockStories, GENRES, AGE_RANGES } from "@/data/mock-stories";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Headphones } from "lucide-react";
 
 export default async function LibraryPage({
   params,
@@ -14,6 +16,7 @@ export default async function LibraryPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("library");
+  const tAll = await getTranslations();
 
   return (
     <>
@@ -39,6 +42,41 @@ export default async function LibraryPage({
               <Badge variant="mint">{t("pill1")}</Badge>
               <Badge variant="indigo">{t("pill2")}</Badge>
               <Badge variant="default">{t("pill3")}</Badge>
+            </div>
+
+            <div className="mt-7 max-w-md">
+              <StorySearch />
+            </div>
+
+            {/* Funnel entry points — SEO landing pages by axis */}
+            <div className="mt-6 flex flex-wrap items-center gap-1.5 text-xs">
+              {AGE_RANGES.map((range) => (
+                <Link
+                  key={range}
+                  href={{ pathname: "/histoires/age/[range]", params: { range } }}
+                  className="rounded-full border border-[var(--color-ink-100)] px-3 py-1 text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)] transition-colors"
+                >
+                  {range} ans
+                </Link>
+              ))}
+              <span aria-hidden className="mx-1 text-[var(--color-ink-200)]">|</span>
+              {GENRES.slice(0, 5).map((genre) => (
+                <Link
+                  key={genre}
+                  href={{ pathname: "/histoires/genre/[genre]", params: { genre } }}
+                  className="rounded-full border border-[var(--color-ink-100)] px-3 py-1 text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)] transition-colors"
+                >
+                  {tAll(`genres.${genre}`)}
+                </Link>
+              ))}
+              <span aria-hidden className="mx-1 text-[var(--color-ink-200)]">|</span>
+              <Link
+                href="/histoires/audio"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-mint-300)] bg-[var(--color-mint-100)] px-3 py-1 text-[var(--color-ink-700)] hover:bg-[var(--color-mint-200)] transition-colors"
+              >
+                <Headphones className="h-3 w-3" />
+                {tAll("funnel.audioTitle")}
+              </Link>
             </div>
           </div>
         </div>

@@ -1,0 +1,228 @@
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { StoryCard } from "@/components/story/StoryCard";
+import { StorySearch } from "@/components/story/StorySearch";
+import { applyFilters, THEMES, type StoryFilters } from "@/lib/stories/filter";
+import {
+  GENRES,
+  AGE_RANGES,
+  DURATION_BUCKETS,
+  CHARACTERS,
+} from "@/data/mock-stories";
+import { cn } from "@/lib/utils/cn";
+
+/**
+ * Shared funnel page body. One axis is FIXED by the route (e.g. /genre/conte
+ * pins genre); the remaining axes render as link-chip rails that refine via
+ * query string. Links (not client state) keep every drilldown crawlable —
+ * these pages are the SEO engine.
+ */
+
+type AnyPathname =
+  | "/histoires/genre/[genre]"
+  | "/histoires/age/[range]"
+  | "/histoires/audio"
+  | "/histoires/duree/[bucket]";
+
+export async function StoryFunnel({
+  title,
+  subtitle,
+  fixed,
+  query,
+  pathname,
+  params,
+}: {
+  title: string;
+  subtitle: string;
+  fixed: StoryFilters;
+  query: StoryFilters;
+  pathname: AnyPathname;
+  params?: Record<string, string>;
+}) {
+  const t = await getTranslations();
+  const active: StoryFilters = { ...query, ...fixed };
+  const stories = applyFilters(active);
+
+  // Rails to render: every axis not pinned by the route.
+  const rails: {
+    key: keyof StoryFilters;
+    label: string;
+    options: { value: string; label: string }[];
+  }[] = [];
+
+  if (!fixed.age)
+    rails.push({
+      key: "age",
+      label: t("funnel.refineAge"),
+      options: AGE_RANGES.map((a) => ({
+        value: a,
+        label: t(`library.filters.age${a === "3-5" ? "3to5" : a === "6-8" ? "6to8" : "9to11"}`),
+      })),
+    });
+  if (!fixed.genre)
+    rails.push({
+      key: "genre",
+      label: t("funnel.refineGenre"),
+      options: GENRES.map((g) => ({ value: g, label: t(`genres.${g}`) })),
+    });
+  if (!fixed.theme)
+    rails.push({
+      key: "theme",
+      label: t("funnel.refineTheme"),
+      options: THEMES.map((th) => ({ value: th, label: t(`themes.${th}`) })),
+    });
+  if (!fixed.character)
+    rails.push({
+      key: "character",
+      label: t("funnel.refineCharacter"),
+      options: CHARACTERS.map((c) => ({ value: c, label: t(`characters.${c}`) })),
+    });
+  if (!fixed.duration && !fixed.audio)
+    rails.push({
+      key: "duration",
+      label: t("funnel.refineDuration"),
+      options: DURATION_BUCKETS.map((d) => ({
+        value: d,
+        label: t(`durations.${d}`),
+      })),
+    });
+
+  /** Build the query object for a chip: toggle `key=value`, keep the rest. */
+  function chipQuery(key: keyof StoryFilters, value: string | null) {
+    const q: Record<string, string> = {};
+    for (const rail of rails) {
+      const current = query[rail.key];
+      if (rail.key === key) {
+        if (value !== null) q[rail.key] = value;
+      } else if (current !== undefined) {
+        q[rail.key] = String(current);
+      }
+    }
+    return q;
+  }
+
+  const href = (q: Record<string, string>) =>
+    params
+      ? ({ pathname, params, query: q } as never)
+      : ({ pathname, query: q } as never);
+
+  const hasRefinements = rails.some((r) => query[r.key] !== undefined);
+
+  return (
+    <>
+      {/* Hero */}
+      <section className="relative">
+        <div className="mx-auto max-w-7xl px-5 md:px-8 pt-12 md:pt-16 pb-8">
+          {/* Breadcrumb */}
+          <nav aria-label="Fil d'ariane" className="text-xs text-[var(--color-ink-400)]">
+            <ol className="flex flex-wrap items-center gap-1.5">
+              <li>
+                <Link href="/" className="hover:text-[var(--color-ink-700)]">
+                  {t("nav.home")}
+                </Link>
+              </li>
+              <li aria-hidden>·</li>
+              <li>
+                <Link href="/histoires" className="hover:text-[var(--color-ink-700)]">
+                  {t("funnel.breadcrumbLibrary")}
+                </Link>
+              </li>
+              <li aria-hidden>·</li>
+              <li aria-current="page" className="text-[var(--color-ink-600)]">
+                {title}
+              </li>
+            </ol>
+          </nav>
+
+          <h1
+            className="mt-4 text-4xl md:text-6xl font-serif leading-[1.04] tracking-tight"
+            style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 60, 'wght' 500" }}
+          >
+            {title}
+          </h1>
+          <p className="mt-4 text-lg text-[var(--color-ink-500)] leading-relaxed max-w-2xl">
+            {subtitle}
+          </p>
+
+          <div className="mt-6 max-w-md">
+            <StorySearch />
+          </div>
+        </div>
+        <div className="dot-rule mx-auto max-w-7xl" aria-hidden />
+      </section>
+
+      {/* Refinement rails */}
+      <section className="mx-auto max-w-7xl px-5 md:px-8 py-8 space-y-5">
+        {rails.map((rail) => (
+          <div key={rail.key} className="flex flex-wrap items-baseline gap-2">
+            <span className="text-xs uppercase tracking-widest text-[var(--color-ink-500)] w-28 shrink-0">
+              {rail.label}
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              <Link
+                href={href(chipQuery(rail.key, null))}
+                className={cn(
+                  "rounded-full border px-3 py-1 text-xs transition-colors",
+                  query[rail.key] === undefined
+                    ? "bg-[var(--color-ink-800)] text-[var(--color-cream-50)] border-transparent"
+                    : "border-[var(--color-ink-100)] text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
+                )}
+              >
+                {t("funnel.all")}
+              </Link>
+              {rail.options.map((opt) => {
+                const selected = String(query[rail.key]) === opt.value;
+                return (
+                  <Link
+                    key={opt.value}
+                    href={href(chipQuery(rail.key, selected ? null : opt.value))}
+                    className={cn(
+                      "rounded-full border px-3 py-1 text-xs transition-colors",
+                      selected
+                        ? "bg-[var(--color-ink-800)] text-[var(--color-cream-50)] border-transparent"
+                        : "border-[var(--color-ink-100)] text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
+                    )}
+                  >
+                    {opt.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* Results */}
+      <section className="mx-auto max-w-7xl px-5 md:px-8 pb-16 md:pb-24">
+        <div className="flex items-center justify-between mb-6">
+          <p className="text-sm text-[var(--color-ink-500)]">
+            {t("library.countLabel", { count: stories.length })}
+          </p>
+          {hasRefinements && (
+            <Link
+              href={href({})}
+              className="text-sm text-[var(--color-indigo-soft-600)] hover:text-[var(--color-ink-800)]"
+            >
+              {t("funnel.clearFilters")}
+            </Link>
+          )}
+        </div>
+
+        {stories.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-[var(--color-ink-200)] bg-[var(--color-cream-100)] p-12 text-center">
+            <p className="font-serif text-xl">{t("funnel.emptyTitle")}</p>
+            <p className="mt-2 text-sm text-[var(--color-ink-500)]">
+              {t("funnel.emptyBody")}
+            </p>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-7">
+            {stories.map((s) => (
+              <StoryCard key={s.slug} story={s} />
+            ))}
+          </div>
+        )}
+      </section>
+    </>
+  );
+}

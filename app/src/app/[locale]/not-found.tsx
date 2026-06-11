@@ -3,11 +3,16 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { ArrowRight, BookOpen } from "lucide-react";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 export default async function LocaleNotFound() {
   const t = await getTranslations("notFound");
 
   return (
+    <>
+      <Header />
+      <main className="flex-1">
     <section className="relative mx-auto max-w-3xl px-5 md:px-8 py-24 md:py-36 text-center">
       <div className="inline-flex items-center gap-3 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-4 py-2 text-xs tracking-widest uppercase text-[var(--color-ink-500)]">
         <FoxMark className="h-6 w-6" />
@@ -44,5 +49,8 @@ export default async function LocaleNotFound() {
         </Button>
       </div>
     </section>
+      </main>
+      <Footer />
+    </>
   );
 }

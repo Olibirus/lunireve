@@ -154,7 +154,29 @@ export function FoxCloud({
 /**
  * FoxMark — the small square logo for the header. Just the fox head + book.
  */
-export function FoxMark({ className }: { className?: string }) {
+/**
+ * Avatar fur colors — the 6 child-profile variants from the product brief.
+ * Each entry is the [light, dark] pair of the fur gradient.
+ */
+export const FOX_COLORS = {
+  orange: ["#f8b487", "#c96a2e"],
+  blue: ["#9bc0e8", "#4a7fb5"],
+  mint: ["#9dd1b6", "#4d9973"],
+  pink: ["#f4afc5", "#d36a8e"],
+  lavender: ["#bfb3e0", "#8a78c0"],
+  sand: ["#e3cda0", "#b08d52"],
+} as const;
+export type FoxColor = keyof typeof FOX_COLORS;
+
+export function FoxMark({
+  className,
+  color = "orange",
+}: {
+  className?: string;
+  color?: FoxColor;
+}) {
+  const [from, to] = FOX_COLORS[color];
+  const gid = `fm-fox-${color}`;
   return (
     <svg
       viewBox="0 0 64 64"
@@ -163,16 +185,16 @@ export function FoxMark({ className }: { className?: string }) {
       className={cn("select-none", className)}
     >
       <defs>
-        <linearGradient id="fm-fox" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#f8b487" />
-          <stop offset="100%" stopColor="#c96a2e" />
+        <linearGradient id={gid} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={from} />
+          <stop offset="100%" stopColor={to} />
         </linearGradient>
       </defs>
       <rect width="64" height="64" rx="16" fill="#1f2d52" />
       <g transform="translate(10 12)">
-        <path d="M 6 14 Q 4 4 14 0 Q 18 8 16 14 Z" fill="url(#fm-fox)" />
-        <path d="M 38 14 Q 40 4 30 0 Q 26 8 28 14 Z" fill="url(#fm-fox)" />
-        <ellipse cx="22" cy="22" rx="18" ry="16" fill="url(#fm-fox)" />
+        <path d="M 6 14 Q 4 4 14 0 Q 18 8 16 14 Z" fill={`url(#${gid})`} />
+        <path d="M 38 14 Q 40 4 30 0 Q 26 8 28 14 Z" fill={`url(#${gid})`} />
+        <ellipse cx="22" cy="22" rx="18" ry="16" fill={`url(#${gid})`} />
         <ellipse cx="22" cy="28" rx="11" ry="9" fill="#fcfaf6" />
         <path d="M 14 22 Q 18 19 22 22" stroke="#1f2d52" strokeWidth="2" fill="none" strokeLinecap="round" />
         <path d="M 26 22 Q 30 19 34 22" stroke="#1f2d52" strokeWidth="2" fill="none" strokeLinecap="round" />

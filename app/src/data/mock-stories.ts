@@ -313,6 +313,60 @@ export function searchStories(query: string): MockStory[] {
   );
 }
 
+export type QuizQuestion = {
+  question: string;
+  choices: string[];
+  /** index into choices */
+  answer: number;
+  explanation: string;
+};
+
+/**
+ * Mock quiz — Phase 2 generates these with the story via the n8n pipeline
+ * (one quiz per story, age-adapted). Same questions for every story for now.
+ */
+export function storyQuiz(_slug: string): QuizQuestion[] {
+  return [
+    {
+      question: "Qui frappe à la porte de la petite maison ?",
+      choices: ["Un loup affamé", "Un renard avec un livre", "Le facteur du village"],
+      answer: 1,
+      explanation: "C'est bien un renard, fatigué, qui porte un livre relié de cuir bleu.",
+    },
+    {
+      question: "Que prépare la petite quand elle entend gratter ?",
+      choices: ["Un gâteau au chocolat", "Une soupe de potiron", "Un thé à la verveine"],
+      answer: 2,
+      explanation: "Elle préparait un thé à la verveine, un jour de novembre.",
+    },
+    {
+      question: "Que demande le renard ?",
+      choices: [
+        "De l'aider à retrouver sa page",
+        "Un endroit pour dormir",
+        "Le chemin de la forêt",
+      ],
+      answer: 0,
+      explanation: "Il s'est perdu dans son histoire et cherche à retrouver la page.",
+    },
+  ];
+}
+
+export type GlossaryEntry = { word: string; definition: string };
+
+/**
+ * Mock glossary — Phase 2 generates real entries per story (difficult words,
+ * age-adapted). Doubles as the "tap to understand" source later.
+ */
+export function storyGlossary(_slug: string): GlossaryEntry[] {
+  return [
+    { word: "verveine", definition: "Une plante qu'on fait infuser pour préparer une tisane au goût doux." },
+    { word: "fourcher", definition: "Se tromper en parlant — quand la langue « fourche », les mots se mélangent." },
+    { word: "relié", definition: "Un livre relié a une couverture solide, souvent en cuir ou en carton épais." },
+    { word: "tisser", definition: "Fabriquer un tissu (ou une toile d'araignée) en croisant des fils." },
+  ];
+}
+
 /**
  * Rich reading text used on the detail page. Kept separate from the card data
  * to avoid shipping long bodies in grid queries.

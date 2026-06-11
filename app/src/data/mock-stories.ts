@@ -6,13 +6,43 @@
  * swapping from mock → Drizzle query is a one-line replacement.
  */
 
+export const GENRES = [
+  "conte",
+  "aventure",
+  "fete",
+  "mystere",
+  "science-fiction",
+  "educative",
+  "fantastique",
+  "rigolote",
+  "metier",
+] as const;
+export type Genre = (typeof GENRES)[number];
+
+export const AGE_RANGES = ["3-5", "6-8", "9-11"] as const;
+export type AgeRange = (typeof AGE_RANGES)[number];
+
+export const DURATION_BUCKETS = ["short", "medium", "long"] as const;
+export type DurationBucket = (typeof DURATION_BUCKETS)[number];
+
+/** ≤5 min = short · 6–10 = medium · >10 = long */
+export function durationBucket(minutes: number): DurationBucket {
+  if (minutes <= 5) return "short";
+  if (minutes <= 10) return "medium";
+  return "long";
+}
+
 export type MockStory = {
   slug: string;
   title: string;
   language: "fr" | "en";
-  ageRange: "3-5" | "6-8" | "9-11";
+  ageRange: AgeRange;
   readingMinutes: number;
+  genre: Genre;
   theme: string; // slug key for i18n (theme.aventure, theme.amitie, …)
+  subTheme: string; // free slug, finer than theme (e.g. "peur-du-noir")
+  character: string; // main character slug — powers the character filter
+  tags: string[];
   excerpt: string;
   cover:
     | "cover-dusk"
@@ -25,6 +55,9 @@ export type MockStory = {
     | "cover-sea";
   rating: number;
   hasAudio: boolean;
+  /** null = audio generated at first listen (cost-saving), then cached here */
+  audioUrl: string | null;
+  interactive: boolean;
 };
 
 export const mockStories: MockStory[] = [
@@ -34,12 +67,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "3-5",
     readingMinutes: 6,
+    genre: "educative",
     theme: "emotions",
+    subTheme: "sommeil",
+    character: "renard",
+    tags: ["coucher", "lune", "rituel du soir"],
     excerpt:
       "Filo le petit renard trouve toujours une raison pour ne pas aller au lit. Jusqu'à la nuit où la lune lui confie un secret.",
     cover: "cover-night",
     rating: 4.8,
     hasAudio: true,
+    audioUrl: null,
+    interactive: false,
   },
   {
     slug: "lea-et-la-baleine-bleue",
@@ -47,12 +86,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "6-8",
     readingMinutes: 10,
+    genre: "aventure",
     theme: "aventure",
+    subTheme: "voyages-sous-la-mer",
+    character: "enfant-fille",
+    tags: ["mer", "baleine", "voilier"],
     excerpt:
       "Le jour où Léa tombe de son voilier, elle rencontre une baleine qui l'emmène bien plus loin qu'elle ne l'imaginait.",
     cover: "cover-sea",
     rating: 4.9,
     hasAudio: true,
+    audioUrl: null,
+    interactive: false,
   },
   {
     slug: "le-potager-magique-de-mamie-rose",
@@ -60,12 +105,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "3-5",
     readingMinutes: 7,
+    genre: "conte",
     theme: "nature",
+    subTheme: "jardin",
+    character: "grand-mere",
+    tags: ["potager", "graines", "famille"],
     excerpt:
       "Chez Mamie Rose, les tomates chantent et les carottes dansent. Aujourd'hui, une graine mystérieuse vient d'arriver.",
     cover: "cover-meadow",
     rating: 4.7,
     hasAudio: false,
+    audioUrl: null,
+    interactive: false,
   },
   {
     slug: "timothee-et-le-dragon-timide",
@@ -73,12 +124,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "6-8",
     readingMinutes: 12,
+    genre: "fantastique",
     theme: "amitie",
+    subTheme: "confiance-en-soi",
+    character: "dragon",
+    tags: ["dragon", "forêt", "timidité"],
     excerpt:
       "Dans la forêt d'Argoat vit un dragon qui n'ose pas faire peur à personne. Timothée va lui apprendre le courage.",
     cover: "cover-peach",
     rating: 4.6,
     hasAudio: true,
+    audioUrl: null,
+    interactive: false,
   },
   {
     slug: "la-course-des-etoiles-filantes",
@@ -86,12 +143,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "9-11",
     readingMinutes: 18,
+    genre: "science-fiction",
     theme: "aventure",
+    subTheme: "voyages-spatiaux",
+    character: "enfant-fille",
+    tags: ["étoiles", "course", "espace"],
     excerpt:
       "Chaque siècle, les étoiles organisent une course folle. Cette année, une enfant a été invitée à y participer.",
     cover: "cover-indigo",
     rating: 4.9,
     hasAudio: true,
+    audioUrl: null,
+    interactive: true,
   },
   {
     slug: "petit-ours-apprend-a-attendre",
@@ -99,12 +162,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "3-5",
     readingMinutes: 5,
+    genre: "educative",
     theme: "emotions",
+    subTheme: "patience",
+    character: "ours",
+    tags: ["patience", "printemps", "maman"],
     excerpt:
       "Petit ours voudrait que le printemps arrive plus vite. Heureusement, sa maman connaît un truc magique.",
     cover: "cover-mint",
     rating: 4.5,
     hasAudio: false,
+    audioUrl: null,
+    interactive: false,
   },
   {
     slug: "le-marchand-de-reves-du-souk",
@@ -112,12 +181,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "9-11",
     readingMinutes: 16,
+    genre: "conte",
     theme: "decouverte",
+    subTheme: "mille-et-une-nuits",
+    character: "marchand",
+    tags: ["Marrakech", "rêves", "souk"],
     excerpt:
       "Au cœur du vieux Marrakech, un homme vend des rêves en bocal. Mais que se passe-t-il quand un bocal se brise ?",
     cover: "cover-sand",
     rating: 4.8,
     hasAudio: true,
+    audioUrl: null,
+    interactive: false,
   },
   {
     slug: "les-jumeaux-et-la-comete",
@@ -125,12 +200,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "6-8",
     readingMinutes: 11,
+    genre: "science-fiction",
     theme: "aventure",
+    subTheme: "extraterrestres",
+    character: "enfant-garcon",
+    tags: ["comète", "jumeaux", "nuit"],
     excerpt:
       "Émile et Zoé voient chaque soir la même étoile filante. Et si cette étoile cherchait quelque chose ?",
     cover: "cover-dusk",
     rating: 4.7,
     hasAudio: true,
+    audioUrl: null,
+    interactive: false,
   },
   {
     slug: "la-bibliotheque-qui-marche-la-nuit",
@@ -138,12 +219,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "9-11",
     readingMinutes: 20,
+    genre: "mystere",
     theme: "fantastique",
+    subTheme: "petits-enqueteurs",
+    character: "enfant-fille",
+    tags: ["bibliothèque", "mystère", "nuit"],
     excerpt:
       "On raconte que certaines nuits, la bibliothèque municipale change de trottoir. Camille a décidé d'en avoir le cœur net.",
     cover: "cover-night",
     rating: 4.9,
     hasAudio: true,
+    audioUrl: null,
+    interactive: true,
   },
   {
     slug: "le-gateau-qui-ne-voulait-pas-cuire",
@@ -151,12 +238,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "3-5",
     readingMinutes: 5,
+    genre: "rigolote",
     theme: "humour",
+    subTheme: "inventions-farfelues",
+    character: "gateau",
+    tags: ["cuisine", "chocolat", "rire"],
     excerpt:
       "Ce matin, le gâteau au chocolat refuse d'entrer dans le four. Il a des choses à dire, lui aussi.",
     cover: "cover-peach",
     rating: 4.6,
     hasAudio: false,
+    audioUrl: null,
+    interactive: false,
   },
   {
     slug: "le-petit-phare-et-la-tempete",
@@ -164,12 +257,18 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "6-8",
     readingMinutes: 9,
+    genre: "aventure",
     theme: "courage",
+    subTheme: "mer",
+    character: "phare",
+    tags: ["Bretagne", "tempête", "courage"],
     excerpt:
       "Au bout de la Bretagne, un tout petit phare va devoir sauver un bateau malgré sa lumière vacillante.",
     cover: "cover-sea",
     rating: 4.8,
     hasAudio: true,
+    audioUrl: null,
+    interactive: false,
   },
   {
     slug: "la-reine-des-champignons",
@@ -177,17 +276,41 @@ export const mockStories: MockStory[] = [
     language: "fr",
     ageRange: "6-8",
     readingMinutes: 10,
+    genre: "fantastique",
     theme: "nature",
+    subTheme: "royaume-miniature",
+    character: "reine",
+    tags: ["forêt", "champignons", "royaume"],
     excerpt:
       "Sous la mousse du vieil hêtre règne une reine minuscule. Cette semaine, son royaume a été volé.",
     cover: "cover-meadow",
     rating: 4.5,
     hasAudio: false,
+    audioUrl: null,
+    interactive: false,
   },
 ];
 
+/** Distinct character slugs present in the library — powers the character filter. */
+export const CHARACTERS = [...new Set(mockStories.map((s) => s.character))];
+
 export function findStory(slug: string): MockStory | undefined {
   return mockStories.find((s) => s.slug === slug);
+}
+
+/**
+ * Naive client-side search across title/excerpt/tags/character.
+ * Phase 2 swaps this for a Postgres full-text (or pgvector) query.
+ */
+export function searchStories(query: string): MockStory[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+  return mockStories.filter((s) =>
+    [s.title, s.excerpt, s.character, s.subTheme, ...s.tags]
+      .join(" ")
+      .toLowerCase()
+      .includes(q)
+  );
 }
 
 /**

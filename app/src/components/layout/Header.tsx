@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
@@ -80,6 +81,7 @@ export function Header() {
 
         {/* Right side */}
         <div className="flex items-center gap-2 md:gap-3">
+          <ThemeToggle />
           <LanguageSwitcher />
           <div className="hidden sm:flex items-center gap-2">
             <Button asChild variant="ghost" size="sm">

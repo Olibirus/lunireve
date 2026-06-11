@@ -38,7 +38,9 @@
 - Resume reading (everyone), favorites, history, streak
 - Dark mode (color swap only)
 - Blog (AI-assisted + human review)
-- Admin: stories CRUD, moderation, users, blog, basic analytics
+- Admin: stories CRUD, moderation, users, blog
+- FULL analytics from day 1: users (total/active/new), paid vs free split (ready for V2), time on site, per-story metrics (opens, % read, completion rate, audio plays, favorites count + which stories, ratings, shares, reports), personalization metrics (created, most-used themes/characters), account conversion %, frequency of visits, child profiles count, newsletter signups — date ranges 7/15/30/60/90/180/360/All/custom, Excel + PDF export
+- Audio player V1 = SIMPLE (free): play/pause, prev/next chapter, restart, suggests next story at end; modal cannot be minimized; closing stops audio + scrolls text to audio position
 - Newsletter capture (Brevo) — capture only, no sequences
 - Report story/image
 - User story submission (moderation queue)
@@ -57,7 +59,7 @@
 - Newsletter sequences (3 types: stories / promos / news, separate opt-ins)
 - Gift cards + gift subscriptions (12-month validity, dedicated landing page)
 - Recurring printed series (auto-print monthly episode, validate-before-print email)
-- Advanced audio player (paid): speed, sleep timer, autoplay queue, ambient sounds, black screen, minimizable player
+- Advanced audio player (paid): minimizable (mini-player stays visible, limited controls), speed 0.8×/1×/1.2×, sleep timer, autoplay queue (up to 10, decrementing), ambient sleep sounds with fade, black-screen listening mode
 - Offline access, MP3 download (quota), epub
 
 ### V3+
@@ -174,7 +176,7 @@ Language switch inside dashboard: instant, no re-auth (next-intl locale switch p
 - French elision in name personalization ("de Tony" → "d'Alex") — solve with AI-side generation rules, not string replacement
 - Lawyer review: withdrawal policy HK↔FR (before payments)
 - VibeVoice French quality test (before committing audio stack)
-- Illustration style for site imagery: fox mascot scenes (placeholders with prompt briefs in code, user generates)
+- Site imagery: EMPTY placeholders only for now (FoxImagePlaceholder component with slot ID + prompt brief + aspect ratio) — Harry generates all fox-themed images later and they swap in one pass
 
 ---
 

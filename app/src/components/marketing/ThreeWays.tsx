@@ -71,7 +71,7 @@ export function ThreeWays() {
             c.tone === "cream"
               ? "bg-[var(--color-cream-100)] text-[var(--color-ink-800)] border-[var(--color-cream-200)]"
               : c.tone === "ink"
-              ? "bg-[var(--color-ink-800)] text-[var(--color-cream-50)] border-[var(--color-ink-800)]"
+              ? "band-ink text-[var(--color-cream-50)] border-transparent"
               : "bg-[var(--color-mint-200)] text-[var(--color-ink-800)] border-[var(--color-mint-300)]";
           const mutedStyles =
             c.tone === "ink"

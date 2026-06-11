@@ -13,7 +13,7 @@ export function NewsletterBand() {
   return (
     <section className="relative">
       <div className="mx-auto max-w-7xl px-5 md:px-8 py-16 md:py-20">
-        <div className="relative overflow-hidden rounded-[2rem] bg-[var(--color-ink-800)] text-[var(--color-cream-50)] px-6 md:px-16 py-14 md:py-20">
+        <div className="relative overflow-hidden rounded-[2rem] band-ink text-[var(--color-cream-50)] px-6 md:px-16 py-14 md:py-20">
           {/* Decorative sparkle cluster */}
           <svg
             aria-hidden

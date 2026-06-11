@@ -103,6 +103,61 @@
 
   html {
     color-scheme: light;
+    --color-page: #fcfaf6;
+  }
+
+  /*
+   * Dark mode — "night sky" color swap. Same component code, repinned tokens:
+   * cream (paper) becomes deep night navy, ink (text) inverts to light.
+   * Mint/indigo/fox accents survive both themes. Toggled via .dark on <html>,
+   * persisted in localStorage ("lunireve-theme"), FOUC-guarded in layout.
+   */
+  html.dark {
+    color-scheme: dark;
+    --color-page: #131b3a;
+
+    --color-cream-50: #131b3a;
+    --color-cream-100: #182144;
+    --color-cream-200: #212c55;
+    --color-cream-300: #2c3963;
+    --color-cream-400: #3b4974;
+
+    --color-ink-50: #1b2448;
+    --color-ink-100: #29335f;
+    --color-ink-200: #38436f;
+    --color-ink-300: #5d6890;
+    --color-ink-400: #8a95b9;
+    --color-ink-500: #a9b2d0;
+    --color-ink-600: #c4cbe3;
+    --color-ink-700: #d9def0;
+    --color-ink-800: #eaedf9;
+    --color-ink-900: #f4f6fc;
+    --color-ink-950: #ffffff;
+
+    /* Light mint surfaces become deep mint; accent steps stay vivid */
+    --color-mint-50: #16291f;
+    --color-mint-100: #1c3a2e;
+    --color-mint-200: #24493a;
+    --color-mint-300: #2e5a47;
+
+    /* Indigo text steps brightened for contrast on navy */
+    --color-indigo-soft-600: #9aa3cf;
+    --color-indigo-soft-700: #b3bade;
+
+    --shadow-whisper: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.35), 0 6px 20px -8px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 4px 14px -4px rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.5);
+    --shadow-float: 0 12px 28px -8px rgba(0, 0, 0, 0.5), 0 30px 60px -20px rgba(0, 0, 0, 0.45);
+  }
+
+  html.dark body::before {
+    opacity: 0.12;
+    mix-blend-mode: screen;
+  }
+
+  html.dark ::selection {
+    background: var(--color-mint-700);
+    color: #ffffff;
   }
 
   html,
@@ -179,6 +234,34 @@
   }
   .surface-ink {
     background: var(--color-ink-800);
+    color: var(--color-cream-50);
+  }
+
+  /*
+   * Ink band — dark navy section (footer, newsletter, CTA bands, ink cards).
+   * Stays dark in BOTH themes. Locally re-pins the palette vars its children
+   * reference, so band content keeps its designed on-dark colors even when
+   * the global dark theme inverts the scales.
+   */
+  .band-ink {
+    background: #1f2d52;
+    --color-cream-50: #fcfaf6;
+    --color-cream-100: #faf5eb;
+    --color-cream-200: #f3ecd9;
+    --color-ink-600: #293457;
+    --color-ink-700: #242f4f;
+    --color-ink-800: #1f2d52;
+    --color-indigo-soft-100: #dee1ee;
+    --color-indigo-soft-200: #c6cbe1;
+    --color-indigo-soft-300: #aab1d4;
+    --color-indigo-soft-600: #6670a4;
+    --color-mint-400: #b7dfcc;
+    --color-mint-500: #9dd1b6;
+  }
+  html.dark .band-ink {
+    background: #10193b;
+  }
+  .band-ink :is(h1, h2, h3) {
     color: var(--color-cream-50);
   }
 

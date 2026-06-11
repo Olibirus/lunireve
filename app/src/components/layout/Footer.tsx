@@ -13,11 +13,12 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-24 bg-[var(--color-ink-800)] text-[var(--color-cream-100)]">
-      {/* Deckle edge on top — deckled paper vibe */}
+    <footer className="relative mt-24 band-ink text-[var(--color-cream-100)]">
+      {/* Deckle edge on top — deckled paper vibe. Uses --color-page so it
+          matches the page background in both light and dark themes. */}
       <div
         aria-hidden="true"
-        className="absolute -top-px left-0 right-0 h-8 bg-[var(--color-cream-50)] deckle-top"
+        className="absolute -top-px left-0 right-0 h-8 bg-[var(--color-page)] deckle-top"
       />
 
       <div className="mx-auto max-w-7xl px-5 md:px-8 pt-20 pb-10">

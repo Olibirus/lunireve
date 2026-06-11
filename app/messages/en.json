@@ -206,5 +206,9 @@
     "fr": "Français",
     "en": "English",
     "switchLabel": "Switch language"
+  },
+  "theme": {
+    "toDark": "Switch to night mode",
+    "toLight": "Switch to day mode"
   }
 }

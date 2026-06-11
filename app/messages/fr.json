@@ -206,5 +206,9 @@
     "fr": "Français",
     "en": "English",
     "switchLabel": "Changer de langue"
+  },
+  "theme": {
+    "toDark": "Passer en mode nuit",
+    "toLight": "Passer en mode jour"
   }
 }

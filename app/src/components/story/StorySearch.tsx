@@ -20,6 +20,16 @@ export function StorySearch({ className }: { className?: string }) {
 
   const results = query.trim().length >= 2 ? searchStories(query).slice(0, 6) : [];
 
+  // Initialize from ?q= (tag links route here) — read via window to avoid
+  // a Suspense boundary requirement from useSearchParams.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (q) {
+      setQuery(q);
+      setOpen(true);
+    }
+  }, []);
+
   // Close on outside click / Escape
   useEffect(() => {
     function onPointerDown(e: PointerEvent) {
@@ -96,8 +106,7 @@ function SearchResult({
   story: MockStory;
   onSelect: () => void;
 }) {
-  const ageLabel =
-    story.ageRange === "3-5" ? "3–5" : story.ageRange === "6-8" ? "6–8" : "9–11";
+  const age = story.ageRange.replace("-", "–");
   return (
     <li role="option" aria-selected={false}>
       <Link
@@ -114,7 +123,7 @@ function SearchResult({
             {story.title}
           </span>
           <span className="block truncate text-xs text-[var(--color-ink-500)]">
-            {ageLabel} ans · {story.readingMinutes} min — {story.excerpt}
+            {age} ans · {story.readingMinutes} min · {story.excerpt}
           </span>
         </span>
       </Link>

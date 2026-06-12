@@ -16,13 +16,8 @@ export type AdminUser = {
   status: "active" | "disabled";
 };
 
-export const mockUsers: AdminUser[] = [
-  { id: "u1", name: "Camille Lefèvre", email: "camille.l@example.fr", plan: "free", children: 1, customStories: 3, signedUpAt: "2026-05-02", status: "active" },
-  { id: "u2", name: "Thomas Garnier", email: "t.garnier@example.fr", plan: "free", children: 1, customStories: 1, signedUpAt: "2026-05-11", status: "active" },
-  { id: "u3", name: "Aïcha Benali", email: "aicha.b@example.fr", plan: "free", children: 1, customStories: 2, signedUpAt: "2026-05-19", status: "active" },
-  { id: "u4", name: "Marie Dupont", email: "marie.dpt@example.fr", plan: "free", children: 0, customStories: 0, signedUpAt: "2026-06-01", status: "active" },
-  { id: "u5", name: "Spam Bot", email: "xx7@tempmail.xx", plan: "free", children: 0, customStories: 0, signedUpAt: "2026-06-08", status: "disabled" },
-];
+/** Real users only (decision #22) — empty until Supabase Auth signups land. */
+export const mockUsers: AdminUser[] = [];
 
 export type Submission = {
   id: string;
@@ -35,8 +30,8 @@ export type Submission = {
 };
 
 export const mockSubmissions: Submission[] = [
-  { id: "s1", title: "Le hérisson qui voulait voler", author: "Camille Lefèvre", ageRange: "3-5", theme: "courage", submittedAt: "2026-06-05", status: "pending" },
-  { id: "s2", title: "Une sorcière à l'école", author: "Aïcha Benali", ageRange: "6-8", theme: "humour", submittedAt: "2026-06-07", status: "pending" },
+  { id: "s1", title: "Le hérisson qui voulait voler", author: "Camille Lefèvre", ageRange: "3-4", theme: "courage", submittedAt: "2026-06-05", status: "pending" },
+  { id: "s2", title: "Une sorcière à l'école", author: "Aïcha Benali", ageRange: "7-8", theme: "humour", submittedAt: "2026-06-07", status: "pending" },
 ];
 
 export type Report = {
@@ -85,33 +80,38 @@ export type StoryAnalytics = {
   reports: number;
 };
 
-/** Deterministic per-story analytics (mock). */
-export const storyAnalytics: StoryAnalytics[] = mockStories.map((s, i) => ({
+/**
+ * Per-story analytics — REAL data only (user decision #22). Everything is
+ * zero until actual events are recorded; Phase 2 replaces this with SQL
+ * aggregates over the events table.
+ */
+export const storyAnalytics: StoryAnalytics[] = mockStories.map((s) => ({
   slug: s.slug,
   title: s.title,
-  opens: 1480 - i * 97,
-  readPct: 84 - (i % 5) * 6,
-  completionRate: 71 - (i % 7) * 4,
-  audioPlays: s.hasAudio ? 620 - i * 41 : 0,
-  favorites: 230 - i * 14,
+  opens: 0,
+  readPct: 0,
+  completionRate: 0,
+  audioPlays: 0,
+  favorites: 0,
   avgRating: s.rating,
-  shares: 88 - i * 5,
-  reports: i % 4 === 0 ? 1 : 0,
+  shares: 0,
+  reports: 0,
 }));
 
+/** Real values only. Pre-launch: zeros everywhere except published stories. */
 export const globalKpis = {
-  totalUsers: 412,
-  activeUsers30d: 268,
-  newUsers7d: 36,
+  totalUsers: 0,
+  activeUsers30d: 0,
+  newUsers7d: 0,
   paidUsers: 0,
-  childProfiles: 351,
-  avgSessionMin: 11.4,
-  accountConversionPct: 7.8,
-  newsletterSignups: 189,
+  childProfiles: 0,
+  avgSessionMin: 0,
+  accountConversionPct: 0,
+  newsletterSignups: 0,
   storiesPublished: mockStories.length,
-  customStoriesCreated: 57,
-  topPersonalizationTheme: "aventure",
-  topPersonalizationCharacter: "enfant-fille",
+  customStoriesCreated: 0,
+  topPersonalizationTheme: "-",
+  topPersonalizationCharacter: "-",
   pendingSubmissions: mockSubmissions.filter((s) => s.status === "pending").length,
   openReports: mockReports.filter((r) => r.status === "open").length,
 };

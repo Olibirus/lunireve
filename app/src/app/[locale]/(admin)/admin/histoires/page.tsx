@@ -3,9 +3,9 @@ import { StatusPill } from "@/components/admin/AdminShell";
 import { Headphones, Pencil, Plus, Star, Trash2 } from "lucide-react";
 
 /**
- * Stories CRUD — read-only table on mock data; create/edit/delete actions
+ * Stories CRUD, read-only table on mock data; create/edit/delete actions
  * are wired to the DB in the n8n/Supabase batch. Bank stories auto-publish
- * (brief decision #37) — admin can unpublish from here.
+ * (brief decision #37), admin can unpublish from here.
  */
 export default function AdminStoriesPage() {
   return (
@@ -60,7 +60,7 @@ export default function AdminStoriesPage() {
                   {s.hasAudio ? (
                     <Headphones className="h-4 w-4 text-[var(--color-mint-700)]" />
                   ) : (
-                    <span className="text-xs text-[var(--color-ink-300)]">—</span>
+                    <span className="text-xs text-[var(--color-ink-300)]">·</span>
                   )}
                 </td>
                 <td className="px-4 py-3">

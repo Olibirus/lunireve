@@ -24,6 +24,13 @@ export default function AdminUsersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-ink-100)]/60">
+            {mockUsers.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center text-sm text-[var(--color-ink-400)]">
+                  Aucun compte pour l'instant. Les inscriptions apparaîtront ici.
+                </td>
+              </tr>
+            )}
             {mockUsers.map((u) => (
               <tr key={u.id} className="hover:bg-[var(--color-cream-100)]/60">
                 <td className="px-4 py-3 font-medium">{u.name}</td>

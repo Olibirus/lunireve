@@ -1,7 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Headphones, Star } from "lucide-react";
-import type { MockStory } from "@/data/mock-stories";
+import { ageLabel, type MockStory } from "@/data/mock-stories";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -13,8 +13,7 @@ import { cn } from "@/lib/utils/cn";
  * Real covers (once n8n generates them) swap into <img /> at the same aspect.
  */
 export function StoryCard({ story, size = "md" }: { story: MockStory; size?: "sm" | "md" | "lg" }) {
-  const ageLabel =
-    story.ageRange === "3-5" ? "3–5 ans" : story.ageRange === "6-8" ? "6–8 ans" : "9–11 ans";
+  const age = ageLabel(story.ageRange);
 
   return (
     <Link
@@ -36,7 +35,7 @@ export function StoryCard({ story, size = "md" }: { story: MockStory; size?: "sm
         <div className="absolute inset-0 p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <Badge variant="ink" className="bg-black/25 text-white border-0 backdrop-blur-sm">
-              {ageLabel}
+              {age}
             </Badge>
             {story.hasAudio && (
               <span className="rounded-full bg-white/20 backdrop-blur-sm p-1.5 text-white/95">
@@ -72,8 +71,17 @@ export function StoryCard({ story, size = "md" }: { story: MockStory; size?: "sm
             {story.readingMinutes} min
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Star className="h-3.5 w-3.5 fill-[var(--color-fox-500)] text-[var(--color-fox-500)]" />
-            {story.rating.toFixed(1)}
+            <Star
+              className={cn(
+                "h-3.5 w-3.5",
+                story.ratingCount > 0
+                  ? "fill-[var(--color-fox-500)] text-[var(--color-fox-500)]"
+                  : "text-[var(--color-ink-300)]"
+              )}
+            />
+            {story.ratingCount > 0
+              ? `${story.rating.toFixed(1)} (${story.ratingCount})`
+              : "0 note"}
           </span>
         </div>
       </div>

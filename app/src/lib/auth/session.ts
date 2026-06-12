@@ -41,9 +41,18 @@ export async function setSession(session: Session) {
     path: "/",
     maxAge: 60 * 60 * 24 * 30,
   });
+  // Non-httpOnly companion: lets client components gate UI (ratings, likes)
+  // without an API roundtrip. Carries the role only — no secrets.
+  store.set("lunireve_role", session.role, {
+    httpOnly: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+  });
 }
 
 export async function clearSession() {
   const store = await cookies();
   store.delete(COOKIE);
+  store.delete("lunireve_role");
 }

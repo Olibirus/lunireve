@@ -8,7 +8,7 @@ import {
   clearActiveProfile,
   type ChildProfile,
 } from "@/lib/profiles";
-import { mockStories, type MockStory } from "@/data/mock-stories";
+import { mockStories, ageToRange, type MockStory } from "@/data/mock-stories";
 import { readCustomStories, type CustomStory } from "@/lib/customStories";
 import { StoryCard } from "@/components/story/StoryCard";
 import { FoxMark } from "@/components/brand/FoxCloud";
@@ -62,7 +62,7 @@ export default function ChildBubblePage() {
 
   if (!profile) return null;
 
-  const ageRange = profile.age <= 5 ? "3-5" : profile.age <= 8 ? "6-8" : "9-11";
+  const ageRange = ageToRange(profile.age);
   const forYou = mockStories
     .filter((s) => s.ageRange === ageRange)
     .sort((a, b) => {

@@ -22,7 +22,7 @@ export default async function LibraryPage({
     <>
       {/* Page header */}
       <section className="relative">
-        <div className="mx-auto max-w-7xl px-5 md:px-8 pt-12 md:pt-20 pb-10">
+        <div className="mx-auto max-w-[96rem] px-5 md:px-8 pt-12 md:pt-20 pb-10">
           <div className="max-w-3xl">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-indigo-soft-600)] sparkle">
               {t("kicker")}
@@ -80,11 +80,11 @@ export default async function LibraryPage({
             </div>
           </div>
         </div>
-        <div className="dot-rule mx-auto max-w-7xl" aria-hidden />
+        <div className="dot-rule mx-auto max-w-[96rem]" aria-hidden />
       </section>
 
       {/* Content */}
-      <section className="mx-auto max-w-7xl px-5 md:px-8 py-10 md:py-16">
+      <section className="mx-auto max-w-[96rem] px-5 md:px-8 py-10 md:py-16">
         <div className="grid lg:grid-cols-[240px_1fr] gap-12 lg:gap-16">
           <StoryFilters />
 
@@ -108,7 +108,7 @@ export default async function LibraryPage({
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-7">
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5 md:gap-7">
               {mockStories.map((s) => (
                 <StoryCard key={s.slug} story={s} />
               ))}

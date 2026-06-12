@@ -11,7 +11,7 @@
 
 export type Language = "fr" | "en";
 
-export type AgeRange = "3-5" | "6-8" | "9-11";
+export type AgeRange = "1-2" | "3-4" | "5-6" | "7-8" | "9-10" | "11-12";
 
 export interface StoryGenerationInput {
   language: Language;

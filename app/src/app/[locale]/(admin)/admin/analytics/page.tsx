@@ -24,7 +24,7 @@ export default function AdminAnalyticsPage() {
         <div>
           <h1 className="font-serif text-3xl tracking-tight">Analytics</h1>
           <p className="mt-1 text-sm text-[var(--color-ink-500)]">
-            Données de démonstration — branchement Umami + SQL au lot n8n.
+            Données de démonstration, branchement Umami + SQL au lot n8n.
           </p>
         </div>
         <div className="flex gap-2">
@@ -63,7 +63,7 @@ export default function AdminAnalyticsPage() {
           </button>
         ))}
         <span className="rounded-full border border-dashed border-[var(--color-ink-200)] px-3 py-1 text-xs text-[var(--color-ink-400)]">
-          Personnalisé — bientôt
+          Personnalisé, bientôt
         </span>
       </div>
 
@@ -125,7 +125,7 @@ export default function AdminAnalyticsPage() {
                     {s.completionRate}%
                   </span>
                 </td>
-                <td className="px-4 py-3">{s.audioPlays ? n(s.audioPlays) : "—"}</td>
+                <td className="px-4 py-3">{s.audioPlays ? n(s.audioPlays) : "·"}</td>
                 <td className="px-4 py-3">{n(s.favorites)}</td>
                 <td className="px-4 py-3">{s.avgRating.toFixed(1)}</td>
                 <td className="px-4 py-3">{n(s.shares)}</td>
@@ -133,7 +133,7 @@ export default function AdminAnalyticsPage() {
                   {s.reports > 0 ? (
                     <span className="text-red-600">{s.reports}</span>
                   ) : (
-                    "—"
+                    "·"
                   )}
                 </td>
               </tr>

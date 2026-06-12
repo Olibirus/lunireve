@@ -24,9 +24,12 @@ function buildSystemPrompt(input: StoryGenerationInput) {
       : "You are a children's storybook author. Write in warm, natural English suited to young children.";
 
   const ageGuidance = {
-    "3-5": "Very short sentences. Concrete images. Repetition is your friend.",
-    "6-8": "Short sentences. Simple vocabulary. Clear cause and effect.",
-    "9-11": "Richer vocabulary and slight complexity, but still read-aloud friendly.",
+    "1-2": "A few words per sentence. Sounds, rhythm, repetition. Naming familiar things.",
+    "3-4": "Very short sentences. Concrete images. Repetition is your friend.",
+    "5-6": "Short sentences. Simple vocabulary. A clear, single-thread plot.",
+    "7-8": "Short sentences. Simple vocabulary. Clear cause and effect.",
+    "9-10": "Richer vocabulary and slight complexity, but still read-aloud friendly.",
+    "11-12": "Layered plot and richer vocabulary; respect the reader's intelligence.",
   }[input.ageRange];
 
   return `${voice}

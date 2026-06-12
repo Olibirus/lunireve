@@ -5,20 +5,20 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { AGE_RANGES, ageLabel } from "@/data/mock-stories";
 
 /**
- * Library filters sidebar. Phase 1 uses it as a visual affordance only —
- * state is local, no query-string plumbing yet. Phase 2 will hoist state
- * up via `useSearchParams` and reshape the URL for shareable filter views.
+ * Library filters. Phase 1 uses it as a visual affordance only — state is
+ * local, no query-string plumbing yet (the funnel pages handle real filtered
+ * navigation).
+ *
+ * Responsive: vertical sidebar on lg+, compact horizontal scroll rows on
+ * mobile so the filters don't push the grid below the fold.
  */
 export function StoryFilters() {
   const t = useTranslations("library.filters");
 
-  const ages = [
-    { id: "3-5", label: t("age3to5") },
-    { id: "6-8", label: t("age6to8") },
-    { id: "9-11", label: t("age9to11") },
-  ];
+  const ages = AGE_RANGES.map((r) => ({ id: r, label: ageLabel(r) }));
   const themes = [
     { id: "aventure", label: t("themeAdventure") },
     { id: "amitie", label: t("themeFriendship") },
@@ -36,7 +36,7 @@ export function StoryFilters() {
   ];
 
   return (
-    <aside className="space-y-8 lg:sticky lg:top-24">
+    <aside className="space-y-5 lg:space-y-8 lg:sticky lg:top-24">
       {/* Search */}
       <div>
         <Label htmlFor="library-search" className="text-xs uppercase tracking-widest text-[var(--color-ink-500)]">
@@ -53,17 +53,17 @@ export function StoryFilters() {
       <FilterGroup title={t("lengthTitle")} items={lengths} />
 
       <div>
-        <h3 className="text-xs uppercase tracking-widest text-[var(--color-ink-500)] mb-3">
+        <h3 className="text-xs uppercase tracking-widest text-[var(--color-ink-500)] mb-2 lg:mb-3">
           {t("extras")}
         </h3>
-        <ul className="space-y-2.5 text-sm text-[var(--color-ink-700)]">
-          <li className="flex items-center gap-3">
+        <ul className="flex gap-4 overflow-x-auto pb-1 lg:block lg:space-y-2.5 lg:pb-0 text-sm text-[var(--color-ink-700)]">
+          <li className="flex shrink-0 items-center gap-2.5 lg:gap-3">
             <Checkbox id="f-audio" />
-            <Label htmlFor="f-audio" className="cursor-pointer font-normal">{t("withAudio")}</Label>
+            <Label htmlFor="f-audio" className="cursor-pointer font-normal whitespace-nowrap">{t("withAudio")}</Label>
           </li>
-          <li className="flex items-center gap-3">
+          <li className="flex shrink-0 items-center gap-2.5 lg:gap-3">
             <Checkbox id="f-new" />
-            <Label htmlFor="f-new" className="cursor-pointer font-normal">{t("newThisWeek")}</Label>
+            <Label htmlFor="f-new" className="cursor-pointer font-normal whitespace-nowrap">{t("newThisWeek")}</Label>
           </li>
         </ul>
       </div>
@@ -80,12 +80,13 @@ function FilterGroup({
 }) {
   return (
     <div>
-      <h3 className="text-xs uppercase tracking-widest text-[var(--color-ink-500)] mb-3">{title}</h3>
-      <ul className="space-y-2.5 text-sm text-[var(--color-ink-700)]">
+      <h3 className="text-xs uppercase tracking-widest text-[var(--color-ink-500)] mb-2 lg:mb-3">{title}</h3>
+      {/* Mobile: horizontal scroll row · Desktop: vertical checkbox list */}
+      <ul className="flex gap-4 overflow-x-auto pb-1 lg:block lg:space-y-2.5 lg:pb-0 text-sm text-[var(--color-ink-700)]">
         {items.map((item) => (
-          <li key={item.id} className="flex items-center gap-3">
+          <li key={item.id} className="flex shrink-0 items-center gap-2.5 lg:gap-3">
             <Checkbox id={`f-${item.id}`} />
-            <Label htmlFor={`f-${item.id}`} className="cursor-pointer font-normal">
+            <Label htmlFor={`f-${item.id}`} className="cursor-pointer font-normal whitespace-nowrap">
               {item.label}
             </Label>
           </li>

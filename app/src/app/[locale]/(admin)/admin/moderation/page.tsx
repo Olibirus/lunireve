@@ -11,7 +11,7 @@ import {
 import { Check, X } from "lucide-react";
 
 /**
- * Moderation — two queues: user-submitted stories (approve/reject) and
+ * Moderation, two queues: user-submitted stories (approve/reject) and
  * story/image reports (open → reviewing → resolved). State is local until
  * the DB lands; the actions mirror the future API exactly.
  */
@@ -98,7 +98,7 @@ export default function AdminModerationPage() {
                 <span className="block truncate font-medium">{r.storyTitle}</span>
                 <span className="block truncate text-xs text-[var(--color-ink-400)]">
                   {r.reason}
-                  {r.comment && ` — « ${r.comment} »`} · {r.reportedBy} · {r.reportedAt}
+                  {r.comment && `, « ${r.comment} »`} · {r.reportedBy} · {r.reportedAt}
                 </span>
               </span>
               <select

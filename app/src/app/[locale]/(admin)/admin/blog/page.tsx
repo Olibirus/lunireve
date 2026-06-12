@@ -2,7 +2,7 @@ import { mockBlogPosts } from "@/data/mock-admin";
 import { StatusPill } from "@/components/admin/AdminShell";
 import { Pencil, Plus } from "lucide-react";
 
-/** Blog CRUD — table on mock posts; editor lands with the blog batch. */
+/** Blog CRUD, table on mock posts; editor lands with the blog batch. */
 export default function AdminBlogPage() {
   return (
     <>
@@ -45,7 +45,7 @@ export default function AdminBlogPage() {
                     {p.status === "published" ? "Publié" : "Brouillon"}
                   </StatusPill>
                 </td>
-                <td className="px-4 py-3 text-[var(--color-ink-500)]">{p.publishedAt ?? "—"}</td>
+                <td className="px-4 py-3 text-[var(--color-ink-500)]">{p.publishedAt ?? "·"}</td>
                 <td className="px-4 py-3">{p.views.toLocaleString("fr-FR")}</td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end">

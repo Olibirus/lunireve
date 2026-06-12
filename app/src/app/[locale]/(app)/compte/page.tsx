@@ -185,10 +185,6 @@ export default function AccountPage() {
           <h2 className="font-serif text-2xl tracking-tight sparkle">{t("settings")}</h2>
           <div className="mt-5 max-w-xl divide-y divide-[var(--color-ink-100)] rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)]">
             <div className="flex items-center justify-between px-5 py-4">
-              <span className="text-sm">{t("interfaceLanguage")}</span>
-              <LanguageSwitcher />
-            </div>
-            <div className="flex items-center justify-between px-5 py-4">
               <span className="text-sm">{t("darkMode")}</span>
               <ThemeToggle />
             </div>

@@ -8,6 +8,7 @@ import {
   AGE_RANGES,
   DURATION_BUCKETS,
   CHARACTERS,
+  ageLabel,
 } from "@/data/mock-stories";
 import { cn } from "@/lib/utils/cn";
 
@@ -54,10 +55,7 @@ export async function StoryFunnel({
     rails.push({
       key: "age",
       label: t("funnel.refineAge"),
-      options: AGE_RANGES.map((a) => ({
-        value: a,
-        label: t(`library.filters.age${a === "3-5" ? "3to5" : a === "6-8" ? "6to8" : "9to11"}`),
-      })),
+      options: AGE_RANGES.map((a) => ({ value: a, label: ageLabel(a) })),
     });
   if (!fixed.genre)
     rails.push({

@@ -1,6 +1,7 @@
 import {
   mockStories,
   durationBucket,
+  AGE_RANGES,
   type MockStory,
   type Genre,
   type AgeRange,
@@ -44,7 +45,7 @@ export function filtersFromSearchParams(
     Array.isArray(v) ? v[0] : v;
   const f: StoryFilters = {};
   const age = one(sp.age);
-  if (age === "3-5" || age === "6-8" || age === "9-11") f.age = age;
+  if (age && (AGE_RANGES as readonly string[]).includes(age)) f.age = age as AgeRange;
   const genre = one(sp.genre);
   if (genre) f.genre = genre as Genre;
   const theme = one(sp.theme);

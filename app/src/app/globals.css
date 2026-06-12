@@ -340,9 +340,70 @@
   }
 }
 
-/* ---------- OpenDyslexic (optional) — load only when needed in Phase 2 ---------- */
-/* @font-face {
+/* ---------- OpenDyslexic — powers the dyslexia reading mode ---------- */
+@font-face {
   font-family: "OpenDyslexic";
-  src: url("/fonts/OpenDyslexic-Regular.woff2") format("woff2");
+  src: url("/fonts/OpenDyslexic-Regular.woff") format("woff");
   font-display: swap;
-} */
+}
+
+/* ---------- Reading comfort (story page) ---------- */
+@layer utilities {
+  /* Text size steps — applied on #story-body by ReadingSettings */
+  .reading-size-s { font-size: 1rem; }
+  .reading-size-m { font-size: 1.1875rem; }
+  .reading-size-l { font-size: 1.4rem; }
+
+  /* Dyslexia mode — swaps the reading font, loosens spacing */
+  .reading-dyslexia,
+  .reading-dyslexia p {
+    font-family: "OpenDyslexic", var(--font-sans) !important;
+    letter-spacing: 0.025em;
+    word-spacing: 0.14em;
+    line-height: 1.9;
+  }
+  .reading-dyslexia p:first-letter {
+    font-family: "OpenDyslexic", var(--font-sans);
+    font-size: 1.2em;
+    float: none;
+    margin: 0;
+  }
+
+  /* Inline glossary terms — dotted underline, tooltip on hover/focus */
+  .glossary-term {
+    position: relative;
+    border-bottom: 2px dotted var(--color-indigo-soft-500);
+    cursor: help;
+  }
+  .glossary-term:hover::after,
+  .glossary-term:focus::after {
+    content: attr(data-definition);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%);
+    z-index: 30;
+    width: max-content;
+    max-width: 280px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: var(--color-ink-800);
+    color: var(--color-cream-50);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: 0;
+    box-shadow: var(--shadow-float);
+  }
+  html.dark .glossary-term:hover::after,
+  html.dark .glossary-term:focus::after {
+    background: #10193b;
+    border: 1px solid var(--color-ink-100);
+  }
+}
+
+/* Audio player modal overlay — much darker in night mode (bedtime use) */
+html.dark [data-dialog-overlay] {
+  background: rgba(2, 5, 16, 0.82) !important;
+}

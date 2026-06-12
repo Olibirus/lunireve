@@ -341,7 +341,7 @@ export default function CreateStoryPage() {
             <div>
               <Label>{t("heroAge")}</Label>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {Array.from({ length: 9 }, (_, i) => i + 3).map((a) => (
+                {Array.from({ length: 16 }, (_, i) => i + 1).map((a) => (
                   <button
                     key={a}
                     type="button"

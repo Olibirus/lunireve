@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Personalized stories — Phase 1 store (localStorage) + quota.
+ * Personalized stories, Phase 1 store (localStorage) + quota.
  * Phase 2: rows in `stories` (kind=personalized) + server-enforced quota.
  */
 
@@ -66,7 +66,7 @@ function bumpQuota() {
 }
 
 /**
- * Stubbed "generation" — produces a warm template story from the params.
+ * Stubbed "generation", produces a warm template story from the params.
  * Batch 9 replaces this with the real n8n/Claude pipeline call; the
  * function signature (params in, CustomStory out) is the API contract.
  */
@@ -85,11 +85,11 @@ export function generateStub(
     params,
     createdAt: new Date().toISOString(),
     body: [
-      `Ce soir-là, ${heroName} n'arrivait pas à dormir. Par la fenêtre, les étoiles semblaient plus proches que d'habitude — comme si elles attendaient quelque chose. Ou quelqu'un.`,
+      `Ce soir-là, ${heroName} n'arrivait pas à dormir. Par la fenêtre, les étoiles semblaient plus proches que d'habitude, comme si elles attendaient quelque chose. Ou quelqu'un.`,
       `${heroName} enfila ses chaussons et, sans faire craquer le parquet, se glissa jusqu'à ${where}. ${trait ? `Il faut dire que ${heroName} avait un secret : ${trait.toLowerCase()}.` : `L'air sentait la menthe et les histoires qu'on n'a pas encore racontées.`}`,
       `C'est là qu'apparut ${ami}. « Je t'attendais », dit une petite voix. « Cette nuit, les étoiles ont perdu leur chemin. Toi seul peux les aider à rentrer chez elles. »`,
       fear
-        ? `${heroName} sentit son cœur se serrer — ${fear.toLowerCase()}, c'était justement ce qui lui faisait le plus peur. Mais une étoile perdue, ça ne se laisse pas tomber. ${heroName} respira un grand coup et fit le premier pas.`
+        ? `${heroName} sentit son cœur se serrer, ${fear.toLowerCase()}, c'était justement ce qui lui faisait le plus peur. Mais une étoile perdue, ça ne se laisse pas tomber. ${heroName} respira un grand coup et fit le premier pas.`
         : `${heroName} n'hésita pas une seconde. Une étoile perdue, ça ne se laisse pas tomber.`,
       `Ce qui se passa ensuite, peu de gens le savent. On raconte que cette nuit-là, quelqu'un a recousu le ciel avec du fil d'argent. On raconte aussi que les étoiles, pour dire merci, ont appris à ${heroName} le chemin des plus beaux rêves.`,
       `Et si tu regardes bien le ciel ce soir, tu verras peut-être une étoile briller un peu plus fort que les autres. C'est elle qui veille sur ${heroName}. Bonne nuit.`,

@@ -83,7 +83,7 @@ export function StoryQuiz({ questions }: { questions: QuizQuestion[] }) {
                       <X className="h-4 w-4 mt-0.5 shrink-0" />
                     )}
                     {t("quizYouAnswered", {
-                      answer: mine !== null ? q.choices[mine] : "—",
+                      answer: mine !== null ? q.choices[mine] : "·",
                     })}
                   </p>
                   {!right && (

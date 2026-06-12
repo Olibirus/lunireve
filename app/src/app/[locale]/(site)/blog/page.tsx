@@ -21,7 +21,7 @@ export default async function BlogIndexPage({
   return (
     <>
       <section className="relative">
-        <div className="mx-auto max-w-7xl px-5 md:px-8 pt-12 md:pt-20 pb-10">
+        <div className="mx-auto max-w-[88rem] px-5 md:px-8 pt-12 md:pt-20 pb-10">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-indigo-soft-600)] sparkle">
             {t("kicker")}
           </p>
@@ -37,10 +37,10 @@ export default async function BlogIndexPage({
             {t("subtitle")}
           </p>
         </div>
-        <div className="dot-rule mx-auto max-w-7xl" aria-hidden />
+        <div className="dot-rule mx-auto max-w-[88rem]" aria-hidden />
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 md:px-8 py-12 md:py-16">
+      <section className="mx-auto max-w-[88rem] px-5 md:px-8 py-12 md:py-16">
         {/* Featured article */}
         <Link
           href={{ pathname: "/blog/[slug]", params: { slug: featured.slug } }}

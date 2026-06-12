@@ -19,6 +19,7 @@ export function ReadingProgress({ slug }: { slug: string }) {
   const t = useTranslations("story");
   const key = `lunireve:progress:${slug}`;
   const [resumeAt, setResumeAt] = useState<number | null>(null);
+  const [live, setLive] = useState(0);
 
   // Restore: offer resume if meaningful progress was saved.
   useEffect(() => {
@@ -40,6 +41,7 @@ export function ReadingProgress({ slug }: { slug: string }) {
         const total = rect.height - window.innerHeight;
         if (total <= 0) return;
         const progress = Math.min(100, Math.max(0, (-rect.top / total) * 100));
+        setLive(progress);
         if (progress > 0) {
           try {
             localStorage.setItem(key, String(Math.round(progress)));
@@ -64,9 +66,20 @@ export function ReadingProgress({ slug }: { slug: string }) {
     setResumeAt(null);
   }
 
-  if (resumeAt === null) return null;
-
   return (
+    <>
+      {/* Fine progress line pinned under the navbar (item #6) */}
+      <div
+        aria-hidden
+        className="fixed left-0 top-16 z-40 h-0.5 w-full bg-transparent"
+      >
+        <div
+          className="h-0.5 bg-[var(--color-fox-500)] transition-[width] duration-150"
+          style={{ width: `${live}%` }}
+        />
+      </div>
+
+      {resumeAt !== null && (
     <div className="sticky top-20 z-20 mx-auto max-w-3xl px-5">
       <div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--color-mint-300)] bg-[var(--color-mint-100)] px-4 py-3 shadow-[var(--shadow-soft)]">
         <p className="flex items-center gap-2 text-sm text-[var(--color-ink-700)]">
@@ -92,5 +105,7 @@ export function ReadingProgress({ slug }: { slug: string }) {
         </div>
       </div>
     </div>
+      )}
+    </>
   );
 }

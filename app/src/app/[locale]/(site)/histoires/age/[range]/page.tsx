@@ -2,7 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { StoryFunnel } from "@/components/story/StoryFunnel";
 import { filtersFromSearchParams } from "@/lib/stories/filter";
-import { AGE_RANGES, type AgeRange } from "@/data/mock-stories";
+import { AGE_RANGES, ageLabel, type AgeRange } from "@/data/mock-stories";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
 
@@ -10,8 +10,6 @@ type Props = {
   params: Promise<{ locale: string; range: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
-
-const AGE_KEY = { "3-5": "3to5", "6-8": "6to8", "9-11": "9to11" } as const;
 
 export default async function AgeFunnelPage({ params, searchParams }: Props) {
   const { locale, range } = await params;
@@ -23,9 +21,7 @@ export default async function AgeFunnelPage({ params, searchParams }: Props) {
 
   return (
     <StoryFunnel
-      title={t("funnel.ageTitle", {
-        age: t(`library.filters.age${AGE_KEY[range as AgeRange]}`),
-      })}
+      title={t("funnel.ageTitle", { age: ageLabel(range) })}
       subtitle={t("funnel.ageSubtitle")}
       fixed={{ age: range as AgeRange }}
       query={sp}
@@ -40,9 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!AGE_RANGES.includes(range as AgeRange)) return {};
   const t = await getTranslations({ locale });
   return {
-    title: t("funnel.ageTitle", {
-      age: t(`library.filters.age${AGE_KEY[range as AgeRange]}`),
-    }),
+    title: t("funnel.ageTitle", { age: ageLabel(range) }),
     description: t("funnel.ageSubtitle"),
   };
 }

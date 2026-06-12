@@ -7,7 +7,7 @@ import {
   storyAnalytics,
 } from "@/data/mock-admin";
 
-/** Admin dashboard — the morning coffee view. */
+/** Admin dashboard, the morning coffee view. */
 export default function AdminDashboard() {
   const topStories = [...storyAnalytics].sort((a, b) => b.opens - a.opens).slice(0, 5);
 
@@ -15,7 +15,7 @@ export default function AdminDashboard() {
     <>
       <h1 className="font-serif text-3xl tracking-tight">Tableau de bord</h1>
       <p className="mt-1 text-sm text-[var(--color-ink-500)]">
-        Vue d'ensemble — données de démonstration jusqu'au branchement Supabase.
+        Vue d'ensemble, données de démonstration jusqu'au branchement Supabase.
       </p>
 
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">

@@ -256,6 +256,14 @@
     "en": "English",
     "switchLabel": "Changer de langue"
   },
+  "blog": {
+    "kicker": "Le journal",
+    "title": "Des idées pour des soirées <accent>plus douces</accent>",
+    "subtitle": "Rituels du coucher, développement du langage, émotions des enfants — des articles courts, sourcés, écrits pour les parents pressés.",
+    "readTime": "{minutes} min de lecture",
+    "backToBlog": "Retour au journal",
+    "authorNote": "Écrit par l'équipe Lunireve, avec l'aide de l'IA, relu et vérifié à la main avant publication."
+  },
   "theme": {
     "toDark": "Passer en mode nuit",
     "toLight": "Passer en mode jour"

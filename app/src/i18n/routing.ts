@@ -54,6 +54,7 @@ export const routing = defineRouting({
       en: "/pricing",
     },
     "/blog": "/blog",
+    "/blog/[slug]": "/blog/[slug]",
     "/a-propos": {
       fr: "/a-propos",
       en: "/about",
@@ -75,6 +76,11 @@ export const routing = defineRouting({
       en: "/child",
     },
     "/admin": "/admin",
+    "/admin/histoires": "/admin/histoires",
+    "/admin/moderation": "/admin/moderation",
+    "/admin/utilisateurs": "/admin/utilisateurs",
+    "/admin/blog": "/admin/blog",
+    "/admin/analytics": "/admin/analytics",
     "/connexion": {
       fr: "/connexion",
       en: "/login",

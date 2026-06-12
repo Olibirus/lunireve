@@ -256,6 +256,14 @@
     "en": "English",
     "switchLabel": "Switch language"
   },
+  "blog": {
+    "kicker": "The journal",
+    "title": "Ideas for <accent>softer</accent> evenings",
+    "subtitle": "Bedtime rituals, language development, children's emotions — short, sourced articles written for busy parents.",
+    "readTime": "{minutes} min read",
+    "backToBlog": "Back to the journal",
+    "authorNote": "Written by the Lunireve team with AI assistance, reviewed and fact-checked by hand before publishing."
+  },
   "theme": {
     "toDark": "Switch to night mode",
     "toLight": "Switch to day mode"

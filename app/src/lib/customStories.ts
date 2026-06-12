@@ -65,25 +65,43 @@ function bumpQuota() {
   }
 }
 
-/**
- * Stubbed "generation", produces a warm template story from the params.
- * Batch 9 replaces this with the real n8n/Claude pipeline call; the
- * function signature (params in, CustomStory out) is the API contract.
- */
-export function generateStub(
+/** Persist a generated (or stub) story locally and consume one quota unit. */
+export function saveCustomStory(
+  title: string,
+  body: string[],
   params: CustomStoryParams,
   profileId: string | null
 ): CustomStory {
+  const story: CustomStory = {
+    id: crypto.randomUUID(),
+    profileId,
+    title,
+    params,
+    body,
+    createdAt: new Date().toISOString(),
+  };
+  try {
+    localStorage.setItem(KEY, JSON.stringify([...readCustomStories(), story]));
+  } catch {
+    /* non-fatal */
+  }
+  bumpQuota();
+  return story;
+}
+
+/**
+ * Offline/error fallback: a warm template story built from the params.
+ * The real path is the generateStoryAction server action (Claude).
+ */
+export function buildStubStory(
+  params: CustomStoryParams
+): { title: string; body: string[] } {
   const { heroName, place, friend, trait, fear } = params;
   const where = place || "un endroit que personne n'avait jamais visité";
   const ami = friend || "une luciole nommée Lumi";
 
-  const story: CustomStory = {
-    id: crypto.randomUUID(),
-    profileId,
+  return {
     title: `${heroName} et la nuit aux mille étoiles`,
-    params,
-    createdAt: new Date().toISOString(),
     body: [
       `Ce soir-là, ${heroName} n'arrivait pas à dormir. Par la fenêtre, les étoiles semblaient plus proches que d'habitude, comme si elles attendaient quelque chose. Ou quelqu'un.`,
       `${heroName} enfila ses chaussons et, sans faire craquer le parquet, se glissa jusqu'à ${where}. ${trait ? `Il faut dire que ${heroName} avait un secret : ${trait.toLowerCase()}.` : `L'air sentait la menthe et les histoires qu'on n'a pas encore racontées.`}`,
@@ -95,12 +113,4 @@ export function generateStub(
       `Et si tu regardes bien le ciel ce soir, tu verras peut-être une étoile briller un peu plus fort que les autres. C'est elle qui veille sur ${heroName}. Bonne nuit.`,
     ],
   };
-
-  try {
-    localStorage.setItem(KEY, JSON.stringify([...readCustomStories(), story]));
-  } catch {
-    /* non-fatal */
-  }
-  bumpQuota();
-  return story;
 }

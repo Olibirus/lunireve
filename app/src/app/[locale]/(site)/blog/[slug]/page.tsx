@@ -4,12 +4,17 @@ import { Link } from "@/i18n/navigation";
 import { blogArticles, findArticle } from "@/data/mock-blog";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock } from "lucide-react";
+import { ArrowLeft, Clock, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { Metadata } from "next";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
+/**
+ * Article page — long-form layout (feedback #29): TLDR box up top,
+ * h2-structured sections, generous reading measure. Built for SEO and
+ * social reposting.
+ */
 export default async function BlogArticlePage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
@@ -50,11 +55,46 @@ export default async function BlogArticlePage({ params }: Props) {
           {article.title}
         </h1>
 
+        <p className="mt-4 text-lg leading-relaxed text-[var(--color-ink-600)]">
+          {article.excerpt}
+        </p>
+
         <div aria-hidden className={cn(article.cover, "mt-8 aspect-[21/9] rounded-3xl")} />
 
-        <div className="prose-reading mt-10">
-          {article.body.map((p, i) => (
-            <p key={i}>{p}</p>
+        {/* TLDR box */}
+        <aside className="mt-8 rounded-3xl border border-[var(--color-mint-300)] bg-[var(--color-mint-100)] p-6">
+          <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-[var(--color-mint-800)]">
+            <ListChecks className="h-4 w-4" />
+            {t("tldr")}
+          </p>
+          <ul className="mt-3 space-y-2">
+            {article.tldr.map((point, i) => (
+              <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-[var(--color-ink-700)]">
+                <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-mint-600)]" />
+                {point}
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        {/* Sections */}
+        <div className="mt-10 space-y-10">
+          {article.sections.map((section) => (
+            <section key={section.heading}>
+              <h2
+                className="font-serif text-2xl md:text-3xl tracking-tight leading-snug"
+                style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
+              >
+                {section.heading}
+              </h2>
+              <div className="prose-reading mt-4 !text-[1.0625rem]">
+                {section.paragraphs.map((p, i) => (
+                  <p key={i} className="first-letter:!float-none first-letter:!text-[1em] first-letter:!m-0">
+                    {p}
+                  </p>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
 

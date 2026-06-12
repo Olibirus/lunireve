@@ -15,7 +15,7 @@ import type {
  * stricter reminder before bubbling the error.
  */
 
-const MODEL = "claude-sonnet-4-5-20250929";
+const MODEL = "claude-sonnet-4-6";
 
 function buildSystemPrompt(input: StoryGenerationInput) {
   const voice =

@@ -5,12 +5,14 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { readProfiles, getActiveProfile, type ChildProfile } from "@/lib/profiles";
 import {
-  generateStub,
+  buildStubStory,
+  saveCustomStory,
   quotaUsed,
   FREE_CUSTOM_LIMIT,
   type CustomStory,
   type CustomStoryParams,
 } from "@/lib/customStories";
+import { generateStoryAction } from "@/app/actions/generateStory";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,6 +97,12 @@ export default function CreateStoryPage() {
   function startGeneration() {
     setPhase("loading");
     setLoadingStage(0);
+
+    // Real generation (Claude via server action) kicks off immediately;
+    // the staged loading screen plays in parallel. If the call fails or
+    // times out, the local template story keeps the experience intact.
+    const generation = generateStoryAction(params).catch(() => null);
+
     // Fast at the start, slower at the end (brief requirement)
     const delays = [900, 2200, 3200, 4200];
     let acc = 0;
@@ -104,9 +112,16 @@ export default function CreateStoryPage() {
         setTimeout(() => {
           setLoadingStage(i + 1);
           if (i === delays.length - 1) {
-            setResult(generateStub(params, profileId));
-            setUsed(quotaUsed());
-            setPhase("done");
+            void (async () => {
+              const generated = await generation;
+              const content =
+                generated && generated.ok
+                  ? { title: generated.title, body: generated.body }
+                  : buildStubStory(params);
+              setResult(saveCustomStory(content.title, content.body, params, profileId));
+              setUsed(quotaUsed());
+              setPhase("done");
+            })();
           }
         }, acc)
       );

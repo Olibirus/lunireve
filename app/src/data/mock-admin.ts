@@ -1,4 +1,4 @@
-import { mockStories } from "./mock-stories";
+import { mockStories, ageLabel, durationBucket, type AgeRange, type Genre, type DurationBucket } from "./mock-stories";
 
 /**
  * Admin mock data — deterministic numbers derived from the story list so the
@@ -70,6 +70,13 @@ export const mockBlogPosts: BlogPost[] = [
 export type StoryAnalytics = {
   slug: string;
   title: string;
+  // Story attributes (real metadata — drives the per-story filter columns).
+  ageRange: AgeRange;
+  genre: Genre;
+  duration: DurationBucket;
+  hasAudio: boolean;
+  interactive: boolean;
+  // Metrics — REAL data only (zero until events are recorded).
   opens: number;
   readPct: number; // avg % read
   completionRate: number; // % readers reaching 90%
@@ -78,16 +85,36 @@ export type StoryAnalytics = {
   avgRating: number;
   shares: number;
   reports: number;
+  // Readership gender split (analytics) — zero until real events land.
+  readersGirlPct: number;
+  readersBoyPct: number;
 };
 
+/** "short" → "Court", etc. (per-story duration column label). */
+export const DURATION_LABEL: Record<DurationBucket, string> = {
+  short: "Court",
+  medium: "Moyen",
+  long: "Long",
+};
+
+/** Human label for an age range, e.g. "5-6" → "5–6 ans". */
+export { ageLabel };
+
 /**
- * Per-story analytics — REAL data only (user decision #22). Everything is
- * zero until actual events are recorded; Phase 2 replaces this with SQL
- * aggregates over the events table.
+ * Per-story analytics — REAL data only (user decision #22). Story attributes
+ * (age, genre, duration, audio, interactive) are real metadata so the table
+ * stays filterable from day one; every measured metric is zero until actual
+ * events are recorded. Phase 2 replaces this with SQL aggregates over the
+ * events table.
  */
 export const storyAnalytics: StoryAnalytics[] = mockStories.map((s) => ({
   slug: s.slug,
   title: s.title,
+  ageRange: s.ageRange,
+  genre: s.genre,
+  duration: durationBucket(s.readingMinutes),
+  hasAudio: s.hasAudio,
+  interactive: s.interactive,
   opens: 0,
   readPct: 0,
   completionRate: 0,
@@ -96,6 +123,8 @@ export const storyAnalytics: StoryAnalytics[] = mockStories.map((s) => ({
   avgRating: s.rating,
   shares: 0,
   reports: 0,
+  readersGirlPct: 0,
+  readersBoyPct: 0,
 }));
 
 /** Real values only. Pre-launch: zeros everywhere except published stories. */

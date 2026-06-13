@@ -1,6 +1,7 @@
 "use client";
 
 import { blogArticles, type BlogArticle } from "@/data/mock-blog";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 /**
  * Admin blog store (#13) — a working CMS-lite. localStorage now, seeded from
@@ -10,6 +11,43 @@ import { blogArticles, type BlogArticle } from "@/data/mock-blog";
  */
 
 const KEY = "lunireve:adminBlog";
+
+/** Supabase Storage bucket for blog imagery (#7). Create it public in Supabase. */
+export const BLOG_BUCKET = "blog";
+
+export type UploadResult = { url: string; fallback: boolean };
+
+/**
+ * Upload an image to Supabase Storage and return its public URL (#7).
+ * If Supabase isn't configured yet (no env vars) or the upload fails, we fall
+ * back to an inline data URL so the editor still works in the local demo. The
+ * caller can surface `fallback: true` to warn that the image is not yet on the
+ * CDN. Phase 2: enforce server-side validation + the `blog_posts` swap.
+ */
+export async function uploadBlogImage(file: File): Promise<UploadResult> {
+  const ext = (file.name.split(".").pop() || "png").toLowerCase();
+  const path = `${new Date().getFullYear()}/${crypto.randomUUID()}.${ext}`;
+  try {
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase.storage
+      .from(BLOG_BUCKET)
+      .upload(path, file, { cacheControl: "31536000", upsert: false });
+    if (error) throw error;
+    const { data } = supabase.storage.from(BLOG_BUCKET).getPublicUrl(path);
+    return { url: data.publicUrl, fallback: false };
+  } catch {
+    return { url: await fileToDataUrl(file), fallback: true };
+  }
+}
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
 const COVERS = [
   "cover-dusk",
   "cover-meadow",
@@ -22,7 +60,15 @@ const COVERS = [
 ] as const;
 export const COVER_OPTIONS = COVERS;
 
-export type AdminArticle = BlogArticle & { status: "draft" | "published" };
+export type AdminArticle = BlogArticle & {
+  status: "draft" | "published";
+  /**
+   * Uploaded cover image (Supabase Storage public URL or data-URL fallback).
+   * Takes precedence over the `cover` gradient class when set. Mirrors
+   * `blog_posts.cover_image_url`; the public blog adopts it at the DB swap.
+   */
+  coverImageUrl?: string;
+};
 
 function seed(): AdminArticle[] {
   return blogArticles.map((a) => ({ ...a, status: "published" as const }));

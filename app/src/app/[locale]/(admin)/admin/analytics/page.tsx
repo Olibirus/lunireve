@@ -2,22 +2,9 @@
 
 import { useState } from "react";
 import { Kpi } from "@/components/admin/AdminShell";
+import { AnalyticsTable } from "@/components/admin/AnalyticsTable";
 import { DATE_RANGES, globalKpis, storyAnalytics } from "@/data/mock-admin";
-import { downloadCsv, downloadTablePdf } from "@/lib/pdf/tableExport";
-import { Download, FileSpreadsheet } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-
-const EXPORT_HEADERS = [
-  "Histoire",
-  "Ouvertures",
-  "% lu",
-  "Complétion",
-  "Écoutes audio",
-  "Favoris",
-  "Note",
-  "Partages",
-  "Signalements",
-];
 
 /**
  * FULL analytics (brief: everything measurable, from day 1).
@@ -30,20 +17,6 @@ export default function AdminAnalyticsPage() {
   // Mock scaling: shorter ranges → proportionally smaller numbers.
   const factor = range === "all" ? 1.6 : Math.min(1, Number(range) / 90);
   const n = (v: number) => Math.round(v * factor).toLocaleString("fr-FR");
-
-  function exportRows(): (string | number)[][] {
-    return storyAnalytics.map((s) => [
-      s.title,
-      Math.round(s.opens * factor),
-      `${s.readPct}%`,
-      `${s.completionRate}%`,
-      Math.round(s.audioPlays * factor),
-      Math.round(s.favorites * factor),
-      s.avgRating.toFixed(1),
-      Math.round(s.shares * factor),
-      s.reports,
-    ]);
-  }
   const exportTitle = `Analytics (${range === "all" ? "tout" : range + "j"})`;
 
   return (
@@ -54,24 +27,6 @@ export default function AdminAnalyticsPage() {
           <p className="mt-1 text-sm text-[var(--color-ink-500)]">
             Données de démonstration, branchement Umami + SQL au lot n8n.
           </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => downloadCsv(exportTitle, EXPORT_HEADERS, exportRows())}
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-ink-100)] px-3.5 py-2 text-xs hover:bg-[var(--color-cream-100)]"
-          >
-            <FileSpreadsheet className="h-4 w-4" />
-            Export Excel
-          </button>
-          <button
-            type="button"
-            onClick={() => downloadTablePdf(exportTitle, EXPORT_HEADERS, exportRows())}
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-ink-100)] px-3.5 py-2 text-xs hover:bg-[var(--color-cream-100)]"
-          >
-            <Download className="h-4 w-4" />
-            Export PDF
-          </button>
         </div>
       </div>
 
@@ -119,57 +74,20 @@ export default function AdminAnalyticsPage() {
         <Kpi label="Quota moyen utilisé" value="1,8 / 3" />
       </div>
 
-      {/* Per-story table */}
-      <h2 className="mt-10 font-serif text-xl tracking-tight">Par histoire</h2>
-      <div className="mt-3 overflow-x-auto rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)]">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-[var(--color-ink-100)] text-left text-xs uppercase tracking-widest text-[var(--color-ink-400)]">
-              <th className="px-4 py-3 font-medium">Histoire</th>
-              <th className="px-4 py-3 font-medium">Ouvertures</th>
-              <th className="px-4 py-3 font-medium">% lu (moy.)</th>
-              <th className="px-4 py-3 font-medium">Taux de complétion</th>
-              <th className="px-4 py-3 font-medium">Écoutes audio</th>
-              <th className="px-4 py-3 font-medium">Favoris</th>
-              <th className="px-4 py-3 font-medium">Note</th>
-              <th className="px-4 py-3 font-medium">Partages</th>
-              <th className="px-4 py-3 font-medium">Signalements</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--color-ink-100)]/60">
-            {storyAnalytics.map((s) => (
-              <tr key={s.slug} className="hover:bg-[var(--color-cream-100)]/60">
-                <td className="px-4 py-3 max-w-56">
-                  <span className="block truncate font-medium">{s.title}</span>
-                </td>
-                <td className="px-4 py-3">{n(s.opens)}</td>
-                <td className="px-4 py-3">{s.readPct}%</td>
-                <td className="px-4 py-3">
-                  <span className="inline-flex items-center gap-2">
-                    <span className="h-1.5 w-16 rounded-full bg-[var(--color-cream-200)]">
-                      <span
-                        className="block h-1.5 rounded-full bg-[var(--color-mint-500)]"
-                        style={{ width: `${s.completionRate}%` }}
-                      />
-                    </span>
-                    {s.completionRate}%
-                  </span>
-                </td>
-                <td className="px-4 py-3">{s.audioPlays ? n(s.audioPlays) : "·"}</td>
-                <td className="px-4 py-3">{n(s.favorites)}</td>
-                <td className="px-4 py-3">{s.avgRating.toFixed(1)}</td>
-                <td className="px-4 py-3">{n(s.shares)}</td>
-                <td className="px-4 py-3">
-                  {s.reports > 0 ? (
-                    <span className="text-red-600">{s.reports}</span>
-                  ) : (
-                    "·"
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Per-story table — every column, sortable headers + Excel-style filters */}
+      <div className="mt-10 flex items-baseline justify-between gap-3">
+        <h2 className="font-serif text-xl tracking-tight">Par histoire</h2>
+        <p className="text-xs text-[var(--color-ink-400)]">
+          Cliquez un en-tête pour trier, l&apos;entonnoir pour filtrer.
+        </p>
+      </div>
+      <div className="mt-3">
+        <AnalyticsTable
+          rows={storyAnalytics}
+          factor={factor}
+          n={n}
+          exportTitle={exportTitle}
+        />
       </div>
     </>
   );

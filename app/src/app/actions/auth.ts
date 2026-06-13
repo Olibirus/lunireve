@@ -6,6 +6,7 @@ import {
   clearSession,
 } from "@/lib/auth/session";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+import { ensureUserRow } from "@/db/users";
 
 export type LoginState = {
   ok: boolean;
@@ -45,7 +46,17 @@ export async function login(
         password,
       });
       if (!error && data.user) {
-        await setSession({ role: "user", username: data.user.email ?? username }, remember);
+        // Backfill the shadow row in case the account predates it.
+        await ensureUserRow({
+          id: data.user.id,
+          email: data.user.email ?? username,
+          firstName:
+            (data.user.user_metadata?.display_name as string | undefined) ?? null,
+        });
+        await setSession(
+          { role: "user", username: data.user.email ?? username, userId: data.user.id },
+          remember
+        );
         return { ok: true, role: "user" };
       }
     } catch (e) {
@@ -94,7 +105,13 @@ export async function signup(
         message: exists ? "Un compte existe déjà avec cet email." : undefined,
       };
     }
-    await setSession({ role: "user", username: data.user?.email ?? email }, remember);
+    if (data.user) {
+      await ensureUserRow({ id: data.user.id, email, firstName: name });
+    }
+    await setSession(
+      { role: "user", username: data.user?.email ?? email, userId: data.user?.id },
+      remember
+    );
     return { ok: true, role: "user" };
   } catch (e) {
     console.error("[Lunireve] Supabase signup failed:", e);

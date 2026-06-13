@@ -11,7 +11,22 @@ import { cookies } from "next/headers";
  * and nothing pretends to be — do NOT ship this to production.
  */
 
-export type Session = { role: "admin" | "user"; username: string };
+export type Session = {
+  role: "admin" | "user";
+  username: string;
+  /**
+   * Supabase auth.users id, present only for real email accounts (not the temp
+   * admin/user logins). DB-backed features key off this — server actions that
+   * write user-owned rows require it and no-op gracefully when it is absent.
+   */
+  userId?: string;
+};
+
+/** The Supabase user uuid for the current session, or null for temp accounts. */
+export async function getCurrentUserId(): Promise<string | null> {
+  const session = await getSession();
+  return session?.userId ?? null;
+}
 
 const COOKIE = "lunireve_session";
 

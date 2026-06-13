@@ -3,10 +3,11 @@
 import { generateStoryText } from "@/lib/ai";
 import { getSession } from "@/lib/auth/session";
 import { ageToRange } from "@/data/mock-stories";
+import { insertCustomStory } from "@/db/customStories";
 import type { CustomStoryParams } from "@/lib/customStories";
 
 export type GenerateResult =
-  | { ok: true; title: string; body: string[] }
+  | { ok: true; title: string; body: string[]; id: string | null }
   | { ok: false };
 
 const TARGET_WORDS = { short: 350, medium: 700, long: 1100 } as const;
@@ -31,7 +32,8 @@ function cleanText(text: string): string {
  * The /creer page falls back to the local stub if this fails.
  */
 export async function generateStoryAction(
-  params: CustomStoryParams
+  params: CustomStoryParams,
+  profileId: string | null = null
 ): Promise<GenerateResult> {
   const session = await getSession();
   if (!session) return { ok: false };
@@ -66,7 +68,26 @@ export async function generateStoryAction(
       ? result.scenes.map((s) => cleanText(s.text))
       : cleanText(result.fullText).split("\n\n").filter(Boolean);
 
-    return { ok: true, title: cleanText(result.title), body };
+    const title = cleanText(result.title);
+
+    // Persist to the DB so the /histoire-perso/<id> link is shareable across
+    // devices. A storage failure must not lose the generated story, so we fall
+    // back to id=null and let the client keep its local copy.
+    let id: string | null = null;
+    try {
+      id = await insertCustomStory({
+        title,
+        body,
+        params,
+        profileId,
+        ownerUserId: session.userId ?? null,
+        model: result.model,
+      });
+    } catch (e) {
+      console.error("[Lunireve] failed to persist generated story:", e);
+    }
+
+    return { ok: true, title, body, id };
   } catch (e) {
     console.error("[Lunireve] story generation failed:", e);
     return { ok: false };

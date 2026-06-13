@@ -1,8 +1,30 @@
 # Lunireve — Session Guide (for splitting Claude Code work)
 
-Read this + `BRIEF_FINAL.md` at the start of every session. Commit before
-switching sessions. One repo always: `github.com/Olibirus/lunireve`,
-code in `app/`. Run `pnpm build` after each batch (must stay green).
+Read this + `BRIEF_FINAL.md` at the start of every session. One repo
+always: `github.com/Olibirus/lunireve`, code in `app/`. Run `pnpm build`
+after each batch (must stay green).
+
+## Cross-session changes log
+<!-- Add ONE line per cross-territory edit, newest on top:
+     `YYYY-MM-DD [Session X]: touched <folder> for <reason>` -->
+
+## Auto-commit + push (mandatory, no asking)
+At the end of EVERY task: `pnpm build` (must be green) →
+`git add -A && git commit -m "..."` → `git push`. No permission asked,
+no "do you want me to commit?" question. Stay silent about it unless
+the push actually fails.
+
+## Working across territories (Harry's rule, July 2026)
+Harry runs sessions A/B/C/D for context efficiency, NOT to enforce
+strict isolation. **Prefer your owned folders, but if a task needs an
+edit elsewhere, just do it.** Don't ask Harry to coordinate between
+sessions — he doesn't have time. Cross-edits get logged above (one
+line, newest first). The next session sees the log and won't re-touch
+what you already changed.
+
+Harry never runs two sessions at the same time, so live merge
+conflicts aren't a risk — only stale-context overwrites are. The log
+prevents that.
 
 ## Hard rules (every session)
 - NO em dashes anywhere user-visible (use commas/colons).
@@ -20,27 +42,29 @@ code in `app/`. Run `pnpm build` after each batch (must stay green).
 - `(app)` — auth-gated family area (profiles, child bubble, /compte/*, /creer, /histoire-perso)
 - `(admin)` — ink-sidebar back-office
 
-## How to split into parallel sessions WITHOUT conflicts
-Each session owns a folder set. They don't overlap, except messages (serialize that).
+## Sessions A / B / C / D — preferred territories
+Used for context efficiency. **Soft ownership, not hard isolation.**
+Prefer your folders; cross the line when the task needs it (and log it
+above).
 
-| Session | Owns (edit only here) | Don't touch |
-|---|---|---|
-| **A — Public site** | `(site)/*`, `components/marketing/*`, `components/story/*`, `components/layout/*` | admin, (app) |
-| **B — User area** | `(app)/*`, `lib/profiles.ts`, `lib/customStories.ts`, `lib/characters.ts` | admin, (site) |
-| **C — Admin** | `(admin)/*`, `components/admin/*`, `data/mock-admin.ts`, `lib/adminBlog.ts` | (site), (app) |
-| **D — Backend/infra** | `lib/ai/*`, `lib/supabase/*`, `db/*`, `app/actions/*`, `n8n/*` | UI folders |
+| Session | Preferred home |
+|---|---|
+| **A — Public site** | `(site)/*`, `components/marketing/*`, `components/story/*`, `components/layout/*` |
+| **B — User area** | `(app)/*`, `lib/profiles.ts`, `lib/customStories.ts`, `lib/characters.ts` |
+| **C — Admin** | `(admin)/*`, `components/admin/*`, `data/mock-admin.ts`, `lib/adminBlog.ts` |
+| **D — Backend/infra** | `lib/ai/*`, `lib/supabase/*`, `db/*`, `app/actions/*`, `n8n/*` |
 
-If two sessions must run at the same time, use `git worktree` (one branch each).
-Whoever needs to edit `messages/*.json` does it alone, commits, others pull.
+Shared files (`messages/*.json`, `data/mock-stories.ts`, `db/schema.ts`,
+`globals.css`): editable by anyone. Harry runs one session at a time,
+so just commit when done.
 
 ### Copy-paste starter for each session
 > You are working on the Lunireve project at
-> `C:\Users\Harry\olibrius-project\06_personal-projects\lunireve\app`.
-> First read `../SESSION_GUIDE.md` and `../BRIEF_FINAL.md`.
-> This session is **Session [A/B/C/D]** — only edit the folders that session
-> owns (see the table). Follow the hard rules (no em dashes, real admin data,
-> age taxonomy, keep fr/en message keys in sync). Run `pnpm build` after each
-> change and commit to `main` when green. Today's task: [PASTE TASK].
+> `C:\Users\Harry\olibrius-project\06_personal-projects\lunireve`.
+> First read `app/CLAUDE.md`, `SESSION_GUIDE.md` and `BRIEF_FINAL.md`.
+> This session is **Session [A/B/C/D]**. Prefer your home folders, but
+> edit elsewhere when the task needs it — log cross-edits at the top of
+> SESSION_GUIDE.md. Today's task: [PASTE TASK].
 
 ## Remaining work (items 2-10 from the latest feedback, unassigned)
 - **#2** FAQ: 2-column on desktop, add more SEO-friendly Q&A → Session A (`data/faq.ts`, `(site)/faq`, About).

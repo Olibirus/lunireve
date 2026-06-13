@@ -96,4 +96,5 @@ export type {
   AgeRange,
   ImageTier,
   AudioTier,
+  VoiceType,
 } from "./types";

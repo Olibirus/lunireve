@@ -36,8 +36,11 @@ export function downloadStoryPdf(data: StoryPdfInput) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(MUTED);
-    doc.text("Lunireve", M, H - 28);
-    doc.text("lunireve.com", W - M, H - 28, { align: "right" });
+    doc.text("Lunireve · lunireve.com", M, H - 28);
+    // Free-tier licence: personal use only, no commercial use (#24)
+    doc.text("Usage personnel uniquement, pas d'usage commercial", W - M, H - 28, {
+      align: "right",
+    });
     doc.setDrawColor(220, 220, 210);
     doc.line(M, H - 38, W - M, H - 38);
   }

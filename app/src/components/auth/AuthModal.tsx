@@ -37,6 +37,8 @@ export function AuthModal({
   const t = useTranslations("auth");
   const router = useRouter();
   const [tab, setTab] = useState<"login" | "signup">("login");
+  // When the user generated a strong password, skip the confirm field (#10).
+  const [pwGenerated, setPwGenerated] = useState(false);
 
   const [loginState, loginAction, loginPending] = useActionState<LoginState, FormData>(
     login,
@@ -101,6 +103,7 @@ export function AuthModal({
               label={t("password")}
               autoComplete="current-password"
             />
+            {/* no minLength on login — temp accounts use 6 chars */}
             <label className="flex items-center gap-2.5 text-sm text-[var(--color-ink-600)]">
               <Checkbox name="remember" defaultChecked value="1" />
               {t("rememberMe")}
@@ -131,8 +134,19 @@ export function AuthModal({
               label={t("password")}
               autoComplete="new-password"
               withGenerator
+              minLength={8}
               hint={t("passwordHint")}
+              onGenerated={setPwGenerated}
             />
+            {!pwGenerated && (
+              <PasswordField
+                id="signup-password-confirm"
+                name="passwordConfirm"
+                label={t("passwordConfirm")}
+                autoComplete="new-password"
+                minLength={8}
+              />
+            )}
             <label className="flex items-center gap-2.5 text-sm text-[var(--color-ink-600)]">
               <Checkbox name="remember" defaultChecked value="1" />
               {t("rememberMe")}

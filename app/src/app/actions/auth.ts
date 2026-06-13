@@ -67,10 +67,15 @@ export async function signup(
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const confirm = formData.get("passwordConfirm");
   const remember = formData.get("remember") === "1";
 
   if (!email.includes("@") || password.length < 8 || name.length < 2) {
     return { ok: false, error: true };
+  }
+  // Confirm field only present when the user typed their own password (#10)
+  if (confirm !== null && confirm !== password) {
+    return { ok: false, error: true, message: "Les mots de passe ne correspondent pas." };
   }
 
   try {

@@ -19,7 +19,6 @@ import {
   BookOpen,
   ChevronDown,
   Flame,
-  Headphones,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -166,8 +165,8 @@ export function Header() {
           : "bg-transparent border-b border-transparent"
       )}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 md:px-8">
-        {/* Logo (#17) */}
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-2 px-4 md:px-8">
+        {/* Logo (#34 — larger) */}
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-mint-500)]"
@@ -175,9 +174,9 @@ export function Header() {
           <Image
             src="/logo-s.png"
             alt="Lunireve"
-            width={140}
-            height={40}
-            className="h-9 w-auto"
+            width={180}
+            height={52}
+            className="h-12 w-auto"
             priority
           />
         </Link>
@@ -195,7 +194,6 @@ export function Header() {
               </div>
               <div className="border-l border-[var(--color-ink-100)] pl-2">
                 <MenuLink href="/histoires" icon={BookOpen}>{t("nav.allStories")}</MenuLink>
-                <MenuLink href="/histoires/audio" icon={Headphones}>{t("nav.audioStories")}</MenuLink>
                 <MenuLink href={{ pathname: "/histoires", query: { interactive: "1" } }} icon={Sparkles}>
                   {t("nav.interactiveStories")}
                 </MenuLink>
@@ -220,10 +218,12 @@ export function Header() {
             ))}
           </NavDropdown>
 
+          {/* Create — the product's USP, given a filled background (#4) */}
           <Link
             href="/creer"
-            className="rounded-full px-3 py-2 text-sm text-[var(--color-ink-600)] hover:text-[var(--color-ink-800)] hover:bg-[var(--color-cream-100)]"
+            className="ml-1 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-ink-800)] px-4 py-2 text-sm font-medium text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)] transition-colors"
           >
+            <Wand2 className="h-4 w-4 text-[var(--color-mint-400)]" />
             {t("nav.create")}
           </Link>
         </nav>
@@ -332,19 +332,19 @@ export function Header() {
 
           <div className="mt-5 grid gap-2">
             <Link
-              href="/histoires/audio"
+              href={{ pathname: "/histoires", query: { interactive: "1" } }}
               onClick={() => setMobileOpen(false)}
               className="flex items-center gap-2.5 rounded-xl border border-[var(--color-ink-100)] px-4 py-2.5 text-sm"
             >
-              <Headphones className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
-              {t("nav.audioStories")}
+              <Sparkles className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
+              {t("nav.interactiveStories")}
             </Link>
             <Link
               href="/creer"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-2.5 rounded-xl border border-[var(--color-ink-100)] px-4 py-2.5 text-sm"
+              className="flex items-center gap-2.5 rounded-xl bg-[var(--color-ink-800)] px-4 py-2.5 text-sm text-[var(--color-cream-50)]"
             >
-              <Wand2 className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
+              <Wand2 className="h-4 w-4 text-[var(--color-mint-400)]" />
               {t("nav.create")}
             </Link>
             {logged ? (

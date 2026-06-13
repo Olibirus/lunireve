@@ -34,7 +34,7 @@ export function ThreeWays() {
       descKey: "card2Desc",
       ctaKey: "card2Cta",
       href: "/creer" as const,
-      tone: "ink" as const,
+      tone: "indigo" as const,
     },
     {
       icon: Sparkles,
@@ -70,21 +70,18 @@ export function ThreeWays() {
           const toneStyles =
             c.tone === "cream"
               ? "bg-[var(--color-cream-100)] text-[var(--color-ink-800)] border-[var(--color-cream-200)]"
-              : c.tone === "ink"
-              ? "band-ink text-[var(--color-cream-50)] border-transparent"
+              : c.tone === "indigo"
+              ? "bg-[var(--color-indigo-soft-100)] text-[var(--color-ink-800)] border-[var(--color-indigo-soft-200)]"
               : "bg-[var(--color-mint-200)] text-[var(--color-ink-800)] border-[var(--color-mint-300)]";
-          const mutedStyles =
-            c.tone === "ink"
-              ? "text-[var(--color-indigo-soft-300)]"
-              : "text-[var(--color-ink-500)]";
+          const mutedStyles = "text-[var(--color-ink-500)]";
           const numberStyles =
-            c.tone === "ink"
-              ? "text-[var(--color-mint-400)]"
+            c.tone === "indigo"
+              ? "text-[var(--color-indigo-soft-600)]"
+              : c.tone === "mint"
+              ? "text-[var(--color-mint-700)]"
               : "text-[var(--color-indigo-soft-500)]";
           const ctaStyles =
-            c.tone === "ink"
-              ? "border-[var(--color-indigo-soft-600)] text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)]"
-              : "border-[var(--color-ink-200)] text-[var(--color-ink-800)] hover:bg-[var(--color-cream-50)]";
+            "border-[var(--color-ink-200)] text-[var(--color-ink-800)] hover:bg-[var(--color-cream-50)]";
 
           return (
             <article
@@ -92,8 +89,10 @@ export function ThreeWays() {
               className={cn(
                 "relative rounded-3xl border p-7 md:p-8 flex flex-col",
                 toneStyles,
-                i === 1 && "md:-mt-6",
-                i === 2 && "md:mt-6"
+                // Rising staircase left → right: 1st lowest, 3rd highest (#12)
+                i === 0 && "md:mt-8",
+                i === 1 && "md:mt-4",
+                i === 2 && "md:mt-0"
               )}
             >
               <header className="flex items-start justify-between">
@@ -103,14 +102,7 @@ export function ThreeWays() {
                 >
                   {c.number}
                 </span>
-                <span
-                  className={cn(
-                    "rounded-2xl p-2.5",
-                    c.tone === "ink"
-                      ? "bg-[var(--color-ink-700)]"
-                      : "bg-[var(--color-cream-50)]"
-                  )}
-                >
+                <span className="rounded-2xl bg-[var(--color-cream-50)] p-2.5">
                   <Icon className="h-5 w-5" />
                 </span>
               </header>

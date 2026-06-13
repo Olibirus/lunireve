@@ -371,6 +371,7 @@
     "username": "Username",
     "usernameOrEmail": "Email or username",
     "password": "Password",
+    "passwordConfirm": "Confirm password",
     "passwordHint": "8 characters minimum",
     "submit": "Log in",
     "pending": "One moment…",

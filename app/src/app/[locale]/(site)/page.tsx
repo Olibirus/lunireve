@@ -2,7 +2,6 @@ import { setRequestLocale } from "next-intl/server";
 import { Hero } from "@/components/marketing/Hero";
 import { ThreeWays } from "@/components/marketing/ThreeWays";
 import { FeaturedStories } from "@/components/marketing/FeaturedStories";
-import { Testimonial } from "@/components/marketing/Testimonial";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 
 /**
@@ -23,7 +22,6 @@ export default async function HomePage({
       <div className="dot-rule mx-auto max-w-5xl" aria-hidden />
       <ThreeWays />
       <FeaturedStories />
-      <Testimonial />
       <NewsletterBand />
     </>
   );

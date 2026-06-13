@@ -26,6 +26,8 @@ export function PasswordField({
   autoComplete,
   withGenerator = false,
   hint,
+  minLength,
+  onGenerated,
 }: {
   id: string;
   name: string;
@@ -33,6 +35,10 @@ export function PasswordField({
   autoComplete: string;
   withGenerator?: boolean;
   hint?: string;
+  /** Omit on login (temp accounts use 6 chars); set 8 on signup. */
+  minLength?: number;
+  /** Notified when the user generated a password (skip confirm field). */
+  onGenerated?: (generated: boolean) => void;
 }) {
   const t = useTranslations("auth");
   const [value, setValue] = useState("");
@@ -48,6 +54,7 @@ export function PasswordField({
             onClick={() => {
               setValue(strongPassword());
               setShow(true);
+              onGenerated?.(true);
             }}
             className="inline-flex items-center gap-1 text-xs text-[var(--color-indigo-soft-600)] hover:text-[var(--color-ink-800)]"
           >
@@ -62,10 +69,13 @@ export function PasswordField({
           name={name}
           type={show ? "text" : "password"}
           autoComplete={autoComplete}
-          minLength={8}
+          minLength={minLength}
           required
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(e.target.value);
+            onGenerated?.(false);
+          }}
           className="pr-11"
         />
         <button

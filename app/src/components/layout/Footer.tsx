@@ -3,14 +3,22 @@ import { Link } from "@/i18n/navigation";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { GENRES, AGE_RANGES, ageLabel } from "@/data/mock-stories";
+import { Sparkles } from "lucide-react";
 
 /**
- * Footer — ink-800 band with mint accents. Four columns on desktop, collapses.
- * Newsletter capture is decorative for now; Phase 1 wires it to Brevo.
+ * Footer — ink-800 band with mint accents. Brand + newsletter on top, then
+ * full-width link columns (Company / By Age / By Genre + interactive / La
+ * Maison, #5). Newsletter capture is decorative for now; Phase 1 wires Brevo.
  */
 export function Footer() {
   const t = useTranslations();
   const year = new Date().getFullYear();
+
+  const linkClass =
+    "hover:text-[var(--color-cream-50)] transition-colors";
+  const headingClass =
+    "text-xs uppercase tracking-widest text-[var(--color-mint-400)] font-sans font-medium";
 
   return (
     <footer className="relative mt-24 band-ink text-[var(--color-cream-100)]">
@@ -28,9 +36,9 @@ export function Footer() {
       </svg>
 
       <div className="mx-auto max-w-7xl px-5 md:px-8 pt-20 pb-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-16">
-          {/* Brand + newsletter — spans 2 cols on desktop */}
-          <div className="col-span-2">
+        {/* Brand + newsletter */}
+        <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-16 lg:items-start">
+          <div>
             <div className="flex items-center gap-2.5">
               <FoxMark className="h-10 w-10" />
               <span className="font-serif text-2xl tracking-tight text-[var(--color-cream-50)]">
@@ -40,51 +48,92 @@ export function Footer() {
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-[var(--color-indigo-soft-200)]">
               {t("footer.tagline")}
             </p>
-
-            <form className="mt-8 max-w-md" aria-label={t("footer.newsletterLabel")}>
-              <label htmlFor="newsletter-email" className="text-xs uppercase tracking-widest text-[var(--color-mint-400)]">
-                {t("footer.newsletterHeading")}
-              </label>
-              <div className="mt-2 flex gap-2">
-                <Input
-                  id="newsletter-email"
-                  type="email"
-                  placeholder={t("footer.newsletterPlaceholder")}
-                  className="bg-[var(--color-ink-700)] border-[var(--color-ink-600)] text-[var(--color-cream-50)] placeholder:text-[var(--color-indigo-soft-300)] focus:border-[var(--color-mint-400)]"
-                />
-                <Button variant="mint" size="md" type="submit">
-                  {t("footer.newsletterSubmit")}
-                </Button>
-              </div>
-              <p className="mt-3 text-xs text-[var(--color-indigo-soft-300)]">
-                {t("footer.newsletterNote")}
-              </p>
-            </form>
           </div>
 
-          {/* Product links */}
+          <form className="w-full max-w-md lg:justify-self-end" aria-label={t("footer.newsletterLabel")}>
+            <label htmlFor="newsletter-email" className="text-xs uppercase tracking-widest text-[var(--color-mint-400)]">
+              {t("footer.newsletterHeading")}
+            </label>
+            <div className="mt-2 flex gap-2">
+              <Input
+                id="newsletter-email"
+                type="email"
+                placeholder={t("footer.newsletterPlaceholder")}
+                className="bg-[var(--color-ink-700)] border-[var(--color-ink-600)] text-[var(--color-cream-50)] placeholder:text-[var(--color-indigo-soft-300)] focus:border-[var(--color-mint-400)]"
+              />
+              <Button variant="mint" size="md" type="submit">
+                {t("footer.newsletterSubmit")}
+              </Button>
+            </div>
+            <p className="mt-3 text-xs text-[var(--color-indigo-soft-300)]">
+              {t("footer.newsletterNote")}
+            </p>
+          </form>
+        </div>
+
+        {/* Full-width link columns (#5) */}
+        <div className="mt-16 grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4 lg:gap-12">
+          {/* Company */}
           <div>
-            <h4 className="text-xs uppercase tracking-widest text-[var(--color-mint-400)] font-sans font-medium">
-              {t("footer.colProduct")}
-            </h4>
+            <h4 className={headingClass}>{t("footer.colCompany")}</h4>
             <ul className="mt-4 space-y-2.5 text-sm">
-              <li><Link href="/histoires" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.stories")}</Link></li>
-              <li><Link href="/histoires/audio" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.audioStories")}</Link></li>
-              <li><Link href="/creer" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.create")}</Link></li>
-              <li><Link href="/tarifs" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.pricing")}</Link></li>
+              <li><Link href="/a-propos" className={linkClass}>{t("nav.about")}</Link></li>
+              <li><Link href="/blog" className={linkClass}>{t("nav.blog")}</Link></li>
+              <li><Link href="/faq" className={linkClass}>{t("faq.title")}</Link></li>
+              <li><Link href="/tarifs" className={linkClass}>{t("nav.pricing")}</Link></li>
+              <li><a href="mailto:hello@lunireve.com" className={linkClass}>{t("footer.contact")}</a></li>
             </ul>
           </div>
 
-          {/* Company */}
+          {/* By age */}
           <div>
-            <h4 className="text-xs uppercase tracking-widest text-[var(--color-mint-400)] font-sans font-medium">
-              {t("footer.colCompany")}
-            </h4>
+            <h4 className={headingClass}>{t("footer.colByAge")}</h4>
             <ul className="mt-4 space-y-2.5 text-sm">
-              <li><Link href="/a-propos" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.about")}</Link></li>
-              <li><Link href="/faq" className="hover:text-[var(--color-cream-50)] transition-colors">{t("faq.title")}</Link></li>
-              <li><a href="mailto:hello@lunireve.com" className="hover:text-[var(--color-cream-50)] transition-colors">{t("footer.contact")}</a></li>
-              <li><Link href="/blog" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.blog")}</Link></li>
+              {AGE_RANGES.map((r) => (
+                <li key={r}>
+                  <Link
+                    href={{ pathname: "/histoires/age/[range]", params: { range: r } }}
+                    className={linkClass}
+                  >
+                    {ageLabel(r)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* By genre + interactive button */}
+          <div>
+            <h4 className={headingClass}>{t("footer.colByGenre")}</h4>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {GENRES.map((g) => (
+                <li key={g}>
+                  <Link
+                    href={{ pathname: "/histoires/genre/[genre]", params: { genre: g } }}
+                    className={linkClass}
+                  >
+                    {t(`genres.${g}`)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Link
+              href={{ pathname: "/histoires", query: { interactive: "1" } }}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-mint-400)] px-3.5 py-1.5 text-xs font-medium text-[var(--color-ink-800)] hover:bg-[var(--color-mint-300)] transition-colors"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              {t("nav.interactiveStories")}
+            </Link>
+          </div>
+
+          {/* La Maison — the reading product itself */}
+          <div>
+            <h4 className={headingClass}>{t("footer.colHouse")}</h4>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              <li><Link href="/histoires" className={linkClass}>{t("nav.stories")}</Link></li>
+              <li><Link href="/histoires/audio" className={linkClass}>{t("nav.audioStories")}</Link></li>
+              <li><Link href="/creer" className={linkClass}>{t("nav.create")}</Link></li>
+              <li><Link href="/compte" className={linkClass}>{t("nav.account")}</Link></li>
             </ul>
           </div>
         </div>

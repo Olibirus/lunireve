@@ -37,6 +37,35 @@ export function applyFilters(filters: StoryFilters): MockStory[] {
 /** Themes present in the library (slug list drives chip rails + i18n keys). */
 export const THEMES = [...new Set(mockStories.map((s) => s.theme))];
 
+/** Library sort options (#9). "liked" maps to ratingCount, our real like proxy. */
+export type StorySort = "newest" | "rating" | "liked" | "shortest";
+
+export function sortStories(stories: MockStory[], sort: StorySort): MockStory[] {
+  const arr = [...stories];
+  switch (sort) {
+    case "rating":
+      // Best rating first; ties broken by vote count (more votes = more trust).
+      return arr.sort((a, b) => b.rating - a.rating || b.ratingCount - a.ratingCount);
+    case "liked":
+      // Most liked = most ratings collected (real aggregate, 0 until users rate).
+      return arr.sort((a, b) => b.ratingCount - a.ratingCount || b.rating - a.rating);
+    case "shortest":
+      return arr.sort((a, b) => a.readingMinutes - b.readingMinutes);
+    case "newest":
+    default:
+      return arr;
+  }
+}
+
+/** Read the `sort` query param, falling back to the default library order. */
+export function sortFromSearchParams(
+  sp: Record<string, string | string[] | undefined>
+): StorySort {
+  const s = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort;
+  if (s === "rating" || s === "liked" || s === "shortest") return s;
+  return "newest";
+}
+
 /** Parse Next.js searchParams into typed filters, ignoring junk values. */
 export function filtersFromSearchParams(
   sp: Record<string, string | string[] | undefined>

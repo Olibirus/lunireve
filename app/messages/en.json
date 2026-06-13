@@ -161,6 +161,7 @@
     "sortLabel": "Sort by",
     "sortNewest": "Newest first",
     "sortRating": "Highest rated",
+    "sortMostLiked": "Most liked",
     "sortShortest": "Shortest first",
     "prev": "Previous",
     "next": "Next",
@@ -358,7 +359,10 @@
     "newsletterSubmit": "Subscribe",
     "newsletterNote": "One email a week, zero advertising, one-click unsubscribe.",
     "colProduct": "Read",
-    "colCompany": "House",
+    "colCompany": "Company",
+    "colByAge": "By age",
+    "colByGenre": "By genre",
+    "colHouse": "The home",
     "contact": "Write to us",
     "press": "Press",
     "rights": "All rights reserved.",
@@ -385,7 +389,9 @@
       "pricing": "Pricing & subscription",
       "download": "Downloads & usage",
       "personalization": "Personalised stories",
-      "privacy": "Data & privacy"
+      "privacy": "Data & privacy",
+      "audio": "Audio & listening",
+      "account": "Account & profiles"
     }
   },
   "blog": {

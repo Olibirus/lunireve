@@ -30,6 +30,10 @@ export const FAQ_FR: FaqSection[] = [
         q: "À partir de quel âge ?",
         a: "De 1 à 12 ans. Chaque histoire est classée par tranche d'âge (1-2, 3-4, 5-6, 7-8, 9-10, 11-12 ans) et sa longueur est adaptée à l'âge.",
       },
+      {
+        q: "Lunireve est-il disponible en plusieurs langues ?",
+        a: "Lunireve est disponible en français, et la version anglaise arrive bientôt. D'autres langues suivront pour accompagner les familles partout dans le monde.",
+      },
     ],
   },
   {
@@ -104,6 +108,42 @@ export const FAQ_FR: FaqSection[] = [
       },
     ],
   },
+  {
+    id: "audio",
+    titleKey: "audio",
+    items: [
+      {
+        q: "Les histoires sont-elles disponibles en audio ?",
+        a: "Oui. Chaque histoire peut être écoutée gratuitement en ligne, avec une voix douce pensée pour le coucher. L'audio est créé à la première écoute, puis conservé pour les fois suivantes.",
+      },
+      {
+        q: "Peut-on écouter une histoire sans regarder l'écran ?",
+        a: "Oui. Lancez la lecture audio, posez le téléphone et laissez l'histoire bercer votre enfant. Un mode d'écoute à écran noir, idéal pour l'endormissement, arrive prochainement.",
+      },
+      {
+        q: "Les histoires audio aident-elles les enfants à s'endormir ?",
+        a: "Oui. Le rythme, le ton et la longueur sont pensés pour accompagner l'endormissement et prolonger en douceur le rituel du soir.",
+      },
+    ],
+  },
+  {
+    id: "account",
+    titleKey: "account",
+    items: [
+      {
+        q: "Comment créer un compte ?",
+        a: "En quelques secondes avec une adresse email. Le compte gratuit donne accès aux favoris, à l'historique, à la reprise de lecture et aux profils enfants.",
+      },
+      {
+        q: "Puis-je créer un profil pour chaque enfant ?",
+        a: "Oui. La formule gratuite inclut un profil enfant, et les formules payantes en ajoutent davantage, chacun avec son avatar, ses favoris et sa série de lecture.",
+      },
+      {
+        q: "Lunireve fonctionne-t-il sur mobile et tablette ?",
+        a: "Oui. Le site est conçu d'abord pour le mobile, parfait pour la lecture du soir dans une chambre sombre, et fonctionne aussi sur tablette et ordinateur.",
+      },
+    ],
+  },
 ];
 
 /** English mirror (same structure). */
@@ -127,6 +167,10 @@ export const FAQ_EN: FaqSection[] = [
       {
         q: "From what age?",
         a: "From 1 to 12 years old. Each story is sorted by age band and its length is adapted to the age.",
+      },
+      {
+        q: "Is Lunireve available in several languages?",
+        a: "Lunireve is available in French, with the English version coming soon. More languages will follow, to support families everywhere.",
       },
     ],
   },
@@ -199,6 +243,42 @@ export const FAQ_EN: FaqSection[] = [
       {
         q: "What child information is kept?",
         a: "The bare minimum: a first name and an age. No photo is ever requested.",
+      },
+    ],
+  },
+  {
+    id: "audio",
+    titleKey: "audio",
+    items: [
+      {
+        q: "Are the stories available as audio?",
+        a: "Yes. Every story can be listened to for free online, with a gentle voice made for bedtime. Audio is created on first listen, then kept for next time.",
+      },
+      {
+        q: "Can I listen to a story without looking at the screen?",
+        a: "Yes. Start audio playback, put the phone down and let the story lull your child. A black-screen listening mode, ideal for falling asleep, is coming soon.",
+      },
+      {
+        q: "Do the audio stories help children fall asleep?",
+        a: "Yes. The pace, tone and length are designed to ease the way to sleep and gently extend the evening ritual.",
+      },
+    ],
+  },
+  {
+    id: "account",
+    titleKey: "account",
+    items: [
+      {
+        q: "How do I create an account?",
+        a: "In seconds with an email address. The free account unlocks favourites, history, resume reading and child profiles.",
+      },
+      {
+        q: "Can I create a profile for each child?",
+        a: "Yes. The free plan includes one child profile, and paid plans add more, each with its own avatar, favourites and reading streak.",
+      },
+      {
+        q: "Does Lunireve work on mobile and tablet?",
+        a: "Yes. The site is built mobile-first, perfect for bedtime reading in a dark room, and also works on tablet and desktop.",
       },
     ],
   },

@@ -42,12 +42,15 @@ function NavDropdown({
   children,
   align = "left",
   href,
+  contentClassName,
 }: {
   label: string;
   children: React.ReactNode;
   align?: "left" | "right";
   /** When set, clicking the trigger navigates there; hover still opens the menu. */
   href?: string;
+  /** Override the panel width/layout (e.g. compact age menu, #3). */
+  contentClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -92,7 +95,12 @@ function NavDropdown({
             align === "left" ? "left-0" : "right-0"
           )}
         >
-          <div className="min-w-56 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-2 shadow-[var(--shadow-float)]">
+          <div
+            className={cn(
+              "min-w-56 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-2 shadow-[var(--shadow-float)]",
+              contentClassName
+            )}
+          >
             {children}
           </div>
         </div>
@@ -183,7 +191,9 @@ export function Header() {
 
         {/* Desktop nav (#13/#26) */}
         <nav aria-label="Navigation principale" className="hidden lg:flex items-center gap-0.5">
-          <NavDropdown label={t("nav.stories")}>
+          {/* Histoires mega-menu opens right-to-left so the wide panel stays
+              within the viewport instead of pushing off the right edge (#4). */}
+          <NavDropdown label={t("nav.stories")} align="right">
             <div className="grid grid-cols-2 gap-x-2 min-w-[26rem] p-1">
               <div>
                 {GENRES.map((g) => (
@@ -202,12 +212,16 @@ export function Header() {
             </div>
           </NavDropdown>
 
-          <NavDropdown label={t("nav.byAge")}>
-            {AGE_RANGES.map((r) => (
-              <MenuLink key={r} href={{ pathname: "/histoires/age/[range]", params: { range: r } }}>
-                {ageLabel(r)}
-              </MenuLink>
-            ))}
+          {/* Age labels are short, so the panel was far too wide (#3): two
+              compact columns sized to content instead of one wide column. */}
+          <NavDropdown label={t("nav.byAge")} contentClassName="min-w-0 w-max">
+            <div className="grid grid-cols-2 gap-x-1">
+              {AGE_RANGES.map((r) => (
+                <MenuLink key={r} href={{ pathname: "/histoires/age/[range]", params: { range: r } }}>
+                  {ageLabel(r)}
+                </MenuLink>
+              ))}
+            </div>
           </NavDropdown>
 
           <NavDropdown label={t("nav.byDuration")}>

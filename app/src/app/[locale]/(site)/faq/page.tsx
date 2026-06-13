@@ -35,20 +35,24 @@ export default async function FaqPage({
         </div>
       </section>
 
-      <section className="mx-auto max-w-3xl px-5 md:px-8 pb-16 space-y-10">
-        {sections.map((section) => (
-          <div key={section.id} id={section.id}>
-            <h2
-              className="mb-4 font-serif text-2xl tracking-tight"
-              style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
-            >
-              {t(`sections.${section.titleKey}`)}
-            </h2>
-            <Accordion items={section.items.map((i) => ({ question: i.q, answer: i.a }))} />
-          </div>
-        ))}
+      <section className="mx-auto max-w-5xl px-5 md:px-8 pb-16">
+        {/* Two columns on desktop (#2), single column on mobile. items-start
+            so the two columns stay top-aligned regardless of section height. */}
+        <div className="grid gap-x-12 gap-y-10 md:grid-cols-2 md:items-start">
+          {sections.map((section) => (
+            <div key={section.id} id={section.id}>
+              <h2
+                className="mb-4 font-serif text-2xl tracking-tight"
+                style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
+              >
+                {t(`sections.${section.titleKey}`)}
+              </h2>
+              <Accordion items={section.items.map((i) => ({ question: i.q, answer: i.a }))} />
+            </div>
+          ))}
+        </div>
 
-        <p className="text-center text-sm text-[var(--color-ink-500)]">
+        <p className="mt-12 text-center text-sm text-[var(--color-ink-500)]">
           {t("contactPrompt")}{" "}
           <a href="mailto:hello@lunireve.com" className="font-medium underline underline-offset-2">
             hello@lunireve.com

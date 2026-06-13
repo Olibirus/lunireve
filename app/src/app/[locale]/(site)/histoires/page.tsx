@@ -10,7 +10,13 @@ import {
   AGE_RANGES,
   ageLabel,
 } from "@/data/mock-stories";
-import { applyFilters, THEMES, filtersFromSearchParams } from "@/lib/stories/filter";
+import {
+  applyFilters,
+  THEMES,
+  filtersFromSearchParams,
+  sortStories,
+  sortFromSearchParams,
+} from "@/lib/stories/filter";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -37,6 +43,7 @@ export default async function LibraryPage({
   const q = typeof sp.q === "string" ? sp.q : undefined;
   const interactiveOnly = sp.interactive === "1";
   const filters = filtersFromSearchParams(sp);
+  const sort = sortFromSearchParams(sp);
 
   let stories = applyFilters(filters);
   if (interactiveOnly) stories = stories.filter((s) => s.interactive);
@@ -44,11 +51,12 @@ export default async function LibraryPage({
     const found = new Set(searchStories(q).map((s) => s.slug));
     stories = stories.filter((s) => found.has(s.slug));
   }
+  stories = sortStories(stories, sort);
 
   // Build a query object preserving other params while toggling one key.
   const baseQuery: Record<string, string> = {};
   for (const [k, v] of Object.entries(sp)) {
-    if (typeof v === "string" && ["character", "age", "theme", "interactive"].includes(k)) {
+    if (typeof v === "string" && ["character", "age", "theme", "interactive", "sort"].includes(k)) {
       baseQuery[k] = v;
     }
   }
@@ -58,6 +66,19 @@ export default async function LibraryPage({
     else next[key] = value;
     return { pathname: "/histoires" as const, query: next };
   }
+  // Sort links keep active filters but swap the sort key (default omits it).
+  function sortHref(value: string) {
+    const next = { ...baseQuery };
+    if (value === "newest") delete next.sort;
+    else next.sort = value;
+    return { pathname: "/histoires" as const, query: next };
+  }
+  const sortOptions = [
+    { value: "newest", label: t("sortNewest") },
+    { value: "rating", label: t("sortRating") },
+    { value: "liked", label: t("sortMostLiked") },
+    { value: "shortest", label: t("sortShortest") },
+  ] as const;
 
   const rails = [
     {
@@ -77,7 +98,8 @@ export default async function LibraryPage({
     },
   ] as const;
 
-  const hasFilters = Object.keys(baseQuery).length > 0 || Boolean(q);
+  const hasFilters =
+    Object.keys(baseQuery).some((k) => k !== "sort") || Boolean(q);
 
   return (
     <>
@@ -168,11 +190,36 @@ export default async function LibraryPage({
               ? t("searchResults", { query: q, count: stories.length })
               : t("countLabel", { count: stories.length })}
           </p>
-          {hasFilters && (
-            <Link href="/histoires" className="text-sm text-[var(--color-indigo-soft-600)] hover:text-[var(--color-ink-800)]">
-              {tAll("funnel.clearFilters")}
-            </Link>
-          )}
+          <div className="flex items-center flex-wrap gap-x-4 gap-y-2">
+            {/* Sort control (#9): best rating, most liked, etc. */}
+            <div className="flex items-center flex-wrap gap-1.5">
+              <span className="text-xs uppercase tracking-widest text-[var(--color-ink-500)]">
+                {t("sortLabel")}
+              </span>
+              {sortOptions.map((opt) => {
+                const active = sort === opt.value;
+                return (
+                  <Link
+                    key={opt.value}
+                    href={sortHref(opt.value)}
+                    className={cn(
+                      "rounded-full border px-3 py-1 text-xs transition-colors",
+                      active
+                        ? "bg-[var(--color-ink-800)] text-[var(--color-cream-50)] border-transparent"
+                        : "border-[var(--color-ink-100)] text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
+                    )}
+                  >
+                    {opt.label}
+                  </Link>
+                );
+              })}
+            </div>
+            {hasFilters && (
+              <Link href="/histoires" className="text-sm text-[var(--color-indigo-soft-600)] hover:text-[var(--color-ink-800)]">
+                {tAll("funnel.clearFilters")}
+              </Link>
+            )}
+          </div>
         </div>
 
         {stories.length === 0 ? (

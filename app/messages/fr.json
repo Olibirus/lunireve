@@ -161,6 +161,7 @@
     "sortLabel": "Trier par",
     "sortNewest": "Les plus récentes",
     "sortRating": "Les mieux notées",
+    "sortMostLiked": "Les plus aimées",
     "sortShortest": "Les plus courtes",
     "prev": "Précédent",
     "next": "Suivant",
@@ -358,7 +359,10 @@
     "newsletterSubmit": "S'inscrire",
     "newsletterNote": "Un email par semaine, zéro publicité, désinscription en un clic.",
     "colProduct": "Lire",
-    "colCompany": "Maison",
+    "colCompany": "Société",
+    "colByAge": "Par âge",
+    "colByGenre": "Par genre",
+    "colHouse": "La Maison",
     "contact": "Nous écrire",
     "press": "Presse",
     "rights": "Tous droits réservés.",
@@ -385,7 +389,9 @@
       "pricing": "Tarifs et abonnement",
       "download": "Téléchargement et usage",
       "personalization": "Histoires personnalisées",
-      "privacy": "Données et confidentialité"
+      "privacy": "Données et confidentialité",
+      "audio": "Audio et écoute",
+      "account": "Compte et profils"
     }
   },
   "blog": {

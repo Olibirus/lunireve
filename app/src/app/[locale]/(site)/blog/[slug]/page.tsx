@@ -32,7 +32,7 @@ export default async function BlogArticlePage({ params }: Props) {
 
   return (
     <>
-      <article className="mx-auto max-w-3xl px-5 md:px-8 pt-8 md:pt-12 pb-16">
+      <article className="mx-auto max-w-4xl px-5 md:px-8 pt-8 md:pt-12 pb-16">
         <Link
           href="/blog"
           className="inline-flex items-center gap-2 text-sm text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"

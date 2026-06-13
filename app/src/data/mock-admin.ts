@@ -119,7 +119,7 @@ export const storyAnalytics: StoryAnalytics[] = mockStories.map((s) => ({
   readPct: 0,
   completionRate: 0,
   audioPlays: 0,
-  favorites: 0,
+  favorites: s.favoritesCount,
   avgRating: s.rating,
   shares: 0,
   reports: 0,

@@ -68,13 +68,15 @@ export function ReadingProgress({ slug }: { slug: string }) {
 
   return (
     <>
-      {/* Fine progress line pinned under the navbar (item #6) */}
+      {/* Reading progress line pinned just under the navbar (item #6). The
+          header is h-20 (80px), so anchor at top-20 with a faint track so the
+          bar is always visible, not hidden behind the navbar. */}
       <div
         aria-hidden
-        className="fixed left-0 top-16 z-40 h-0.5 w-full bg-transparent"
+        className="fixed left-0 top-20 z-30 h-1 w-full bg-[var(--color-ink-100)]/60"
       >
         <div
-          className="h-0.5 bg-[var(--color-fox-500)] transition-[width] duration-150"
+          className="h-full bg-[var(--color-fox-500)] transition-[width] duration-150"
           style={{ width: `${live}%` }}
         />
       </div>

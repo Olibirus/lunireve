@@ -163,6 +163,7 @@
     "sortRating": "Highest rated",
     "sortMostLiked": "Most liked",
     "sortShortest": "Shortest first",
+    "seeMore": "See more stories",
     "prev": "Previous",
     "next": "Next",
     "pageOf": "Page {current} of {total}",
@@ -382,12 +383,13 @@
     "newsletterPlaceholder": "you@example.com",
     "newsletterSubmit": "Subscribe",
     "newsletterNote": "One email a week, zero advertising, one-click unsubscribe.",
-    "colProduct": "Read",
-    "colCompany": "Company",
     "colByAge": "By age",
     "colByGenre": "By genre",
-    "colHouse": "The home",
-    "contact": "Write to us",
+    "colUniverse": "Our world",
+    "faq": "FAQ",
+    "blog": "Blog",
+    "writeWithUs": "Write with us",
+    "contactUs": "Contact us",
     "press": "Press",
     "rights": "All rights reserved.",
     "legal": {
@@ -425,7 +427,8 @@
     "readTime": "{minutes} min read",
     "backToBlog": "Back to the journal",
     "tldr": "The essentials in 30 seconds",
-    "authorNote": "Written by the Lunireve team with AI assistance, reviewed and fact-checked by hand before publishing."
+    "authorNote": "The Lunireve team",
+    "relatedTitle": "Read next"
   },
   "theme": {
     "toDark": "Switch to night mode",

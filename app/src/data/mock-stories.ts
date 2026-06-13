@@ -78,6 +78,8 @@ export type MockStory = {
   /** Real aggregates only. 0 until actual users rate (no fake numbers). */
   rating: number;
   ratingCount: number;
+  /** Real favorites aggregate (mirrors stories.favorites_count). 0 until real. */
+  favoritesCount: number;
   hasAudio: boolean;
   /** null = audio generated at first listen (cost-saving), then cached here */
   audioUrl: string | null;
@@ -101,6 +103,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-night",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: false,
@@ -121,6 +124,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-sea",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: false,
@@ -141,6 +145,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-meadow",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: false,
@@ -161,6 +166,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-peach",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: false,
@@ -181,6 +187,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-indigo",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: true,
@@ -201,6 +208,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-mint",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: false,
@@ -221,6 +229,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-sand",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: false,
@@ -241,6 +250,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-dusk",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: false,
@@ -261,6 +271,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-night",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: true,
@@ -281,6 +292,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-peach",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: false,
@@ -301,6 +313,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-sea",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: false,
@@ -321,6 +334,7 @@ export const mockStories: MockStory[] = [
     cover: "cover-meadow",
     rating: 0,
     ratingCount: 0,
+    favoritesCount: 0,
     hasAudio: true,
     audioUrl: null,
     interactive: false,
@@ -990,6 +1004,43 @@ export function interactiveTree(_slug: string): InteractiveNode {
       { label: "Dans le jardin, pieds nus dans l'herbe", next: jardin },
     ],
   };
+}
+
+/**
+ * Quiz + glossary matched to the interactive "étoiles perdues" tree above.
+ * Interactive stories share the same branching content for now, so they share
+ * this quiz instead of the unrelated FALLBACK_CONTENT trio (feedback: the
+ * interactive quiz was about the wrong story).
+ */
+export function interactiveQuiz(): QuizQuestion[] {
+  return [
+    {
+      question: "Qu'est-ce qui réveille l'enfant cette nuit-là ?",
+      choices: ["Un tintement, comme des grelots", "Un gros orage", "Un mauvais rêve"],
+      answer: 0,
+      explanation: "C'est un tintement, comme des grelots très loin, qui le réveille.",
+    },
+    {
+      question: "Que remarque l'enfant par la fenêtre ?",
+      choices: ["Il neige", "Il manque des étoiles dans le ciel", "La lune a disparu"],
+      answer: 1,
+      explanation: "Il manque des étoiles, comme un sourire à qui il manque des dents.",
+    },
+    {
+      question: "Que faut-il faire pour aider les petites étoiles ?",
+      choices: ["Les cacher dans une boîte", "Les raccompagner jusqu'au ciel", "Les garder à la maison"],
+      answer: 1,
+      explanation: "Il faut les raccompagner tout là-haut, à leur place dans le ciel.",
+    },
+  ];
+}
+
+export function interactiveGlossary(): GlossaryEntry[] {
+  return [
+    { word: "tintement", definition: "Le petit bruit clair que fait une clochette ou un grelot." },
+    { word: "lucarne", definition: "Une toute petite fenêtre, souvent dans un toit ou un grenier." },
+    { word: "voilier", definition: "Un bateau qui avance grâce au vent qui pousse ses voiles." },
+  ];
 }
 
 /**

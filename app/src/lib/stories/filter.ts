@@ -37,7 +37,7 @@ export function applyFilters(filters: StoryFilters): MockStory[] {
 /** Themes present in the library (slug list drives chip rails + i18n keys). */
 export const THEMES = [...new Set(mockStories.map((s) => s.theme))];
 
-/** Library sort options (#9). "liked" maps to ratingCount, our real like proxy. */
+/** Library sort options (#9). "liked" reads the real favoritesCount aggregate. */
 export type StorySort = "newest" | "rating" | "liked" | "shortest";
 
 export function sortStories(stories: MockStory[], sort: StorySort): MockStory[] {
@@ -47,8 +47,8 @@ export function sortStories(stories: MockStory[], sort: StorySort): MockStory[] 
       // Best rating first; ties broken by vote count (more votes = more trust).
       return arr.sort((a, b) => b.rating - a.rating || b.ratingCount - a.ratingCount);
     case "liked":
-      // Most liked = most ratings collected (real aggregate, 0 until users rate).
-      return arr.sort((a, b) => b.ratingCount - a.ratingCount || b.rating - a.rating);
+      // Most liked = most favorites (real aggregate, 0 until users favorite).
+      return arr.sort((a, b) => b.favoritesCount - a.favoritesCount || b.rating - a.rating);
     case "shortest":
       return arr.sort((a, b) => a.readingMinutes - b.readingMinutes);
     case "newest":

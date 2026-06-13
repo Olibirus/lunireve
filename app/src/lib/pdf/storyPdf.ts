@@ -1,7 +1,7 @@
 "use client";
 
 import { jsPDF } from "jspdf";
-import type { QuizQuestion, GlossaryEntry } from "@/data/mock-stories";
+import type { QuizQuestion, GlossaryEntry, InteractiveNode } from "@/data/mock-stories";
 
 /**
  * Branded multi-page story PDF (#2): not a screenshot — a laid-out document.
@@ -21,6 +21,9 @@ export type StoryPdfInput = {
   paragraphs: string[];
   quiz?: QuizQuestion[];
   glossary?: GlossaryEntry[];
+  /** When set, the PDF lays out the FULL branching story (every section) with
+      page references at each choice, gamebook-style, instead of `paragraphs`. */
+  interactive?: InteractiveNode;
 };
 
 export function downloadStoryPdf(data: StoryPdfInput) {
@@ -81,22 +84,181 @@ export function downloadStoryPdf(data: StoryPdfInput) {
   brandFooter();
 
   // ---------- Story ----------
-  let y = newPage();
-  doc.setFont("times", "normal");
-  doc.setFontSize(13);
-  doc.setTextColor(INK);
   firstPage = false;
-  for (const p of data.paragraphs) {
-    const lines = doc.splitTextToSize(p, contentW);
-    for (const line of lines) {
-      if (y > H - 70) y = newPage();
-      doc.setFont("times", "normal");
-      doc.setFontSize(13);
-      doc.setTextColor(INK);
-      doc.text(line, M, y);
-      y += 20;
+  let y = 76;
+  if (data.interactive) {
+    renderInteractive(data.interactive);
+  } else {
+    y = newPage();
+    doc.setFont("times", "normal");
+    doc.setFontSize(13);
+    doc.setTextColor(INK);
+    for (const p of data.paragraphs) {
+      const lines = doc.splitTextToSize(p, contentW);
+      for (const line of lines) {
+        if (y > H - 70) y = newPage();
+        doc.setFont("times", "normal");
+        doc.setFontSize(13);
+        doc.setTextColor(INK);
+        doc.text(line, M, y);
+        y += 20;
+      }
+      y += 10; // paragraph gap
     }
-    y += 10; // paragraph gap
+  }
+
+  /**
+   * Interactive story → a gamebook: every unique segment becomes a numbered
+   * section; each choice points to the page where its branch continues, so a
+   * reader can follow any path on paper. Two passes: the first measures to map
+   * section → page (page refs sit on their own single line, so pagination does
+   * not depend on the numbers), the second draws with the resolved pages.
+   */
+  function renderInteractive(root: InteractiveNode) {
+    const idOf = new Map<InteractiveNode, number>();
+    const list: InteractiveNode[] = [];
+    const getId = (n: InteractiveNode) => {
+      if (!idOf.has(n)) {
+        idOf.set(n, list.length + 1);
+        list.push(n);
+      }
+      return idOf.get(n)!;
+    };
+    getId(root);
+    for (let i = 0; i < list.length; i++) {
+      (list[i].choices ?? []).forEach((c) => getId(c.next));
+    }
+    const sections = list.map((n, idx) => ({
+      no: idx + 1,
+      paragraphs: n.paragraphs,
+      question: n.question,
+      choices: (n.choices ?? []).map((c) => ({ label: c.label, target: idOf.get(c.next)! })),
+    }));
+
+    const letters = ["A", "B", "C", "D"];
+    const pageOf = new Map<number, number>();
+
+    for (const pass of ["measure", "draw"] as const) {
+      const draw = pass === "draw";
+      let page: number;
+      let y: number;
+      if (draw) {
+        y = newPage();
+        page = doc.getNumberOfPages();
+      } else {
+        page = 2; // first interactive page (page 1 is the cover)
+        y = 76;
+      }
+      const brk = () => {
+        if (draw) {
+          y = newPage();
+          page = doc.getNumberOfPages();
+        } else {
+          page += 1;
+          y = 76;
+        }
+      };
+
+      // Intro instruction
+      doc.setFont("times", "italic");
+      doc.setFontSize(11);
+      const intro = doc.splitTextToSize(
+        "Histoire dont vous êtes le héros : à chaque choix, rendez-vous à la page indiquée pour continuer.",
+        contentW
+      );
+      for (const line of intro) {
+        if (y > H - 70) brk();
+        if (draw) {
+          doc.setFont("times", "italic");
+          doc.setFontSize(11);
+          doc.setTextColor(MUTED);
+          doc.text(line, M, y);
+        }
+        y += 16;
+      }
+      y += 12;
+
+      for (const sec of sections) {
+        if (y > H - 110) brk();
+        pageOf.set(sec.no, page);
+        if (draw) {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(13);
+          doc.setTextColor(INK);
+          doc.text(sec.no === 1 ? "Début" : `Section ${sec.no}`, M, y);
+        }
+        y += 22;
+
+        for (const p of sec.paragraphs) {
+          doc.setFont("times", "normal");
+          doc.setFontSize(12);
+          const lines = doc.splitTextToSize(p, contentW);
+          for (const line of lines) {
+            if (y > H - 70) brk();
+            if (draw) {
+              doc.setFont("times", "normal");
+              doc.setFontSize(12);
+              doc.setTextColor(INK);
+              doc.text(line, M, y);
+            }
+            y += 17;
+          }
+          y += 7;
+        }
+
+        if (sec.question && sec.choices.length) {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(11.5);
+          const qLines = doc.splitTextToSize(sec.question, contentW);
+          if (y > H - 90) brk();
+          for (const line of qLines) {
+            if (y > H - 70) brk();
+            if (draw) {
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(11.5);
+              doc.setTextColor(INK);
+              doc.text(line, M, y);
+            }
+            y += 16;
+          }
+          y += 4;
+          sec.choices.forEach((c, ci) => {
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(11);
+            const labelLines = doc.splitTextToSize(`${letters[ci]}.  ${c.label}`, contentW - 18);
+            for (const line of labelLines) {
+              if (y > H - 70) brk();
+              if (draw) {
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(11);
+                doc.setTextColor(INK);
+                doc.text(line, M + 16, y);
+              }
+              y += 15;
+            }
+            if (y > H - 70) brk();
+            if (draw) {
+              doc.setFont("helvetica", "italic");
+              doc.setFontSize(10);
+              doc.setTextColor(MINT);
+              doc.text(`rendez-vous page ${pageOf.get(c.target) ?? "?"}`, M + 24, y);
+            }
+            y += 18;
+          });
+        } else {
+          if (y > H - 70) brk();
+          if (draw) {
+            doc.setFont("times", "italic");
+            doc.setFontSize(11);
+            doc.setTextColor(MUTED);
+            doc.text("Fin de cette histoire.", M, y);
+          }
+          y += 18;
+        }
+
+        y += 14; // gap between sections
+      }
+    }
   }
 
   // ---------- Quiz (#23: questions + lettered choices, solutions at the end) ----------

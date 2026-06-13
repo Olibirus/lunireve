@@ -4,12 +4,13 @@ import { FoxMark } from "@/components/brand/FoxCloud";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GENRES, AGE_RANGES, ageLabel } from "@/data/mock-stories";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Wand2 } from "lucide-react";
 
 /**
- * Footer — ink-800 band with mint accents. Brand + newsletter on top, then
- * full-width link columns (Company / By Age / By Genre + interactive / La
- * Maison, #5). Newsletter capture is decorative for now; Phase 1 wires Brevo.
+ * Footer — ink-800 band with mint accents. Four full-width columns: brand +
+ * newsletter, Par âge, Par genre (interactive button first), Notre univers
+ * (create button first). Newsletter capture is decorative for now; Phase 1
+ * wires Brevo.
  */
 export function Footer() {
   const t = useTranslations();
@@ -36,8 +37,8 @@ export function Footer() {
       </svg>
 
       <div className="mx-auto max-w-7xl px-5 md:px-8 pt-20 pb-10">
-        {/* Brand + newsletter */}
-        <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-16 lg:items-start">
+        <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-[1.7fr_0.8fr_1fr_1.2fr] lg:gap-12">
+          {/* Col 1 — brand + description + newsletter */}
           <div>
             <div className="flex items-center gap-2.5">
               <FoxMark className="h-10 w-10" />
@@ -48,44 +49,29 @@ export function Footer() {
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-[var(--color-indigo-soft-200)]">
               {t("footer.tagline")}
             </p>
+
+            <form className="mt-6 max-w-sm" aria-label={t("footer.newsletterLabel")}>
+              <label htmlFor="newsletter-email" className="text-xs uppercase tracking-widest text-[var(--color-mint-400)]">
+                {t("footer.newsletterHeading")}
+              </label>
+              <div className="mt-2 flex gap-2">
+                <Input
+                  id="newsletter-email"
+                  type="email"
+                  placeholder={t("footer.newsletterPlaceholder")}
+                  className="bg-[var(--color-ink-700)] border-[var(--color-ink-600)] text-[var(--color-cream-50)] placeholder:text-[var(--color-indigo-soft-300)] focus:border-[var(--color-mint-400)]"
+                />
+                <Button variant="mint" size="md" type="submit">
+                  {t("footer.newsletterSubmit")}
+                </Button>
+              </div>
+              <p className="mt-3 text-xs text-[var(--color-indigo-soft-300)]">
+                {t("footer.newsletterNote")}
+              </p>
+            </form>
           </div>
 
-          <form className="w-full max-w-md lg:justify-self-end" aria-label={t("footer.newsletterLabel")}>
-            <label htmlFor="newsletter-email" className="text-xs uppercase tracking-widest text-[var(--color-mint-400)]">
-              {t("footer.newsletterHeading")}
-            </label>
-            <div className="mt-2 flex gap-2">
-              <Input
-                id="newsletter-email"
-                type="email"
-                placeholder={t("footer.newsletterPlaceholder")}
-                className="bg-[var(--color-ink-700)] border-[var(--color-ink-600)] text-[var(--color-cream-50)] placeholder:text-[var(--color-indigo-soft-300)] focus:border-[var(--color-mint-400)]"
-              />
-              <Button variant="mint" size="md" type="submit">
-                {t("footer.newsletterSubmit")}
-              </Button>
-            </div>
-            <p className="mt-3 text-xs text-[var(--color-indigo-soft-300)]">
-              {t("footer.newsletterNote")}
-            </p>
-          </form>
-        </div>
-
-        {/* Full-width link columns (#5) */}
-        <div className="mt-16 grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4 lg:gap-12">
-          {/* Company */}
-          <div>
-            <h4 className={headingClass}>{t("footer.colCompany")}</h4>
-            <ul className="mt-4 space-y-2.5 text-sm">
-              <li><Link href="/a-propos" className={linkClass}>{t("nav.about")}</Link></li>
-              <li><Link href="/blog" className={linkClass}>{t("nav.blog")}</Link></li>
-              <li><Link href="/faq" className={linkClass}>{t("faq.title")}</Link></li>
-              <li><Link href="/tarifs" className={linkClass}>{t("nav.pricing")}</Link></li>
-              <li><a href="mailto:hello@lunireve.com" className={linkClass}>{t("footer.contact")}</a></li>
-            </ul>
-          </div>
-
-          {/* By age */}
+          {/* Col 2 — Par âge */}
           <div>
             <h4 className={headingClass}>{t("footer.colByAge")}</h4>
             <ul className="mt-4 space-y-2.5 text-sm">
@@ -102,9 +88,16 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* By genre + interactive button */}
+          {/* Col 3 — Par genre (interactive button first) */}
           <div>
             <h4 className={headingClass}>{t("footer.colByGenre")}</h4>
+            <Link
+              href={{ pathname: "/histoires", query: { interactive: "1" } }}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-mint-400)] px-3.5 py-1.5 text-xs font-medium text-[var(--color-ink-800)] hover:bg-[var(--color-mint-300)] transition-colors"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              {t("nav.interactiveStories")}
+            </Link>
             <ul className="mt-4 space-y-2.5 text-sm">
               {GENRES.map((g) => (
                 <li key={g}>
@@ -117,23 +110,27 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-            <Link
-              href={{ pathname: "/histoires", query: { interactive: "1" } }}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-mint-400)] px-3.5 py-1.5 text-xs font-medium text-[var(--color-ink-800)] hover:bg-[var(--color-mint-300)] transition-colors"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              {t("nav.interactiveStories")}
-            </Link>
           </div>
 
-          {/* La Maison — the reading product itself */}
+          {/* Col 4 — Notre univers (create button first) */}
           <div>
-            <h4 className={headingClass}>{t("footer.colHouse")}</h4>
+            <h4 className={headingClass}>{t("footer.colUniverse")}</h4>
+            <Link
+              href="/creer"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-cream-50)] px-3.5 py-1.5 text-xs font-medium text-[var(--color-ink-800)] hover:bg-[var(--color-cream-200)] transition-colors"
+            >
+              <Wand2 className="h-3.5 w-3.5 text-[var(--color-indigo-soft-600)]" />
+              {t("nav.create")}
+            </Link>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li><Link href="/histoires" className={linkClass}>{t("nav.stories")}</Link></li>
-              <li><Link href="/histoires/audio" className={linkClass}>{t("nav.audioStories")}</Link></li>
-              <li><Link href="/creer" className={linkClass}>{t("nav.create")}</Link></li>
+              <li><Link href="/a-propos" className={linkClass}>{t("nav.about")}</Link></li>
+              <li><Link href="/tarifs" className={linkClass}>{t("nav.pricing")}</Link></li>
+              <li><Link href="/faq" className={linkClass}>{t("footer.faq")}</Link></li>
+              <li><Link href="/blog" className={linkClass}>{t("footer.blog")}</Link></li>
+              <li><Link href="/compte/proposer" className={linkClass}>{t("footer.writeWithUs")}</Link></li>
               <li><Link href="/compte" className={linkClass}>{t("nav.account")}</Link></li>
+              <li><a href="mailto:hello@lunireve.com" className={linkClass}>{t("footer.contactUs")}</a></li>
             </ul>
           </div>
         </div>

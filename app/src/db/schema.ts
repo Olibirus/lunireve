@@ -352,9 +352,10 @@ export const stories = pgTable(
     seriesId: uuid("series_id"),
     episodeNumber: integer("episode_number"),
 
-    // Ratings — denormalized for fast sorting.
+    // Ratings + favorites — denormalized for fast sorting.
     ratingAverage: real("rating_average").notNull().default(0),
     ratingCount: integer("rating_count").notNull().default(0),
+    favoritesCount: integer("favorites_count").notNull().default(0),
 
     // Provider metadata: which models were used, token counts, cost estimate.
     generationMetadata: jsonb("generation_metadata").$type<

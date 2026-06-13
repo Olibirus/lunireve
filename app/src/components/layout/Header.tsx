@@ -44,7 +44,7 @@ function NavDropdown({
   href,
   contentClassName,
 }: {
-  label: string;
+  label: React.ReactNode;
   children: React.ReactNode;
   align?: "left" | "right";
   /** When set, clicking the trigger navigates there; hover still opens the menu. */
@@ -145,6 +145,9 @@ export function Header() {
   }, []);
 
   const [streak, setStreak] = useState<number | null>(null);
+  // Name shown under "account": the active child's name when reading as a
+  // child, otherwise the parent's account name.
+  const [accountName, setAccountName] = useState<string | null>(null);
 
   useEffect(() => {
     setLogged(isLoggedIn());
@@ -152,7 +155,20 @@ export function Header() {
     // the daily habit. Hidden when no profile is active.
     try {
       const p = getActiveProfile();
-      if (p) setStreak(p.streak);
+      if (p) {
+        setStreak(p.streak);
+        setAccountName(p.name);
+        return;
+      }
+    } catch {
+      /* ignore */
+    }
+    // Parent session: pull the display name from the account info store.
+    try {
+      const info = JSON.parse(localStorage.getItem("lunireve:accountInfo") ?? "{}");
+      if (info && typeof info.name === "string" && info.name.trim()) {
+        setAccountName(info.name.trim());
+      }
     } catch {
       /* ignore */
     }
@@ -191,23 +207,23 @@ export function Header() {
 
         {/* Desktop nav (#13/#26) */}
         <nav aria-label="Navigation principale" className="hidden lg:flex items-center gap-0.5">
-          {/* Histoires mega-menu opens right-to-left so the wide panel stays
-              within the viewport instead of pushing off the right edge (#4). */}
-          <NavDropdown label={t("nav.stories")} align="right">
+          {/* Stories mega-menu: tools on the left, genres on the right,
+              left-aligned like the Âge / Durée menus. */}
+          <NavDropdown label={t("nav.stories")}>
             <div className="grid grid-cols-2 gap-x-2 min-w-[26rem] p-1">
               <div>
-                {GENRES.map((g) => (
-                  <MenuLink key={g} href={{ pathname: "/histoires/genre/[genre]", params: { genre: g } }}>
-                    {t(`genres.${g}`)}
-                  </MenuLink>
-                ))}
-              </div>
-              <div className="border-l border-[var(--color-ink-100)] pl-2">
                 <MenuLink href="/histoires" icon={BookOpen}>{t("nav.allStories")}</MenuLink>
                 <MenuLink href={{ pathname: "/histoires", query: { interactive: "1" } }} icon={Sparkles}>
                   {t("nav.interactiveStories")}
                 </MenuLink>
                 <MenuLink href="/creer" icon={Wand2}>{t("nav.create")}</MenuLink>
+              </div>
+              <div className="border-l border-[var(--color-ink-100)] pl-2">
+                {GENRES.map((g) => (
+                  <MenuLink key={g} href={{ pathname: "/histoires/genre/[genre]", params: { genre: g } }}>
+                    {t(`genres.${g}`)}
+                  </MenuLink>
+                ))}
               </div>
             </div>
           </NavDropdown>
@@ -260,7 +276,24 @@ export function Header() {
           <LanguageSwitcher />
 
           {logged ? (
-            <NavDropdown label={t("nav.account")} align="right" href="/compte">
+            <NavDropdown
+              label={
+                accountName ? (
+                  <span className="flex flex-col items-start leading-tight text-left">
+                    <span className="text-[10px] uppercase tracking-wide text-[var(--color-ink-400)]">
+                      {t("nav.account")}
+                    </span>
+                    <span className="-mt-0.5 max-w-[8rem] truncate text-sm font-medium">
+                      {accountName}
+                    </span>
+                  </span>
+                ) : (
+                  t("nav.account")
+                )
+              }
+              align="right"
+              href="/compte"
+            >
               <MenuLink href="/compte" icon={LayoutDashboard}>{t("nav.menuDashboard")}</MenuLink>
               <MenuLink href="/profils" icon={Users}>{t("nav.menuProfiles")}</MenuLink>
               <MenuLink href="/compte/histoires" icon={BookOpen}>{t("account.menu.customStories")}</MenuLink>

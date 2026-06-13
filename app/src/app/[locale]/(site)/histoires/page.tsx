@@ -1,6 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { StoryCard } from "@/components/story/StoryCard";
+import { StoryGrid } from "@/components/story/StoryGrid";
 import { StorySearch } from "@/components/story/StorySearch";
 import { StoryBreadcrumb } from "@/components/story/StoryBreadcrumb";
 import {
@@ -228,11 +228,7 @@ export default async function LibraryPage({
             <p className="mt-2 text-sm text-[var(--color-ink-500)]">{tAll("funnel.emptyBody")}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
-            {stories.map((s) => (
-              <StoryCard key={s.slug} story={s} />
-            ))}
-          </div>
+          <StoryGrid stories={stories} />
         )}
       </section>
     </>

@@ -9,6 +9,8 @@ import {
   storyQuiz,
   storyGlossary,
   interactiveTree,
+  interactiveQuiz,
+  interactiveGlossary,
   durationBucket,
   ageLabel,
   type GlossaryEntry,
@@ -86,8 +88,11 @@ export default async function StoryDetailPage({
   if (!story) notFound();
 
   const body = storyBody(slug);
-  const quiz = storyQuiz(slug);
-  const glossary = storyGlossary(slug);
+  // Interactive stories carry their own branching tree, quiz and glossary so
+  // the quiz matches the story the reader actually plays (not the fallback).
+  const interactive = story.interactive ? interactiveTree(slug) : undefined;
+  const quiz = story.interactive ? interactiveQuiz() : storyQuiz(slug);
+  const glossary = story.interactive ? interactiveGlossary() : storyGlossary(slug);
   const age = ageLabel(story.ageRange);
   const bucket = durationBucket(story.readingMinutes);
 
@@ -194,9 +199,13 @@ export default async function StoryDetailPage({
                 pdf={{
                   title: story.title,
                   meta: `${tAll(`genres.${story.genre}`)} · ${age} · ${story.readingMinutes} min`,
-                  paragraphs: body,
+                  // Full content goes to the PDF regardless of what's shown on
+                  // screen: interactive stories export every branch, linear
+                  // stories export the body.
+                  paragraphs: story.interactive ? [] : body,
                   quiz,
                   glossary,
+                  interactive,
                 }}
               />
             </div>
@@ -215,8 +224,8 @@ export default async function StoryDetailPage({
       {/* Body — single centered column, wider measure (#5) */}
       <section className="mx-auto max-w-4xl px-5 md:px-8 py-10 md:py-14">
         <div id="story-body" className="prose-reading reading-size-m mx-auto max-w-[74ch]">
-          {story.interactive ? (
-            <InteractiveStory tree={interactiveTree(slug)} />
+          {story.interactive && interactive ? (
+            <InteractiveStory tree={interactive} />
           ) : (
             <>
               {body.map((p, i) => {

@@ -7,6 +7,7 @@ after each batch (must stay green).
 ## Cross-session changes log
 <!-- Add ONE line per cross-territory edit, newest on top:
      `YYYY-MM-DD [Session X]: touched <folder> for <reason>` -->
+2026-06-13 [Session A]: touched data/mock-stories.ts, db/schema.ts, data/mock-admin.ts, lib/stories, lib/pdf for favoritesCount field + interactive quiz/PDF
 
 ## Auto-commit + push (mandatory, no asking)
 At the end of EVERY task: `pnpm build` (must be green) →

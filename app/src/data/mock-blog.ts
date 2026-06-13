@@ -191,3 +191,15 @@ export const blogArticles: BlogArticle[] = [
 export function findArticle(slug: string): BlogArticle | undefined {
   return blogArticles.find((a) => a.slug === slug);
 }
+
+/**
+ * Internal linking (#): articles sharing the current article's tag come first,
+ * padded with the most recent others so we always surface `limit` cards.
+ */
+export function relatedArticles(slug: string, limit = 3): BlogArticle[] {
+  const current = findArticle(slug);
+  if (!current) return [];
+  const sameTag = blogArticles.filter((a) => a.slug !== slug && a.tag === current.tag);
+  const others = blogArticles.filter((a) => a.slug !== slug && a.tag !== current.tag);
+  return [...sameTag, ...others].slice(0, limit);
+}

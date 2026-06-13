@@ -163,6 +163,7 @@
     "sortRating": "Les mieux notées",
     "sortMostLiked": "Les plus aimées",
     "sortShortest": "Les plus courtes",
+    "seeMore": "Voir plus d'histoires",
     "prev": "Précédent",
     "next": "Suivant",
     "pageOf": "Page {current} sur {total}",
@@ -382,12 +383,13 @@
     "newsletterPlaceholder": "vous@exemple.fr",
     "newsletterSubmit": "S'inscrire",
     "newsletterNote": "Un email par semaine, zéro publicité, désinscription en un clic.",
-    "colProduct": "Lire",
-    "colCompany": "Société",
     "colByAge": "Par âge",
     "colByGenre": "Par genre",
-    "colHouse": "La Maison",
-    "contact": "Nous écrire",
+    "colUniverse": "Notre univers",
+    "faq": "FAQ",
+    "blog": "Blog",
+    "writeWithUs": "Écrire avec nous",
+    "contactUs": "Nous contacter",
     "press": "Presse",
     "rights": "Tous droits réservés.",
     "legal": {
@@ -425,7 +427,8 @@
     "readTime": "{minutes} min de lecture",
     "backToBlog": "Retour au journal",
     "tldr": "L'essentiel en 30 secondes",
-    "authorNote": "Écrit par l'équipe Lunireve, avec l'aide de l'IA, relu et vérifié à la main avant publication."
+    "authorNote": "L'équipe Lunireve",
+    "relatedTitle": "À lire ensuite"
   },
   "theme": {
     "toDark": "Passer en mode nuit",

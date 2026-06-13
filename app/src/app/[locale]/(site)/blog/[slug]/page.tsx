@@ -1,7 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/navigation";
-import { blogArticles, findArticle } from "@/data/mock-blog";
+import { blogArticles, findArticle, relatedArticles } from "@/data/mock-blog";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, ListChecks } from "lucide-react";
@@ -22,6 +22,8 @@ export default async function BlogArticlePage({ params }: Props) {
 
   const article = findArticle(slug);
   if (!article) notFound();
+
+  const related = relatedArticles(slug, 3);
 
   const date = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString(
@@ -104,6 +106,41 @@ export default async function BlogArticlePage({ params }: Props) {
           {t("authorNote")}
         </p>
       </article>
+
+      {/* Internal linking — 3 related articles, by tag (SEO + engagement) */}
+      {related.length > 0 && (
+        <section className="bg-[var(--color-cream-100)]">
+          <div className="mx-auto max-w-5xl px-5 md:px-8 py-16">
+            <h2
+              className="font-serif text-2xl md:text-3xl tracking-tight"
+              style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}
+            >
+              {t("relatedTitle")}
+            </h2>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((a) => (
+                <Link
+                  key={a.slug}
+                  href={{ pathname: "/blog/[slug]", params: { slug: a.slug } }}
+                  className="group block overflow-hidden rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] hover:border-[var(--color-ink-200)] transition-shadow"
+                >
+                  <div aria-hidden className={cn(a.cover, "aspect-[16/9] w-full")} />
+                  <div className="p-5">
+                    <Badge variant="mint">{a.tag}</Badge>
+                    <h3 className="mt-3 font-serif text-lg leading-snug tracking-tight text-[var(--color-ink-800)]">
+                      {a.title}
+                    </h3>
+                    <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-[var(--color-ink-400)]">
+                      <Clock className="h-3 w-3" />
+                      {t("readTime", { minutes: a.readingMinutes })}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <NewsletterBand />
     </>

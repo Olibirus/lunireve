@@ -15,7 +15,7 @@ Société : Hong Kong. Marché cible principal : France. Conformité RGPD + COPP
 | Framework          | Next.js 16 (App Router) — voir `AGENTS.md`       |
 | UI                 | React 19 + Tailwind 4 + shadcn/ui                |
 | i18n               | next-intl 4 (FR default, EN, pathnames traduits) |
-| DB                 | Supabase Postgres (Frankfurt) + Drizzle ORM      |
+| DB                 | Supabase Postgres (Paris) + Drizzle ORM          |
 | Auth / Storage     | Supabase                                         |
 | Paiements          | Stripe (HK)                                      |
 | Texte IA           | Anthropic Claude (OpenAI en fallback)            |

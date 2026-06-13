@@ -106,14 +106,17 @@ export default function CreateStoryPage() {
     setProgress(0);
 
     // Real generation runs in parallel with the loading screen; the local
-    // template story keeps the experience intact if the call fails.
-    let settled: { title: string; body: string[] } | null = null;
-    generateStoryAction(params)
+    // template story keeps the experience intact if the call fails. `id` is the
+    // DB-assigned story id (null on stub/failure) — used for the shareable URL.
+    let settled: { title: string; body: string[]; id: string | null } | null = null;
+    generateStoryAction(params, profileId)
       .then((res) => {
-        settled = res && res.ok ? { title: res.title, body: res.body } : buildStubStory(params);
+        settled = res && res.ok
+          ? { title: res.title, body: res.body, id: res.id }
+          : { ...buildStubStory(params), id: null };
       })
       .catch(() => {
-        settled = buildStubStory(params);
+        settled = { ...buildStubStory(params), id: null };
       });
 
     // Continuous bar with variable speed (#13): quick start, slowdown as
@@ -130,7 +133,15 @@ export default function CreateStoryPage() {
 
         if (next >= 100 && settled) {
           if (interval.current) clearInterval(interval.current);
-          const story = saveCustomStory(settled.title, settled.body, params, profileId);
+          // Cache locally under the DB id (when persisted) so the link resolves
+          // offline and on the creating device, then route to that shareable id.
+          const story = saveCustomStory(
+            settled.title,
+            settled.body,
+            params,
+            profileId,
+            settled.id ?? undefined
+          );
           setUsed(quotaUsed());
           pushNotification({
             title: t("notifReady"),

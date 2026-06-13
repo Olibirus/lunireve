@@ -221,6 +221,8 @@
     "playerNext": "Chapitre suivant",
     "playerRestart": "Recommencer l'histoire",
     "playerCloseNote": "Fermer cette fenêtre arrête l'audio, le texte s'ouvrira là où la voix s'est arrêtée.",
+    "playerGenerating": "Création de la voix en cours, quelques secondes...",
+    "playerError": "La voix n'a pas pu être créée. Réessaie dans un instant.",
     "favorite": "Ajouter aux favorites",
     "favorited": "Dans tes favorites",
     "shareCopied": "Lien copié !",

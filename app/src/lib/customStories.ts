@@ -71,15 +71,20 @@ function bumpQuota() {
   }
 }
 
-/** Persist a generated (or stub) story locally and consume one quota unit. */
+/**
+ * Persist a generated (or stub) story locally and consume one quota unit.
+ * Pass `id` to store under the DB-assigned id so the local offline copy and the
+ * shareable /histoire-perso/<id> URL line up; omit it for a purely local story.
+ */
 export function saveCustomStory(
   title: string,
   body: string[],
   params: CustomStoryParams,
-  profileId: string | null
+  profileId: string | null,
+  id?: string
 ): CustomStory {
   const story: CustomStory = {
-    id: crypto.randomUUID(),
+    id: id ?? crypto.randomUUID(),
     profileId,
     title,
     params,

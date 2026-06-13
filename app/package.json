@@ -9,7 +9,8 @@
     "db:generate": "dotenv -e .env.local -- drizzle-kit generate",
     "db:push": "dotenv -e .env.local -- drizzle-kit push",
     "db:migrate": "dotenv -e .env.local -- drizzle-kit migrate",
-    "db:studio": "dotenv -e .env.local -- drizzle-kit studio"
+    "db:studio": "dotenv -e .env.local -- drizzle-kit studio",
+    "storage:setup": "dotenv -e .env.local -- tsx scripts/setup-storage.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",

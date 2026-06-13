@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { findCustomStory, type CustomStory } from "@/lib/customStories";
+import { fetchCustomStory } from "@/app/actions/customStories";
 import { AudioPlayer } from "@/components/story/AudioPlayer";
 import { DownloadButtons } from "@/components/story/DownloadButtons";
 import { StoryQuiz } from "@/components/story/StoryQuiz";
@@ -61,7 +62,24 @@ export default function CustomStoryPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    setStory(findCustomStory(params.id) ?? null);
+    // Local-first (instant on the creating device + offline), then fall back to
+    // the DB so a shared link resolves on any other device.
+    const local = findCustomStory(params.id);
+    if (local) {
+      setStory(local);
+      return;
+    }
+    let cancelled = false;
+    fetchCustomStory(params.id)
+      .then((remote) => {
+        if (!cancelled) setStory(remote ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setStory(null);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [params.id]);
 
   async function copyLink() {
@@ -136,7 +154,13 @@ export default function CustomStoryPage() {
       <section className="mx-auto max-w-3xl px-5 md:px-8 -mt-7 relative z-10" data-no-print>
         <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 shadow-[var(--shadow-card)]">
           <div className="flex flex-wrap items-center gap-2">
-            <AudioPlayer title={story.title} audioUrl={null} chapterCount={1} />
+            <AudioPlayer
+              title={story.title}
+              audioUrl={null}
+              chapterCount={1}
+              storyId={story.id.startsWith("PS-") ? story.id : undefined}
+              tier="personalized"
+            />
             <DownloadButtons
               pdf={{
                 title: story.title,

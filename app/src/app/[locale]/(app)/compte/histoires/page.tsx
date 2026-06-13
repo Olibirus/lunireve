@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { readCustomStories, type CustomStory } from "@/lib/customStories";
+import { listMyCustomStories } from "@/app/actions/customStories";
 import { Button } from "@/components/ui/button";
 import { Wand2 } from "lucide-react";
 
@@ -13,7 +14,27 @@ export default function CustomStoriesPage() {
   const [stories, setStories] = useState<CustomStory[]>([]);
 
   useEffect(() => {
-    setStories([...readCustomStories()].reverse());
+    let cancelled = false;
+    // DB-backed stories (this account, any device) merged with the local cache,
+    // deduped by id and sorted newest-first. Temp accounts get [] from the DB
+    // and still see their local stories.
+    const local = readCustomStories();
+    listMyCustomStories()
+      .then((remote) => {
+        if (cancelled) return;
+        const byId = new Map<string, CustomStory>();
+        for (const s of [...local, ...remote]) byId.set(s.id, s);
+        const merged = [...byId.values()].sort(
+          (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)
+        );
+        setStories(merged);
+      })
+      .catch(() => {
+        if (!cancelled) setStories([...local].reverse());
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

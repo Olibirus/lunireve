@@ -221,6 +221,8 @@
     "playerNext": "Next chapter",
     "playerRestart": "Restart the story",
     "playerCloseNote": "Closing this window stops the audio, the text will open right where the voice stopped.",
+    "playerGenerating": "Creating the narration, just a few seconds...",
+    "playerError": "The narration could not be created. Please try again in a moment.",
     "favorite": "Add to favourites",
     "favorited": "In your favourites",
     "shareCopied": "Link copied!",

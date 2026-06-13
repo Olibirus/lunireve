@@ -10,8 +10,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Headphones, Pause, Play, RotateCcw, SkipBack, SkipForward } from "lucide-react";
+import { Headphones, Loader2, Pause, Play, RotateCcw, SkipBack, SkipForward } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { generateStoryAudio } from "@/app/actions/generateStoryAudio";
+import type { AudioTier } from "@/lib/ai";
 
 /**
  * FREE-tier audio player (brief §V1):
@@ -20,9 +22,12 @@ import { cn } from "@/lib/utils/cn";
  * - on close, the page scrolls to the chapter the audio stopped at, so the
  *   reader can pick up exactly where the voice left off
  *
- * Audio files are generated at first listen then cached (audioUrl). While
- * audioUrl is null (no n8n pipeline yet) the transport renders disabled with
- * a "first listen generates the audio" note — the UI contract is final.
+ * Audio is generated at first listen then cached. If `audioUrl` is already
+ * set (cached render) we stream it straight away. Otherwise, when a `storyId`
+ * is provided, the first play triggers server-side generation (provider ->
+ * Supabase Storage -> cached on the story row) and plays the returned URL.
+ * With neither a URL nor a storyId the transport stays disabled (e.g. mock
+ * library stories not yet in the DB).
  *
  * The paid player (minimize, speed, sleep timer, autoplay queue, ambient
  * sounds) ships in V2 as a separate component.
@@ -31,16 +36,30 @@ export function AudioPlayer({
   title,
   audioUrl,
   chapterCount,
+  storyId,
+  tier = "library",
 }: {
   title: string;
   audioUrl: string | null;
   chapterCount: number;
+  /** When set, enables lazy first-listen generation for this story. */
+  storyId?: string;
+  /** Library = cheap bulk voice; personalized = warmer premium voice. */
+  tier?: AudioTier;
 }) {
   const t = useTranslations("story");
   const [open, setOpen] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [chapter, setChapter] = useState(0);
+  // Resolved URL: starts from the cached prop, filled in after lazy generation.
+  const [url, setUrl] = useState<string | null>(audioUrl);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => setUrl(audioUrl), [audioUrl]);
+
+  const canPlay = Boolean(url) || (Boolean(storyId) && !error);
 
   // Closing the modal stops playback and scrolls to the active chapter.
   function onOpenChange(next: boolean) {
@@ -54,15 +73,40 @@ export function AudioPlayer({
     }
   }
 
-  function togglePlay() {
-    const el = audioRef.current;
-    if (!el || !audioUrl) return;
+  async function togglePlay() {
     if (playing) {
-      el.pause();
-    } else {
-      void el.play();
+      audioRef.current?.pause();
+      setPlaying(false);
+      return;
     }
-    setPlaying(!playing);
+
+    // Lazy first listen: no cached URL yet, but we know which story to render.
+    if (!url) {
+      if (!storyId || generating) return;
+      setGenerating(true);
+      setError(false);
+      try {
+        const res = await generateStoryAudio({ storyId, tier });
+        if (!res.ok) {
+          setError(true);
+          return;
+        }
+        setUrl(res.url);
+        // The <audio> element mounts once `url` is set; play on the next tick.
+        requestAnimationFrame(() => {
+          void audioRef.current?.play();
+          setPlaying(true);
+        });
+      } catch {
+        setError(true);
+      } finally {
+        setGenerating(false);
+      }
+      return;
+    }
+
+    void audioRef.current?.play();
+    setPlaying(true);
   }
 
   useEffect(() => {
@@ -85,11 +129,17 @@ export function AudioPlayer({
           <DialogHeader>
             <DialogTitle className="font-serif text-xl">{title}</DialogTitle>
             <DialogDescription>
-              {audioUrl ? t("playerNote") : t("playerSoon")}
+              {error
+                ? t("playerError")
+                : generating
+                ? t("playerGenerating")
+                : canPlay
+                ? t("playerNote")
+                : t("playerSoon")}
             </DialogDescription>
           </DialogHeader>
 
-          {audioUrl && <audio ref={audioRef} src={audioUrl} preload="metadata" />}
+          {url && <audio ref={audioRef} src={url} preload="metadata" />}
 
           <p className="text-center text-xs uppercase tracking-widest text-[var(--color-ink-400)]">
             {t("playerChapter", { current: chapter + 1, total: chapterCount })}
@@ -99,7 +149,7 @@ export function AudioPlayer({
             <button
               type="button"
               aria-label={t("playerPrev")}
-              disabled={!audioUrl || chapter === 0}
+              disabled={!url || chapter === 0}
               onClick={() => setChapter((c) => Math.max(0, c - 1))}
               className="rounded-full border border-[var(--color-ink-100)] p-3 text-[var(--color-ink-600)] disabled:opacity-40 hover:bg-[var(--color-cream-100)]"
             >
@@ -109,20 +159,26 @@ export function AudioPlayer({
             <button
               type="button"
               aria-label={playing ? t("playerPause") : t("playerPlay")}
-              disabled={!audioUrl}
+              disabled={!canPlay || generating}
               onClick={togglePlay}
               className={cn(
                 "rounded-full p-5 text-[var(--color-cream-50)] disabled:opacity-40",
                 "bg-[var(--color-ink-800)] hover:bg-[var(--color-ink-700)] transition-colors"
               )}
             >
-              {playing ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 translate-x-0.5" />}
+              {generating ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : playing ? (
+                <Pause className="h-6 w-6" />
+              ) : (
+                <Play className="h-6 w-6 translate-x-0.5" />
+              )}
             </button>
 
             <button
               type="button"
               aria-label={t("playerNext")}
-              disabled={!audioUrl || chapter >= chapterCount - 1}
+              disabled={!url || chapter >= chapterCount - 1}
               onClick={() => setChapter((c) => Math.min(chapterCount - 1, c + 1))}
               className="rounded-full border border-[var(--color-ink-100)] p-3 text-[var(--color-ink-600)] disabled:opacity-40 hover:bg-[var(--color-cream-100)]"
             >
@@ -133,7 +189,7 @@ export function AudioPlayer({
           <div className="flex justify-center">
             <button
               type="button"
-              disabled={!audioUrl}
+              disabled={!url}
               onClick={() => {
                 if (audioRef.current) audioRef.current.currentTime = 0;
                 setChapter(0);

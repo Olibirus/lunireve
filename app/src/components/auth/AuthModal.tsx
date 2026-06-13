@@ -14,6 +14,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { PasswordField } from "@/components/auth/PasswordField";
+import { OAuthButtons } from "@/components/auth/OAuthButtons";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { cn } from "@/lib/utils/cn";
 
@@ -92,10 +95,16 @@ export function AuthModal({
               <Label htmlFor="auth-username">{t("usernameOrEmail")}</Label>
               <Input id="auth-username" name="username" autoComplete="username" required className="mt-1.5" />
             </div>
-            <div>
-              <Label htmlFor="auth-password">{t("password")}</Label>
-              <Input id="auth-password" name="password" type="password" autoComplete="current-password" required className="mt-1.5" />
-            </div>
+            <PasswordField
+              id="auth-password"
+              name="password"
+              label={t("password")}
+              autoComplete="current-password"
+            />
+            <label className="flex items-center gap-2.5 text-sm text-[var(--color-ink-600)]">
+              <Checkbox name="remember" defaultChecked value="1" />
+              {t("rememberMe")}
+            </label>
             {loginState.error && (
               <p role="alert" className="rounded-xl border border-[var(--color-fox-300)] bg-[var(--color-fox-300)]/15 px-4 py-2.5 text-sm text-[var(--color-fox-700)]">
                 {loginState.message ?? t("error")}
@@ -104,6 +113,7 @@ export function AuthModal({
             <Button type="submit" variant="primary" size="lg" disabled={loginPending} className="w-full justify-center">
               {loginPending ? t("pending") : t("submit")}
             </Button>
+            <OAuthButtons />
           </form>
         ) : (
           <form action={signupAction} className="space-y-4">
@@ -115,19 +125,18 @@ export function AuthModal({
               <Label htmlFor="signup-email">{t("email")}</Label>
               <Input id="signup-email" name="email" type="email" autoComplete="email" required className="mt-1.5" />
             </div>
-            <div>
-              <Label htmlFor="signup-password">{t("password")}</Label>
-              <Input
-                id="signup-password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                minLength={8}
-                required
-                className="mt-1.5"
-              />
-              <p className="mt-1 text-xs text-[var(--color-ink-400)]">{t("passwordHint")}</p>
-            </div>
+            <PasswordField
+              id="signup-password"
+              name="password"
+              label={t("password")}
+              autoComplete="new-password"
+              withGenerator
+              hint={t("passwordHint")}
+            />
+            <label className="flex items-center gap-2.5 text-sm text-[var(--color-ink-600)]">
+              <Checkbox name="remember" defaultChecked value="1" />
+              {t("rememberMe")}
+            </label>
             {signupState.error && (
               <p role="alert" className="rounded-xl border border-[var(--color-fox-300)] bg-[var(--color-fox-300)]/15 px-4 py-2.5 text-sm text-[var(--color-fox-700)]">
                 {signupState.message ?? t("error")}
@@ -136,6 +145,7 @@ export function AuthModal({
             <Button type="submit" variant="mint" size="lg" disabled={signupPending} className="w-full justify-center">
               {signupPending ? t("pending") : t("signupSubmit")}
             </Button>
+            <OAuthButtons />
             <p className="text-center text-xs text-[var(--color-ink-400)]">{t("gdprShort")}</p>
           </form>
         )}

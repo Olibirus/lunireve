@@ -245,6 +245,7 @@
    */
   .band-ink {
     background: #1f2d52;
+    --band-fill: #1f2d52;
     --color-cream-50: #fcfaf6;
     --color-cream-100: #faf5eb;
     --color-cream-200: #f3ecd9;
@@ -260,6 +261,7 @@
   }
   html.dark .band-ink {
     background: #10193b;
+    --band-fill: #10193b;
   }
   .band-ink :is(h1, h2, h3) {
     color: var(--color-cream-50);

@@ -23,6 +23,7 @@ export default function SubmitStoryPage() {
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (body.length < 200) return;
     try {
       const list = JSON.parse(localStorage.getItem("lunireve:submissions") ?? "[]") as unknown[];
       list.push({ title, ageRange, body, submittedAt: new Date().toISOString(), status: "pending" });
@@ -91,7 +92,19 @@ export default function SubmitStoryPage() {
             onChange={(e) => setBody(e.target.value)}
             className="mt-1.5"
           />
-          <p className="mt-1 text-xs text-[var(--color-ink-400)]">{t("bodyHint")}</p>
+          <div className="mt-1 flex items-center justify-between">
+            <p className="text-xs text-[var(--color-ink-400)]">{t("bodyHint")}</p>
+            <p
+              className={cn(
+                "text-xs tabular-nums",
+                body.length < 200 ? "text-red-600 font-medium" : "text-[var(--color-mint-700)]"
+              )}
+            >
+              {body.length < 200
+                ? t("charCountMin", { count: body.length })
+                : t("charCount", { count: body.length })}
+            </p>
+          </div>
         </div>
         <Button type="submit" variant="primary" size="lg">
           <PenLine className="h-4 w-4" />

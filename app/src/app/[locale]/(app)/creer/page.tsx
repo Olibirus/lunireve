@@ -18,7 +18,7 @@ import { FoxMark } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, Lock, Wand2 } from "lucide-react";
+import { ArrowLeft, Check, Lock, Sparkles, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const THEME_OPTIONS = [
@@ -221,9 +221,17 @@ export default function CreateStoryPage() {
         <p className="mt-3 text-sm text-[var(--color-ink-500)] leading-relaxed">
           {t("quotaBody", { limit: FREE_CUSTOM_LIMIT })}
         </p>
-        <Button asChild variant="outline" size="md" className="mt-6">
-          <Link href="/histoires">{t("quotaCta")}</Link>
-        </Button>
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <Button asChild variant="mint" size="lg">
+            <Link href="/tarifs">
+              <Sparkles className="h-4 w-4" />
+              {t("quotaUpgrade")}
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/histoires">{t("quotaCta")}</Link>
+          </Button>
+        </div>
       </section>
     );
   }

@@ -69,6 +69,8 @@
     "ageRange": "Tranche d'âge",
     "storyBody": "Votre histoire",
     "bodyHint": "200 caractères minimum. Conservez une copie de votre texte.",
+    "charCount": "{count} caractères",
+    "charCountMin": "{count} / 200 caractères minimum",
     "cta": "Envoyer pour relecture",
     "note": "Aucune garantie de publication. En soumettant, vous confirmez être l'auteur du texte.",
     "thanksTitle": "Merci !",
@@ -133,6 +135,8 @@
     "pill2": "3 à 11 ans",
     "pill3": "Lecture sans écran",
     "countLabel": "{count, plural, =0 {Aucune histoire} =1 {1 histoire} other {# histoires}}",
+    "searchResults": "{count, plural, =0 {Aucun résultat pour « {query} »} =1 {1 résultat pour « {query} »} other {# résultats pour « {query} »}}",
+    "interactiveResults": "{count, plural, =0 {Aucune histoire interactive} =1 {1 histoire interactive} other {# histoires interactives}}",
     "sortLabel": "Trier par",
     "sortNewest": "Les plus récentes",
     "sortRating": "Les mieux notées",
@@ -375,7 +379,13 @@
     "displayName": "Votre prénom",
     "email": "Email",
     "signupSubmit": "Créer mon compte gratuit",
-    "gdprShort": "Données hébergées en Europe, jamais revendues. Désinscription à tout moment."
+    "gdprShort": "Données hébergées en Europe, jamais revendues. Désinscription à tout moment.",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "suggestPassword": "Suggérer un mot de passe fort",
+    "rememberMe": "Se souvenir de moi",
+    "orContinue": "ou continuer avec",
+    "oauthSoon": "Connexion Google et Facebook bientôt disponible."
   },
   "profiles": {
     "whoTonight": "Qui lit ce soir ?",
@@ -478,7 +488,8 @@
     "createAnother": "{count, plural, =1 {Créer une autre histoire (1 restante)} other {Créer une autre histoire (# restantes)}}",
     "quotaTitle": "Vous avez utilisé vos histoires du mois",
     "quotaBody": "Le compte gratuit permet {limit} histoires personnalisées par mois. Le compteur se remet à zéro le mois prochain, et des formules plus généreuses arrivent bientôt.",
-    "quotaCta": "Explorer la bibliothèque en attendant"
+    "quotaCta": "Explorer la bibliothèque en attendant",
+    "quotaUpgrade": "Passer à un forfait supérieur"
   },
   "child": {
     "hello": "Bonsoir {name} !",

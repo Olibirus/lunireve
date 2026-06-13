@@ -33,13 +33,16 @@ export async function getSession(): Promise<Session | null> {
   }
 }
 
-export async function setSession(session: Session) {
+export async function setSession(session: Session, remember = true) {
   const store = await cookies();
+  // remember = true → 30-day persistent cookie; false → session cookie
+  // (cleared when the browser closes), by omitting maxAge.
+  const maxAge = remember ? 60 * 60 * 24 * 30 : undefined;
   store.set(COOKIE, JSON.stringify(session), {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge,
   });
   // Non-httpOnly companion: lets client components gate UI (ratings, likes)
   // without an API roundtrip. Carries the role only — no secrets.
@@ -47,7 +50,7 @@ export async function setSession(session: Session) {
     httpOnly: false,
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge,
   });
 }
 

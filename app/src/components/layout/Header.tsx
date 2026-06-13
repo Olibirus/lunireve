@@ -8,6 +8,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { NotificationBell } from "@/components/NotificationBell";
+import { NavSearch } from "@/components/layout/NavSearch";
 import { logout } from "@/app/actions/auth";
 import { isLoggedIn } from "@/lib/clientAuth";
 import { getActiveProfile } from "@/lib/profiles";
@@ -22,7 +23,6 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Search,
   Sparkles,
   User,
   Users,
@@ -42,10 +42,13 @@ function NavDropdown({
   label,
   children,
   align = "left",
+  href,
 }: {
   label: string;
   children: React.ReactNode;
   align?: "left" | "right";
+  /** When set, clicking the trigger navigates there; hover still opens the menu. */
+  href?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -58,6 +61,13 @@ function NavDropdown({
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
+  const triggerClass = cn(
+    "inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm transition-colors",
+    open
+      ? "text-[var(--color-ink-800)] bg-[var(--color-cream-200)]"
+      : "text-[var(--color-ink-600)] hover:text-[var(--color-ink-800)] hover:bg-[var(--color-cream-100)]"
+  );
+
   return (
     <div
       ref={ref}
@@ -65,20 +75,17 @@ function NavDropdown({
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
-        className={cn(
-          "inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm transition-colors",
-          open
-            ? "text-[var(--color-ink-800)] bg-[var(--color-cream-200)]"
-            : "text-[var(--color-ink-600)] hover:text-[var(--color-ink-800)] hover:bg-[var(--color-cream-100)]"
-        )}
-      >
-        {label}
-        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
-      </button>
+      {href ? (
+        <Link href={href as never} className={triggerClass} onClick={() => setOpen(false)}>
+          {label}
+          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
+        </Link>
+      ) : (
+        <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className={triggerClass}>
+          {label}
+          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
+        </button>
+      )}
       {open && (
         <div
           className={cn(
@@ -234,20 +241,16 @@ export function Header() {
             </Link>
           )}
           {logged && <NotificationBell />}
-          <Link
-            href="/histoires"
-            aria-label={t("search.label")}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)]/80 text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)] hover:bg-[var(--color-cream-100)]"
-          >
-            <Search className="h-4 w-4" />
-          </Link>
+          <NavSearch />
           <ThemeToggle />
           <LanguageSwitcher />
 
           {logged ? (
-            <NavDropdown label={t("nav.account")} align="right">
-              <MenuLink href="/profils" icon={Users}>{t("nav.menuProfiles")}</MenuLink>
+            <NavDropdown label={t("nav.account")} align="right" href="/compte">
               <MenuLink href="/compte" icon={LayoutDashboard}>{t("nav.menuDashboard")}</MenuLink>
+              <MenuLink href="/profils" icon={Users}>{t("nav.menuProfiles")}</MenuLink>
+              <MenuLink href="/compte/histoires" icon={BookOpen}>{t("account.menu.customStories")}</MenuLink>
+              <MenuLink href="/compte/favoris" icon={Sparkles}>{t("account.menu.favorites")}</MenuLink>
               <MenuLink href="/creer" icon={Wand2}>{t("nav.create")}</MenuLink>
               <MenuLink href="/tarifs" icon={Sparkles}>{t("nav.pricing")}</MenuLink>
               <button

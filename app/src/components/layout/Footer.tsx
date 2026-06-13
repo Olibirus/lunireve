@@ -14,12 +14,18 @@ export function Footer() {
 
   return (
     <footer className="relative mt-24 band-ink text-[var(--color-cream-100)]">
-      {/* Deckle edge on top — deckled paper vibe. Uses --color-page so it
-          matches the page background in both light and dark themes. */}
-      <div
+      {/* Wavy top edge — an SVG in the footer's OWN color that rises into the
+          page above, so the very top of the footer reads as a wave (not a
+          straight line). Sits flush at the top, no separator line. */}
+      <svg
         aria-hidden="true"
-        className="absolute -top-px left-0 right-0 h-8 bg-[var(--color-page)] deckle-top"
-      />
+        className="absolute bottom-full left-0 w-full"
+        viewBox="0 0 1440 40"
+        preserveAspectRatio="none"
+        style={{ display: "block", height: "38px", fill: "var(--band-fill)" }}
+      >
+        <path d="M0,40 C120,10 240,30 360,22 C480,14 600,34 720,26 C840,18 960,36 1080,28 C1200,20 1320,34 1440,24 L1440,40 Z" />
+      </svg>
 
       <div className="mx-auto max-w-7xl px-5 md:px-8 pt-20 pb-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-16">
@@ -63,9 +69,9 @@ export function Footer() {
             </h4>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li><Link href="/histoires" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.stories")}</Link></li>
+              <li><Link href="/histoires/audio" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.audioStories")}</Link></li>
               <li><Link href="/creer" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.create")}</Link></li>
               <li><Link href="/tarifs" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.pricing")}</Link></li>
-              <li><Link href="/blog" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.blog")}</Link></li>
             </ul>
           </div>
 

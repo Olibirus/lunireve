@@ -1,6 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Headphones, Star } from "lucide-react";
+import { Clock, Headphones, Sparkles, Star } from "lucide-react";
 import { ageLabel, type MockStory } from "@/data/mock-stories";
 import { FavoriteHeart } from "@/components/story/FavoriteHeart";
 import { cn } from "@/lib/utils/cn";
@@ -35,9 +35,16 @@ export function StoryCard({ story, size = "md" }: { story: MockStory; size?: "sm
         {/* Decorative title inside the cover (like a book spine) */}
         <div className="absolute inset-0 p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <Badge variant="ink" className="bg-black/25 text-white border-0 backdrop-blur-sm">
-              {age}
-            </Badge>
+            <span className="flex items-center gap-1.5">
+              <Badge variant="ink" className="bg-black/25 text-white border-0 backdrop-blur-sm">
+                {age}
+              </Badge>
+              {story.interactive && (
+                <Badge variant="fox" className="border-0">
+                  <Sparkles className="h-3 w-3" /> Interactif
+                </Badge>
+              )}
+            </span>
             <span className="flex items-center gap-1.5">
               {story.hasAudio && (
                 <span className="rounded-full bg-white/20 backdrop-blur-sm p-1.5 text-white/95">

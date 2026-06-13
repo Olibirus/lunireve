@@ -69,6 +69,8 @@
     "ageRange": "Age range",
     "storyBody": "Your story",
     "bodyHint": "200 characters minimum. Keep a copy of your text.",
+    "charCount": "{count} characters",
+    "charCountMin": "{count} / 200 characters minimum",
     "cta": "Send for review",
     "note": "Publication is not guaranteed. By submitting you confirm you are the author.",
     "thanksTitle": "Thank you!",
@@ -133,6 +135,8 @@
     "pill2": "Ages 3 to 11",
     "pill3": "Screen-free reading",
     "countLabel": "{count, plural, =0 {No stories} =1 {1 story} other {# stories}}",
+    "searchResults": "{count, plural, =0 {No results for \"{query}\"} =1 {1 result for \"{query}\"} other {# results for \"{query}\"}}",
+    "interactiveResults": "{count, plural, =0 {No interactive stories} =1 {1 interactive story} other {# interactive stories}}",
     "sortLabel": "Sort by",
     "sortNewest": "Newest first",
     "sortRating": "Highest rated",
@@ -375,7 +379,13 @@
     "displayName": "Your first name",
     "email": "Email",
     "signupSubmit": "Create my free account",
-    "gdprShort": "Data hosted in Europe, never sold. Unsubscribe anytime."
+    "gdprShort": "Data hosted in Europe, never sold. Unsubscribe anytime.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "suggestPassword": "Suggest a strong password",
+    "rememberMe": "Remember me",
+    "orContinue": "or continue with",
+    "oauthSoon": "Google and Facebook sign-in coming soon."
   },
   "profiles": {
     "whoTonight": "Who's reading tonight?",
@@ -478,7 +488,8 @@
     "createAnother": "{count, plural, =1 {Create another story (1 left)} other {Create another story (# left)}}",
     "quotaTitle": "You've used this month's stories",
     "quotaBody": "The free account includes {limit} personalised stories per month. The counter resets next month, and more generous plans are coming soon.",
-    "quotaCta": "Explore the library meanwhile"
+    "quotaCta": "Explore the library meanwhile",
+    "quotaUpgrade": "Upgrade your plan"
   },
   "child": {
     "hello": "Good evening {name}!",

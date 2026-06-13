@@ -27,11 +27,12 @@ export async function login(
 ): Promise<LoginState> {
   const username = String(formData.get("username") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const remember = formData.get("remember") === "1";
 
   // Path 1 — temp dev accounts
   const temp = TEMP_CREDENTIALS[username.toLowerCase()];
   if (temp && temp.password === password) {
-    await setSession({ role: temp.role, username: username.toLowerCase() });
+    await setSession({ role: temp.role, username: username.toLowerCase() }, remember);
     return { ok: true, role: temp.role };
   }
 
@@ -44,7 +45,7 @@ export async function login(
         password,
       });
       if (!error && data.user) {
-        await setSession({ role: "user", username: data.user.email ?? username });
+        await setSession({ role: "user", username: data.user.email ?? username }, remember);
         return { ok: true, role: "user" };
       }
     } catch (e) {
@@ -66,6 +67,7 @@ export async function signup(
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const remember = formData.get("remember") === "1";
 
   if (!email.includes("@") || password.length < 8 || name.length < 2) {
     return { ok: false, error: true };
@@ -87,7 +89,7 @@ export async function signup(
         message: exists ? "Un compte existe déjà avec cet email." : undefined,
       };
     }
-    await setSession({ role: "user", username: data.user?.email ?? email });
+    await setSession({ role: "user", username: data.user?.email ?? email }, remember);
     return { ok: true, role: "user" };
   } catch (e) {
     console.error("[Lunireve] Supabase signup failed:", e);

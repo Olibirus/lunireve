@@ -3,20 +3,33 @@ import { Link } from "@/i18n/navigation";
 import { StoryFilters } from "@/components/story/StoryFilters";
 import { StoryCard } from "@/components/story/StoryCard";
 import { StorySearch } from "@/components/story/StorySearch";
-import { mockStories, GENRES, AGE_RANGES } from "@/data/mock-stories";
+import { mockStories, searchStories, GENRES, AGE_RANGES } from "@/data/mock-stories";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Headphones } from "lucide-react";
+import { ChevronLeft, ChevronRight, Headphones, Sparkles } from "lucide-react";
 
 export default async function LibraryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("library");
   const tAll = await getTranslations();
+
+  const sp = await searchParams;
+  const q = typeof sp.q === "string" ? sp.q : undefined;
+  const interactiveOnly = sp.interactive === "1";
+
+  let stories = mockStories;
+  if (interactiveOnly) stories = stories.filter((s) => s.interactive);
+  if (q) {
+    const found = new Set(searchStories(q).map((s) => s.slug));
+    stories = stories.filter((s) => found.has(s.slug));
+  }
 
   return (
     <>
@@ -77,6 +90,13 @@ export default async function LibraryPage({
                 <Headphones className="h-3 w-3" />
                 {tAll("funnel.audioTitle")}
               </Link>
+              <Link
+                href={{ pathname: "/histoires", query: { interactive: "1" } }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-fox-300)] bg-[var(--color-fox-300)]/15 px-3 py-1 text-[var(--color-fox-700)] hover:bg-[var(--color-fox-300)]/30 transition-colors"
+              >
+                <Sparkles className="h-3 w-3" />
+                {tAll("nav.interactiveStories")}
+              </Link>
             </div>
           </div>
         </div>
@@ -91,7 +111,11 @@ export default async function LibraryPage({
           <div>
             <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
               <p className="text-sm text-[var(--color-ink-500)]">
-                {t("countLabel", { count: mockStories.length })}
+                {q
+                  ? t("searchResults", { query: q, count: stories.length })
+                  : interactiveOnly
+                  ? t("interactiveResults", { count: stories.length })
+                  : t("countLabel", { count: stories.length })}
               </p>
               <div className="inline-flex items-center gap-2 text-sm">
                 <label htmlFor="sort" className="text-[var(--color-ink-500)]">
@@ -108,11 +132,18 @@ export default async function LibraryPage({
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5 md:gap-7">
-              {mockStories.map((s) => (
-                <StoryCard key={s.slug} story={s} />
-              ))}
-            </div>
+            {stories.length === 0 ? (
+              <div className="rounded-3xl border-2 border-dashed border-[var(--color-ink-200)] bg-[var(--color-cream-100)] p-12 text-center">
+                <p className="font-serif text-xl">{tAll("funnel.emptyTitle")}</p>
+                <p className="mt-2 text-sm text-[var(--color-ink-500)]">{tAll("funnel.emptyBody")}</p>
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5 md:gap-7">
+                {stories.map((s) => (
+                  <StoryCard key={s.slug} story={s} />
+                ))}
+              </div>
+            )}
 
             {/* Pagination */}
             <nav

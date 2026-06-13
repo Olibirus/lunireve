@@ -74,18 +74,18 @@ export default function ProfileSelectorPage() {
 
         {/* Add a child — locked when free limit reached */}
         {limitReached ? (
-          <div
-            aria-disabled
-            className="flex w-36 md:w-44 flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-[var(--color-ink-200)] p-6 text-center opacity-70"
+          <Link
+            href="/tarifs"
+            className="flex w-36 md:w-44 flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-[var(--color-indigo-soft-300)] bg-[var(--color-indigo-soft-50)] p-6 text-center transition-colors hover:border-[var(--color-indigo-soft-500)]"
           >
-            <span className="rounded-full bg-[var(--color-cream-200)] p-4">
-              <Lock className="h-6 w-6 text-[var(--color-ink-400)]" />
+            <span className="rounded-full bg-[var(--color-indigo-soft-100)] p-4">
+              <Lock className="h-6 w-6 text-[var(--color-indigo-soft-500)]" />
             </span>
-            <span className="text-sm text-[var(--color-ink-500)]">{t("addChild")}</span>
-            <span className="rounded-full bg-[var(--color-indigo-soft-100)] px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-[var(--color-indigo-soft-700)]">
+            <span className="text-sm font-medium text-[var(--color-ink-700)]">{t("addChildLocked")}</span>
+            <span className="rounded-full bg-[var(--color-indigo-soft-200)] px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-[var(--color-indigo-soft-700)]">
               {t("upgradeBadge")}
             </span>
-          </div>
+          </Link>
         ) : (
           <Link
             href="/profils/nouveau"

@@ -11,6 +11,7 @@ import {
   FREE_CHARACTER_LIMIT,
   type SavedCharacter,
   type CharacterType,
+  type CharacterRole,
 } from "@/lib/characters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ export default function CharactersPage() {
   const [characters, setCharacters] = useState<SavedCharacter[]>([]);
   const [name, setName] = useState("");
   const [type, setType] = useState<CharacterType>("animal");
+  const [role, setRole] = useState<CharacterRole>("secondary");
   const [description, setDescription] = useState("");
   const [traits, setTraits] = useState<string[]>([]);
 
@@ -47,6 +49,7 @@ export default function CharactersPage() {
     const created = createCharacter({
       name: name.trim(),
       type,
+      role,
       description: description.trim(),
       traits,
     });
@@ -80,7 +83,19 @@ export default function CharactersPage() {
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-serif text-lg tracking-tight">{c.name}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-serif text-lg tracking-tight">{c.name}</p>
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider",
+                      c.role === "main"
+                        ? "bg-[var(--color-fox-300)]/25 text-[var(--color-fox-700)]"
+                        : "bg-[var(--color-indigo-soft-100)] text-[var(--color-indigo-soft-700)]"
+                    )}
+                  >
+                    {t(`role_${c.role ?? "secondary"}`)}
+                  </span>
+                </div>
                 <p className="text-xs text-[var(--color-ink-500)]">
                   {t(`type_${c.type}`)}
                   {c.description && ` · ${c.description}`}
@@ -136,6 +151,27 @@ export default function CharactersPage() {
                 onChange={(e) => setName(e.target.value)}
                 className="mt-1.5"
               />
+            </div>
+            <div>
+              <Label>{t("role")}</Label>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {(["main", "secondary"] as const).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setRole(v)}
+                    className={cn(
+                      "rounded-xl border px-3.5 py-2 text-sm",
+                      role === v
+                        ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
+                        : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
+                    )}
+                  >
+                    {t(`role_${v}`)}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-1 text-xs text-[var(--color-ink-400)]">{t("roleHint")}</p>
             </div>
             <div>
               <Label>{t("type")}</Label>

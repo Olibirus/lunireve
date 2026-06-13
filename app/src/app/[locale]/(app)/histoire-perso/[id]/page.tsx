@@ -137,7 +137,14 @@ export default function CustomStoryPage() {
         <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 shadow-[var(--shadow-card)]">
           <div className="flex flex-wrap items-center gap-2">
             <AudioPlayer title={story.title} audioUrl={null} chapterCount={1} />
-            <DownloadButtons />
+            <DownloadButtons
+              pdf={{
+                title: story.title,
+                meta: `${t(`themes.${story.params.theme}`)} · ${story.params.heroName}`,
+                paragraphs: story.body,
+                quiz: buildQuiz(story),
+              }}
+            />
           </div>
         </div>
       </section>

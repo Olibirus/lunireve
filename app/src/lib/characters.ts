@@ -24,10 +24,14 @@ export const CHARACTER_TRAITS = [
   "calme",
 ] as const;
 
+/** A character can star as the hero or play a supporting role. */
+export type CharacterRole = "main" | "secondary";
+
 export type SavedCharacter = {
   id: string;
   name: string;
   type: CharacterType;
+  role: CharacterRole;
   /** Free description: "un chien beige très gourmand" */
   description: string;
   traits: string[]; // up to 4

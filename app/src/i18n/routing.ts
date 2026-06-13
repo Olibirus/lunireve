@@ -104,6 +104,7 @@ export const routing = defineRouting({
     "/admin/moderation": "/admin/moderation",
     "/admin/utilisateurs": "/admin/utilisateurs",
     "/admin/blog": "/admin/blog",
+    "/admin/blog/[slug]": "/admin/blog/[slug]",
     "/admin/analytics": "/admin/analytics",
     "/connexion": {
       fr: "/connexion",

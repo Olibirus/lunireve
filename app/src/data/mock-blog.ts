@@ -14,7 +14,7 @@ export type BlogArticle = {
   title: string;
   excerpt: string;
   tldr: string[];
-  publishedAt: string;
+  publishedAt: string | null;
   readingMinutes: number;
   tag: string;
   cover: string; // cover-* gradient class

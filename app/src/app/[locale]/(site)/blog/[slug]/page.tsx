@@ -23,10 +23,12 @@ export default async function BlogArticlePage({ params }: Props) {
   const article = findArticle(slug);
   if (!article) notFound();
 
-  const date = new Date(article.publishedAt).toLocaleDateString(
-    locale === "fr" ? "fr-FR" : "en-GB",
-    { day: "numeric", month: "long", year: "numeric" }
-  );
+  const date = article.publishedAt
+    ? new Date(article.publishedAt).toLocaleDateString(
+        locale === "fr" ? "fr-FR" : "en-GB",
+        { day: "numeric", month: "long", year: "numeric" }
+      )
+    : "";
 
   return (
     <>

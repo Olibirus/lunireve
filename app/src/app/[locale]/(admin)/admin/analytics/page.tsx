@@ -3,8 +3,21 @@
 import { useState } from "react";
 import { Kpi } from "@/components/admin/AdminShell";
 import { DATE_RANGES, globalKpis, storyAnalytics } from "@/data/mock-admin";
+import { downloadCsv, downloadTablePdf } from "@/lib/pdf/tableExport";
 import { Download, FileSpreadsheet } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+
+const EXPORT_HEADERS = [
+  "Histoire",
+  "Ouvertures",
+  "% lu",
+  "Complétion",
+  "Écoutes audio",
+  "Favoris",
+  "Note",
+  "Partages",
+  "Signalements",
+];
 
 /**
  * FULL analytics (brief: everything measurable, from day 1).
@@ -18,6 +31,21 @@ export default function AdminAnalyticsPage() {
   const factor = range === "all" ? 1.6 : Math.min(1, Number(range) / 90);
   const n = (v: number) => Math.round(v * factor).toLocaleString("fr-FR");
 
+  function exportRows(): (string | number)[][] {
+    return storyAnalytics.map((s) => [
+      s.title,
+      Math.round(s.opens * factor),
+      `${s.readPct}%`,
+      `${s.completionRate}%`,
+      Math.round(s.audioPlays * factor),
+      Math.round(s.favorites * factor),
+      s.avgRating.toFixed(1),
+      Math.round(s.shares * factor),
+      s.reports,
+    ]);
+  }
+  const exportTitle = `Analytics (${range === "all" ? "tout" : range + "j"})`;
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -30,6 +58,7 @@ export default function AdminAnalyticsPage() {
         <div className="flex gap-2">
           <button
             type="button"
+            onClick={() => downloadCsv(exportTitle, EXPORT_HEADERS, exportRows())}
             className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-ink-100)] px-3.5 py-2 text-xs hover:bg-[var(--color-cream-100)]"
           >
             <FileSpreadsheet className="h-4 w-4" />
@@ -37,6 +66,7 @@ export default function AdminAnalyticsPage() {
           </button>
           <button
             type="button"
+            onClick={() => downloadTablePdf(exportTitle, EXPORT_HEADERS, exportRows())}
             className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-ink-100)] px-3.5 py-2 text-xs hover:bg-[var(--color-cream-100)]"
           >
             <Download className="h-4 w-4" />

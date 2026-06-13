@@ -179,7 +179,15 @@ export default async function StoryDetailPage({
                 audioUrl={story.audioUrl}
                 chapterCount={3}
               />
-              <DownloadButtons />
+              <DownloadButtons
+                pdf={{
+                  title: story.title,
+                  meta: `${tAll(`genres.${story.genre}`)} · ${age} · ${story.readingMinutes} min`,
+                  paragraphs: body,
+                  quiz,
+                  glossary,
+                }}
+              />
             </div>
             <div className="flex items-center gap-1">
               <FavoriteButton slug={story.slug} />

@@ -1,0 +1,96 @@
+{
+  "name": "Lunireve — Story Generation",
+  "nodes": [
+    {
+      "id": "trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 300],
+      "parameters": {}
+    },
+    {
+      "id": "inputs",
+      "name": "Story Inputs",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [220, 300],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "a1", "name": "genre", "value": "conte", "type": "string" },
+            { "id": "a2", "name": "ageRange", "value": "5-6", "type": "string" },
+            { "id": "a3", "name": "theme", "value": "courage", "type": "string" },
+            { "id": "a4", "name": "language", "value": "fr", "type": "string" },
+            { "id": "a5", "name": "seoKeyword", "value": "", "type": "string" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "claude",
+      "name": "Generate with Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "REPLACE_WITH_ANTHROPIC_API_KEY" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-6\",\n  \"max_tokens\": 4000,\n  \"system\": \"Tu es un auteur de contes pour enfants. Écris en français naturel et chaleureux, adapté à l'âge indiqué. N'utilise jamais de tiret cadratin. Réponds UNIQUEMENT avec un objet JSON valide, sans texte autour.\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Écris une histoire pour enfants. Genre: {{ $json.genre }}. Tranche d'âge: {{ $json.ageRange }} ans. Thème: {{ $json.theme }}. Langue: {{ $json.language }}. Adapte la longueur à l'âge (1-2 ans très court, 11-12 ans plus long). Réponds avec ce JSON exact: {\\\"title\\\": string, \\\"excerpt\\\": string (1 phrase), \\\"body\\\": [string] (paragraphes), \\\"quiz\\\": [{\\\"question\\\": string, \\\"choices\\\": [string,string,string], \\\"answer\\\": number (index 0-2), \\\"explanation\\\": string}] (3 questions), \\\"glossary\\\": [{\\\"word\\\": string, \\\"definition\\\": string}] (mots difficiles), \\\"imagePrompt\\\": string (description visuelle en anglais pour la couverture)}\"\n    }\n  ]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "parse",
+      "name": "Parse Story JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300],
+      "parameters": {
+        "jsCode": "// Claude returns its answer in content[0].text — extract and parse the JSON.\nconst raw = $input.first().json.content[0].text;\nconst jsonStr = raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1);\nconst story = JSON.parse(jsonStr);\nconst inputs = $('Story Inputs').first().json;\n\n// Build a URL slug from the title\nconst slug = story.title\n  .toLowerCase()\n  .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')\n  .replace(/[^a-z0-9]+/g, '-')\n  .replace(/^-|-$/g, '');\n\nreturn [{ json: {\n  slug,\n  title: story.title,\n  excerpt: story.excerpt,\n  language: inputs.language,\n  age_range: inputs.ageRange,\n  genre: inputs.genre,\n  theme: inputs.theme,\n  body: story.body,\n  quiz: story.quiz,\n  glossary: story.glossary,\n  image_prompt: story.imagePrompt,\n  status: 'published',\n  reading_minutes: Math.max(2, Math.round((story.body.join(' ').split(/\\s+/).length) / 140)),\n  created_at: new Date().toISOString()\n} }];"
+      }
+    },
+    {
+      "id": "supabase",
+      "name": "Insert to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://yaccsnnywagxyatgeuwu.supabase.co/rest/v1/stories",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "REPLACE_WITH_SUPABASE_SERVICE_ROLE_KEY" },
+            { "name": "Authorization", "value": "Bearer REPLACE_WITH_SUPABASE_SERVICE_ROLE_KEY" },
+            { "name": "content-type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": { "main": [[{ "node": "Story Inputs", "type": "main", "index": 0 }]] },
+    "Story Inputs": { "main": [[{ "node": "Generate with Claude", "type": "main", "index": 0 }]] },
+    "Generate with Claude": { "main": [[{ "node": "Parse Story JSON", "type": "main", "index": 0 }]] },
+    "Parse Story JSON": { "main": [[{ "node": "Insert to Supabase", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

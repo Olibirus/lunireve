@@ -72,11 +72,25 @@ export interface ImageProvider {
 
 export type AudioTier = "library" | "personalized";
 
+/**
+ * Voice selection (#25). Default is a warm female narrator for every story.
+ * "male" is a V2 option; "clone" plays a voice the parent/grandparent
+ * recorded (a sample uploaded and cloned, NOT a recording of the story).
+ * The DB plan: stories.audio_url stays the default-voice cache; a separate
+ * `story_audio(profile_id, story_id, voice_type, voice_clone_id, url)` table
+ * holds per-voice renders so each family can have its own narrator.
+ */
+export type VoiceType = "female" | "male" | "clone";
+
 export interface SpeechGenerationInput {
   text: string;
   language: Language;
-  /** Provider-specific voice id; the factory maps friendly names to these. */
+  /** Default narrator gender; female unless overridden. */
+  voiceType?: VoiceType;
+  /** Provider voice id (resolved from voiceType) or a cloned-voice id. */
   voice?: string;
+  /** Set when voiceType === "clone": the parent's cloned-voice reference. */
+  voiceCloneId?: string;
   /** 1.0 = normal speed. Gentle slowdown for young ears: 0.9. */
   speed?: number;
 }

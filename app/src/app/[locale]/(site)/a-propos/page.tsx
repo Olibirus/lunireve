@@ -3,6 +3,8 @@ import { Link } from "@/i18n/navigation";
 import { FoxCloud } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Accordion } from "@/components/ui/Accordion";
+import { FAQ_FR, FAQ_EN } from "@/data/faq";
 import {
   ShieldCheck,
   Sparkles,
@@ -22,6 +24,16 @@ export default async function AboutPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("about");
+  const tFaq = await getTranslations("faq");
+
+  // A focused FAQ on the About page: 2 from "how it works" + 1 each from
+  // pricing and privacy. Full list lives on /faq.
+  const allFaq = locale === "fr" ? FAQ_FR : FAQ_EN;
+  const aboutFaq = [
+    ...allFaq[0].items.slice(0, 2),
+    allFaq[1].items[0],
+    allFaq[4].items[0],
+  ];
 
   const values = [
     { icon: BookHeart, key: "valueLiterary" },
@@ -180,6 +192,22 @@ export default async function AboutPage({
             </div>
           ))}
         </div>
+      </section>
+
+      {/* FAQ (#21) */}
+      <section className="mx-auto max-w-3xl px-5 md:px-8 pb-16">
+        <h2
+          className="mb-6 text-center font-serif text-3xl md:text-4xl tracking-tight"
+          style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}
+        >
+          {tFaq("title")}
+        </h2>
+        <Accordion items={aboutFaq.map((i) => ({ question: i.q, answer: i.a }))} />
+        <p className="mt-6 text-center text-sm text-[var(--color-ink-500)]">
+          <Link href="/faq" className="font-medium underline underline-offset-2">
+            {tFaq("seeAll")}
+          </Link>
+        </p>
       </section>
 
       {/* CTA */}

@@ -82,6 +82,7 @@ export function Footer() {
             </h4>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li><Link href="/a-propos" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.about")}</Link></li>
+              <li><Link href="/faq" className="hover:text-[var(--color-cream-50)] transition-colors">{t("faq.title")}</Link></li>
               <li><a href="mailto:hello@lunireve.com" className="hover:text-[var(--color-cream-50)] transition-colors">{t("footer.contact")}</a></li>
               <li><Link href="/blog" className="hover:text-[var(--color-cream-50)] transition-colors">{t("nav.blog")}</Link></li>
             </ul>

@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { FoxCloud } from "@/components/brand/FoxCloud";
+import { HeroSearchCard } from "@/components/marketing/HeroSearchCard";
 import { ArrowRight, BookOpen } from "lucide-react";
 
 /**
@@ -95,17 +95,19 @@ export function Hero() {
             </dl>
           </div>
 
-          {/* Mascot */}
+          {/* Search card (#20) — replaces the mascot for now */}
           <div className="order-1 lg:order-2 relative">
             <div
-              className="absolute inset-0 -m-6 rounded-[48%] opacity-70 blur-2xl"
+              className="absolute inset-0 -m-6 rounded-[48%] opacity-60 blur-2xl"
               aria-hidden
               style={{
                 background:
-                  "radial-gradient(circle at 50% 50%, rgba(183, 223, 204, 0.85) 0%, rgba(248, 180, 135, 0.35) 55%, transparent 70%)",
+                  "radial-gradient(circle at 50% 50%, rgba(183, 223, 204, 0.7) 0%, rgba(133, 143, 193, 0.25) 55%, transparent 70%)",
               }}
             />
-            <FoxCloud className="relative w-full max-w-lg mx-auto" />
+            <div className="relative mx-auto max-w-md">
+              <HeroSearchCard />
+            </div>
           </div>
         </div>
       </div>

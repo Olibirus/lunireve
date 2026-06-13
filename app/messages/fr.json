@@ -286,6 +286,10 @@
     "popular": "Populaire",
     "perMonth": "/ mois",
     "annualNote": "ou en annuel : 2 mois offerts",
+    "monthly": "Mensuel",
+    "annual": "Annuel",
+    "twoMonthsFree": "2 mois offerts",
+    "billedAnnually": "/ mois, soit {total} € facturés par an",
     "comingSoon": "Bientôt disponible",
     "freeName": "Découverte",
     "freeTagline": "Pour instaurer le rituel du soir",
@@ -352,6 +356,20 @@
     "fr": "Français",
     "en": "English",
     "switchLabel": "Changer de langue"
+  },
+  "faq": {
+    "kicker": "Aide",
+    "title": "Questions fréquentes",
+    "subtitle": "Tout ce qu'il faut savoir sur Lunireve, en quelques réponses.",
+    "seeAll": "Voir toutes les questions",
+    "contactPrompt": "Une autre question ? Écrivez-nous à",
+    "sections": {
+      "howItWorks": "Comment ça marche",
+      "pricing": "Tarifs et abonnement",
+      "download": "Téléchargement et usage",
+      "personalization": "Histoires personnalisées",
+      "privacy": "Données et confidentialité"
+    }
   },
   "blog": {
     "kicker": "Le journal",
@@ -556,6 +574,18 @@
     "label": "Rechercher une histoire",
     "placeholder": "Un titre, un personnage, un thème…",
     "noResults": "Aucune histoire trouvée pour « {query} »"
+  },
+  "heroSearch": {
+    "title": "Trouvez l'histoire de ce soir",
+    "subtitle": "Filtrez par personnage, âge, type et thème.",
+    "character": "Personnage",
+    "age": "Âge",
+    "type": "Type",
+    "theme": "Thème",
+    "any": "Peu importe",
+    "find": "Voir les histoires",
+    "or": "ou",
+    "create": "Créer une histoire sur-mesure"
   },
   "funnel": {
     "breadcrumbLibrary": "Bibliothèque",

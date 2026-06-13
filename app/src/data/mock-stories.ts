@@ -904,61 +904,90 @@ export type InteractiveNode = {
 };
 
 export function interactiveTree(_slug: string): InteractiveNode {
-  const finVoler: InteractiveNode = {
+  // ----- Final endings (3 paragraphs each) -----
+  const finDouce: InteractiveNode = {
     paragraphs: [
-      "Tu choisis les ailes. À peine posées sur tes épaules, elles battent toutes seules et te voilà dans le ciel, plus haut que les nuages. Les étoiles perdues te suivent comme des poussins suivent leur maman.",
-      "Une à une, tu les raccompagnes jusqu'à leur place dans le ciel. La dernière, la plus petite, te fait promettre de revenir la voir. Tu promets. Et quelque chose te dit que tu tiendras parole. Fin.",
+      "Tu décides de les raccompagner tout doucement, sans te presser. Tu fredonnes la berceuse que ta maman te chante les soirs d'orage, et les étoiles se calment, l'une après l'autre.",
+      "Une à une, elles remontent au ciel et se posent exactement à leur place, comme des perles qu'on remet sur un collier. Le ciel, peu à peu, redevient entier.",
+      "La plus petite étoile s'attarde une seconde près de ta joue, tiède comme un baiser, puis file rejoindre les autres. « Reviens nous voir en rêve », murmure-t-elle. Et tu sais déjà que tu le feras. Fin.",
     ],
   };
-  const finBateau: InteractiveNode = {
+  const finCourse: InteractiveNode = {
     paragraphs: [
-      "Tu choisis le bateau de papier. Il grandit dès que tu montes dedans et vogue sur un fleuve de lumière qui traverse la nuit. Les étoiles perdues s'installent à bord, ravies de la promenade.",
-      "Au bout du fleuve, une cascade d'étoiles remonte vers le ciel. Ton bateau la remonte aussi, doucement, et chaque étoile saute à sa place en te disant merci. Fin.",
-    ],
-  };
-  const finRenard: InteractiveNode = {
-    paragraphs: [
-      "Tu choisis d'appeler le renard. Il arrive en trois bonds, son livre bleu sous le bras. « Des étoiles perdues ? J'ai un chapitre là-dessus », dit-il en feuilletant.",
-      "Le livre s'ouvre sur une carte du ciel. Il suffit de lire le nom de chaque étoile à voix haute pour qu'elle retrouve son chemin. Vous lisez ensemble, jusqu'à la dernière. Le renard te confie alors le livre : « À toi de le garder, maintenant. » Fin.",
+      "Tu décides de faire la course ! Tu lances les étoiles vers le ciel comme on lance des cerfs-volants, et elles filent en riant, laissant derrière elles des traînées argentées.",
+      "Le ciel se remplit de rires et de lumière. On dirait un feu d'artifice qui aurait décidé de rentrer à la maison. Jamais une nuit n'avait été aussi joyeuse.",
+      "Quand la dernière étoile a retrouvé sa place, le ciel scintille plus fort que d'habitude, juste pour te remercier. Tu rentres te coucher, le cœur battant encore de la course. Fin.",
     ],
   };
 
+  function finalChoice(intro: string[]): InteractiveNode {
+    return {
+      paragraphs: intro,
+      question: "Comment leur dis-tu au revoir ?",
+      choices: [
+        { label: "Tout doucement, en chantant", next: finDouce },
+        { label: "En faisant la course jusqu'au ciel", next: finCourse },
+      ],
+    };
+  }
+
+  // ----- Method nodes (each leads to the final choice) -----
+  const ailes = finalChoice([
+    "Tu enfiles les ailes en tissu. À peine posées sur tes épaules, elles se mettent à battre toutes seules, et te voilà dans le ciel, plus haut que les nuages, plus haut que le clocher du village.",
+    "Les étoiles perdues te suivent comme des poussins suivent leur maman. Le vent est doux, l'air sent la nuit et la réglisse. Tu n'as pas peur du tout : on dirait que tu sais voler depuis toujours.",
+    "Te voilà arrivé tout là-haut, là où chaque étoile a son petit trou de lumière qui l'attend.",
+  ]);
+  const bateau = finalChoice([
+    "Tu montes sur le bateau de papier. Dès que tu poses le pied dedans, il grandit, grandit, jusqu'à devenir un vrai voilier qui sent le carton et l'aventure.",
+    "Il vogue sur un fleuve de lumière qui traverse la nuit en serpentant entre les toits endormis. Les étoiles perdues s'installent à bord, ravies de la promenade, et chantent une chanson de marins tout doux.",
+    "Au bout du fleuve, une cascade d'étoiles remonte vers le ciel. Ton bateau s'en approche tout doucement.",
+  ]);
+  const renard = finalChoice([
+    "Tu sonnes la clochette, et le renard arrive en trois bonds, son livre bleu sous le bras. « Des étoiles perdues ? J'ai justement un chapitre là-dessus », dit-il en feuilletant ses pages.",
+    "Le livre s'ouvre sur une carte du ciel toute scintillante. « Il suffit de lire le nom de chaque étoile à voix haute, explique le renard, et elle retrouve son chemin. »",
+    "Vous lisez ensemble, ta voix et la sienne, jusqu'à ce que toutes les étoiles soient prêtes à repartir.",
+  ]);
+
+  // ----- Second level: where the stars are hidden -----
   const grenier: InteractiveNode = {
     paragraphs: [
-      "Tu montes au grenier. Sous la lucarne, une boîte en bois vibre doucement. À l'intérieur : trois étoiles minuscules, tombées du ciel, qui clignotent comme des lucioles fatiguées.",
-      "« Aide-nous à rentrer », chuchote la plus brillante. Sur l'étagère, tu aperçois une paire d'ailes en tissu, un bateau de papier et une clochette pour appeler le renard.",
+      "Tu montes au grenier sur la pointe des pieds. Les marches grincent comme si elles racontaient un secret. Sous la lucarne, une vieille boîte en bois vibre tout doucement.",
+      "Tu l'ouvres : à l'intérieur, trois étoiles minuscules, tombées du ciel, clignotent comme des lucioles fatiguées. « Aide-nous à rentrer », chuchote la plus brillante.",
+      "Sur l'étagère poussiéreuse, tu aperçois trois objets étranges : une paire d'ailes en tissu, un bateau de papier plié avec soin, et une petite clochette en cuivre.",
     ],
-    question: "Comment raccompagner les étoiles ?",
+    question: "Comment vas-tu raccompagner les étoiles ?",
     choices: [
-      { label: "Enfiler les ailes en tissu", next: finVoler },
-      { label: "Embarquer sur le bateau de papier", next: finBateau },
-      { label: "Sonner la clochette du renard", next: finRenard },
+      { label: "Enfiler les ailes en tissu", next: ailes },
+      { label: "Embarquer sur le bateau de papier", next: bateau },
+      { label: "Sonner la clochette (elle appelle un renard !)", next: renard },
     ],
   };
 
   const jardin: InteractiveNode = {
     paragraphs: [
-      "Tu sors dans le jardin. L'herbe est pleine de petites lumières : des étoiles tombées pendant la nuit, accrochées aux brins comme des gouttes de rosée.",
-      "Elles tintent doucement quand tu t'approches. Au fond du jardin, l'échelle du cerisier monte étrangement haut ce soir, bien plus haut que d'habitude.",
+      "Tu sors dans le jardin, pieds nus dans l'herbe fraîche. La nuit est tiède et tout sent bon la terre mouillée et le jasmin.",
+      "L'herbe est pleine de petites lumières : des étoiles tombées pendant la nuit, accrochées aux brins comme des gouttes de rosée. Elles tintent doucement quand tu t'approches, comme un carillon minuscule.",
+      "Au fond du jardin, trois chemins s'offrent à toi : l'échelle du cerisier qui monte étrangement haut ce soir, la vieille barque retournée près du bassin, et le terrier du renard d'où sort une lueur bleue.",
     ],
-    question: "Que fais-tu ?",
+    question: "Par où passes-tu pour les ramener ?",
     choices: [
-      { label: "Grimper à l'échelle du cerisier", next: finVoler },
-      { label: "Ramasser les étoiles dans ton chapeau", next: finBateau },
-      { label: "Siffler pour appeler de l'aide", next: finRenard },
+      { label: "Grimper à l'échelle du cerisier (comme des ailes)", next: ailes },
+      { label: "Retourner la barque près du bassin", next: bateau },
+      { label: "Frapper au terrier du renard", next: renard },
     ],
   };
 
+  // ----- Root -----
   return {
     paragraphs: [
-      "Cette nuit, un bruit étrange te réveille : un tintement, comme des grelots très loin. Par la fenêtre, tu remarques quelque chose d'impossible : il manque des étoiles dans le ciel. De grands trous noirs, là où elles brillaient hier.",
-      "Le tintement recommence. Il vient de quelque part dans la maison... ou peut-être du jardin.",
+      "Cette nuit, un bruit étrange te réveille : un tintement, comme des grelots très loin. Tu ouvres un œil, puis les deux. Le bruit ne s'arrête pas.",
+      "Par la fenêtre, tu remarques quelque chose d'impossible : il manque des étoiles dans le ciel. De grands trous noirs, là où elles brillaient hier soir. On dirait un sourire à qui il manque des dents.",
+      "Le tintement recommence, plus net cette fois. Il vient de quelque part dans la maison... ou peut-être du jardin.",
     ],
-    question: "Où vas-tu chercher ?",
+    question: "Où vas-tu chercher en premier ?",
     choices: [
       { label: "Au grenier, sur la pointe des pieds", next: grenier },
       { label: "Dans le jardin, pieds nus dans l'herbe", next: jardin },
-      { label: "Sous ton lit, on ne sait jamais", next: grenier },
     ],
   };
 }

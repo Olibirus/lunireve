@@ -99,14 +99,16 @@ export function downloadStoryPdf(data: StoryPdfInput) {
     y += 10; // paragraph gap
   }
 
-  // ---------- Quiz ----------
+  // ---------- Quiz (#23: questions + lettered choices, solutions at the end) ----------
   if (data.quiz && data.quiz.length) {
+    const letters = ["A", "B", "C", "D"];
     y = newPage();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(INK);
     doc.text("Le petit quiz", M, y);
     y += 30;
+    // Questions with choices — NO answer marked
     data.quiz.forEach((q, i) => {
       if (y > H - 120) y = newPage();
       doc.setFont("helvetica", "bold");
@@ -118,13 +120,34 @@ export function downloadStoryPdf(data: StoryPdfInput) {
       q.choices.forEach((c, ci) => {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(11);
-        doc.setTextColor(ci === q.answer ? MINT : MUTED);
-        const mark = ci === q.answer ? "* " : "  ";
-        const cLines = doc.splitTextToSize(`${mark}${c}`, contentW - 16);
+        doc.setTextColor(MUTED);
+        const cLines = doc.splitTextToSize(`${letters[ci]}.  ${c}`, contentW - 16);
         doc.text(cLines, M + 16, y);
         y += cLines.length * 16;
       });
       y += 14;
+    });
+
+    // Solutions block at the bottom (new page if little room left)
+    if (y > H - 140) y = newPage();
+    else y += 10;
+    doc.setDrawColor(220, 220, 210);
+    doc.line(M, y, W - M, y);
+    y += 22;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(INK);
+    doc.text("Solutions", M, y);
+    y += 20;
+    data.quiz.forEach((q, i) => {
+      if (y > H - 70) y = newPage();
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(MINT);
+      const sol = `${i + 1}. ${letters[q.answer]} : ${q.choices[q.answer]}`;
+      const sLines = doc.splitTextToSize(sol, contentW);
+      doc.text(sLines, M, y);
+      y += sLines.length * 14 + 4;
     });
   }
 

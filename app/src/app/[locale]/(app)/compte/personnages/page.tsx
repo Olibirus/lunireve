@@ -7,11 +7,14 @@ import {
   createCharacter,
   deleteCharacter,
   CHARACTER_TYPES,
+  CHARACTER_GENDERS,
   CHARACTER_TRAITS,
-  FREE_CHARACTER_LIMIT,
+  FREE_LIMITS,
+  slotsLeft,
   type SavedCharacter,
   type CharacterType,
   type CharacterRole,
+  type CharacterGender,
 } from "@/lib/characters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +29,7 @@ export default function CharactersPage() {
   const [name, setName] = useState("");
   const [type, setType] = useState<CharacterType>("animal");
   const [role, setRole] = useState<CharacterRole>("secondary");
+  const [gender, setGender] = useState<CharacterGender>("neutre");
   const [description, setDescription] = useState("");
   const [traits, setTraits] = useState<string[]>([]);
 
@@ -50,6 +54,7 @@ export default function CharactersPage() {
       name: name.trim(),
       type,
       role,
+      gender,
       description: description.trim(),
       traits,
     });
@@ -61,13 +66,15 @@ export default function CharactersPage() {
     }
   }
 
+  const mainLeft = slotsLeft("main");
+  const secondaryLeft = slotsLeft("secondary");
+  const roleLeft = role === "main" ? mainLeft : secondaryLeft;
+
   function remove(c: SavedCharacter) {
     if (!window.confirm(t("deleteConfirm", { name: c.name }))) return;
     deleteCharacter(c.id);
     setCharacters(readCharacters());
   }
-
-  const limitReached = characters.length >= FREE_CHARACTER_LIMIT;
 
   return (
     <div>
@@ -135,13 +142,10 @@ export default function CharactersPage() {
       {/* Create form */}
       <div className="mt-10 max-w-xl rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-6 shadow-[var(--shadow-soft)]">
         <h2 className="font-serif text-xl tracking-tight">{t("createTitle")}</h2>
-        {limitReached ? (
-          <p className="mt-4 flex items-center gap-2 rounded-xl bg-[var(--color-cream-100)] px-4 py-3 text-sm text-[var(--color-ink-500)]">
-            <Lock className="h-4 w-4" />
-            {t("limit", { limit: FREE_CHARACTER_LIMIT })}
-          </p>
-        ) : (
-          <form onSubmit={submit} className="mt-4 space-y-4">
+        <p className="mt-1 text-xs text-[var(--color-ink-400)]">
+          {t("slots", { main: mainLeft, secondary: secondaryLeft })}
+        </p>
+        <form onSubmit={submit} className="mt-4 space-y-4">
             <div>
               <Label htmlFor="char-name">{t("name")}</Label>
               <Input
@@ -155,23 +159,46 @@ export default function CharactersPage() {
             <div>
               <Label>{t("role")}</Label>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {(["main", "secondary"] as const).map((v) => (
+                {(["main", "secondary"] as const).map((v) => {
+                  const left = v === "main" ? mainLeft : secondaryLeft;
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setRole(v)}
+                      className={cn(
+                        "rounded-xl border px-3.5 py-2 text-sm",
+                        role === v
+                          ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
+                          : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
+                      )}
+                    >
+                      {t(`role_${v}`)} ({left})
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-1 text-xs text-[var(--color-ink-400)]">{t("roleHint")}</p>
+            </div>
+            <div>
+              <Label>{t("gender")}</Label>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {CHARACTER_GENDERS.map((v) => (
                   <button
                     key={v}
                     type="button"
-                    onClick={() => setRole(v)}
+                    onClick={() => setGender(v)}
                     className={cn(
                       "rounded-xl border px-3.5 py-2 text-sm",
-                      role === v
+                      gender === v
                         ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
                         : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
                     )}
                   >
-                    {t(`role_${v}`)}
+                    {t(`gender_${v}`)}
                   </button>
                 ))}
               </div>
-              <p className="mt-1 text-xs text-[var(--color-ink-400)]">{t("roleHint")}</p>
             </div>
             <div>
               <Label>{t("type")}</Label>
@@ -225,12 +252,24 @@ export default function CharactersPage() {
                 ))}
               </div>
             </div>
-            <Button type="submit" variant="primary" size="md" disabled={name.trim().length < 2}>
+            {roleLeft <= 0 && (
+              <p className="flex items-center gap-2 rounded-xl bg-[var(--color-cream-100)] px-4 py-3 text-sm text-[var(--color-ink-500)]">
+                <Lock className="h-4 w-4" />
+                {t(role === "main" ? "limitMain" : "limitSecondary", {
+                  limit: FREE_LIMITS[role],
+                })}
+              </p>
+            )}
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              disabled={name.trim().length < 2 || roleLeft <= 0}
+            >
               <Plus className="h-4 w-4" />
               {t("createCta")}
             </Button>
           </form>
-        )}
       </div>
     </div>
   );

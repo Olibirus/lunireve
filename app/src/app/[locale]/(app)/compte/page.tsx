@@ -11,9 +11,11 @@ import {
   type ChildProfile,
 } from "@/lib/profiles";
 import { readCustomStories } from "@/lib/customStories";
+import { mockStories, type MockStory } from "@/data/mock-stories";
+import { StoryCard } from "@/components/story/StoryCard";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Flame, Lock, Plus, Trash2, Wand2 } from "lucide-react";
+import { BookOpen, Flame, Heart, Lock, Pencil, Plus, Trash2, Wand2 } from "lucide-react";
 
 /** Parent dashboard — family overview + quick actions (#11). */
 export default function AccountDashboardPage() {
@@ -21,10 +23,25 @@ export default function AccountDashboardPage() {
   const router = useRouter();
   const [profiles, setProfiles] = useState<ChildProfile[] | null>(null);
   const [storyCount, setStoryCount] = useState(0);
+  const [favorites, setFavorites] = useState<MockStory[]>([]);
+  const [recent, setRecent] = useState<MockStory[]>([]);
 
   useEffect(() => {
     setProfiles(readProfiles());
     setStoryCount(readCustomStories().length);
+    try {
+      const favs = JSON.parse(localStorage.getItem("lunireve:favorites") ?? "[]") as string[];
+      setFavorites(mockStories.filter((s) => favs.includes(s.slug)).slice(0, 4));
+    } catch {
+      /* ignore */
+    }
+    // Recently read = stories with any saved reading progress, newest first
+    const read: MockStory[] = [];
+    for (const s of mockStories) {
+      const v = Number(localStorage.getItem(`lunireve:progress:${s.slug}`) ?? "0");
+      if (v > 0) read.push(s);
+    }
+    setRecent(read.slice(0, 4));
   }, []);
 
   function openChild(p: ChildProfile) {
@@ -96,6 +113,13 @@ export default function AccountDashboardPage() {
                 >
                   {t("openProfile")}
                 </button>
+                <Link
+                  href={{ pathname: "/profils/[id]", params: { id: p.id } }}
+                  aria-label={t("editProfile")}
+                  className="rounded-xl border border-[var(--color-ink-100)] px-3 py-2 text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)] hover:border-[var(--color-ink-200)]"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Link>
                 <button
                   type="button"
                   onClick={() => removeChild(p)}
@@ -140,6 +164,42 @@ export default function AccountDashboardPage() {
           <Link href="/compte/histoires">{t("seeAll")}</Link>
         </Button>
       </section>
+
+      {/* Favorites (#30) */}
+      <section>
+        <div className="flex items-center justify-between">
+          <h2 className="font-serif text-2xl tracking-tight sparkle">{t("menu.favorites")}</h2>
+          {favorites.length > 0 && (
+            <Link href="/compte/favoris" className="text-sm text-[var(--color-indigo-soft-600)] hover:text-[var(--color-ink-800)]">
+              {t("seeAll")}
+            </Link>
+          )}
+        </div>
+        {favorites.length === 0 ? (
+          <div className="mt-4 rounded-3xl border-2 border-dashed border-[var(--color-ink-200)] bg-[var(--color-cream-100)] p-8 text-center max-w-xl">
+            <Heart className="mx-auto h-6 w-6 text-[var(--color-indigo-soft-500)]" />
+            <p className="mt-2 text-sm text-[var(--color-ink-600)]">{t("favoritesEmpty")}</p>
+          </div>
+        ) : (
+          <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {favorites.map((s) => (
+              <StoryCard key={s.slug} story={s} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Recently read (#30) */}
+      {recent.length > 0 && (
+        <section>
+          <h2 className="font-serif text-2xl tracking-tight sparkle">{t("recentlyRead")}</h2>
+          <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {recent.map((s) => (
+              <StoryCard key={s.slug} story={s} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

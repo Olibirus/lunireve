@@ -72,6 +72,18 @@ export const routing = defineRouting({
       fr: "/profils/nouveau",
       en: "/profiles/new",
     },
+    "/profils/[id]": {
+      fr: "/profils/[id]",
+      en: "/profiles/[id]",
+    },
+    "/compte/abonnement": {
+      fr: "/compte/abonnement",
+      en: "/account/subscription",
+    },
+    "/compte/newsletter": {
+      fr: "/compte/newsletter",
+      en: "/account/newsletter",
+    },
     "/enfant": {
       fr: "/enfant",
       en: "/child",

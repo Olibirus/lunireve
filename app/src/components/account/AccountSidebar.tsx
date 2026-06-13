@@ -5,6 +5,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import {
   Heart,
   LayoutDashboard,
+  Mail,
   PenLine,
   Rocket,
   Settings,
@@ -34,7 +35,8 @@ export function AccountSidebar() {
         { href: "/compte", label: t("dashboard"), icon: LayoutDashboard },
         { href: "/compte/favoris", label: t("favorites"), icon: Heart },
         { href: "/compte/proposer", label: t("submit"), icon: PenLine },
-        { href: "/tarifs", label: t("plan"), icon: Rocket },
+        { href: "/compte/newsletter", label: t("newsletter"), icon: Mail },
+        { href: "/compte/abonnement", label: t("plan"), icon: Rocket },
         { href: "/compte/parametres", label: t("settings"), icon: Settings },
       ],
     },

@@ -6,10 +6,15 @@
  * (brief #78).
  */
 
-export const FREE_CHARACTER_LIMIT = 3;
+/** Free tier: 1 main + 2 secondary (#7). Paid (V2): 3 main + 6 secondary. */
+export const FREE_LIMITS = { main: 1, secondary: 2 } as const;
+export const PAID_LIMITS = { main: 3, secondary: 6 } as const;
 
 export const CHARACTER_TYPES = ["enfant", "adulte", "animal", "creature"] as const;
 export type CharacterType = (typeof CHARACTER_TYPES)[number];
+
+export const CHARACTER_GENDERS = ["fille", "garcon", "neutre"] as const;
+export type CharacterGender = (typeof CHARACTER_GENDERS)[number];
 
 export const CHARACTER_TRAITS = [
   "affectueux",
@@ -32,6 +37,7 @@ export type SavedCharacter = {
   name: string;
   type: CharacterType;
   role: CharacterRole;
+  gender: CharacterGender;
   /** Free description: "un chien beige très gourmand" */
   description: string;
   traits: string[]; // up to 4
@@ -56,17 +62,22 @@ function write(items: SavedCharacter[]) {
   }
 }
 
+/** Remaining slots for a role on the free tier. */
+export function slotsLeft(role: CharacterRole): number {
+  const used = readCharacters().filter((c) => c.role === role).length;
+  return FREE_LIMITS[role] - used;
+}
+
 export function createCharacter(
   data: Omit<SavedCharacter, "id" | "createdAt">
 ): SavedCharacter | null {
-  const all = readCharacters();
-  if (all.length >= FREE_CHARACTER_LIMIT) return null;
+  if (slotsLeft(data.role) <= 0) return null;
   const character: SavedCharacter = {
     ...data,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };
-  write([...all, character]);
+  write([...readCharacters(), character]);
   return character;
 }
 

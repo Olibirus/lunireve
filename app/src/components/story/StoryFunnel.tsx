@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { StoryCard } from "@/components/story/StoryCard";
 import { StorySearch } from "@/components/story/StorySearch";
+import { StoryBreadcrumb } from "@/components/story/StoryBreadcrumb";
 import { applyFilters, THEMES, type StoryFilters } from "@/lib/stories/filter";
 import {
   GENRES,
@@ -111,26 +112,7 @@ export async function StoryFunnel({
       {/* Hero */}
       <section className="relative">
         <div className="mx-auto max-w-7xl px-5 md:px-8 pt-12 md:pt-16 pb-8">
-          {/* Breadcrumb */}
-          <nav aria-label="Fil d'ariane" className="text-xs text-[var(--color-ink-400)]">
-            <ol className="flex flex-wrap items-center gap-1.5">
-              <li>
-                <Link href="/" className="hover:text-[var(--color-ink-700)]">
-                  {t("nav.home")}
-                </Link>
-              </li>
-              <li aria-hidden>·</li>
-              <li>
-                <Link href="/histoires" className="hover:text-[var(--color-ink-700)]">
-                  {t("funnel.breadcrumbLibrary")}
-                </Link>
-              </li>
-              <li aria-hidden>·</li>
-              <li aria-current="page" className="text-[var(--color-ink-600)]">
-                {title}
-              </li>
-            </ol>
-          </nav>
+          <StoryBreadcrumb trail={[{ label: title }]} />
 
           <h1
             className="mt-4 text-4xl md:text-6xl font-serif leading-[1.04] tracking-tight"

@@ -335,18 +335,65 @@ export function findStory(slug: string): MockStory | undefined {
 }
 
 /**
- * Naive client-side search across title/excerpt/tags/character.
- * Phase 2 swaps this for a Postgres full-text (or pgvector) query.
+ * Bilingual search terms (#18): every story gets FR + EN keywords so a
+ * French word ("chat", "renard") finds the same story as its English
+ * equivalent ("cat", "fox"), whatever language the UI is in. Keyed by the
+ * slug values already on each story (character / theme / genre).
+ * Phase 2 replaces this with a Postgres full-text index that stores both
+ * language columns per story.
  */
+const BILINGUAL_TERMS: Record<string, string[]> = {
+  // characters
+  renard: ["renard", "fox"],
+  "enfant-fille": ["fille", "petite fille", "girl", "child", "enfant"],
+  "enfant-garcon": ["garçon", "garcon", "boy", "child", "enfant"],
+  "grand-mere": ["grand-mère", "grand mere", "mamie", "grandmother", "grandma", "granny"],
+  dragon: ["dragon"],
+  ours: ["ours", "bear", "ourson"],
+  marchand: ["marchand", "merchant", "vendeur", "seller"],
+  gateau: ["gâteau", "gateau", "cake"],
+  phare: ["phare", "lighthouse"],
+  reine: ["reine", "queen"],
+  // themes
+  emotions: ["émotions", "emotions", "feelings", "sommeil", "sleep"],
+  aventure: ["aventure", "adventure"],
+  nature: ["nature", "jardin", "garden", "forêt", "forest"],
+  amitie: ["amitié", "amitie", "friendship", "ami", "friend"],
+  fantastique: ["fantastique", "fantasy", "magie", "magic"],
+  humour: ["humour", "humor", "drôle", "funny", "rire", "laugh"],
+  courage: ["courage", "brave", "bravery"],
+  decouverte: ["découverte", "decouverte", "discovery"],
+  // genres
+  conte: ["conte", "fairy tale", "tale"],
+  "science-fiction": ["science-fiction", "sci-fi", "espace", "space", "étoiles", "stars"],
+  educative: ["éducative", "educative", "educational"],
+  mystere: ["mystère", "mystery", "enquête", "detective"],
+  rigolote: ["rigolote", "funny", "drôle"],
+  mer: ["mer", "sea", "océan", "ocean", "baleine", "whale", "bateau", "boat"],
+};
+
+function searchCorpus(s: MockStory): string {
+  const base = [s.title, s.excerpt, s.character, s.subTheme, s.theme, s.genre, ...s.tags];
+  const synonyms = [s.character, s.theme, s.genre, s.subTheme]
+    .flatMap((key) => BILINGUAL_TERMS[key] ?? []);
+  return [...base, ...synonyms].join(" ").toLowerCase();
+}
+
 export function searchStories(query: string): MockStory[] {
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
-  return mockStories.filter((s) =>
-    [s.title, s.excerpt, s.character, s.subTheme, ...s.tags]
-      .join(" ")
-      .toLowerCase()
-      .includes(q)
-  );
+  // Expand the query to its bilingual synonyms too, so a single FR word
+  // matches an EN corpus entry and vice versa.
+  const expanded = new Set<string>([q]);
+  for (const terms of Object.values(BILINGUAL_TERMS)) {
+    if (terms.some((t) => t.toLowerCase().includes(q) || q.includes(t.toLowerCase()))) {
+      terms.forEach((t) => expanded.add(t.toLowerCase()));
+    }
+  }
+  return mockStories.filter((s) => {
+    const corpus = searchCorpus(s);
+    return [...expanded].some((term) => corpus.includes(term));
+  });
 }
 
 export type QuizQuestion = {

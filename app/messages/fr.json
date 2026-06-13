@@ -151,7 +151,8 @@
     "filters": {
       "searchLabel": "Rechercher",
       "searchPlaceholder": "Un prénom, un thème, un mot…",
-      "ageTitle": "Tranche d'âge",
+      "characterTitle": "Personnage",
+      "ageTitle": "Âge",
       "themeTitle": "Thèmes",
       "themeAdventure": "Aventure",
       "themeFriendship": "Amitié",

@@ -151,7 +151,8 @@
     "filters": {
       "searchLabel": "Search",
       "searchPlaceholder": "A name, a theme, a word…",
-      "ageTitle": "Age range",
+      "characterTitle": "Character",
+      "ageTitle": "Age",
       "themeTitle": "Themes",
       "themeAdventure": "Adventure",
       "themeFriendship": "Friendship",

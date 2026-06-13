@@ -14,6 +14,7 @@ import {
   type GlossaryEntry,
 } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
+import { StoryBreadcrumb } from "@/components/story/StoryBreadcrumb";
 import { AudioPlayer } from "@/components/story/AudioPlayer";
 import { DownloadButtons } from "@/components/story/DownloadButtons";
 import { FavoriteButton, ShareButton, ReportDialog } from "@/components/story/StoryActions";
@@ -99,6 +100,16 @@ export default async function StoryDetailPage({
 
   return (
     <>
+      {/* Breadcrumb bar (#33) */}
+      <div className="mx-auto max-w-5xl px-5 md:px-8 pt-4">
+        <StoryBreadcrumb
+          trail={[
+            { label: tAll(`genres.${story.genre}`), href: { pathname: "/histoires/genre/[genre]", params: { genre: story.genre } } },
+            { label: story.title },
+          ]}
+        />
+      </div>
+
       {/* Full-viewport parallax hero (#1) — bg-fixed keeps the cover still
           while the page scrolls over it. Image slot: the real illustration
           becomes a fixed-attachment background at /illustrations/story-<slug>.png */}

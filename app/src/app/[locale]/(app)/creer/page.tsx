@@ -2,22 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { readProfiles, getActiveProfile, type ChildProfile } from "@/lib/profiles";
 import {
   buildStubStory,
   saveCustomStory,
   quotaUsed,
   FREE_CUSTOM_LIMIT,
-  type CustomStory,
   type CustomStoryParams,
 } from "@/lib/customStories";
 import { generateStoryAction } from "@/app/actions/generateStory";
+import { readCharacters, type SavedCharacter } from "@/lib/characters";
+import { pushNotification } from "@/lib/notifications";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, Copy, Lock, Wand2 } from "lucide-react";
+import { ArrowLeft, Check, Lock, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const THEME_OPTIONS = [
@@ -31,25 +32,27 @@ const THEME_OPTIONS = [
   "decouverte",
 ];
 const MOODS = ["drole", "mysterieux", "touchant", "palpitant", "doux"] as const;
+const STYLES = ["automatique", "aquarelle", "bd", "anime3d", "crayons", "kawaii"] as const;
 
 /**
- * Personalized story flow (V1 = text only) — 4 steps, pre-filled from the
- * child profile, every field editable per-story. Generation is stubbed
- * (template story) until the n8n pipeline lands; the loading screen and the
- * private-share card are the final UX.
+ * Personalized story flow — feedback round 2:
+ * continuous variable-speed loading bar (#12/#13), illustration style
+ * choice (#15), saved characters as one-tap secondary characters (#16),
+ * and on completion: in-app notification + redirect to the story's own
+ * shareable URL /histoire-perso/<id> (#10/#14).
  */
 export default function CreateStoryPage() {
   const t = useTranslations("create");
   const tThemes = useTranslations("themes");
+  const router = useRouter();
 
   const [profiles, setProfiles] = useState<ChildProfile[]>([]);
+  const [characters, setCharacters] = useState<SavedCharacter[]>([]);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [used, setUsed] = useState(0);
   const [step, setStep] = useState(0);
-  const [phase, setPhase] = useState<"form" | "loading" | "done">("form");
-  const [loadingStage, setLoadingStage] = useState(0);
-  const [result, setResult] = useState<CustomStory | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [phase, setPhase] = useState<"form" | "loading">("form");
+  const [progress, setProgress] = useState(0);
 
   const [params, setParams] = useState<CustomStoryParams>({
     heroName: "",
@@ -62,14 +65,15 @@ export default function CreateStoryPage() {
     friend: "",
     place: "",
     fear: "",
+    style: "automatique",
   });
   const set = <K extends keyof CustomStoryParams>(k: K, v: CustomStoryParams[K]) =>
     setParams((p) => ({ ...p, [k]: v }));
 
-  // Pre-fill from the active (or first) child profile.
   useEffect(() => {
     const all = readProfiles();
     setProfiles(all);
+    setCharacters(readCharacters());
     setUsed(quotaUsed());
     const active = getActiveProfile() ?? all[0] ?? null;
     if (active) applyProfile(active);
@@ -84,58 +88,61 @@ export default function CreateStoryPage() {
       heroAge: p.age,
       theme: p.themes[0] ?? prev.theme,
       length:
-        p.maxDuration === "none" || p.maxDuration === "long"
-          ? "long"
-          : p.maxDuration,
+        p.maxDuration === "none" || p.maxDuration === "long" ? "long" : p.maxDuration,
       language: p.language === "both" ? "fr" : p.language,
     }));
   }
 
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  const interval = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(
+    () => () => {
+      if (interval.current) clearInterval(interval.current);
+    },
+    []
+  );
 
   function startGeneration() {
     setPhase("loading");
-    setLoadingStage(0);
+    setProgress(0);
 
-    // Real generation (Claude via server action) kicks off immediately;
-    // the staged loading screen plays in parallel. If the call fails or
-    // times out, the local template story keeps the experience intact.
-    const generation = generateStoryAction(params).catch(() => null);
+    // Real generation runs in parallel with the loading screen; the local
+    // template story keeps the experience intact if the call fails.
+    let settled: { title: string; body: string[] } | null = null;
+    generateStoryAction(params)
+      .then((res) => {
+        settled = res && res.ok ? { title: res.title, body: res.body } : buildStubStory(params);
+      })
+      .catch(() => {
+        settled = buildStubStory(params);
+      });
 
-    // Fast at the start, slower at the end (brief requirement)
-    const delays = [900, 2200, 3200, 4200];
-    let acc = 0;
-    delays.forEach((d, i) => {
-      acc += d;
-      timers.current.push(
-        setTimeout(() => {
-          setLoadingStage(i + 1);
-          if (i === delays.length - 1) {
-            void (async () => {
-              const generated = await generation;
-              const content =
-                generated && generated.ok
-                  ? { title: generated.title, body: generated.body }
-                  : buildStubStory(params);
-              setResult(saveCustomStory(content.title, content.body, params, profileId));
-              setUsed(quotaUsed());
-              setPhase("done");
-            })();
-          }
-        }, acc)
-      );
-    });
-  }
+    // Continuous bar with variable speed (#13): quick start, slowdown as
+    // it "works harder", crawl near the end, then a final sprint once the
+    // generation has actually resolved.
+    interval.current = setInterval(() => {
+      setProgress((p) => {
+        let next = p;
+        if (settled && p >= 88) next = p + 4; // sprint to finish
+        else if (p < 30) next = p + 2.6;
+        else if (p < 60) next = p + 1.1;
+        else if (p < 88) next = p + 0.45;
+        else next = p + 0.05; // crawl while waiting for the model
 
-  async function copyLink() {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* ignore */
-    }
+        if (next >= 100 && settled) {
+          if (interval.current) clearInterval(interval.current);
+          const story = saveCustomStory(settled.title, settled.body, params, profileId);
+          setUsed(quotaUsed());
+          pushNotification({
+            title: t("notifReady"),
+            body: story.title,
+            href: `/histoire-perso/${story.id}`,
+          });
+          router.push({ pathname: "/histoire-perso/[id]", params: { id: story.id } });
+          return 100;
+        }
+        return Math.min(next, settled ? 100 : 92);
+      });
+    }, 110);
   }
 
   const quotaLeft = FREE_CUSTOM_LIMIT - used;
@@ -145,10 +152,10 @@ export default function CreateStoryPage() {
   /* ---------- Loading screen ---------- */
   if (phase === "loading") {
     const stages = [
-      { title: t("loading1Title"), body: t("loading1Body") },
-      { title: t("loading2Title"), body: t("loading2Body", { name: params.heroName }) },
-      { title: t("loading3Title"), body: t("loading3Body") },
-      { title: t("loading4Title"), body: t("loading4Body") },
+      { at: 0, title: t("loading1Title"), body: t("loading1Body") },
+      { at: 18, title: t("loading2Title"), body: t("loading2Body", { name: params.heroName }) },
+      { at: 55, title: t("loading3Title"), body: t("loading3Body") },
+      { at: 85, title: t("loading4Title"), body: t("loading4Body") },
     ];
     return (
       <section className="mx-auto max-w-xl px-5 py-16 md:py-24 text-center">
@@ -156,15 +163,19 @@ export default function CreateStoryPage() {
         <h1 className="mt-6 font-serif text-2xl md:text-3xl tracking-tight">
           {t("loadingTitle")}
         </h1>
-        <div className="mt-3 h-2 mx-auto max-w-sm rounded-full bg-[var(--color-cream-200)]">
-          <div
-            className="h-2 rounded-full bg-[var(--color-mint-500)] transition-[width] duration-700"
-            style={{ width: `${Math.min(100, (loadingStage / 4) * 100)}%` }}
-          />
+        <div className="mt-5 mx-auto max-w-sm">
+          <div className="h-2.5 rounded-full bg-[var(--color-cream-200)]">
+            <div
+              className="h-2.5 rounded-full bg-[var(--color-mint-500)]"
+              style={{ width: `${Math.min(100, progress)}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs text-[var(--color-ink-400)]">{Math.floor(progress)}%</p>
         </div>
-        <ol className="mx-auto mt-10 max-w-md space-y-4 text-left">
+        <ol className="mx-auto mt-8 max-w-md space-y-4 text-left">
           {stages.map((s, i) => {
-            const state = i < loadingStage ? "done" : i === loadingStage ? "active" : "waiting";
+            const nextAt = stages[i + 1]?.at ?? 100;
+            const state = progress >= nextAt ? "done" : progress >= s.at ? "active" : "waiting";
             return (
               <li
                 key={i}
@@ -180,7 +191,7 @@ export default function CreateStoryPage() {
                   className={cn(
                     "flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-serif",
                     state === "done"
-                      ? "bg-[var(--color-mint-400)] text-[var(--color-ink-800)]"
+                      ? "bg-[var(--color-mint-400)] text-[#17224a]"
                       : "bg-[var(--color-cream-200)] text-[var(--color-ink-500)]"
                   )}
                 >
@@ -195,64 +206,6 @@ export default function CreateStoryPage() {
           })}
         </ol>
         <p className="mt-8 text-xs text-[var(--color-ink-400)]">{t("loadingNote")}</p>
-      </section>
-    );
-  }
-
-  /* ---------- Result ---------- */
-  if (phase === "done" && result) {
-    return (
-      <section className="mx-auto max-w-2xl px-5 py-12 md:py-16">
-        <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-indigo-soft-600)] sparkle">
-          {t("doneKicker")}
-        </p>
-        <h1
-          className="mt-3 font-serif text-3xl md:text-5xl tracking-tight"
-          style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 70, 'wght' 500" }}
-        >
-          {result.title}
-        </h1>
-
-        <article className="prose-reading mt-8">
-          {result.body.map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
-        </article>
-
-        {/* Private share card (brief: private by default, shareable by link) */}
-        <div className="mt-10 rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-6">
-          <h2 className="font-serif text-lg tracking-tight">{t("shareTitle")}</h2>
-          <p className="mt-2 text-sm text-[var(--color-ink-600)] leading-relaxed">
-            {t("shareBody")}
-          </p>
-          <button
-            type="button"
-            onClick={copyLink}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[var(--color-ink-200)] bg-[var(--color-cream-50)] px-4 py-2 text-sm hover:bg-[var(--color-cream-100)]"
-          >
-            <Copy className="h-4 w-4" />
-            {copied ? t("shareCopied") : t("shareCopy")}
-          </button>
-        </div>
-
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Button asChild variant="primary" size="md">
-            <Link href="/enfant">{t("backToBubble")}</Link>
-          </Button>
-          {quotaLeft > 0 && (
-            <Button
-              variant="outline"
-              size="md"
-              onClick={() => {
-                setPhase("form");
-                setStep(0);
-                setResult(null);
-              }}
-            >
-              {t("createAnother", { count: quotaLeft })}
-            </Button>
-          )}
-        </div>
       </section>
     );
   }
@@ -298,7 +251,6 @@ export default function CreateStoryPage() {
         </span>
       </div>
 
-      {/* Child pre-fill chips */}
       {profiles.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="text-xs text-[var(--color-ink-500)]">{t("forWhom")}</span>
@@ -321,7 +273,6 @@ export default function CreateStoryPage() {
         </div>
       )}
 
-      {/* Step pills */}
       <ol className="mt-6 flex flex-wrap items-center gap-2 text-xs">
         {steps.map((label, i) => (
           <li
@@ -400,7 +351,7 @@ export default function CreateStoryPage() {
                     className={cn(
                       "rounded-full border px-3 py-1.5 text-sm",
                       params.theme === slug
-                        ? "border-transparent bg-[var(--color-mint-400)] text-[var(--color-ink-800)]"
+                        ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
                         : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
                     )}
                   >
@@ -450,6 +401,27 @@ export default function CreateStoryPage() {
               </div>
             </div>
             <div>
+              <Label>{t("style")}</Label>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("styleHint")}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {STYLES.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => set("style", s)}
+                    className={cn(
+                      "rounded-xl border px-3.5 py-2 text-sm",
+                      params.style === s
+                        ? "border-transparent bg-[var(--color-indigo-soft-500)] text-white"
+                        : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
+                    )}
+                  >
+                    {t(`style_${s}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
               <Label>{t("language")}</Label>
               <div className="mt-2 flex gap-1.5">
                 {(["fr", "en"] as const).map((l) => (
@@ -477,10 +449,35 @@ export default function CreateStoryPage() {
             <p className="text-xs text-[var(--color-ink-400)]">{t("optionalNote")}</p>
             <div>
               <Label htmlFor="friend">{t("friend")}</Label>
+              {characters.length > 0 && (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {characters.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => set("friend", `${c.name}, ${c.description}`)}
+                      className={cn(
+                        "rounded-full border px-3 py-1 text-xs",
+                        params.friend.startsWith(c.name)
+                          ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
+                          : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
+                      )}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                  <Link
+                    href="/compte/personnages"
+                    className="rounded-full border border-dashed border-[var(--color-ink-200)] px-3 py-1 text-xs text-[var(--color-ink-400)] hover:text-[var(--color-ink-700)]"
+                  >
+                    {t("manageCharacters")}
+                  </Link>
+                </div>
+              )}
               <Input
                 id="friend"
                 value={params.friend}
-                maxLength={40}
+                maxLength={80}
                 placeholder={t("friendPlaceholder")}
                 onChange={(e) => set("friend", e.target.value)}
                 className="mt-1.5"
@@ -522,6 +519,7 @@ export default function CreateStoryPage() {
                 [t("theme"), tThemes(params.theme)],
                 [t("mood"), t(`mood_${params.mood}`)],
                 [t("length"), t(`length_${params.length}`)],
+                [t("style"), t(`style_${params.style}`)],
                 params.trait && [t("heroTrait"), params.trait],
                 params.friend && [t("friend"), params.friend],
                 params.place && [t("place"), params.place],

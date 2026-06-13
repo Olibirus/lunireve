@@ -18,7 +18,13 @@ export type CustomStoryParams = {
   friend: string;
   place: string;
   fear: string;
+  /** Illustration style (#15) — drives the future image generation. */
+  style: "automatique" | "aquarelle" | "bd" | "anime3d" | "crayons" | "kawaii";
 };
+
+export function findCustomStory(id: string): CustomStory | undefined {
+  return readCustomStories().find((s) => s.id === id);
+}
 
 export type CustomStory = {
   id: string;

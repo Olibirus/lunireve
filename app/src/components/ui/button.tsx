@@ -25,7 +25,9 @@ const buttonVariants = cva(
         secondary:
           "bg-[var(--color-cream-100)] text-[var(--color-ink-800)] border border-[var(--color-ink-100)] hover:bg-[var(--color-cream-200)] hover:border-[var(--color-ink-200)]",
         mint:
-          "bg-[var(--color-mint-400)] text-[var(--color-ink-900)] hover:bg-[var(--color-mint-500)] active:bg-[var(--color-mint-600)]",
+          // Fixed dark ink (not the var): the mint fill stays light in dark
+          // mode, so the label must stay dark to remain readable (#8).
+          "bg-[var(--color-mint-400)] text-[#17224a] hover:bg-[var(--color-mint-500)] active:bg-[var(--color-mint-600)]",
         ghost:
           "bg-transparent text-[var(--color-ink-800)] hover:bg-[var(--color-cream-100)]",
         link:

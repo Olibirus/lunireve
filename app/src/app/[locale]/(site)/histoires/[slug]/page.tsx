@@ -15,6 +15,7 @@ import {
 } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
 import { AudioPlayer } from "@/components/story/AudioPlayer";
+import { DownloadButtons } from "@/components/story/DownloadButtons";
 import { FavoriteButton, ShareButton, ReportDialog } from "@/components/story/StoryActions";
 import { RatingStars } from "@/components/story/RatingStars";
 import { ReadingProgress } from "@/components/story/ReadingProgress";
@@ -23,14 +24,7 @@ import { StoryQuiz } from "@/components/story/StoryQuiz";
 import { InteractiveStory } from "@/components/story/InteractiveStory";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  Clock,
-  Download,
-  FileText,
-  Headphones,
-  Sparkles,
-} from "lucide-react";
+import { ArrowLeft, Clock, Headphones, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -185,14 +179,7 @@ export default async function StoryDetailPage({
                 audioUrl={story.audioUrl}
                 chapterCount={3}
               />
-              <Button variant="secondary" size="sm">
-                <Download className="h-4 w-4" />
-                {t("downloadPdf")}
-              </Button>
-              <Button variant="secondary" size="sm">
-                <FileText className="h-4 w-4" />
-                {t("downloadEpub")}
-              </Button>
+              <DownloadButtons />
             </div>
             <div className="flex items-center gap-1">
               <FavoriteButton slug={story.slug} />
@@ -206,18 +193,32 @@ export default async function StoryDetailPage({
         </div>
       </section>
 
-      {/* Body — single centered column, generous measure (#19) */}
-      <section className="mx-auto max-w-3xl px-5 md:px-8 py-10 md:py-14">
-        <div id="story-body" className="prose-reading reading-size-m mx-auto max-w-[62ch]">
+      {/* Body — single centered column, wider measure (#5) */}
+      <section className="mx-auto max-w-4xl px-5 md:px-8 py-10 md:py-14">
+        <div id="story-body" className="prose-reading reading-size-m mx-auto max-w-[74ch]">
           {story.interactive ? (
             <InteractiveStory tree={interactiveTree(slug)} />
           ) : (
             <>
-              {body.map((p, i) => (
-                <p key={i} id={i % 3 === 0 ? `chapitre-${i / 3 + 1}` : undefined}>
-                  {withGlossary(p, glossary)}
-                </p>
-              ))}
+              {body.map((p, i) => {
+                const isDialogue = p.trimStart().startsWith("«");
+                const chapterStart = i > 0 && i % 4 === 0;
+                return (
+                  <p
+                    key={i}
+                    id={i % 4 === 0 ? `chapitre-${i / 4 + 1}` : undefined}
+                    className={cn(
+                      i === 0 && "drop-cap",
+                      isDialogue && "dialogue",
+                      // Clear visual break between chapters (#3)
+                      chapterStart &&
+                        "!mt-14 border-t border-[var(--color-ink-100)] pt-10"
+                    )}
+                  >
+                    {withGlossary(p, glossary)}
+                  </p>
+                );
+              })}
               <div
                 aria-hidden
                 className="my-12 flex items-center gap-3 justify-center text-[var(--color-indigo-soft-500)]"

@@ -298,26 +298,32 @@
     mask-repeat: no-repeat;
   }
 
-  /* Reading column — for story detail pages */
+  /* Reading column — for story detail pages.
+     Sans-serif body (feedback #2); serif stays for titles/chapters. */
   .prose-reading {
-    font-family: var(--font-serif);
+    font-family: var(--font-sans);
     font-weight: 400;
     font-size: 1.1875rem;
     line-height: 1.85;
-    letter-spacing: -0.005em;
-    font-variation-settings: "opsz" 14, "SOFT" 40;
+    letter-spacing: -0.002em;
     color: var(--color-ink-800);
   }
-  .prose-reading p + p { margin-top: 1.25em; }
-  .prose-reading p:first-letter {
+  .prose-reading p + p { margin-top: 1.35em; }
+
+  /* Drop cap ONLY where explicitly asked (first paragraph of the story),
+     via .drop-cap — not on every paragraph (feedback #3). */
+  .drop-cap:first-letter {
     font-family: var(--font-serif);
     font-variation-settings: "opsz" 144, "SOFT" 100;
-    font-size: 3.2em;
+    font-size: 3.1em;
     line-height: 0.9;
     float: left;
-    margin: 0.1em 0.1em 0 -0.05em;
+    margin: 0.08em 0.12em 0 -0.04em;
     color: var(--color-ink-800);
   }
+
+  /* Dialogue lines (starting with «) render italic (feedback #6) */
+  .prose-reading .dialogue { font-style: italic; }
 
   /* Story-card colored cover gradients (used as illustration placeholders) */
   .cover-dusk { background: linear-gradient(135deg, #1f2d52 0%, #4f5c83 55%, #f4894a 100%); }
@@ -406,4 +412,26 @@
 /* Audio player modal overlay — much darker in night mode (bedtime use) */
 html.dark [data-dialog-overlay] {
   background: rgba(2, 5, 16, 0.82) !important;
+}
+
+/* ---------- Print = the free PDF download ---------- */
+@media print {
+  header, footer, nav, aside,
+  [data-no-print] {
+    display: none !important;
+  }
+  body::before { display: none; }
+  #story-body {
+    max-width: 100% !important;
+    font-size: 12pt !important;
+  }
+  /* Watermark on every printed page (free tier) */
+  #story-body::after {
+    content: "lunireve.com";
+    position: fixed;
+    bottom: 12mm;
+    right: 12mm;
+    font-size: 9pt;
+    color: #999;
+  }
 }

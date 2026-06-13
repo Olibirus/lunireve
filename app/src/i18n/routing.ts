@@ -75,6 +75,30 @@ export const routing = defineRouting({
       fr: "/enfant",
       en: "/child",
     },
+    "/histoire-perso/[id]": {
+      fr: "/histoire-perso/[id]",
+      en: "/my-story/[id]",
+    },
+    "/compte/favoris": {
+      fr: "/compte/favoris",
+      en: "/account/favorites",
+    },
+    "/compte/histoires": {
+      fr: "/compte/histoires",
+      en: "/account/stories",
+    },
+    "/compte/personnages": {
+      fr: "/compte/personnages",
+      en: "/account/characters",
+    },
+    "/compte/parametres": {
+      fr: "/compte/parametres",
+      en: "/account/settings",
+    },
+    "/compte/proposer": {
+      fr: "/compte/proposer",
+      en: "/account/submit",
+    },
     "/admin": "/admin",
     "/admin/histoires": "/admin/histoires",
     "/admin/moderation": "/admin/moderation",

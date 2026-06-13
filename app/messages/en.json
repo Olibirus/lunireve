@@ -29,7 +29,50 @@
     "authButton": "Log in",
     "menu": "Menu",
     "menuProfiles": "Who's reading tonight?",
-    "menuDashboard": "Parent space"
+    "menuDashboard": "Parent space",
+    "streakTitle": "Current reading streak"
+  },
+  "notifications": {
+    "label": "Notifications",
+    "title": "Notifications",
+    "empty": "Nothing yet. We'll let you know when a story is ready!"
+  },
+  "customStory": {
+    "badge": "Personalised story",
+    "back": "Back to the child space",
+    "notFoundTitle": "Story not found on this device",
+    "notFoundBody": "Personalised stories currently live on the device that created them. Cross-device sharing is coming very soon."
+  },
+  "characters_page": {
+    "title": "My characters",
+    "subtitle": "Create your recurring characters once, then add them to every new story in one click.",
+    "empty": "No characters yet. Create the first one below!",
+    "createTitle": "Create a character",
+    "name": "Their name",
+    "type": "Type",
+    "type_enfant": "Child",
+    "type_adulte": "Adult",
+    "type_animal": "Animal",
+    "type_creature": "Creature",
+    "description": "Description",
+    "descriptionPlaceholder": "a very greedy beige dog…",
+    "traits": "Personality traits (max 4)",
+    "createCta": "Create character",
+    "delete": "Delete",
+    "deleteConfirm": "Delete {name}?",
+    "limit": "The free account allows {limit} characters. More generous plans are coming soon."
+  },
+  "submit": {
+    "title": "Submit a story",
+    "subtitle": "Do you write? Submit your story: our team reviews it, and if selected it joins the library with your name as author.",
+    "storyTitle": "Story title",
+    "ageRange": "Age range",
+    "storyBody": "Your story",
+    "bodyHint": "200 characters minimum. Keep a copy of your text.",
+    "cta": "Send for review",
+    "note": "Publication is not guaranteed. By submitting you confirm you are the author.",
+    "thanksTitle": "Thank you!",
+    "thanksBody": "Your story is in the review queue. You'll see its status right here very soon."
   },
   "home": {
     "heroKicker": "New collection · Spring",
@@ -398,7 +441,17 @@
     "length_medium": "Medium (8-10 min)",
     "length_long": "Long (12-15 min)",
     "language": "Language",
-    "optionalNote": "Everything here is optional, whatever you leave blank, Lunireve will invent.",
+    "optionalNote": "Everything here is optional: whatever you leave blank, Lunireve will invent.",
+    "style": "Illustration style",
+    "styleHint": "For the story's images (generation coming soon).",
+    "style_automatique": "Automatic",
+    "style_aquarelle": "Watercolour",
+    "style_bd": "Comic book",
+    "style_anime3d": "3D animation",
+    "style_crayons": "Coloured pencils",
+    "style_kawaii": "Kawaii",
+    "manageCharacters": "+ Manage my characters",
+    "notifReady": "Your story is ready!",
     "friend": "A friend who appears in the story",
     "friendPlaceholder": "their dog Biscuit…",
     "place": "A place they love",
@@ -461,7 +514,24 @@
     "newsletter": "Weekly newsletter",
     "deleteAccount": "Delete my account",
     "soon": "Soon",
-    "gdprNote": "Your data stays hosted in Europe and is never sold. Export and deletion available on request: hello@lunireve.com"
+    "gdprNote": "Your data stays hosted in Europe and is never sold. Export and deletion available on request: hello@lunireve.com",
+    "favoritesEmpty": "No favourite stories yet. Tap the little heart on a story to keep it here.",
+    "customCount": "{count, plural, =0 {No stories created yet} =1 {1 story created} other {# stories created}}",
+    "seeAll": "See all",
+    "menu": {
+      "groupAccount": "Account",
+      "groupCustom": "Personalised stories",
+      "groupChildren": "Children",
+      "dashboard": "Dashboard",
+      "favorites": "My favourite stories",
+      "submit": "Submit a story",
+      "plan": "Your plan",
+      "settings": "Settings",
+      "customStories": "My personalised stories",
+      "characters": "My characters",
+      "create": "Create a story",
+      "profiles": "Who's reading tonight?"
+    }
   },
   "search": {
     "label": "Search for a story",

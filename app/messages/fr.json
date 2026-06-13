@@ -29,7 +29,50 @@
     "authButton": "Connexion",
     "menu": "Menu",
     "menuProfiles": "Qui lit ce soir ?",
-    "menuDashboard": "Espace parent"
+    "menuDashboard": "Espace parent",
+    "streakTitle": "Série de lecture en cours"
+  },
+  "notifications": {
+    "label": "Notifications",
+    "title": "Notifications",
+    "empty": "Rien pour l'instant. On vous préviendra quand une histoire sera prête !"
+  },
+  "customStory": {
+    "badge": "Histoire personnalisée",
+    "back": "Retour à l'espace enfant",
+    "notFoundTitle": "Histoire introuvable sur cet appareil",
+    "notFoundBody": "Les histoires personnalisées sont pour l'instant rangées sur l'appareil qui les a créées. Le partage entre appareils arrive très bientôt."
+  },
+  "characters_page": {
+    "title": "Mes personnages",
+    "subtitle": "Créez vos personnages récurrents une fois, puis ajoutez-les à chaque nouvelle histoire en un clic.",
+    "empty": "Aucun personnage pour l'instant. Créez le premier ci-dessous !",
+    "createTitle": "Créer un personnage",
+    "name": "Son nom",
+    "type": "Type",
+    "type_enfant": "Enfant",
+    "type_adulte": "Adulte",
+    "type_animal": "Animal",
+    "type_creature": "Créature",
+    "description": "Description",
+    "descriptionPlaceholder": "un chien beige très gourmand…",
+    "traits": "Traits de caractère (4 max)",
+    "createCta": "Créer le personnage",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer {name} ?",
+    "limit": "Le compte gratuit permet {limit} personnages. Des formules plus généreuses arrivent bientôt."
+  },
+  "submit": {
+    "title": "Proposer une histoire",
+    "subtitle": "Vous écrivez ? Proposez votre histoire : notre équipe la relit, et si elle est retenue, elle rejoint la bibliothèque avec votre nom en auteur.",
+    "storyTitle": "Titre de l'histoire",
+    "ageRange": "Tranche d'âge",
+    "storyBody": "Votre histoire",
+    "bodyHint": "200 caractères minimum. Conservez une copie de votre texte.",
+    "cta": "Envoyer pour relecture",
+    "note": "Aucune garantie de publication. En soumettant, vous confirmez être l'auteur du texte.",
+    "thanksTitle": "Merci !",
+    "thanksBody": "Votre histoire est dans la file de relecture. Vous verrez son statut ici même très bientôt."
   },
   "home": {
     "heroKicker": "Nouvelle collection · Printemps",
@@ -398,7 +441,17 @@
     "length_medium": "Moyenne (8-10 min)",
     "length_long": "Longue (12-15 min)",
     "language": "Langue",
-    "optionalNote": "Tout est facultatif ici, ce que vous laissez vide, Lunireve l'inventera.",
+    "optionalNote": "Tout est facultatif ici : ce que vous laissez vide, Lunireve l'inventera.",
+    "style": "Style d'illustration",
+    "styleHint": "Pour les images de l'histoire (génération bientôt active).",
+    "style_automatique": "Automatique",
+    "style_aquarelle": "Aquarelle",
+    "style_bd": "Bande dessinée",
+    "style_anime3d": "Animation 3D",
+    "style_crayons": "Crayons de couleur",
+    "style_kawaii": "Kawaii",
+    "manageCharacters": "+ Gérer mes personnages",
+    "notifReady": "Ton histoire est prête !",
     "friend": "Un ami qui apparaît dans l'histoire",
     "friendPlaceholder": "son chien Biscuit…",
     "place": "Un endroit qu'il adore",
@@ -461,7 +514,24 @@
     "newsletter": "Newsletter hebdomadaire",
     "deleteAccount": "Supprimer mon compte",
     "soon": "Bientôt",
-    "gdprNote": "Vos données restent hébergées en Europe et ne sont jamais revendues. Export et suppression disponibles sur simple demande : hello@lunireve.com"
+    "gdprNote": "Vos données restent hébergées en Europe et ne sont jamais revendues. Export et suppression disponibles sur simple demande : hello@lunireve.com",
+    "favoritesEmpty": "Aucune histoire favorite pour l'instant. Touchez le petit cœur sur une histoire pour la garder ici.",
+    "customCount": "{count, plural, =0 {Aucune histoire créée pour l'instant} =1 {1 histoire créée} other {# histoires créées}}",
+    "seeAll": "Tout voir",
+    "menu": {
+      "groupAccount": "Compte",
+      "groupCustom": "Histoires personnalisées",
+      "groupChildren": "Enfants",
+      "dashboard": "Tableau de bord",
+      "favorites": "Mes histoires favorites",
+      "submit": "Proposer une histoire",
+      "plan": "Votre forfait",
+      "settings": "Réglages",
+      "customStories": "Mes histoires personnalisées",
+      "characters": "Mes personnages",
+      "create": "Créer une histoire",
+      "profiles": "Qui lit ce soir ?"
+    }
   },
   "search": {
     "label": "Rechercher une histoire",

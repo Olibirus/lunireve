@@ -7,14 +7,17 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { NotificationBell } from "@/components/NotificationBell";
 import { logout } from "@/app/actions/auth";
 import { isLoggedIn } from "@/lib/clientAuth";
+import { getActiveProfile } from "@/lib/profiles";
 import { GENRES, AGE_RANGES, DURATION_BUCKETS, ageLabel } from "@/data/mock-stories";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import {
   BookOpen,
   ChevronDown,
+  Flame,
   Headphones,
   LayoutDashboard,
   LogOut,
@@ -127,8 +130,18 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const [streak, setStreak] = useState<number | null>(null);
+
   useEffect(() => {
     setLogged(isLoggedIn());
+    // Streak chip (#9): show the active child's reading streak to nudge
+    // the daily habit. Hidden when no profile is active.
+    try {
+      const p = getActiveProfile();
+      if (p) setStreak(p.streak);
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   async function onLogout() {
@@ -210,6 +223,17 @@ export function Header() {
 
         {/* Right side */}
         <div className="flex items-center gap-1.5 md:gap-2">
+          {logged && streak !== null && (
+            <Link
+              href="/enfant"
+              title={t("nav.streakTitle")}
+              className="inline-flex items-center gap-1 rounded-full bg-[var(--color-fox-300)]/25 px-2.5 py-1.5 text-xs font-medium text-[var(--color-fox-700)] hover:bg-[var(--color-fox-300)]/40"
+            >
+              <Flame className="h-3.5 w-3.5" />
+              {streak}
+            </Link>
+          )}
+          {logged && <NotificationBell />}
           <Link
             href="/histoires"
             aria-label={t("search.label")}

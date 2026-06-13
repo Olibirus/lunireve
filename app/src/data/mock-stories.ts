@@ -84,11 +84,14 @@ export type MockStory = {
   /** null = audio generated at first listen (cost-saving), then cached here */
   audioUrl: string | null;
   interactive: boolean;
+  /** Publication date (YYYY-MM-DD). Mirrors stories.published_at. */
+  publishedAt: string;
 };
 
 export const mockStories: MockStory[] = [
   {
     slug: "le-renard-qui-ne-voulait-pas-dormir",
+    publishedAt: "2026-01-08",
     title: "Le renard qui ne voulait pas dormir",
     language: "fr",
     ageRange: "3-4",
@@ -110,6 +113,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "lea-et-la-baleine-bleue",
+    publishedAt: "2026-01-22",
     title: "Léa et la baleine bleue",
     language: "fr",
     ageRange: "7-8",
@@ -131,6 +135,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "le-potager-magique-de-mamie-rose",
+    publishedAt: "2026-02-05",
     title: "Le potager magique de Mamie Rose",
     language: "fr",
     ageRange: "3-4",
@@ -152,6 +157,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "timothee-et-le-dragon-timide",
+    publishedAt: "2026-02-19",
     title: "Timothée et le dragon timide",
     language: "fr",
     ageRange: "7-8",
@@ -173,6 +179,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "la-course-des-etoiles-filantes",
+    publishedAt: "2026-03-05",
     title: "La course des étoiles filantes",
     language: "fr",
     ageRange: "9-10",
@@ -194,6 +201,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "petit-ours-apprend-a-attendre",
+    publishedAt: "2026-03-19",
     title: "Petit ours apprend à attendre",
     language: "fr",
     ageRange: "1-2",
@@ -215,6 +223,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "le-marchand-de-reves-du-souk",
+    publishedAt: "2026-04-02",
     title: "Le marchand de rêves du souk",
     language: "fr",
     ageRange: "11-12",
@@ -236,6 +245,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "les-jumeaux-et-la-comete",
+    publishedAt: "2026-04-16",
     title: "Les jumeaux et la comète",
     language: "fr",
     ageRange: "7-8",
@@ -257,6 +267,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "la-bibliotheque-qui-marche-la-nuit",
+    publishedAt: "2026-04-30",
     title: "La bibliothèque qui marche la nuit",
     language: "fr",
     ageRange: "11-12",
@@ -278,6 +289,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "le-gateau-qui-ne-voulait-pas-cuire",
+    publishedAt: "2026-05-14",
     title: "Le gâteau qui ne voulait pas cuire",
     language: "fr",
     ageRange: "3-4",
@@ -299,6 +311,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "le-petit-phare-et-la-tempete",
+    publishedAt: "2026-05-28",
     title: "Le petit phare et la tempête",
     language: "fr",
     ageRange: "5-6",
@@ -320,6 +333,7 @@ export const mockStories: MockStory[] = [
   },
   {
     slug: "la-reine-des-champignons",
+    publishedAt: "2026-06-10",
     title: "La reine des champignons",
     language: "fr",
     ageRange: "5-6",

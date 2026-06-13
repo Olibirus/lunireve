@@ -70,6 +70,7 @@ export const mockBlogPosts: BlogPost[] = [
 export type StoryAnalytics = {
   slug: string;
   title: string;
+  publishedAt: string; // YYYY-MM-DD
   // Story attributes (real metadata — drives the per-story filter columns).
   ageRange: AgeRange;
   genre: Genre;
@@ -110,6 +111,7 @@ export { ageLabel };
 export const storyAnalytics: StoryAnalytics[] = mockStories.map((s) => ({
   slug: s.slug,
   title: s.title,
+  publishedAt: s.publishedAt,
   ageRange: s.ageRange,
   genre: s.genre,
   duration: durationBucket(s.readingMinutes),

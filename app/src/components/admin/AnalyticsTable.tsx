@@ -60,6 +60,18 @@ const COLUMNS: Column[] = [
     exp: (r) => r.title,
   },
   {
+    key: "publishedAt",
+    label: "Publié le",
+    type: "num",
+    sortVal: (r) => r.publishedAt,
+    cell: (r) => (
+      <span className="text-[var(--color-ink-500)]">
+        {new Date(r.publishedAt).toLocaleDateString("fr-FR")}
+      </span>
+    ),
+    exp: (r) => r.publishedAt,
+  },
+  {
     key: "age",
     label: "Âge",
     type: "cat",

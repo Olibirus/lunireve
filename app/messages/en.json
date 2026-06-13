@@ -334,7 +334,31 @@
     "maxPerk3": "MP3 audio downloads",
     "maxPerk4": "Sleep sounds and black-screen mode",
     "maxPerk5": "Discount on printed books",
-    "fineprint": "Indicative pre-launch prices. No card required for Discovery. Subscriptions will be commitment-free, cancellable anytime, with a 14-day withdrawal period."
+    "fineprint": "Indicative pre-launch prices. No card required for Discovery. Subscriptions will be commitment-free, cancellable anytime, with a 14-day withdrawal period.",
+    "compare": {
+      "title": "Compare the plans in detail",
+      "subtitle": "Everything each plan includes, side by side. The Max plan unlocks the full experience.",
+      "featureColumn": "Feature",
+      "premiumBadge": "Premium",
+      "included": "Included",
+      "notIncluded": "Not included",
+      "unlimited": "Unlimited",
+      "pdfWatermark": "Watermarked",
+      "pdfClean": "No watermark",
+      "featLibrary": "The whole library, reading and audio",
+      "featQuiz": "Quiz and glossary on every story",
+      "featProfiles": "Child profiles",
+      "featStories": "Personalised stories per month",
+      "featFavorites": "Saved favourites",
+      "featPdf": "PDF download",
+      "featEpub": "ePub export",
+      "featAds": "Ad-free",
+      "featAudio": "Advanced audio player (speed, timer, queue)",
+      "featSleep": "Sleep sounds and black-screen mode",
+      "featMp3": "MP3 audio downloads",
+      "featVisual": "Illustrated personalised stories (visual book)",
+      "featPrint": "Discount on printed books"
+    }
   },
   "notFound": {
     "kicker": "Page not found",

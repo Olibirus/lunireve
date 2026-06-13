@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { PricingPlans } from "@/components/marketing/PricingPlans";
+import { PricingComparison } from "./PricingComparison";
 
 /**
  * In-profile subscription (#9) — the upgrade is managed inside the profile,
@@ -19,6 +20,7 @@ export default function SubscriptionPage() {
       <div className="mt-8">
         <PricingPlans internal />
       </div>
+      <PricingComparison />
       <p className="mt-8 max-w-xl text-xs text-[var(--color-ink-400)]">{tp("fineprint")}</p>
     </div>
   );

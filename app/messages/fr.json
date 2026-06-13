@@ -334,7 +334,31 @@
     "maxPerk3": "Téléchargement audio MP3",
     "maxPerk4": "Sons d'endormissement et mode écran noir",
     "maxPerk5": "Remise sur les livres imprimés",
-    "fineprint": "Prix indicatifs avant lancement. Aucune carte requise pour la formule Découverte. Les abonnements seront sans engagement, résiliables à tout moment, avec 14 jours de rétractation."
+    "fineprint": "Prix indicatifs avant lancement. Aucune carte requise pour la formule Découverte. Les abonnements seront sans engagement, résiliables à tout moment, avec 14 jours de rétractation.",
+    "compare": {
+      "title": "Comparer les formules en détail",
+      "subtitle": "Tout ce que comprend chaque formule, côte à côte. La formule Max débloque l'expérience complète.",
+      "featureColumn": "Fonctionnalité",
+      "premiumBadge": "Premium",
+      "included": "Inclus",
+      "notIncluded": "Non inclus",
+      "unlimited": "Illimité",
+      "pdfWatermark": "Avec filigrane",
+      "pdfClean": "Sans filigrane",
+      "featLibrary": "Toute la bibliothèque en lecture et en audio",
+      "featQuiz": "Quiz et glossaire sur chaque histoire",
+      "featProfiles": "Profils enfants",
+      "featStories": "Histoires personnalisées par mois",
+      "featFavorites": "Favoris enregistrés",
+      "featPdf": "Téléchargement PDF",
+      "featEpub": "Export ePub",
+      "featAds": "Sans publicité",
+      "featAudio": "Lecteur audio avancé (vitesse, minuteur, file)",
+      "featSleep": "Sons d'endormissement et mode écran noir",
+      "featMp3": "Téléchargement audio MP3",
+      "featVisual": "Histoires personnalisées illustrées (livre visuel)",
+      "featPrint": "Remise sur les livres imprimés"
+    }
   },
   "notFound": {
     "kicker": "Page introuvable",

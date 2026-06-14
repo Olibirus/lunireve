@@ -7,6 +7,49 @@
 
 export const FREE_CUSTOM_LIMIT = 3; // per month, free tier
 
+/**
+ * Per-tier monthly quota for personalized stories. Mirrors the tier names in
+ * `lib/auth/session.ts`. `Infinity` for Max == "fair-use unlimited" per the
+ * brief; the UI hides the counter in that case.
+ */
+export const CUSTOM_LIMIT_BY_TIER = {
+  free: FREE_CUSTOM_LIMIT,
+  plus: 30,
+  max: Infinity,
+} as const;
+
+export type CustomTier = keyof typeof CUSTOM_LIMIT_BY_TIER;
+
+/**
+ * Reads the (non-httpOnly) `lunireve_tier` cookie written by setSession.
+ * Defaults to "free" when missing — anonymous visitors and the legacy
+ * `user` test account both end up here.
+ */
+export function readTier(): CustomTier {
+  if (typeof document === "undefined") return "free";
+  const m = document.cookie.match(/(?:^|;\s*)lunireve_tier=([^;]+)/);
+  const raw = m?.[1];
+  if (raw === "plus" || raw === "max" || raw === "free") return raw;
+  return "free";
+}
+
+export function customLimitFor(tier: CustomTier): number {
+  return CUSTOM_LIMIT_BY_TIER[tier];
+}
+
+/**
+ * Wipe the monthly quota counter. Exposed for testing (Harry hit the cap
+ * on the free test account and needs a clean slate to keep validating
+ * the create-story flow).
+ */
+export function resetQuota(): void {
+  try {
+    localStorage.removeItem(QUOTA_KEY);
+  } catch {
+    /* non-fatal */
+  }
+}
+
 export type CustomStoryParams = {
   heroName: string;
   heroAge: number;

@@ -8,8 +8,11 @@ import {
   buildStubStory,
   saveCustomStory,
   quotaUsed,
-  FREE_CUSTOM_LIMIT,
+  customLimitFor,
+  readTier,
+  resetQuota,
   type CustomStoryParams,
+  type CustomTier,
 } from "@/lib/customStories";
 import { generateStoryAction } from "@/app/actions/generateStory";
 import { readCharacters, type SavedCharacter } from "@/lib/characters";
@@ -50,6 +53,7 @@ export default function CreateStoryPage() {
   const [characters, setCharacters] = useState<SavedCharacter[]>([]);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [used, setUsed] = useState(0);
+  const [tier, setTier] = useState<CustomTier>("free");
   const [step, setStep] = useState(0);
   const [phase, setPhase] = useState<"form" | "loading">("form");
   const [progress, setProgress] = useState(0);
@@ -74,6 +78,7 @@ export default function CreateStoryPage() {
     setProfiles(all);
     setCharacters(readCharacters());
     setUsed(quotaUsed());
+    setTier(readTier());
     const active = getActiveProfile() ?? all[0] ?? null;
     if (active) applyProfile(active);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -154,7 +159,9 @@ export default function CreateStoryPage() {
     }, 110);
   }
 
-  const quotaLeft = FREE_CUSTOM_LIMIT - used;
+  const limit = customLimitFor(tier);
+  const isUnlimited = !Number.isFinite(limit);
+  const quotaLeft = isUnlimited ? Infinity : limit - used;
   const steps = [t("step1"), t("step2"), t("step3"), t("step4")];
   const canNext = step === 0 ? params.heroName.trim().length >= 2 : true;
 
@@ -228,7 +235,7 @@ export default function CreateStoryPage() {
         </span>
         <h1 className="mt-6 font-serif text-2xl tracking-tight">{t("quotaTitle")}</h1>
         <p className="mt-3 text-sm text-[var(--color-ink-500)] leading-relaxed">
-          {t("quotaBody", { limit: FREE_CUSTOM_LIMIT })}
+          {t("quotaBody", { limit })}
         </p>
         <div className="mt-6 flex flex-col items-center gap-3">
           <Button asChild variant="mint" size="lg">
@@ -240,6 +247,16 @@ export default function CreateStoryPage() {
           <Button asChild variant="ghost" size="sm">
             <Link href="/histoires">{t("quotaCta")}</Link>
           </Button>
+          <button
+            type="button"
+            onClick={() => {
+              resetQuota();
+              setUsed(0);
+            }}
+            className="mt-2 text-[11px] uppercase tracking-wider text-[var(--color-ink-400)] hover:text-[var(--color-ink-700)]"
+          >
+            {t("quotaResetTest")}
+          </button>
         </div>
       </section>
     );
@@ -264,7 +281,7 @@ export default function CreateStoryPage() {
           {t("title")}
         </h1>
         <span className="shrink-0 rounded-full bg-[var(--color-mint-100)] border border-[var(--color-mint-300)] px-3 py-1 text-xs text-[var(--color-ink-700)]">
-          {t("quotaLeft", { count: quotaLeft })}
+          {isUnlimited ? t("quotaUnlimited") : t("quotaLeft", { count: quotaLeft })}
         </span>
       </div>
 

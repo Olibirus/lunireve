@@ -11,9 +11,18 @@ import { cookies } from "next/headers";
  * and nothing pretends to be — do NOT ship this to production.
  */
 
+export type Tier = "free" | "plus" | "max";
+
 export type Session = {
   role: "admin" | "user";
   username: string;
+  /**
+   * Subscription tier — drives client quotas (personalized stories per month)
+   * and UI gates. Defaults to "free" if missing. Real accounts will derive
+   * this from Supabase once Stripe lands in V2; for now it is hardcoded on
+   * the temp test accounts so we can exercise paid-tier behavior end to end.
+   */
+  tier?: Tier;
   /**
    * Supabase auth.users id, present only for real email accounts (not the temp
    * admin/user logins). DB-backed features key off this — server actions that
@@ -30,9 +39,14 @@ export async function getCurrentUserId(): Promise<string | null> {
 
 const COOKIE = "lunireve_session";
 
-export const TEMP_CREDENTIALS: Record<string, { password: string; role: Session["role"] }> = {
+export const TEMP_CREDENTIALS: Record<
+  string,
+  { password: string; role: Session["role"]; tier?: Tier }
+> = {
   admin: { password: "123456", role: "admin" },
-  user: { password: "123456", role: "user" },
+  user: { password: "123456", role: "user", tier: "free" },
+  user2: { password: "123456", role: "user", tier: "plus" },
+  user3: { password: "123456", role: "user", tier: "max" },
 };
 
 export async function getSession(): Promise<Session | null> {
@@ -67,10 +81,18 @@ export async function setSession(session: Session, remember = true) {
     path: "/",
     maxAge,
   });
+  // Same idea for the tier — client-side quota helpers read it directly.
+  store.set("lunireve_tier", session.tier ?? "free", {
+    httpOnly: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge,
+  });
 }
 
 export async function clearSession() {
   const store = await cookies();
   store.delete(COOKIE);
   store.delete("lunireve_role");
+  store.delete("lunireve_tier");
 }

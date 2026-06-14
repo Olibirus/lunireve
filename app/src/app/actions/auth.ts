@@ -33,7 +33,10 @@ export async function login(
   // Path 1 — temp dev accounts
   const temp = TEMP_CREDENTIALS[username.toLowerCase()];
   if (temp && temp.password === password) {
-    await setSession({ role: temp.role, username: username.toLowerCase() }, remember);
+    await setSession(
+      { role: temp.role, username: username.toLowerCase(), tier: temp.tier ?? "free" },
+      remember
+    );
     return { ok: true, role: temp.role };
   }
 

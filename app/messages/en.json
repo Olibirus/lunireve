@@ -600,7 +600,9 @@
     "quotaTitle": "You've used this month's stories",
     "quotaBody": "The free account includes {limit} personalised stories per month. The counter resets next month, and more generous plans are coming soon.",
     "quotaCta": "Explore the library meanwhile",
-    "quotaUpgrade": "Upgrade your plan"
+    "quotaUpgrade": "Upgrade your plan",
+    "quotaUnlimited": "Unlimited this month",
+    "quotaResetTest": "Reset quota (test)"
   },
   "child": {
     "hello": "Good evening {name}!",
@@ -646,6 +648,7 @@
     "soon": "Soon",
     "gdprNote": "Your data stays hosted in Europe and is never sold. Export and deletion available on request: hello@lunireve.com",
     "favoritesEmpty": "No favourite stories yet. Tap the little heart on a story to keep it here.",
+    "favoritesBrowseCta": "Browse more stories",
     "customCount": "{count, plural, =0 {No stories created yet} =1 {1 story created} other {# stories created}}",
     "recentlyRead": "Recently read",
     "seeAll": "See all",

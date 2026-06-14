@@ -11,7 +11,8 @@
     "db:migrate": "dotenv -e .env.local -- drizzle-kit migrate",
     "db:studio": "dotenv -e .env.local -- drizzle-kit studio",
     "storage:setup": "dotenv -e .env.local -- tsx scripts/setup-storage.ts",
-    "test:generate": "dotenv -e .env.local -- tsx scripts/test-generate.ts"
+    "test:generate": "dotenv -e .env.local -- tsx scripts/test-generate.ts",
+    "voice:samples": "dotenv -e .env.local -- tsx scripts/voice-samples.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",

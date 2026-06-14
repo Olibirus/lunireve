@@ -13,6 +13,39 @@ export type Language = "fr" | "en";
 
 export type AgeRange = "1-2" | "3-4" | "5-6" | "7-8" | "9-10" | "11-12";
 
+export interface AgeLengthSpec {
+  /** Hard minimum word count — the model must reach this. */
+  min: number;
+  /** Hard maximum word count. */
+  max: number;
+  /** Sweet spot the model aims for. */
+  target: number;
+}
+
+/**
+ * Story length is driven by the child's age, not a user-picked "short/long".
+ * Anchored to read-aloud time at a child-paced ~140 wpm so the bedtime length
+ * stays age-appropriate (and so generation cost is predictable). Single source
+ * of truth for both the app and the n8n library pipeline.
+ */
+export const WORD_RANGE_BY_AGE: Record<AgeRange, AgeLengthSpec> = {
+  "1-2": { min: 100, max: 200, target: 150 },
+  "3-4": { min: 250, max: 500, target: 375 },
+  "5-6": { min: 500, max: 800, target: 650 },
+  "7-8": { min: 800, max: 1200, target: 1000 },
+  "9-10": { min: 1200, max: 1700, target: 1450 },
+  "11-12": { min: 1500, max: 2100, target: 1800 },
+};
+
+/**
+ * A closing moral is included for younger children (1-8) where stories are
+ * explicitly didactic; 9-12 stories trust the reader and skip the spelled-out
+ * lesson.
+ */
+export function endsWithMoral(ageRange: AgeRange): boolean {
+  return ageRange === "1-2" || ageRange === "3-4" || ageRange === "5-6" || ageRange === "7-8";
+}
+
 export interface StoryGenerationInput {
   language: Language;
   ageRange: AgeRange;

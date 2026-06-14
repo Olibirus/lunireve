@@ -60,7 +60,6 @@ export default function CreateStoryPage() {
     trait: "",
     theme: "aventure",
     mood: "doux",
-    length: "medium",
     language: "fr",
     friend: "",
     place: "",
@@ -87,8 +86,7 @@ export default function CreateStoryPage() {
       heroName: p.name,
       heroAge: p.age,
       theme: p.themes[0] ?? prev.theme,
-      length:
-        p.maxDuration === "none" || p.maxDuration === "long" ? "long" : p.maxDuration,
+      // Story length now follows the child's age (set via heroAge), not a picker.
       language: p.language === "both" ? "fr" : p.language,
     }));
   }
@@ -400,26 +398,6 @@ export default function CreateStoryPage() {
               </div>
             </div>
             <div>
-              <Label>{t("length")}</Label>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {(["short", "medium", "long"] as const).map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => set("length", l)}
-                    className={cn(
-                      "rounded-xl border px-3.5 py-2 text-sm",
-                      params.length === l
-                        ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
-                        : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
-                    )}
-                  >
-                    {t(`length_${l}`)}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
               <Label>{t("style")}</Label>
               <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("styleHint")}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
@@ -537,7 +515,6 @@ export default function CreateStoryPage() {
                 [t("heroName"), `${params.heroName}, ${params.heroAge} ans`],
                 [t("theme"), tThemes(params.theme)],
                 [t("mood"), t(`mood_${params.mood}`)],
-                [t("length"), t(`length_${params.length}`)],
                 [t("style"), t(`style_${params.style}`)],
                 params.trait && [t("heroTrait"), params.trait],
                 params.friend && [t("friend"), params.friend],

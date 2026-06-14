@@ -13,7 +13,6 @@ export type CustomStoryParams = {
   trait: string;
   theme: string;
   mood: "drole" | "mysterieux" | "touchant" | "palpitant" | "doux";
-  length: "short" | "medium" | "long";
   language: "fr" | "en";
   friend: string;
   place: string;

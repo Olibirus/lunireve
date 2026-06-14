@@ -137,9 +137,6 @@ export default function CustomStoryPage() {
             <Badge variant="ink" className="bg-black/25 text-white border-0 backdrop-blur-sm">
               {t(`create.mood_${story.params.mood}`)}
             </Badge>
-            <Badge variant="ink" className="bg-black/25 text-white border-0 backdrop-blur-sm">
-              {t(`create.length_${story.params.length}`)}
-            </Badge>
           </div>
           <h1
             className="mt-4 font-serif text-3xl md:text-6xl text-white tracking-tight leading-[1.04] max-w-3xl drop-shadow-sm"

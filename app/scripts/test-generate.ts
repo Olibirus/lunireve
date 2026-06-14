@@ -1,7 +1,9 @@
 /**
  * Live end-to-end generation test (no DB writes, no app needed).
  *
- *   pnpm test:generate
+ *   pnpm test:generate            # full chain, age 6
+ *   pnpm test:generate 10         # full chain, age 10
+ *   pnpm test:generate 6 text     # text only (no image/audio — cheap length tuning)
  *
  * Runs the real provider chain against sample personalized-story requirements
  * and prints the result so we can judge quality before automating:
@@ -10,16 +12,22 @@
  *   you can open the URLs and review.
  */
 import { createClient } from "@supabase/supabase-js";
-import { generateStoryText, generateImage, generateSpeech } from "@/lib/ai";
+import {
+  generateStoryText,
+  generateImage,
+  generateSpeech,
+  WORD_RANGE_BY_AGE,
+  type AgeRange,
+} from "@/lib/ai";
 
 // ---- Sample requirements (edit to try other combinations) ----------------
+// Override the hero's age from the CLI: `pnpm test:generate 10`
 const REQ = {
   heroName: "Tom",
-  heroAge: 6,
+  heroAge: Number(process.argv[2]) || 6,
   trait: "curieux",
   theme: "courage",
   mood: "doux" as "drole" | "mysterieux" | "touchant" | "palpitant" | "doux",
-  length: "medium" as "short" | "medium" | "long",
   language: "fr" as "fr" | "en",
   friend: "Lila la renarde",
   place: "une forêt endormie",
@@ -33,7 +41,6 @@ const REQ = {
     | "kawaii",
 };
 
-const TARGET_WORDS = { short: 350, medium: 700, long: 1100 };
 const MOOD_FR = {
   drole: "drôle et légère",
   mysterieux: "mystérieuse et intrigante",
@@ -90,12 +97,13 @@ async function main() {
     "N'utilise jamais de tiret cadratin dans le texte.",
   ].join("\n");
 
+  const ageRange = ageToRange(REQ.heroAge) as AgeRange;
   const story = await generateStoryText({
     language: REQ.language,
-    ageRange: ageToRange(REQ.heroAge) as never,
+    ageRange,
     prompt,
     characters: [{ name: REQ.heroName, description: `héros, ${REQ.heroAge} ans, ${REQ.trait}` }],
-    targetWords: TARGET_WORDS[REQ.length],
+    // Length + moral are age-driven inside the provider (WORD_RANGE_BY_AGE).
   });
   const body = (story.scenes.length
     ? story.scenes.map((s) => s.text)
@@ -109,9 +117,16 @@ async function main() {
   console.log("\n===== TEXT (Claude) =====");
   console.log("Title:", clean(story.title));
   console.log("Model:", story.model);
-  console.log(`Words: ${words}  (target ${TARGET_WORDS[REQ.length]})  ~${Math.max(2, Math.round(words / 140))} min reading`);
-  console.log("Scenes:", story.scenes.length);
+  const range = WORD_RANGE_BY_AGE[ageRange];
+  console.log(`Words: ${words}  (age ${ageRange}: ${range.min}-${range.max}, target ${range.target})  ~${Math.max(2, Math.round(words / 140))} min reading`);
+  console.log(`Scenes: ${story.scenes.length}  (in range: ${words >= range.min && words <= range.max ? "YES" : "NO"})`);
   console.log("\n--- Story ---\n" + body.join("\n\n"));
+
+  // Text-only mode: skip the paid image/audio steps while tuning length.
+  if (process.argv[3] === "text") {
+    console.log(`\n===== TIMING =====\ntext ${(tText - t0) / 1000}s (text-only)`);
+    return;
+  }
 
   // 2) Image (OpenAI gpt-image-1) in the requested style
   const scenePrompt = story.scenes[0]?.imagePrompt || `${REQ.theme}, ${REQ.place}`;

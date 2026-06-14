@@ -1,9 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { env } from "@/lib/env";
-import type {
-  TextProvider,
-  StoryGenerationInput,
-  StoryGenerationOutput,
+import {
+  WORD_RANGE_BY_AGE,
+  endsWithMoral,
+  type TextProvider,
+  type StoryGenerationInput,
+  type StoryGenerationOutput,
 } from "../types";
 
 /**
@@ -32,15 +34,26 @@ function buildSystemPrompt(input: StoryGenerationInput) {
     "11-12": "Layered plot and richer vocabulary; respect the reader's intelligence.",
   }[input.ageRange];
 
-  const target = input.targetWords ?? 600;
-  // Firm range — the model otherwise treats "~N words" as a ceiling and stops
-  // well short (a 700-word target came back at ~330).
-  const min = Math.round(target * 0.85);
-  const max = Math.round(target * 1.2);
+  // Length is age-driven (see WORD_RANGE_BY_AGE). A single global word count is
+  // unreliable (the model undershoots), so we translate it into a firm scene
+  // count with a per-scene word target — concrete, easy-to-hit instructions.
+  const { min, max, target } = WORD_RANGE_BY_AGE[input.ageRange];
+  const sceneCount =
+    target <= 200 ? 5 : target <= 500 ? 7 : target <= 800 ? 9 : target <= 1200 ? 11 : 13;
+  const perScene = Math.ceil(target / sceneCount);
+
+  const moral = input.language === "fr"
+    ? "Termine la dernière scène par une morale douce, en une phrase, qui découle naturellement du thème de l'histoire."
+    : "End the final scene with a gentle one-sentence moral that follows naturally from the story's theme.";
 
   return `${voice}
 Age range: ${input.ageRange}. ${ageGuidance}
-Length requirement (strict): write between ${min} and ${max} words TOTAL, aiming for ${target}. This is a hard minimum, not a suggestion: keep developing the story until you reach it. Do not stop short. Split into 6-10 scenes.
+Length requirement (STRICT, non-negotiable):
+- Write EXACTLY ${sceneCount} scenes.
+- Each scene must be a full paragraph of about ${perScene} words (never fewer than ${Math.floor(perScene * 0.8)}).
+- The complete story must total between ${min} and ${max} words (aim for ${target}).
+- Do NOT end the story before all ${sceneCount} scenes are written at full length. Short, clipped scenes are a failure.
+${endsWithMoral(input.ageRange) ? moral : ""}
 ${input.seoKeyword ? `Weave the phrase "${input.seoKeyword}" naturally into the story.` : ""}
 ${input.characters?.length ? `Characters to use consistently: ${input.characters.map((c) => `${c.name} (${c.description})`).join("; ")}.` : ""}
 
@@ -65,7 +78,9 @@ export const anthropicTextProvider: TextProvider = {
 
     const res = await client.messages.create({
       model: MODEL,
-      max_tokens: 4096,
+      // Headroom for the longest ages (~2,100 words + per-scene image prompts,
+      // in JSON) which overflow 4096.
+      max_tokens: 8192,
       system: buildSystemPrompt(input),
       messages: [{ role: "user", content: input.prompt }],
     });

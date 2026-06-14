@@ -10,8 +10,6 @@ export type GenerateResult =
   | { ok: true; title: string; body: string[]; id: string | null }
   | { ok: false };
 
-const TARGET_WORDS = { short: 350, medium: 700, long: 1100 } as const;
-
 const MOOD_FR: Record<CustomStoryParams["mood"], string> = {
   drole: "drôle et légère",
   mysterieux: "mystérieuse et intrigante",
@@ -61,7 +59,7 @@ export async function generateStoryAction(
           description: `héros de l'histoire, ${params.heroAge} ans${params.trait ? `, ${params.trait}` : ""}`,
         },
       ],
-      targetWords: TARGET_WORDS[params.length],
+      // Length + moral are driven by ageRange in the provider (WORD_RANGE_BY_AGE).
     });
 
     const body = result.scenes.length

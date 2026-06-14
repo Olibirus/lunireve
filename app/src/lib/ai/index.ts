@@ -85,6 +85,8 @@ export function generateSpeech(
   return getAudioProvider(tier).generateSpeech(input);
 }
 
+export { WORD_RANGE_BY_AGE, endsWithMoral } from "./types";
+
 export type {
   StoryGenerationInput,
   StoryGenerationOutput,
@@ -94,6 +96,7 @@ export type {
   SpeechGenerationOutput,
   Language,
   AgeRange,
+  AgeLengthSpec,
   ImageTier,
   AudioTier,
   VoiceType,

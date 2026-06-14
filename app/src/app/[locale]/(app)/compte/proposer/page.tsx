@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AGE_RANGES, ageLabel } from "@/data/mock-stories";
+import { scopedKey } from "@/lib/userScope";
 import { Check, PenLine } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -25,9 +26,10 @@ export default function SubmitStoryPage() {
     e.preventDefault();
     if (body.length < 200) return;
     try {
-      const list = JSON.parse(localStorage.getItem("lunireve:submissions") ?? "[]") as unknown[];
+      const k = scopedKey("lunireve:submissions");
+      const list = JSON.parse(localStorage.getItem(k) ?? "[]") as unknown[];
       list.push({ title, ageRange, body, submittedAt: new Date().toISOString(), status: "pending" });
-      localStorage.setItem("lunireve:submissions", JSON.stringify(list));
+      localStorage.setItem(k, JSON.stringify(list));
     } catch {
       /* ignore */
     }

@@ -7,10 +7,11 @@ import {
   readProfiles,
   deleteProfile,
   setActiveProfile,
-  FREE_PROFILE_LIMIT,
+  profileLimit,
   type ChildProfile,
 } from "@/lib/profiles";
 import { readCustomStories } from "@/lib/customStories";
+import { readFavorites } from "@/lib/favorites";
 import { mockStories, type MockStory } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
 import { FoxMark } from "@/components/brand/FoxCloud";
@@ -29,12 +30,8 @@ export default function AccountDashboardPage() {
   useEffect(() => {
     setProfiles(readProfiles());
     setStoryCount(readCustomStories().length);
-    try {
-      const favs = JSON.parse(localStorage.getItem("lunireve:favorites") ?? "[]") as string[];
-      setFavorites(mockStories.filter((s) => favs.includes(s.slug)).slice(0, 4));
-    } catch {
-      /* ignore */
-    }
+    const favs = readFavorites();
+    setFavorites(mockStories.filter((s) => favs.includes(s.slug)).slice(0, 4));
     // Recently read = stories with any saved reading progress, newest first
     const read: MockStory[] = [];
     for (const s of mockStories) {
@@ -55,7 +52,7 @@ export default function AccountDashboardPage() {
     setProfiles(readProfiles());
   }
 
-  const limitReached = (profiles?.length ?? 0) >= FREE_PROFILE_LIMIT;
+  const limitReached = (profiles?.length ?? 0) >= profileLimit();
 
   return (
     <div className="space-y-10">

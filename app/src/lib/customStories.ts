@@ -1,50 +1,33 @@
 "use client";
 
-/**
- * Personalized stories, Phase 1 store (localStorage) + quota.
- * Phase 2: rows in `stories` (kind=personalized) + server-enforced quota.
- */
-
-export const FREE_CUSTOM_LIMIT = 3; // per month, free tier
+import { scopedKey } from "./userScope";
+import { TIER_LIMITS, readTier, type Tier } from "./tier";
 
 /**
- * Per-tier monthly quota for personalized stories. Mirrors the tier names in
- * `lib/auth/session.ts`. `Infinity` for Max == "fair-use unlimited" per the
- * brief; the UI hides the counter in that case.
+ * Personalized stories, Phase 1 store (localStorage, per-account scoped) +
+ * monthly quota. Phase 2: rows in `stories` (kind=personalized) +
+ * server-enforced quota.
  */
-export const CUSTOM_LIMIT_BY_TIER = {
-  free: FREE_CUSTOM_LIMIT,
-  plus: 30,
-  max: Infinity,
-} as const;
 
-export type CustomTier = keyof typeof CUSTOM_LIMIT_BY_TIER;
+export const FREE_CUSTOM_LIMIT = TIER_LIMITS.free.customPerMonth; // free tier, per month
 
-/**
- * Reads the (non-httpOnly) `lunireve_tier` cookie written by setSession.
- * Defaults to "free" when missing — anonymous visitors and the legacy
- * `user` test account both end up here.
- */
-export function readTier(): CustomTier {
-  if (typeof document === "undefined") return "free";
-  const m = document.cookie.match(/(?:^|;\s*)lunireve_tier=([^;]+)/);
-  const raw = m?.[1];
-  if (raw === "plus" || raw === "max" || raw === "free") return raw;
-  return "free";
-}
+/** @deprecated tier limits now live in lib/tier.ts (TIER_LIMITS). */
+export type CustomTier = Tier;
 
-export function customLimitFor(tier: CustomTier): number {
-  return CUSTOM_LIMIT_BY_TIER[tier];
+export { readTier };
+
+export function customLimitFor(tier: Tier): number {
+  return TIER_LIMITS[tier].customPerMonth;
 }
 
 /**
- * Wipe the monthly quota counter. Exposed for testing (Harry hit the cap
- * on the free test account and needs a clean slate to keep validating
- * the create-story flow).
+ * Wipe the monthly quota counter for the current account. Exposed for testing
+ * (Harry hit the cap on the free test account and needs a clean slate to keep
+ * validating the create-story flow).
  */
 export function resetQuota(): void {
   try {
-    localStorage.removeItem(QUOTA_KEY);
+    localStorage.removeItem(scopedKey(QUOTA_KEY));
   } catch {
     /* non-fatal */
   }
@@ -82,7 +65,7 @@ const QUOTA_KEY = "lunireve:quota:custom";
 
 export function readCustomStories(): CustomStory[] {
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "[]") as CustomStory[];
+    return JSON.parse(localStorage.getItem(scopedKey(KEY)) ?? "[]") as CustomStory[];
   } catch {
     return [];
   }
@@ -91,7 +74,7 @@ export function readCustomStories(): CustomStory[] {
 export function quotaUsed(): number {
   const month = new Date().toISOString().slice(0, 7);
   try {
-    const q = JSON.parse(localStorage.getItem(QUOTA_KEY) ?? "{}") as {
+    const q = JSON.parse(localStorage.getItem(scopedKey(QUOTA_KEY)) ?? "{}") as {
       month?: string;
       used?: number;
     };
@@ -105,7 +88,7 @@ function bumpQuota() {
   const month = new Date().toISOString().slice(0, 7);
   try {
     localStorage.setItem(
-      QUOTA_KEY,
+      scopedKey(QUOTA_KEY),
       JSON.stringify({ month, used: quotaUsed() + 1 })
     );
   } catch {
@@ -134,7 +117,7 @@ export function saveCustomStory(
     createdAt: new Date().toISOString(),
   };
   try {
-    localStorage.setItem(KEY, JSON.stringify([...readCustomStories(), story]));
+    localStorage.setItem(scopedKey(KEY), JSON.stringify([...readCustomStories(), story]));
   } catch {
     /* non-fatal */
   }

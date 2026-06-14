@@ -88,6 +88,14 @@ export async function setSession(session: Session, remember = true) {
     path: "/",
     maxAge,
   });
+  // Account id used to namespace every client store (lib/userScope.ts) so one
+  // account's profiles/favorites/etc never leak to another login on the device.
+  store.set("lunireve_user", encodeURIComponent(session.username), {
+    httpOnly: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge,
+  });
 }
 
 export async function clearSession() {
@@ -95,4 +103,5 @@ export async function clearSession() {
   store.delete(COOKIE);
   store.delete("lunireve_role");
   store.delete("lunireve_tier");
+  store.delete("lunireve_user");
 }

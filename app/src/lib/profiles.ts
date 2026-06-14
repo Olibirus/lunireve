@@ -1,16 +1,25 @@
 "use client";
 
 import type { FoxColor } from "@/components/brand/FoxCloud";
+import { scopedKey } from "./userScope";
+import { tierLimits } from "./tier";
 
 /**
  * Child profiles — Phase 1 store (localStorage, client only).
  *
  * Batch 9+ swaps this module's internals for Supabase queries against the
  * `child_profiles` table; the function signatures stay identical so the UI
- * doesn't change. Free tier: 1 profile (enforced here AND server-side later).
+ * doesn't change. Per-tier profile cap (free 1 / plus 3 / max 50) enforced
+ * here AND server-side later. Storage is namespaced per account.
  */
 
+/** Free tier cap, kept for copy that references "the free plan". */
 export const FREE_PROFILE_LIMIT = 1;
+
+/** Max profiles allowed for the current account's tier. */
+export function profileLimit(): number {
+  return tierLimits().profiles;
+}
 
 export type ChildProfile = {
   id: string;
@@ -30,7 +39,7 @@ const ACTIVE_KEY = "lunireve:activeProfile";
 
 export function readProfiles(): ChildProfile[] {
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "[]") as ChildProfile[];
+    return JSON.parse(localStorage.getItem(scopedKey(KEY)) ?? "[]") as ChildProfile[];
   } catch {
     return [];
   }
@@ -38,7 +47,7 @@ export function readProfiles(): ChildProfile[] {
 
 function write(profiles: ChildProfile[]) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(profiles));
+    localStorage.setItem(scopedKey(KEY), JSON.stringify(profiles));
   } catch {
     /* non-fatal */
   }
@@ -48,7 +57,7 @@ export function createProfile(
   data: Omit<ChildProfile, "id" | "streak" | "lastReadDate" | "createdAt">
 ): ChildProfile | null {
   const profiles = readProfiles();
-  if (profiles.length >= FREE_PROFILE_LIMIT) return null;
+  if (profiles.length >= profileLimit()) return null;
   const profile: ChildProfile = {
     ...data,
     id: crypto.randomUUID(),
@@ -70,7 +79,7 @@ export function deleteProfile(id: string) {
 }
 
 export function getActiveProfileId(): string | null {
-  return localStorage.getItem(ACTIVE_KEY);
+  return localStorage.getItem(scopedKey(ACTIVE_KEY));
 }
 
 export function getActiveProfile(): ChildProfile | null {
@@ -80,11 +89,11 @@ export function getActiveProfile(): ChildProfile | null {
 }
 
 export function setActiveProfile(id: string) {
-  localStorage.setItem(ACTIVE_KEY, id);
+  localStorage.setItem(scopedKey(ACTIVE_KEY), id);
 }
 
 export function clearActiveProfile() {
-  localStorage.removeItem(ACTIVE_KEY);
+  localStorage.removeItem(scopedKey(ACTIVE_KEY));
 }
 
 /**

@@ -1,14 +1,21 @@
 "use client";
 
+import { scopedKey } from "./userScope";
+import { readTier } from "./tier";
+
 /**
  * Recurring characters (#16) — created once, reused across personalized
- * stories. localStorage now, `characters` table later. Free tier: 3 max
- * (brief #78).
+ * stories. localStorage now (per-account scoped), `characters` table later.
  */
 
-/** Free tier: 1 main + 2 secondary (#7). Paid (V2): 3 main + 6 secondary. */
+/** Free tier: 1 main + 2 secondary (#7). Paid: 3 main + 6 secondary. */
 export const FREE_LIMITS = { main: 1, secondary: 2 } as const;
 export const PAID_LIMITS = { main: 3, secondary: 6 } as const;
+
+/** Character slot limits for the current account's tier. */
+export function characterLimits() {
+  return readTier() === "free" ? FREE_LIMITS : PAID_LIMITS;
+}
 
 export const CHARACTER_TYPES = ["enfant", "adulte", "animal", "creature"] as const;
 export type CharacterType = (typeof CHARACTER_TYPES)[number];
@@ -48,7 +55,7 @@ const KEY = "lunireve:characters";
 
 export function readCharacters(): SavedCharacter[] {
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "[]") as SavedCharacter[];
+    return JSON.parse(localStorage.getItem(scopedKey(KEY)) ?? "[]") as SavedCharacter[];
   } catch {
     return [];
   }
@@ -56,16 +63,16 @@ export function readCharacters(): SavedCharacter[] {
 
 function write(items: SavedCharacter[]) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(items));
+    localStorage.setItem(scopedKey(KEY), JSON.stringify(items));
   } catch {
     /* non-fatal */
   }
 }
 
-/** Remaining slots for a role on the free tier. */
+/** Remaining slots for a role on the current account's tier. */
 export function slotsLeft(role: CharacterRole): number {
   const used = readCharacters().filter((c) => c.role === role).length;
-  return FREE_LIMITS[role] - used;
+  return characterLimits()[role] - used;
 }
 
 export function createCharacter(

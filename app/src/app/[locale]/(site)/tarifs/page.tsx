@@ -1,5 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { PricingPlans } from "@/components/marketing/PricingPlans";
+import { PricingComparison } from "@/components/marketing/PricingComparison";
 import { PromoBanner } from "@/components/marketing/PromoBanner";
 import type { Metadata } from "next";
 
@@ -40,6 +41,7 @@ export default async function PricingPage({
 
       <section className="mx-auto max-w-6xl px-5 md:px-8 pb-20">
         <PricingPlans />
+        <PricingComparison />
         <p className="mx-auto mt-10 max-w-xl text-center text-xs text-[var(--color-ink-400)]">
           {t("fineprint")}
         </p>

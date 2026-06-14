@@ -3,11 +3,13 @@
 import { useTranslations } from "next-intl";
 import { Check, Minus, Crown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { TIER_LIMITS } from "@/lib/tier";
 
 /**
- * Feature comparison table shown under the three tiers (#10). Lives inside
- * the profile (subscription page). The Max column gets premium styling so
- * the top tier stands out as the most attractive option.
+ * Feature comparison table shown under the three tiers (#10). Used on both
+ * the standalone /tarifs page and the in-profile subscription page. Every
+ * numeric/boolean cell is read from TIER_LIMITS so the table can never drift
+ * from what the app actually enforces. The Max column gets premium styling.
  */
 type Cell = boolean | string;
 
@@ -15,25 +17,66 @@ export function PricingComparison() {
   const t = useTranslations("pricing");
   const tc = useTranslations("pricing.compare");
 
-  const unlimited = tc("unlimited");
-  const watermark = tc("pdfWatermark");
-  const clean = tc("pdfClean");
+  const L = TIER_LIMITS;
+  const num = (n: number) => (Number.isFinite(n) ? String(n) : tc("unlimited"));
+  // 0 of a countable feature renders as a dash, not "0".
+  const count = (n: number): Cell => (n > 0 ? num(n) : false);
 
   // cells order: [free, plus, max]
   const rows: { label: string; cells: [Cell, Cell, Cell] }[] = [
     { label: tc("featLibrary"), cells: [true, true, true] },
     { label: tc("featQuiz"), cells: [true, true, true] },
-    { label: tc("featProfiles"), cells: ["1", "3", unlimited] },
-    { label: tc("featStories"), cells: ["3", "30", unlimited] },
-    { label: tc("featFavorites"), cells: ["30", unlimited, unlimited] },
-    { label: tc("featPdf"), cells: [watermark, clean, clean] },
-    { label: tc("featEpub"), cells: [false, true, true] },
-    { label: tc("featAds"), cells: [false, true, true] },
-    { label: tc("featAudio"), cells: [false, true, true] },
-    { label: tc("featSleep"), cells: [false, false, true] },
-    { label: tc("featMp3"), cells: [false, false, true] },
-    { label: tc("featVisual"), cells: [false, false, true] },
-    { label: tc("featPrint"), cells: [false, false, true] },
+    {
+      label: tc("featProfiles"),
+      cells: [num(L.free.profiles), num(L.plus.profiles), num(L.max.profiles)],
+    },
+    {
+      label: tc("featStories"),
+      cells: [
+        num(L.free.customPerMonth),
+        num(L.plus.customPerMonth),
+        num(L.max.customPerMonth),
+      ],
+    },
+    {
+      label: tc("featFavorites"),
+      cells: [num(L.free.favorites), num(L.plus.favorites), num(L.max.favorites)],
+    },
+    {
+      label: tc("featPdf"),
+      cells: [tc("pdfWatermark"), tc("pdfClean"), tc("pdfUnbranded")],
+    },
+    { label: tc("featEpub"), cells: [L.free.epub, L.plus.epub, L.max.epub] },
+    { label: tc("featAds"), cells: [L.free.adFree, L.plus.adFree, L.max.adFree] },
+    {
+      label: tc("featAudio"),
+      cells: [L.free.advancedAudio, L.plus.advancedAudio, L.max.advancedAudio],
+    },
+    { label: tc("featSleep"), cells: [tc("sleepFree"), tc("sleepPaid"), tc("sleepPaid")] },
+    {
+      label: tc("featMp3"),
+      cells: [count(L.free.mp3PerMonth), count(L.plus.mp3PerMonth), count(L.max.mp3PerMonth)],
+    },
+    {
+      label: tc("featVisual"),
+      cells: [
+        count(L.free.visualBooksPerMonth),
+        count(L.plus.visualBooksPerMonth),
+        count(L.max.visualBooksPerMonth),
+      ],
+    },
+    {
+      label: tc("featPrint"),
+      cells: [
+        L.free.printDiscountPct ? `${L.free.printDiscountPct}%` : false,
+        `${L.plus.printDiscountPct}%`,
+        `${L.max.printDiscountPct}%`,
+      ],
+    },
+    {
+      label: tc("featCommercial"),
+      cells: [L.free.commercialUse, L.plus.commercialUse, L.max.commercialUse],
+    },
   ];
 
   const planNames = [t("freeName"), t("plusName"), t("maxName")];
@@ -44,7 +87,7 @@ export function PricingComparison() {
       <p className="mt-2 max-w-xl text-sm text-[var(--color-ink-500)]">{tc("subtitle")}</p>
 
       <div className="mt-6 overflow-x-auto">
-        <table className="w-full min-w-[34rem] border-collapse text-sm">
+        <table className="w-full min-w-[40rem] border-collapse text-sm">
           <thead>
             <tr>
               <th className="w-2/5 px-4 py-3 text-left font-normal text-[var(--color-ink-400)]">

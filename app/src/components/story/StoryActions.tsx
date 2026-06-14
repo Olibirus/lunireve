@@ -14,57 +14,54 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Flag, Heart, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { Link } from "@/i18n/navigation";
+import { isFavorite, toggleFavorite } from "@/lib/favorites";
 
 /**
  * Story action row: favorite, share, report.
  *
- * Phase 1 persistence is localStorage (anonymous). Batch 5 swaps the
- * favorite store for the account/child-profile API without UI changes —
- * the storage key shape (`lunireve:favorites`) already matches per-profile
- * scoping (`lunireve:<profileId>:favorites`).
+ * Favorites are per-account scoped + tier-capped via lib/favorites (free tier
+ * caps at 30). Batch 5 swaps the store for the DB API without UI changes.
  */
-
-const FAVORITES_KEY = "lunireve:favorites";
-
-function readFavorites(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(FAVORITES_KEY) ?? "[]") as string[];
-  } catch {
-    return [];
-  }
-}
 
 export function FavoriteButton({ slug }: { slug: string }) {
   const t = useTranslations("story");
   const [fav, setFav] = useState(false);
+  const [capped, setCapped] = useState(false);
 
   useEffect(() => {
-    setFav(readFavorites().includes(slug));
+    setFav(isFavorite(slug));
   }, [slug]);
 
   function toggle() {
-    const list = readFavorites();
-    const next = list.includes(slug)
-      ? list.filter((s) => s !== slug)
-      : [...list, slug];
-    try {
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
-    } catch {
-      /* quota/private mode — non-fatal */
-    }
-    setFav(next.includes(slug));
+    const { active, blocked } = toggleFavorite(slug);
+    setFav(active);
+    setCapped(blocked);
   }
 
   return (
-    <Button variant="ghost" size="sm" onClick={toggle} aria-pressed={fav}>
-      <Heart
-        className={cn(
-          "h-4 w-4",
-          fav && "fill-[var(--color-fox-500)] text-[var(--color-fox-500)]"
-        )}
-      />
-      {fav ? t("favorited") : t("favorite")}
-    </Button>
+    <div className="inline-flex flex-col gap-1">
+      <Button variant="ghost" size="sm" onClick={toggle} aria-pressed={fav}>
+        <Heart
+          className={cn(
+            "h-4 w-4",
+            fav && "fill-[var(--color-fox-500)] text-[var(--color-fox-500)]"
+          )}
+        />
+        {fav ? t("favorited") : t("favorite")}
+      </Button>
+      {capped && (
+        <span className="text-xs text-[var(--color-ink-500)]">
+          {t.rich("favoritesCapped", {
+            upgrade: (chunks) => (
+              <Link href="/tarifs" className="underline hover:text-[var(--color-ink-800)]">
+                {chunks}
+              </Link>
+            ),
+          })}
+        </span>
+      )}
+    </div>
   );
 }
 

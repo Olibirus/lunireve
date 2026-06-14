@@ -1,8 +1,10 @@
 "use client";
 
+import { scopedKey } from "./userScope";
+
 /**
- * In-app notifications (#10) — localStorage now, DB + realtime later.
- * V1 use: "your story is ready" while the user keeps browsing.
+ * In-app notifications (#10) — localStorage now (per-account scoped), DB +
+ * realtime later. V1 use: "your story is ready" while the user keeps browsing.
  * V2: promotional pushes (with their own opt-out).
  */
 
@@ -21,7 +23,7 @@ const EVENT = "lunireve:notifications-changed";
 
 export function readNotifications(): AppNotification[] {
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "[]") as AppNotification[];
+    return JSON.parse(localStorage.getItem(scopedKey(KEY)) ?? "[]") as AppNotification[];
   } catch {
     return [];
   }
@@ -29,7 +31,7 @@ export function readNotifications(): AppNotification[] {
 
 function write(items: AppNotification[]) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(items.slice(-20)));
+    localStorage.setItem(scopedKey(KEY), JSON.stringify(items.slice(-20)));
     window.dispatchEvent(new Event(EVENT));
   } catch {
     /* non-fatal */

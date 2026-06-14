@@ -3,35 +3,25 @@
 import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { isFavorite, toggleFavorite } from "@/lib/favorites";
 
 /**
  * Compact favorite toggle for story cards (#18) — sits next to the audio
  * icon on the cover. Lives inside a Link, so clicks must not navigate.
- * Same localStorage store as the story-page FavoriteButton.
+ * Per-account scoped + tier-capped via lib/favorites.
  */
 export function FavoriteHeart({ slug }: { slug: string }) {
   const [fav, setFav] = useState(false);
 
   useEffect(() => {
-    try {
-      const list = JSON.parse(localStorage.getItem("lunireve:favorites") ?? "[]") as string[];
-      setFav(list.includes(slug));
-    } catch {
-      /* ignore */
-    }
+    setFav(isFavorite(slug));
   }, [slug]);
 
   function toggle(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    try {
-      const list = JSON.parse(localStorage.getItem("lunireve:favorites") ?? "[]") as string[];
-      const next = list.includes(slug) ? list.filter((s) => s !== slug) : [...list, slug];
-      localStorage.setItem("lunireve:favorites", JSON.stringify(next));
-      setFav(next.includes(slug));
-    } catch {
-      /* ignore */
-    }
+    const { active } = toggleFavorite(slug);
+    setFav(active);
   }
 
   return (

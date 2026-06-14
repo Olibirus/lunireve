@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { PricingPlans } from "@/components/marketing/PricingPlans";
-import { PricingComparison } from "./PricingComparison";
+import { PricingComparison } from "@/components/marketing/PricingComparison";
 
 /**
  * In-profile subscription (#9) — the upgrade is managed inside the profile,

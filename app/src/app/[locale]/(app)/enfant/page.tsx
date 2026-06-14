@@ -10,6 +10,7 @@ import {
 } from "@/lib/profiles";
 import { mockStories, ageToRange, type MockStory } from "@/data/mock-stories";
 import { readCustomStories, type CustomStory } from "@/lib/customStories";
+import { readFavorites } from "@/lib/favorites";
 import { StoryCard } from "@/components/story/StoryCard";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -45,14 +46,8 @@ export default function ChildBubblePage() {
     }
     setResume(best);
 
-    try {
-      const favs = JSON.parse(
-        localStorage.getItem("lunireve:favorites") ?? "[]"
-      ) as string[];
-      setFavorites(mockStories.filter((s) => favs.includes(s.slug)));
-    } catch {
-      /* ignore */
-    }
+    const favs = readFavorites();
+    setFavorites(mockStories.filter((s) => favs.includes(s.slug)));
   }, []);
 
   // No active profile → back to the selector

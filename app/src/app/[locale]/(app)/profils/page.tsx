@@ -6,7 +6,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import {
   readProfiles,
   setActiveProfile,
-  FREE_PROFILE_LIMIT,
+  profileLimit,
   type ChildProfile,
 } from "@/lib/profiles";
 import { FoxMark } from "@/components/brand/FoxCloud";
@@ -32,7 +32,7 @@ export default function ProfileSelectorPage() {
     router.push("/enfant");
   }
 
-  const limitReached = (profiles?.length ?? 0) >= FREE_PROFILE_LIMIT;
+  const limitReached = (profiles?.length ?? 0) >= profileLimit();
 
   return (
     <section className="flex min-h-[80vh] flex-col items-center justify-center px-5 py-16">

@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { StoryCard } from "@/components/story/StoryCard";
 import { mockStories, type MockStory } from "@/data/mock-stories";
+import { readFavorites } from "@/lib/favorites";
 import { BookOpen, Heart } from "lucide-react";
 
 /** Favorites — every story hearted from cards or story pages. */
@@ -14,12 +15,8 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<MockStory[]>([]);
 
   useEffect(() => {
-    try {
-      const list = JSON.parse(localStorage.getItem("lunireve:favorites") ?? "[]") as string[];
-      setFavorites(mockStories.filter((s) => list.includes(s.slug)));
-    } catch {
-      /* ignore */
-    }
+    const list = readFavorites();
+    setFavorites(mockStories.filter((s) => list.includes(s.slug)));
   }, []);
 
   return (

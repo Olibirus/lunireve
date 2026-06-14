@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { scopedKey } from "@/lib/userScope";
 import { Check } from "lucide-react";
 
 /** Account settings — editable profile info (#29) + preferences. */
@@ -17,7 +18,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     try {
-      const p = JSON.parse(localStorage.getItem("lunireve:accountInfo") ?? "{}");
+      const p = JSON.parse(localStorage.getItem(scopedKey("lunireve:accountInfo")) ?? "{}");
       setName(p.name ?? "");
       setEmail(p.email ?? "");
     } catch {
@@ -27,7 +28,7 @@ export default function SettingsPage() {
 
   function save() {
     try {
-      localStorage.setItem("lunireve:accountInfo", JSON.stringify({ name, email }));
+      localStorage.setItem(scopedKey("lunireve:accountInfo"), JSON.stringify({ name, email }));
     } catch {
       /* ignore */
     }

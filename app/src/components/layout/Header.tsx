@@ -12,6 +12,7 @@ import { NavSearch } from "@/components/layout/NavSearch";
 import { logout } from "@/app/actions/auth";
 import { isLoggedIn } from "@/lib/clientAuth";
 import { getActiveProfile } from "@/lib/profiles";
+import { scopedKey } from "@/lib/userScope";
 import { GENRES, AGE_RANGES, DURATION_BUCKETS, ageLabel } from "@/data/mock-stories";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
@@ -165,7 +166,7 @@ export function Header() {
     }
     // Parent session: pull the display name from the account info store.
     try {
-      const info = JSON.parse(localStorage.getItem("lunireve:accountInfo") ?? "{}");
+      const info = JSON.parse(localStorage.getItem(scopedKey("lunireve:accountInfo")) ?? "{}");
       if (info && typeof info.name === "string" && info.name.trim()) {
         setAccountName(info.name.trim());
       }

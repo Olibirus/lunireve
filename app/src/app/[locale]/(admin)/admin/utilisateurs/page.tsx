@@ -1,54 +1,61 @@
-import { mockUsers } from "@/data/mock-admin";
-import { StatusPill } from "@/components/admin/AdminShell";
+import {
+  mockUsers,
+  globalKpis,
+  formatEur,
+  userTotalSpend,
+} from "@/data/mock-admin";
+import { Kpi } from "@/components/admin/AdminShell";
+import { DemoBadge } from "@/components/admin/DemoBadge";
+import { UsersTable } from "@/components/admin/UsersTable";
 
-/** Users table — list/view/disable lands with Supabase Auth. */
+/**
+ * Users — full per-account analytics with Excel-style filters (UsersTable).
+ * Summary KPIs reflect the whole base; the table shows a recent demo slice.
+ * Real signups + Stripe spend replace this at the Supabase swap.
+ */
 export default function AdminUsersPage() {
+  const paying = mockUsers.filter((u) => u.tier !== "free").length;
+  const totalSpend = mockUsers.reduce((s, u) => s + userTotalSpend(u), 0);
+  const totalListen = mockUsers.reduce((s, u) => s + u.listenMinutes, 0);
+  const avgRead = Math.round(
+    mockUsers.reduce((s, u) => s + u.storiesRead, 0) / Math.max(1, mockUsers.length)
+  );
+
   return (
     <>
-      <h1 className="font-serif text-3xl tracking-tight">Utilisateurs</h1>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="font-serif text-3xl tracking-tight">Utilisateurs</h1>
+        <DemoBadge />
+      </div>
       <p className="mt-1 text-sm text-[var(--color-ink-500)]">
-        {mockUsers.length} comptes · tous gratuits en V1
+        {globalKpis.totalUsers.toLocaleString("fr-FR")} comptes au total, {globalKpis.paidUsers} payants.
+        Tableau ci-dessous : échantillon récent, filtrable.
       </p>
 
-      <div className="mt-8 overflow-x-auto rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)]">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-[var(--color-ink-100)] text-left text-xs uppercase tracking-widest text-[var(--color-ink-400)]">
-              <th className="px-4 py-3 font-medium">Nom</th>
-              <th className="px-4 py-3 font-medium">Email</th>
-              <th className="px-4 py-3 font-medium">Formule</th>
-              <th className="px-4 py-3 font-medium">Enfants</th>
-              <th className="px-4 py-3 font-medium">Histoires créées</th>
-              <th className="px-4 py-3 font-medium">Inscription</th>
-              <th className="px-4 py-3 font-medium">Statut</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--color-ink-100)]/60">
-            {mockUsers.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-sm text-[var(--color-ink-400)]">
-                  Aucun compte pour l'instant. Les inscriptions apparaîtront ici.
-                </td>
-              </tr>
-            )}
-            {mockUsers.map((u) => (
-              <tr key={u.id} className="hover:bg-[var(--color-cream-100)]/60">
-                <td className="px-4 py-3 font-medium">{u.name}</td>
-                <td className="px-4 py-3 text-[var(--color-ink-600)]">{u.email}</td>
-                <td className="px-4 py-3">Gratuit</td>
-                <td className="px-4 py-3">{u.children}</td>
-                <td className="px-4 py-3">{u.customStories}</td>
-                <td className="px-4 py-3 text-[var(--color-ink-500)]">{u.signedUpAt}</td>
-                <td className="px-4 py-3">
-                  <StatusPill tone={u.status === "active" ? "green" : "red"}>
-                    {u.status === "active" ? "Actif" : "Désactivé"}
-                  </StatusPill>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Summary */}
+      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Kpi label="Comptes (échantillon)" value={mockUsers.length} />
+        <Kpi label="Payants (échantillon)" value={`${paying} / ${mockUsers.length}`} />
+        <Kpi label="Lecture moy. / compte" value={`${avgRead} histoires`} />
+        <Kpi label="Écoute cumulée" value={`${Math.round(totalListen / 60)} h`} />
+        <Kpi label="Revenu échantillon" value={formatEur(totalSpend)} hint="abonnement + impression" />
+        <Kpi label="ARPU (payant)" value={formatEur(revenueArpu(), 2)} hint="revenu mensuel / payant" />
+        <Kpi label="Profils enfants" value={globalKpis.childProfiles.toLocaleString("fr-FR")} />
+        <Kpi label="Conversion compte" value={`${globalKpis.accountConversionPct}%`} hint="visiteurs → inscrits" />
+      </div>
+
+      <div className="mt-8">
+        <UsersTable rows={mockUsers} />
       </div>
     </>
   );
+}
+
+function revenueArpu(): number {
+  // Local helper kept page-side to avoid an extra import cycle.
+  const paying = mockUsers.filter((u) => u.tier !== "free");
+  if (!paying.length) return 0;
+  // Monthly equivalent: Plus 4.99, Max 9.99.
+  const monthly = paying.reduce((s, u) => s + (u.tier === "max" ? 9.99 : 4.99), 0);
+  return monthly / paying.length;
 }

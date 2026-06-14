@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { Kpi } from "@/components/admin/AdminShell";
+import { DemoBadge } from "@/components/admin/DemoBadge";
 import { AnalyticsTable } from "@/components/admin/AnalyticsTable";
-import { DATE_RANGES, globalKpis, storyAnalytics } from "@/data/mock-admin";
+import { DATE_RANGES, globalKpis, storyAnalytics, formatListen } from "@/data/mock-admin";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -19,11 +20,23 @@ export default function AdminAnalyticsPage() {
   const n = (v: number) => Math.round(v * factor).toLocaleString("fr-FR");
   const exportTitle = `Analytics (${range === "all" ? "tout" : range + "j"})`;
 
+  // Library-wide engagement totals (downloads + listening).
+  const totalPdf = storyAnalytics.reduce((s, x) => s + x.pdfDownloads, 0);
+  const totalEpub = storyAnalytics.reduce((s, x) => s + x.epubDownloads, 0);
+  const totalAudioPlays = storyAnalytics.reduce((s, x) => s + x.audioPlays, 0);
+  const audioStories = storyAnalytics.filter((x) => x.avgListenSec > 0);
+  const avgListenSec = audioStories.length
+    ? Math.round(audioStories.reduce((s, x) => s + x.avgListenSec, 0) / audioStories.length)
+    : 0;
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl tracking-tight">Analytics</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="font-serif text-3xl tracking-tight">Analytics</h1>
+            <DemoBadge />
+          </div>
           <p className="mt-1 text-sm text-[var(--color-ink-500)]">
             Données de démonstration, branchement Umami + SQL au lot n8n.
           </p>
@@ -63,6 +76,15 @@ export default function AdminAnalyticsPage() {
         <Kpi label="Conversion compte" value={`${globalKpis.accountConversionPct}%`} hint="visiteurs → inscrits" />
         <Kpi label="Fréquence de visite" value="2,7 / sem." />
         <Kpi label="Inscrits newsletter" value={n(globalKpis.newsletterSignups)} />
+      </div>
+
+      {/* Downloads & listening */}
+      <h2 className="mt-10 font-serif text-xl tracking-tight">Téléchargements & écoute</h2>
+      <div className="mt-3 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Kpi label="Téléchargements PDF" value={n(totalPdf)} />
+        <Kpi label="Téléchargements ePub" value={n(totalEpub)} />
+        <Kpi label="Écoutes audio" value={n(totalAudioPlays)} />
+        <Kpi label="Écoute moyenne / lecture" value={formatListen(avgListenSec)} />
       </div>
 
       {/* Personalization */}

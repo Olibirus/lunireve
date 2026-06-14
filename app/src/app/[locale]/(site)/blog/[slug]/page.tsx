@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { blogArticles, findArticle, relatedArticles } from "@/data/mock-blog";
+import { blogImageSrc } from "@/lib/storyImage";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, ListChecks } from "lucide-react";
@@ -63,7 +64,17 @@ export default async function BlogArticlePage({ params }: Props) {
           {article.excerpt}
         </p>
 
-        <div aria-hidden className={cn(article.cover, "mt-8 aspect-[21/9] rounded-3xl")} />
+        {blogImageSrc(article.slug) ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={blogImageSrc(article.slug)!}
+            alt=""
+            aria-hidden
+            className="mt-8 aspect-[21/9] w-full rounded-3xl object-cover"
+          />
+        ) : (
+          <div aria-hidden className={cn(article.cover, "mt-8 aspect-[21/9] rounded-3xl")} />
+        )}
 
         {/* TLDR box */}
         <aside className="mt-8 rounded-3xl border border-[var(--color-mint-300)] bg-[var(--color-mint-100)] p-6">
@@ -124,7 +135,12 @@ export default async function BlogArticlePage({ params }: Props) {
                   href={{ pathname: "/blog/[slug]", params: { slug: a.slug } }}
                   className="group block overflow-hidden rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] hover:border-[var(--color-ink-200)] transition-shadow"
                 >
-                  <div aria-hidden className={cn(a.cover, "aspect-[16/9] w-full")} />
+                  {blogImageSrc(a.slug) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={blogImageSrc(a.slug)!} alt="" aria-hidden className="aspect-[16/9] w-full object-cover" />
+                  ) : (
+                    <div aria-hidden className={cn(a.cover, "aspect-[16/9] w-full")} />
+                  )}
                   <div className="p-5">
                     <Badge variant="mint">{a.tag}</Badge>
                     <h3 className="mt-3 font-serif text-lg leading-snug tracking-tight text-[var(--color-ink-800)]">

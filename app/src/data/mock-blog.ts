@@ -23,6 +23,53 @@ export type BlogArticle = {
 
 export const blogArticles: BlogArticle[] = [
   {
+    slug: "histoires-du-soir-en-vacances",
+    title: "Partir en vacances léger : toutes les histoires du soir dans votre poche",
+    excerpt:
+      "La valise déborde déjà, et il reste les livres du soir. Bonne nouvelle : le rituel du coucher tient désormais dans un téléphone. Voici comment garder le moment histoire intact, où que vous soyez cet été.",
+    tldr: [
+      "Pas besoin d'emporter la bibliothèque : toute la collection Lunireve, à lire et à écouter, tient dans votre téléphone, en voiture, à la plage ou chez les grands-parents.",
+      "Le rituel du coucher est l'ancre qui rassure les enfants quand le décor change : le garder en vacances aide à mieux dormir loin de la maison.",
+      "Mode hors-ligne et version audio : l'histoire fonctionne même sans bonne connexion, et la voix prend le relais les soirs de fatigue après la plage.",
+      "Les favoris suivent l'enfant : il retrouve ses histoires préférées partout, sur n'importe quel écran, sans rien transporter.",
+    ],
+    publishedAt: "2026-06-13",
+    readingMinutes: 6,
+    tag: "Vacances",
+    cover: "cover-peach",
+    sections: [
+      {
+        heading: "Le vrai problème des vacances : la valise et le rituel",
+        paragraphs: [
+          "Chaque été, la même scène se rejoue. La valise est pleine, on a pensé à la crème solaire, aux doudous, aux brassards, et puis l'enfant demande : et mes histoires ? Emporter cinq albums, c'est cinq albums de moins pour le reste, et ce sont rarement les bons le soir venu. Résultat : on part avec deux livres au hasard, et le rituel du coucher, si bien rodé à la maison, se grippe dès la première nuit ailleurs.",
+          "Or le moment histoire n'est pas un détail de confort. C'est l'un des rares repères stables quand tout le décor change : nouvelle chambre, nouveaux bruits, lumière différente. Pour un enfant, retrouver la même histoire, la même voix, le même enchaînement d'étapes, c'est retrouver un morceau de chez soi au milieu de l'inconnu.",
+        ],
+      },
+      {
+        heading: "Toute la bibliothèque, sans rien transporter",
+        paragraphs: [
+          "C'est exactement là que le numérique rend service, sans rien enlever à la magie. Avec Lunireve, la collection entière tient dans votre téléphone : des dizaines d'histoires classées par âge, par thème et par durée, prêtes à lire ou à écouter. Plus de tri déchirant dans la valise, plus de livre oublié sur la table de nuit à la maison. L'enfant choisit le soir venu, selon son humeur, comme il le ferait devant son étagère.",
+          "Et le téléphone est déjà dans votre poche. Dans la voiture pendant le trajet, dans le train, sous la tente, à l'hôtel ou chez les grands-parents, le rituel vous suit sans peser un gramme de plus. C'est la bibliothèque de chevet, en version sans bagage.",
+        ],
+      },
+      {
+        heading: "Hors-ligne et audio : pensés pour les soirs de vacances",
+        paragraphs: [
+          "Les vacances riment souvent avec mauvaise connexion : un gîte perdu, un camping, un avion. La version audio des histoires se lance et accompagne l'endormissement même quand l'écran reste dans le noir, ce qui est parfait après une longue journée au soleil quand plus personne n'a la force de lire à voix haute. La voix prend le relais, vous restez le câlin.",
+          "L'audio a un autre avantage en déplacement : il occupe les longs trajets sans écran allumé. Une histoire écoutée les yeux fermés à l'arrière de la voiture vaut mieux qu'un dessin animé, et prépare déjà la sieste.",
+        ],
+      },
+      {
+        heading: "Garder le rituel, même quand tout change",
+        paragraphs: [
+          "Le secret d'un coucher serein en vacances tient en un mot : continuité. Gardez le même ordre qu'à la maison, même raccourci. Si le rituel habituel, c'est brossage de dents, histoire, câlin, dodo, conservez-le tel quel, même dans une chambre inconnue. L'enfant reconnaît la séquence et son cerveau comprend que c'est l'heure de dormir, où qu'il se trouve.",
+          "Laissez l'enfant retrouver ses favoris. Une histoire déjà adorée, relue pour la dixième fois, rassure bien plus qu'une nouveauté un soir d'excitation. Ses favoris Lunireve le suivent partout, sur n'importe quel écran : il ouvre l'application et retrouve sa petite collection, intacte, comme à la maison.",
+          "Et pourquoi ne pas faire des vacances le moment d'une histoire personnalisée ? Un récit où votre enfant devient le héros de l'été, du voyage ou de la plage, à créer en quelques minutes et à garder en souvenir. C'est le genre de petit supplément qui transforme une soirée de vacances en moment dont on se souvient.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "peur-du-noir",
     title: "Peur du noir : le guide complet pour aider votre enfant (sans forcer)",
     excerpt:

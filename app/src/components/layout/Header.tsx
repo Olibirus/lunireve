@@ -299,7 +299,8 @@ export function Header() {
               <MenuLink href="/compte/histoires" icon={BookOpen}>{t("account.menu.customStories")}</MenuLink>
               <MenuLink href="/compte/favoris" icon={Sparkles}>{t("account.menu.favorites")}</MenuLink>
               <MenuLink href="/creer" icon={Wand2}>{t("nav.create")}</MenuLink>
-              <MenuLink href="/tarifs" icon={Sparkles}>{t("nav.pricing")}</MenuLink>
+              {/* In-profile pricing, not the standalone public page. */}
+              <MenuLink href="/compte/abonnement" icon={Sparkles}>{t("nav.pricing")}</MenuLink>
               <button
                 type="button"
                 onClick={onLogout}

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { searchStories, type MockStory } from "@/data/mock-stories";
+import { storyImageSrc } from "@/lib/storyImage";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -120,6 +121,7 @@ function SearchResult({
   onSelect: () => void;
 }) {
   const age = story.ageRange.replace("-", "–");
+  const img = storyImageSrc(story.slug);
   return (
     <li role="option" aria-selected={false}>
       <Link
@@ -127,10 +129,12 @@ function SearchResult({
         onClick={onSelect}
         className="flex items-center gap-3 px-3 py-2.5 hover:bg-[var(--color-cream-100)] transition-colors"
       >
-        <span
-          aria-hidden
-          className={cn(story.cover, "h-12 w-9 shrink-0 rounded-lg")}
-        />
+        {img ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={img} alt="" aria-hidden className="h-12 w-9 shrink-0 rounded-lg object-cover" />
+        ) : (
+          <span aria-hidden className={cn(story.cover, "h-12 w-9 shrink-0 rounded-lg")} />
+        )}
         <span className="min-w-0">
           <span className="block truncate font-serif text-[15px] text-[var(--color-ink-800)]">
             {story.title}

@@ -129,6 +129,27 @@
       "title": "Stories <accent>worth re-reading</accent>, again and again",
       "seeAll": "Browse the full library"
     },
+    "howItWorks": {
+      "kicker": "How it works",
+      "title": "From bedtime to keepsake, in three steps",
+      "subtitle": "Start for free, personalise whenever you like, and soon print it.",
+      "freeBadge": "Free",
+      "paidBadge": "Plan",
+      "soonBadge": "Soon",
+      "step1Title": "Read and listen, for free",
+      "step1Desc": "The whole library of stories, to read and to listen to, with no subscription. This is the heart of Lunireve, open to every family.",
+      "step2Title": "Personalise the story",
+      "step2Desc": "Create a story where your child is the hero, with their name and favourite themes. The little extra that makes the evening magical.",
+      "step3Title": "Receive the printed book",
+      "step3Desc": "Turn your child's favourite story into a beautiful bound book, delivered to your door. Available very soon."
+    },
+    "printTeaser": {
+      "kicker": "The keepsake book",
+      "soon": "Printing soon",
+      "title": "What if their story became a real book?",
+      "body": "The personalised stories you create will soon be printable as a bound album, to gift or to keep. Free reading every night, the keepsake book for special occasions.",
+      "cta": "Create a story"
+    },
     "testimonial": {
       "badge": "From parents",
       "quote": "My daughter asks for a Lunireve story every evening. It's become our ritual, softer than TV, richer than a podcast, and she learns new words without realising it.",
@@ -431,6 +452,17 @@
     "tldr": "The essentials in 30 seconds",
     "authorNote": "The Lunireve team",
     "relatedTitle": "Read next"
+  },
+  "promo": {
+    "bannerText": "Summer offer: {percent}% off all subscriptions",
+    "bannerUntil": "until {date}",
+    "bannerCta": "Get the deal",
+    "dismiss": "Close",
+    "badge": "-{percent}% summer",
+    "calloutTitle": "Summer offer, -{percent}%",
+    "calloutBody": "{percent}% off your first payment, monthly or annual, applied automatically with no code. Exceptional offer until {date}.",
+    "firstPaymentNote": "{percent}% off the first payment, then standard price",
+    "wasPrice": "Instead of {price}"
   },
   "theme": {
     "toDark": "Switch to night mode",

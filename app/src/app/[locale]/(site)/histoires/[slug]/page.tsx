@@ -16,6 +16,7 @@ import {
   type GlossaryEntry,
 } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
+import { storyImageSrc } from "@/lib/storyImage";
 import { StoryBreadcrumb } from "@/components/story/StoryBreadcrumb";
 import { AudioPlayer } from "@/components/story/AudioPlayer";
 import { DownloadButtons } from "@/components/story/DownloadButtons";
@@ -95,6 +96,7 @@ export default async function StoryDetailPage({
   const glossary = story.interactive ? interactiveGlossary() : storyGlossary(slug);
   const age = ageLabel(story.ageRange);
   const bucket = durationBucket(story.readingMinutes);
+  const heroImg = storyImageSrc(slug);
 
   const related = mockStories
     .filter((s) => s.slug !== slug && (s.theme === story.theme || s.ageRange === story.ageRange))
@@ -118,7 +120,10 @@ export default async function StoryDetailPage({
       {/* Full-viewport parallax hero (#1) — bg-fixed keeps the cover still
           while the page scrolls over it. Image slot: the real illustration
           becomes a fixed-attachment background at /illustrations/story-<slug>.png */}
-      <section className={cn(story.cover, "relative h-[72svh] md:h-[88svh] bg-fixed")}>
+      <section
+        className={cn(story.cover, "relative h-[72svh] md:h-[88svh] bg-fixed bg-cover bg-center")}
+        style={heroImg ? { backgroundImage: `url(${heroImg})` } : undefined}
+      >
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         <div className="absolute left-0 right-0 top-4 mx-auto max-w-5xl px-5 md:px-8">
           <Link

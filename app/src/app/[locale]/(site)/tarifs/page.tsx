@@ -1,5 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { PricingPlans } from "@/components/marketing/PricingPlans";
+import { PromoBanner } from "@/components/marketing/PromoBanner";
 import type { Metadata } from "next";
 
 /**
@@ -17,6 +18,7 @@ export default async function PricingPage({
 
   return (
     <>
+      <PromoBanner />
       <section className="relative">
         <div className="mx-auto max-w-7xl px-5 md:px-8 pt-12 md:pt-20 pb-10 text-center">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-indigo-soft-600)] sparkle">

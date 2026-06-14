@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, Tag } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { isPromoActive, promoPrice, promoEndLabel, SUMMER_PROMO } from "@/lib/promo";
 
 /**
  * Pricing plans with a monthly/annual toggle (#22). Default = annual
@@ -18,7 +19,11 @@ import { cn } from "@/lib/utils/cn";
  */
 export function PricingPlans({ internal = false }: { internal?: boolean }) {
   const t = useTranslations("pricing");
+  const tPromo = useTranslations("promo");
+  const locale = useLocale();
   const [annual, setAnnual] = useState(true);
+  const promo = isPromoActive();
+  const euro = (n: number) => `${n.toFixed(2).replace(".", ",")} €`;
 
   // Monthly base prices (€). Annual = 10 months (2 free).
   const plans = [
@@ -46,19 +51,34 @@ export function PricingPlans({ internal = false }: { internal?: boolean }) {
   ] as const;
 
   function priceLabel(monthly: number) {
-    if (monthly === 0) return { big: t("freePrice"), sub: "" };
-    if (annual) {
-      const perMonth = (monthly * 10) / 12;
-      return {
-        big: `${perMonth.toFixed(2).replace(".", ",")} €`,
-        sub: t("billedAnnually", { total: (monthly * 10).toFixed(2).replace(".", ",") }),
-      };
+    if (monthly === 0) return { big: t("freePrice"), sub: "", original: "" };
+    const base = annual ? (monthly * 10) / 12 : monthly;
+    const sub = annual
+      ? t("billedAnnually", {
+          total: euro(promo ? promoPrice(monthly * 10) : monthly * 10),
+        })
+      : t("perMonth");
+    if (promo) {
+      return { big: euro(promoPrice(base)), sub, original: euro(base) };
     }
-    return { big: `${monthly.toFixed(2).replace(".", ",")} €`, sub: t("perMonth") };
+    return { big: euro(base), sub, original: "" };
   }
 
   return (
     <div>
+      {/* Summer promo callout (auto-applied 50% off the first payment) */}
+      {promo && (
+        <div className="mb-8 flex flex-col items-center gap-2 rounded-3xl border border-[var(--color-mint-300)] bg-[var(--color-mint-100)] p-5 text-center md:flex-row md:justify-center md:gap-4">
+          <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--color-mint-500)] px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#17224a]">
+            <Tag className="h-3.5 w-3.5" />
+            {tPromo("calloutTitle", { percent: SUMMER_PROMO.percent })}
+          </span>
+          <p className="max-w-2xl text-sm text-[var(--color-ink-700)]">
+            {tPromo("calloutBody", { percent: SUMMER_PROMO.percent, date: promoEndLabel(locale) })}
+          </p>
+        </div>
+      )}
+
       {/* Toggle */}
       <div className="mb-10 flex items-center justify-center">
         <div className="inline-flex items-center rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-1">
@@ -101,23 +121,41 @@ export function PricingPlans({ internal = false }: { internal?: boolean }) {
                   : "border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)]"
               )}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <h2 className="font-serif text-2xl tracking-tight">{t(`${plan.key}Name`)}</h2>
-                {plan.highlight && (
-                  <Badge variant="mint">
-                    <Sparkles className="h-3 w-3" />
-                    {t("popular")}
-                  </Badge>
-                )}
+                <span className="flex shrink-0 items-center gap-1.5">
+                  {promo && plan.monthly > 0 && (
+                    <Badge variant="fox">
+                      <Tag className="h-3 w-3" />
+                      {tPromo("badge", { percent: SUMMER_PROMO.percent })}
+                    </Badge>
+                  )}
+                  {plan.highlight && (
+                    <Badge variant="mint">
+                      <Sparkles className="h-3 w-3" />
+                      {t("popular")}
+                    </Badge>
+                  )}
+                </span>
               </div>
               <p className={cn("mt-1 text-sm", plan.highlight ? "text-[var(--color-indigo-soft-200)]" : "text-[var(--color-ink-500)]")}>
                 {t(`${plan.key}Tagline`)}
               </p>
 
-              <p className="mt-6 font-serif text-4xl tracking-tight">{price.big}</p>
+              {price.original && (
+                <p className={cn("mt-6 text-sm line-through", plan.highlight ? "text-[var(--color-indigo-soft-300)]" : "text-[var(--color-ink-400)]")}>
+                  {tPromo("wasPrice", { price: price.original })}
+                </p>
+              )}
+              <p className={cn("font-serif text-4xl tracking-tight", price.original ? "mt-1" : "mt-6")}>{price.big}</p>
               {price.sub && (
                 <p className={cn("mt-1 text-xs", plan.highlight ? "text-[var(--color-indigo-soft-300)]" : "text-[var(--color-ink-400)]")}>
                   {price.sub}
+                </p>
+              )}
+              {promo && plan.monthly > 0 && (
+                <p className={cn("mt-1.5 text-xs font-medium", plan.highlight ? "text-[var(--color-mint-400)]" : "text-[var(--color-mint-700)]")}>
+                  {tPromo("firstPaymentNote", { percent: SUMMER_PROMO.percent })}
                 </p>
               )}
 

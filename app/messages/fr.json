@@ -129,6 +129,27 @@
       "title": "Des histoires <accent>qu'on relit</accent> sans se lasser",
       "seeAll": "Voir toute la bibliothèque"
     },
+    "howItWorks": {
+      "kicker": "Comment ça marche",
+      "title": "Du soir au souvenir, en trois temps",
+      "subtitle": "On commence gratuitement, on personnalise quand on veut, et bientôt on imprime.",
+      "freeBadge": "Gratuit",
+      "paidBadge": "Offre",
+      "soonBadge": "Bientôt",
+      "step1Title": "Lisez et écoutez, gratuitement",
+      "step1Desc": "Toute la bibliothèque d'histoires, à lire et à écouter, sans abonnement. C'est le coeur de Lunireve, ouvert à toutes les familles.",
+      "step2Title": "Personnalisez l'histoire",
+      "step2Desc": "Créez une histoire où votre enfant devient le héros, avec son prénom et ses thèmes préférés. Le petit plus qui rend la soirée magique.",
+      "step3Title": "Recevez le livre imprimé",
+      "step3Desc": "Transformez l'histoire préférée de votre enfant en un beau livre relié, livré chez vous. Disponible très bientôt."
+    },
+    "printTeaser": {
+      "kicker": "Le livre objet",
+      "soon": "Impression bientôt",
+      "title": "Et si son histoire devenait un vrai livre ?",
+      "body": "Les histoires personnalisées que vous créez pourront bientôt être imprimées en un album relié, à offrir ou à garder. La lecture gratuite chaque soir, le livre souvenir pour les grandes occasions.",
+      "cta": "Créer une histoire"
+    },
     "testimonial": {
       "badge": "Paroles de parents",
       "quote": "Ma fille demande une histoire de Lunireve chaque soir. C'est devenu notre rituel, plus doux que la télé, plus riche qu'un podcast, et elle y apprend des mots nouveaux sans s'en rendre compte.",
@@ -431,6 +452,17 @@
     "tldr": "L'essentiel en 30 secondes",
     "authorNote": "L'équipe Lunireve",
     "relatedTitle": "À lire ensuite"
+  },
+  "promo": {
+    "bannerText": "Offre d'été : -{percent}% sur tous les abonnements",
+    "bannerUntil": "jusqu'au {date}",
+    "bannerCta": "En profiter",
+    "dismiss": "Fermer",
+    "badge": "-{percent}% été",
+    "calloutTitle": "Offre d'été, -{percent}%",
+    "calloutBody": "{percent}% de réduction sur votre premier paiement, mensuel ou annuel, appliquée automatiquement et sans code. Offre exceptionnelle jusqu'au {date}.",
+    "firstPaymentNote": "{percent}% sur le 1er paiement, puis tarif normal",
+    "wasPrice": "Au lieu de {price}"
   },
   "theme": {
     "toDark": "Passer en mode nuit",

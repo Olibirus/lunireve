@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { blogArticles } from "@/data/mock-blog";
+import { blogImageSrc } from "@/lib/storyImage";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
@@ -46,10 +47,12 @@ export default async function BlogIndexPage({
           href={{ pathname: "/blog/[slug]", params: { slug: featured.slug } }}
           className="group grid gap-6 rounded-[2rem] border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-5 md:grid-cols-[1.1fr_1fr] md:p-6 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] transition-shadow"
         >
-          <div
-            aria-hidden
-            className={cn(featured.cover, "aspect-[16/10] rounded-3xl")}
-          />
+          {blogImageSrc(featured.slug) ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={blogImageSrc(featured.slug)!} alt="" aria-hidden className="aspect-[16/10] w-full rounded-3xl object-cover" />
+          ) : (
+            <div aria-hidden className={cn(featured.cover, "aspect-[16/10] rounded-3xl")} />
+          )}
           <div className="flex flex-col justify-center py-2 md:pr-6">
             <div className="flex items-center gap-2">
               <Badge variant="mint">{featured.tag}</Badge>
@@ -78,7 +81,12 @@ export default async function BlogIndexPage({
               href={{ pathname: "/blog/[slug]", params: { slug: a.slug } }}
               className="group rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] overflow-hidden shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] transition-shadow"
             >
-              <div aria-hidden className={cn(a.cover, "aspect-[16/9]")} />
+              {blogImageSrc(a.slug) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={blogImageSrc(a.slug)!} alt="" aria-hidden className="aspect-[16/9] w-full object-cover" />
+              ) : (
+                <div aria-hidden className={cn(a.cover, "aspect-[16/9]")} />
+              )}
               <div className="p-5">
                 <div className="flex items-center gap-2">
                   <Badge variant="default">{a.tag}</Badge>

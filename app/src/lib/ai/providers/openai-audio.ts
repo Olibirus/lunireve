@@ -19,13 +19,16 @@ const MODEL = "gpt-4o-mini-tts";
 // Warm, gentle defaults per narrator gender. "clone" falls back to female until
 // the V2 voice-cloning table ships.
 const VOICE_BY_TYPE: Record<VoiceType, string> = {
-  female: "coral",
-  male: "onyx",
-  clone: "coral",
+  female: "nova",
+  male: "marin",
+  clone: "nova",
 };
 
+// Keep the delivery warm but flowing. Earlier wording about "slow / unhurried /
+// lulling" made nova drag with long mid-sentence pauses; we want a soft parent
+// voice that still moves.
 const BEDTIME_INSTRUCTIONS =
-  "Speak as a warm, loving bedtime storyteller for a young child. Soft, soothing, and unhurried, with gentle warmth and tenderness. Calm, lulling pace as if helping the child drift off to sleep. Never rushed, never harsh.";
+  "Speak as a warm, loving parent reading a bedtime story to their young child. Soft, tender, and affectionate, with a gentle smile in the voice. Natural reading rhythm: keep words flowing together within each sentence, no long pauses between words. Pause only at commas and periods.";
 
 function getClient() {
   if (!env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not set.");

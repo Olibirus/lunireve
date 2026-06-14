@@ -32,9 +32,15 @@ function buildSystemPrompt(input: StoryGenerationInput) {
     "11-12": "Layered plot and richer vocabulary; respect the reader's intelligence.",
   }[input.ageRange];
 
+  const target = input.targetWords ?? 600;
+  // Firm range — the model otherwise treats "~N words" as a ceiling and stops
+  // well short (a 700-word target came back at ~330).
+  const min = Math.round(target * 0.85);
+  const max = Math.round(target * 1.2);
+
   return `${voice}
 Age range: ${input.ageRange}. ${ageGuidance}
-Target length: ~${input.targetWords ?? 600} words, split into 6-10 scenes.
+Length requirement (strict): write between ${min} and ${max} words TOTAL, aiming for ${target}. This is a hard minimum, not a suggestion: keep developing the story until you reach it. Do not stop short. Split into 6-10 scenes.
 ${input.seoKeyword ? `Weave the phrase "${input.seoKeyword}" naturally into the story.` : ""}
 ${input.characters?.length ? `Characters to use consistently: ${input.characters.map((c) => `${c.name} (${c.description})`).join("; ")}.` : ""}
 

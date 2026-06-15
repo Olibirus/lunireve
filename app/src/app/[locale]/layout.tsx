@@ -27,15 +27,22 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://lunireve.com"),
   title: {
     default: "Lunireve · Des histoires qui grandissent avec vos enfants",
     template: "%s · Lunireve",
   },
   description:
-    "Une bibliothèque d'histoires pour enfants à lire, écouter et personnaliser. De 3 à 11 ans. En français et en anglais.",
+    "Une bibliothèque d'histoires pour enfants à lire, écouter et personnaliser. De 1 à 12 ans. En français et en anglais.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
   },
+  manifest: "/site.webmanifest",
   openGraph: {
     title: "Lunireve",
     description: "Des histoires qui grandissent avec vos enfants.",

@@ -1,4 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { FoxCloud } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
@@ -255,4 +256,14 @@ export default async function AboutPage({
       </section>
     </>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "about" });
+  return { title: t("kicker"), description: t("lead") };
 }

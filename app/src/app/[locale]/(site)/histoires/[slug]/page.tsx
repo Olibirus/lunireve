@@ -1,5 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import {
@@ -368,6 +369,27 @@ export default async function StoryDetailPage({
       </section>
     </>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const story = findStory(slug);
+  if (!story) return {};
+  const image = storyImageSrc(slug);
+  return {
+    title: story.title,
+    description: story.excerpt,
+    openGraph: {
+      title: story.title,
+      description: story.excerpt,
+      type: "article",
+      images: image ? [image] : undefined,
+    },
+  };
 }
 
 export async function generateStaticParams() {

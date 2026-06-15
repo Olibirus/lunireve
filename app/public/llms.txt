@@ -1,0 +1,35 @@
+# Lunireve
+
+> Lunireve is a bilingual (French first, English next) bedtime-story platform for children aged 1 to 12. Families read and listen to a large library of quality, human-reviewed stories for free, and can create personalised stories where their own child is the hero. Printed keepsake books are coming soon.
+
+Lunireve focuses on the bedtime routine: a calm, screen-light moment with warm, literary stories rather than AI-slop. Every story is sorted by age band (1-2, 3-4, 5-6, 7-8, 9-10, 11-12), genre, theme and reading duration, and can be read or listened to with a gentle narrator voice.
+
+## What you can do on Lunireve
+
+- Read and listen to the full story library for free, no account required.
+- Create a free account to unlock favourites, reading history, resume reading, child profiles and personalised story creation.
+- Create personalised text stories where the child is the hero (free tier: a few per month; paid plans add more).
+- Take an auto-generated quiz and explore a glossary on each story.
+- Download stories as a watermarked PDF.
+
+## Plans
+
+- Free (Découverte): unlimited library + audio, 1 child profile, a few personalised stories per month.
+- Plus and Max: more child profiles, more personalised stories and advanced options (coming with payments, V2).
+
+## Key pages
+
+- Home: https://lunireve.com/
+- Story library: https://lunireve.com/histoires
+- Audio stories: https://lunireve.com/histoires/audio
+- Blog (parenting + bedtime advice): https://lunireve.com/blog
+- Pricing: https://lunireve.com/tarifs
+- FAQ: https://lunireve.com/faq
+- About: https://lunireve.com/a-propos
+
+## Notes
+
+- French is the default language, served at the root. English lives under /en (e.g. https://lunireve.com/en/stories).
+- Personalised stories are private by default and are not part of the public library.
+- Child data is minimal: first name and age only, no photos. Data is hosted in the EU.
+- Contact: hello@lunireve.com

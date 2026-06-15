@@ -7,6 +7,7 @@ after each batch (must stay green).
 ## Cross-session changes log
 <!-- Add ONE line per cross-territory edit, newest on top:
      `YYYY-MM-DD [Session X]: touched <folder> for <reason>` -->
+2026-06-13 [Session A]: added app/sitemap.ts + app/robots.ts, public/llms.txt + favicons (moved to public root), root layout icons/manifest for SEO
 2026-06-14 [Session B]: per-account data isolation + tier benefits. New lib/tier.ts (central limits), lib/userScope.ts (scopedKey), lib/favorites.ts. Scoped all client stores per account (lunireve_user cookie). Touched components/story/{FavoriteHeart,StoryActions}, components/layout/Header, components/marketing/PricingPlans+new PricingComparison, (site)/tarifs, lib/notifications, lib/auth/session.ts.
 2026-06-14 [Session B]: touched lib/auth/session.ts + app/actions/auth.ts to add user2/user3 test accounts + tier cookie for paid-tier testing
 2026-06-13 [Session A]: added lib/promo.ts, scripts/generate-images.ts, lib/storyImage.ts, data/generated-images.json, public/img for summer promo + AI cover images

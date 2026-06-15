@@ -38,9 +38,12 @@ export function ReadingProgress({ slug }: { slug: string }) {
         const body = document.getElementById("story-body");
         if (!body) return;
         const rect = body.getBoundingClientRect();
-        const total = rect.height - window.innerHeight;
-        if (total <= 0) return;
-        const progress = Math.min(100, Math.max(0, (-rect.top / total) * 100));
+        const vh = window.innerHeight;
+        // 0% when the top of the story first enters the viewport (rect.top = vh),
+        // 100% when the last line reaches mid-viewport (rect.bottom = vh/2).
+        const range = vh / 2 + rect.height;
+        if (range <= 0) return;
+        const progress = Math.min(100, Math.max(0, ((vh - rect.top) / range) * 100));
         setLive(progress);
         if (progress > 0) {
           try {

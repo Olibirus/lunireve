@@ -124,6 +124,7 @@ export function Footer() {
             </Link>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li><Link href="/histoires" className={linkClass}>{t("nav.stories")}</Link></li>
+              <li><Link href="/histoire-personnalisee" className={linkClass}>{t("footer.personalizedStory")}</Link></li>
               <li><Link href="/a-propos" className={linkClass}>{t("nav.about")}</Link></li>
               <li><Link href="/tarifs" className={linkClass}>{t("nav.pricing")}</Link></li>
               <li><Link href="/faq" className={linkClass}>{t("footer.faq")}</Link></li>

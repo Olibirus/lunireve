@@ -24,7 +24,13 @@ const MANIFEST = path.join(ROOT, "src", "data", "generated-images.json");
 const STYLE =
   "Children's storybook illustration, warm and dreamy, soft painterly gouache texture, " +
   "gentle bedtime palette of deep navy blue, soft indigo and mint green with warm candle-like highlights, " +
-  "cozy and reassuring mood, whimsical, hand-illustrated. No text, no letters, no words, no logos.";
+  "cozy and reassuring mood, whimsical, hand-illustrated. " +
+  "A single uninterrupted full-bleed scene with one clear focal subject. " +
+  "Do NOT split the image into panels, frames, a diptych, a grid, or side-by-side halves; one cohesive picture only. " +
+  "No text, no letters, no words, no logos, no borders.";
+
+// Optional: regenerate only specific slugs, e.g. `ONLY=foo,bar pnpm img:generate`.
+const ONLY = process.env.ONLY ? new Set(process.env.ONLY.split(",").map((s) => s.trim())) : null;
 
 async function gen(prompt: string, out: string): Promise<boolean> {
   if (fs.existsSync(out) && !process.env.FORCE) {
@@ -49,28 +55,43 @@ async function main() {
   fs.mkdirSync(STORY_DIR, { recursive: true });
   fs.mkdirSync(BLOG_DIR, { recursive: true });
 
-  const done: { stories: string[]; blog: string[] } = { stories: [], blog: [] };
+  // When regenerating a subset, start from the existing manifest so the other
+  // entries are preserved.
+  const done: { stories: string[]; blog: string[] } = ONLY
+    ? (() => {
+        try {
+          return JSON.parse(fs.readFileSync(MANIFEST, "utf8"));
+        } catch {
+          return { stories: [], blog: [] };
+        }
+      })()
+    : { stories: [], blog: [] };
+  const add = (list: string[], slug: string) => {
+    if (!list.includes(slug)) list.push(slug);
+  };
 
   for (const s of mockStories) {
+    if (ONLY && !ONLY.has(s.slug)) continue;
     const prompt =
       `${STYLE} Cover scene for a children's story titled "${s.title}". ` +
       `${s.excerpt} Theme: ${s.theme}. Main character: ${s.character}. ` +
       `Suited to children aged ${s.ageRange}. Portrait-friendly composition with a clear central subject.`;
     try {
       await gen(prompt, path.join(STORY_DIR, `${s.slug}.png`));
-      done.stories.push(s.slug);
+      add(done.stories, s.slug);
     } catch (e) {
       console.error("FAIL story", s.slug, ":", e instanceof Error ? e.message : String(e));
     }
   }
 
   for (const a of blogArticles) {
+    if (ONLY && !ONLY.has(a.slug)) continue;
     const prompt =
       `${STYLE} Calm editorial cover illustration for a parenting article titled "${a.title}". ` +
       `Topic: ${a.tag}. Symbolic and reassuring, soft focus, no readable text.`;
     try {
       await gen(prompt, path.join(BLOG_DIR, `${a.slug}.png`));
-      done.blog.push(a.slug);
+      add(done.blog, a.slug);
     } catch (e) {
       console.error("FAIL blog", a.slug, ":", e instanceof Error ? e.message : String(e));
     }

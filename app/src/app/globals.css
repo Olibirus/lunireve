@@ -383,9 +383,9 @@
     border-bottom: 2px dotted var(--color-indigo-soft-500);
     cursor: help;
   }
-  .glossary-term:hover::after,
-  .glossary-term:focus::after {
-    content: attr(data-definition);
+  /* Tooltip is a real child element so the text is always in the DOM and
+     never renders as an empty black card (works for every story). */
+  .glossary-tip {
     position: absolute;
     left: 50%;
     bottom: calc(100% + 8px);
@@ -401,11 +401,21 @@
     font-size: 0.8rem;
     line-height: 1.5;
     font-weight: 400;
+    font-style: normal;
     letter-spacing: 0;
     box-shadow: var(--shadow-float);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
   }
-  html.dark .glossary-term:hover::after,
-  html.dark .glossary-term:focus::after {
+  .glossary-term:hover .glossary-tip,
+  .glossary-term:focus .glossary-tip,
+  .glossary-term:focus-within .glossary-tip {
+    opacity: 1;
+    visibility: visible;
+  }
+  html.dark .glossary-tip {
     background: #10193b;
     border: 1px solid var(--color-ink-100);
   }

@@ -49,6 +49,10 @@ export const routing = defineRouting({
       fr: "/creer",
       en: "/create",
     },
+    "/histoire-personnalisee": {
+      fr: "/histoire-personnalisee",
+      en: "/personalised-story",
+    },
     "/tarifs": {
       fr: "/tarifs",
       en: "/pricing",

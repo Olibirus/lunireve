@@ -1,19 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { MockStory } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
+import { PersonalizedStoryCard } from "@/components/story/PersonalizedStoryCard";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
  * Library grid — 3 cards per row on desktop so the covers read larger
- * (feedback). The first 4 rows show fully; the next row is revealed as a
- * blurred, fading teaser behind a "see more" button so the page stays short
- * until the reader asks for more.
+ * (feedback). A personalized-story promo card is always injected as the first
+ * cell of the 2nd row. The first 4 rows show fully; the next row is revealed
+ * as a blurred, fading teaser behind a "see more" button so the page stays
+ * short until the reader asks for more.
  */
 const FIRST = 12; // 4 rows x 3 columns on desktop
+const PERSO_INDEX = 3; // first cell of the 2nd row (3 columns)
 
 const GRID = "grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6";
 
@@ -21,34 +24,25 @@ export function StoryGrid({ stories }: { stories: MockStory[] }) {
   const t = useTranslations("library");
   const [expanded, setExpanded] = useState(false);
 
-  if (stories.length <= FIRST) {
-    return (
-      <div className={GRID}>
-        {stories.map((s) => (
-          <StoryCard key={s.slug} story={s} />
-        ))}
-      </div>
-    );
+  // Build the full cell list, then drop the promo card into the 2nd row.
+  const cells: ReactNode[] = stories.map((s) => <StoryCard key={s.slug} story={s} />);
+  const insertAt = Math.min(PERSO_INDEX, cells.length);
+  cells.splice(insertAt, 0, <PersonalizedStoryCard key="personalized-card" />);
+
+  if (cells.length <= FIRST) {
+    return <div className={GRID}>{cells}</div>;
   }
 
-  const main = stories.slice(0, FIRST);
-  const rest = stories.slice(FIRST);
+  const main = cells.slice(0, FIRST);
+  const rest = cells.slice(FIRST);
   const teaser = rest.slice(0, 3);
 
   return (
     <div>
-      <div className={GRID}>
-        {main.map((s) => (
-          <StoryCard key={s.slug} story={s} />
-        ))}
-      </div>
+      <div className={GRID}>{main}</div>
 
       {expanded ? (
-        <div className={cn(GRID, "mt-4 md:mt-6")}>
-          {rest.map((s) => (
-            <StoryCard key={s.slug} story={s} />
-          ))}
-        </div>
+        <div className={cn(GRID, "mt-4 md:mt-6")}>{rest}</div>
       ) : (
         <div className="relative mt-4 md:mt-6">
           {/* Teaser row: only the top of each cover shows, blurred and fading
@@ -65,9 +59,7 @@ export function StoryGrid({ stories }: { stories: MockStory[] }) {
                 "linear-gradient(to bottom, black 0%, black 20%, transparent 80%)",
             }}
           >
-            {teaser.map((s) => (
-              <StoryCard key={s.slug} story={s} />
-            ))}
+            {teaser}
           </div>
           <div className="absolute inset-x-0 bottom-0 flex justify-center pb-1">
             <button

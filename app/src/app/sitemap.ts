@@ -44,6 +44,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/", "/", 1, "daily", now),
     entry("/histoires", "/stories", 0.9, "daily", now),
     entry("/histoires/audio", "/stories/audio", 0.7, "weekly", now),
+    entry("/histoire-personnalisee", "/personalised-story", 0.7, "monthly", now),
     entry("/blog", "/blog", 0.8, "weekly", now),
     entry("/faq", "/faq", 0.6, "monthly", now),
     entry("/a-propos", "/about", 0.5, "monthly", now),

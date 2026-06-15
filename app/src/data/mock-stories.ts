@@ -692,6 +692,26 @@ const STORY_CONTENT: Record<string, StoryContent> = {
         answer: 1,
         explanation: "En partageant son souvenir avec Monsieur Slimane, chacun reçoit le même beau rêve.",
       },
+      {
+        question: "Que signifie la couleur des lueurs dans les bocaux ?",
+        choices: [
+          "Le prix du rêve",
+          "Le type de rêve (voyage, gloire, douceur)",
+          "L'âge du rêveur",
+        ],
+        answer: 1,
+        explanation: "Bleu nuit pour les voyages, doré pour la gloire, vert d'eau pour les rêves doux.",
+      },
+      {
+        question: "Pourquoi Yasmine refuse-t-elle le rêve de grandeur ?",
+        choices: [
+          "Elle a peur des chats",
+          "Elle préfère rester livreuse de pain",
+          "Elle se méfie d'un rêve inachevé qui promet tout",
+        ],
+        answer: 2,
+        explanation: "Elle se souvient qu'un rêve inachevé promet n'importe quoi pour entrer dans une tête.",
+      },
     ],
     glossary: [
       { word: "souk", definition: "Un grand marché couvert, dans les pays du Maghreb et du Moyen-Orient." },
@@ -1045,6 +1065,16 @@ export function interactiveQuiz(): QuizQuestion[] {
       choices: ["Les cacher dans une boîte", "Les raccompagner jusqu'au ciel", "Les garder à la maison"],
       answer: 1,
       explanation: "Il faut les raccompagner tout là-haut, à leur place dans le ciel.",
+    },
+    {
+      question: "Qu'apprend le héros au fil de cette aventure ?",
+      choices: [
+        "Qu'il vaut mieux dormir tout de suite",
+        "Que la nuit cache des aventures et qu'on peut aider plus petit que soi",
+        "Qu'il ne faut jamais sortir de son lit",
+      ],
+      answer: 1,
+      explanation: "La nuit réserve de belles surprises, et même un enfant peut aider les étoiles à rentrer.",
     },
   ];
 }

@@ -1,6 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Headphones, Sparkles, Star } from "lucide-react";
+import { Clock, Sparkles, Star } from "lucide-react";
 import { ageLabel, type MockStory } from "@/data/mock-stories";
 import { FavoriteHeart } from "@/components/story/FavoriteHeart";
 import { storyImageSrc } from "@/lib/storyImage";
@@ -57,11 +57,6 @@ export function StoryCard({ story, size = "md" }: { story: MockStory; size?: "sm
               )}
             </span>
             <span className="flex items-center gap-1.5">
-              {story.hasAudio && (
-                <span className="rounded-full bg-white/20 backdrop-blur-sm p-1.5 text-white/95">
-                  <Headphones className="h-3.5 w-3.5" aria-label="Version audio disponible" />
-                </span>
-              )}
               <FavoriteHeart slug={story.slug} />
             </span>
           </div>

@@ -29,7 +29,7 @@ import { StoryQuiz } from "@/components/story/StoryQuiz";
 import { InteractiveStory } from "@/components/story/InteractiveStory";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Headphones, Sparkles } from "lucide-react";
+import { Clock, Headphones, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -60,13 +60,13 @@ function withGlossary(text: string, glossary: GlossaryEntry[]): ReactNode[] {
       wrapped = true;
       next.push(part.slice(0, idx));
       next.push(
-        <span
-          key={`${entry.word}-${idx}`}
-          className="glossary-term"
-          tabIndex={0}
-          data-definition={entry.definition}
-        >
+        <span key={`${entry.word}-${idx}`} className="glossary-term" tabIndex={0}>
           {part.slice(idx, idx + entry.word.length)}
+          {/* Definition lives in the DOM (not a CSS attr) so it always renders,
+              for every story, present and future. */}
+          <span className="glossary-tip" role="tooltip">
+            {entry.definition}
+          </span>
         </span>
       );
       next.push(part.slice(idx + entry.word.length));
@@ -108,32 +108,24 @@ export default async function StoryDetailPage({
 
   return (
     <>
-      {/* Breadcrumb bar (#33) */}
-      <div className="mx-auto max-w-5xl px-5 md:px-8 pt-4">
-        <StoryBreadcrumb
-          trail={[
-            { label: tAll(`genres.${story.genre}`), href: { pathname: "/histoires/genre/[genre]", params: { genre: story.genre } } },
-            { label: story.title },
-          ]}
-        />
-      </div>
-
       {/* Full-viewport parallax hero (#1) — bg-fixed keeps the cover still
           while the page scrolls over it. Image slot: the real illustration
           becomes a fixed-attachment background at /illustrations/story-<slug>.png */}
       <section
-        className={cn(story.cover, "relative h-[72svh] md:h-[88svh] bg-fixed bg-cover bg-center")}
+        className={cn(story.cover, "relative h-[72svh] md:h-[88svh] bg-fixed bg-cover bg-center bg-no-repeat")}
         style={heroImg ? { backgroundImage: `url(${heroImg})` } : undefined}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+        {/* Breadcrumb sits ON the illustration (#33), styled like the old
+            back-to-library button which it replaces. */}
         <div className="absolute left-0 right-0 top-4 mx-auto max-w-5xl px-5 md:px-8">
-          <Link
-            href="/histoires"
-            className="inline-flex items-center gap-2 rounded-full bg-black/25 px-3.5 py-1.5 text-sm text-white backdrop-blur-sm hover:bg-black/40"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t("backToLibrary")}
-          </Link>
+          <StoryBreadcrumb
+            onImage
+            trail={[
+              { label: tAll(`genres.${story.genre}`), href: { pathname: "/histoires/genre/[genre]", params: { genre: story.genre } } },
+              { label: story.title },
+            ]}
+          />
         </div>
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-5xl px-5 md:px-8 pb-10 md:pb-16">
           {/* Clickable filter chips (#10) */}
@@ -194,34 +186,34 @@ export default async function StoryDetailPage({
       {/* Reading toolbar — audio, downloads, comfort settings (#19/#20) */}
       <section className="mx-auto max-w-3xl px-5 md:px-8 -mt-7 relative z-10">
         <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 md:p-5 shadow-[var(--shadow-card)]">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <AudioPlayer
-                title={story.title}
-                audioUrl={story.audioUrl}
-                chapterCount={3}
-              />
-              <DownloadButtons
-                pdf={{
-                  title: story.title,
-                  meta: `${tAll(`genres.${story.genre}`)} · ${age} · ${story.readingMinutes} min`,
-                  // Full content goes to the PDF regardless of what's shown on
-                  // screen: interactive stories export every branch, linear
-                  // stories export the body.
-                  paragraphs: story.interactive ? [] : body,
-                  quiz,
-                  glossary,
-                  interactive,
-                }}
-              />
-            </div>
-            <div className="flex items-center gap-1">
-              <FavoriteButton slug={story.slug} />
-              <ShareButton />
-              <ReportDialog slug={story.slug} />
-            </div>
+          {/* Round play button on the left, stacked downloads on the right. */}
+          <div className="flex items-center justify-between gap-4">
+            <AudioPlayer
+              round
+              title={story.title}
+              audioUrl={story.audioUrl}
+              chapterCount={3}
+            />
+            <DownloadButtons
+              stacked
+              pdf={{
+                title: story.title,
+                meta: `${tAll(`genres.${story.genre}`)} · ${age} · ${story.readingMinutes} min`,
+                // Full content goes to the PDF regardless of what's shown on
+                // screen: interactive stories export every branch, linear
+                // stories export the body.
+                paragraphs: story.interactive ? [] : body,
+                quiz,
+                glossary,
+                interactive,
+              }}
+            />
           </div>
-          <div className="mt-4 border-t border-[var(--color-ink-100)] pt-4">
+          {/* Centered controls: favorite, share, report, text size, dyslexia. */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 border-t border-[var(--color-ink-100)] pt-4">
+            <FavoriteButton slug={story.slug} />
+            <ShareButton />
+            <ReportDialog slug={story.slug} />
             <ReadingSettings />
           </div>
         </div>

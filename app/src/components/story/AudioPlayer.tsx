@@ -38,6 +38,7 @@ export function AudioPlayer({
   chapterCount,
   storyId,
   tier = "library",
+  round = false,
 }: {
   title: string;
   audioUrl: string | null;
@@ -46,6 +47,8 @@ export function AudioPlayer({
   storyId?: string;
   /** Library = cheap bulk voice; personalized = warmer premium voice. */
   tier?: AudioTier;
+  /** Render the trigger as a big round play button (story page toolbar). */
+  round?: boolean;
 }) {
   const t = useTranslations("story");
   const [open, setOpen] = useState(false);
@@ -119,10 +122,25 @@ export function AudioPlayer({
 
   return (
     <>
-      <Button variant="primary" size="md" className="w-full justify-start" onClick={() => setOpen(true)}>
-        <Headphones className="h-4 w-4" />
-        {t("listen")}
-      </Button>
+      {round ? (
+        <div className="flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label={t("listen")}
+            title={t("listen")}
+            className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-ink-800)] text-[var(--color-cream-50)] shadow-[var(--shadow-card)] transition-transform hover:bg-[var(--color-ink-700)] hover:scale-105"
+          >
+            <Play className="h-7 w-7 translate-x-0.5" />
+          </button>
+          <span className="text-xs font-medium text-[var(--color-ink-600)]">{t("listen")}</span>
+        </div>
+      ) : (
+        <Button variant="primary" size="md" className="w-full justify-start" onClick={() => setOpen(true)}>
+          <Headphones className="h-4 w-4" />
+          {t("listen")}
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-md">

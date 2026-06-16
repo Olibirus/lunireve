@@ -240,8 +240,9 @@
     "playerPause": "Pause",
     "playerPrev": "Chapitre précédent",
     "playerNext": "Chapitre suivant",
+    "playerSeek": "Avancer ou reculer dans l'audio",
     "playerRestart": "Recommencer l'histoire",
-    "playerCloseNote": "Fermer cette fenêtre arrête l'audio, le texte s'ouvrira là où la voix s'est arrêtée.",
+    "playerCloseNote": "Fermer cette fenêtre arrête la lecture.",
     "playerGenerating": "Création de la voix en cours, quelques secondes...",
     "playerError": "La voix n'a pas pu être créée. Réessaie dans un instant.",
     "favorite": "Ajouter aux favorites",
@@ -462,7 +463,7 @@
   "personalizedCard": {
     "badge": "Histoire personnalisée",
     "title": "Votre enfant, héros de sa propre histoire",
-    "body": "Choisissez le personnage, le décor et la morale. En quelques minutes, nous écrivons une histoire unique avec le prénom de votre enfant.",
+    "body": "Choisissez le personnage, le décor et le style. En quelques minutes, nous écrivons une histoire unique avec le prénom de votre enfant.",
     "cta": "Créer une histoire"
   },
   "personalizedPage": {
@@ -744,7 +745,8 @@
     "audioSubtitle": "Des histoires lues à voix haute, pour écouter blotti dans le noir.",
     "durationSubtitle": "Choisissez selon le temps qu'il vous reste avant l'extinction des feux.",
     "emptyTitle": "Aucune histoire ne correspond, pour l'instant.",
-    "emptyBody": "Essayez d'élargir un filtre, ou revenez bientôt : la bibliothèque grandit chaque semaine."
+    "emptyBody": "Créez la vôtre en quelques minutes : nous partons de ce que vous cherchiez.",
+    "emptyCreateCta": "Créer cette histoire"
   },
   "genres": {
     "conte": "Contes",
@@ -765,7 +767,17 @@
     "fantastique": "Fantastique",
     "humour": "Humour",
     "courage": "Courage",
-    "decouverte": "Découverte"
+    "decouverte": "Découverte",
+    "noel": "Noël",
+    "anniversaire": "Anniversaire",
+    "ecole": "École",
+    "voyage": "Voyage",
+    "animaux": "Animaux",
+    "espace": "Espace",
+    "mer": "Mer",
+    "saisons": "Saisons",
+    "sport": "Sport",
+    "famille": "Famille"
   },
   "characters": {
     "renard": "Renard",
@@ -777,7 +789,22 @@
     "marchand": "Marchand",
     "gateau": "Gâteau",
     "phare": "Phare",
-    "reine": "Reine"
+    "reine": "Reine",
+    "licorne": "Licorne",
+    "sirene": "Sirène",
+    "pirate": "Pirate",
+    "chevalier": "Chevalier",
+    "fee": "Fée",
+    "sorciere": "Sorcière",
+    "robot": "Robot",
+    "lion": "Lion",
+    "lapin": "Lapin",
+    "chat": "Chat",
+    "hibou": "Hibou",
+    "loup": "Loup",
+    "princesse": "Princesse",
+    "astronaute": "Astronaute",
+    "dinosaure": "Dinosaure"
   },
   "durations": {
     "short": "Histoires courtes (moins de 5 min)",

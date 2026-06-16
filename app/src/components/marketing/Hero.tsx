@@ -38,6 +38,35 @@ export function Hero() {
         }}
       />
 
+      {/* Dark-mode only: slowly twinkling stars, a quiet touch of night magic */}
+      <div aria-hidden className="star-field absolute inset-0 pointer-events-none">
+        {[
+          { top: "14%", left: "10%", dur: "6s", delay: "0s", big: true },
+          { top: "22%", left: "82%", dur: "7s", delay: "1.2s" },
+          { top: "10%", left: "54%", dur: "5.5s", delay: "2s" },
+          { top: "40%", left: "26%", dur: "8s", delay: "0.6s" },
+          { top: "58%", left: "88%", dur: "6.5s", delay: "1.8s", big: true },
+          { top: "70%", left: "16%", dur: "7.5s", delay: "2.6s" },
+          { top: "33%", left: "68%", dur: "6s", delay: "3.2s" },
+          { top: "80%", left: "60%", dur: "7s", delay: "0.9s" },
+          { top: "50%", left: "44%", dur: "9s", delay: "2.2s" },
+          { top: "18%", left: "36%", dur: "6.8s", delay: "4s" },
+        ].map((s, i) => (
+          <span
+            key={i}
+            className={s.big ? "star big" : "star"}
+            style={
+              {
+                top: s.top,
+                left: s.left,
+                "--dur": s.dur,
+                "--delay": s.delay,
+              } as React.CSSProperties
+            }
+          />
+        ))}
+      </div>
+
       <div className="relative mx-auto max-w-7xl px-5 md:px-8 pt-12 md:pt-20 pb-20 md:pb-32">
         <div className="grid lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-8 items-center">
           {/* Copy */}

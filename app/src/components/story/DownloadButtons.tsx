@@ -12,14 +12,22 @@ import { cn } from "@/lib/utils/cn";
  * (cover, story, quiz, glossary) via jsPDF — not a screenshot. ePub needs
  * real file generation (n8n batch) and stays "soon".
  */
-export function DownloadButtons({ pdf, stacked = false }: { pdf: StoryPdfInput; stacked?: boolean }) {
+export function DownloadButtons({
+  pdf,
+  stacked = false,
+  locale,
+}: {
+  pdf: StoryPdfInput;
+  stacked?: boolean;
+  locale?: string;
+}) {
   const t = useTranslations("story");
   const [busy, setBusy] = useState(false);
 
   async function onPdf() {
     setBusy(true);
     try {
-      downloadStoryPdf(pdf);
+      await downloadStoryPdf({ ...pdf, locale: locale === "en" ? "en" : "fr" });
     } finally {
       setBusy(false);
     }

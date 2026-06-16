@@ -2,6 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { StoryGrid } from "@/components/story/StoryGrid";
+import { EmptyResults } from "@/components/story/EmptyResults";
 import { StorySearch } from "@/components/story/StorySearch";
 import { StoryBreadcrumb } from "@/components/story/StoryBreadcrumb";
 import {
@@ -224,10 +225,7 @@ export default async function LibraryPage({
         </div>
 
         {stories.length === 0 ? (
-          <div className="rounded-3xl border-2 border-dashed border-[var(--color-ink-200)] bg-[var(--color-cream-100)] p-12 text-center">
-            <p className="font-serif text-xl">{tAll("funnel.emptyTitle")}</p>
-            <p className="mt-2 text-sm text-[var(--color-ink-500)]">{tAll("funnel.emptyBody")}</p>
-          </div>
+          <EmptyResults theme={filters.theme} age={filters.age} character={filters.character} />
         ) : (
           <StoryGrid stories={stories} />
         )}

@@ -139,6 +139,10 @@ export const FAQ_FR: FaqSection[] = [
         a: "Oui. La formule gratuite inclut un profil enfant, et les formules payantes en ajoutent davantage, chacun avec son avatar, ses favoris et sa série de lecture.",
       },
       {
+        q: "Quelle différence entre un profil enfant et le compte parent ?",
+        a: "Le compte parent gère tout : abonnement, profils, paramètres et création d'histoires. Chaque profil enfant est un espace simplifié et sécurisé où l'enfant retrouve ses histoires, ses favoris et sa série de lecture, sans accès aux réglages ni aux informations du compte. L'enfant est ainsi autonome, en toute sécurité.",
+      },
+      {
         q: "Lunireve fonctionne-t-il sur mobile et tablette ?",
         a: "Oui. Le site est conçu d'abord pour le mobile, parfait pour la lecture du soir dans une chambre sombre, et fonctionne aussi sur tablette et ordinateur.",
       },
@@ -275,6 +279,10 @@ export const FAQ_EN: FaqSection[] = [
       {
         q: "Can I create a profile for each child?",
         a: "Yes. The free plan includes one child profile, and paid plans add more, each with its own avatar, favourites and reading streak.",
+      },
+      {
+        q: "What's the difference between a child profile and the parent account?",
+        a: "The parent account manages everything: subscription, profiles, settings and story creation. Each child profile is a simplified, safe space where the child finds their stories, favourites and reading streak, with no access to settings or account details. The child stays independent, safely.",
       },
       {
         q: "Does Lunireve work on mobile and tablet?",

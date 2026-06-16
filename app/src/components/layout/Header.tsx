@@ -152,8 +152,8 @@ export function Header() {
 
   useEffect(() => {
     setLogged(isLoggedIn());
-    // Streak chip (#9): show the active child's reading streak to nudge
-    // the daily habit. Hidden when no profile is active.
+    // Streak chip: always visible. Show the active child's streak when reading
+    // as a child, otherwise a general reading streak (anonymous or parent).
     try {
       const p = getActiveProfile();
       if (p) {
@@ -163,6 +163,12 @@ export function Header() {
       }
     } catch {
       /* ignore */
+    }
+    try {
+      const raw = localStorage.getItem(scopedKey("lunireve:streak"));
+      setStreak(raw ? Number(raw) || 0 : 0);
+    } catch {
+      setStreak(0);
     }
     // Parent session: pull the display name from the account info store.
     try {
@@ -261,9 +267,9 @@ export function Header() {
 
         {/* Right side */}
         <div className="flex items-center gap-1.5 md:gap-2">
-          {logged && streak !== null && (
+          {streak !== null && (
             <Link
-              href="/enfant"
+              href="/histoires"
               title={t("nav.streakTitle")}
               className="inline-flex items-center gap-1 rounded-full bg-[var(--color-fox-300)]/25 px-2.5 py-1.5 text-xs font-medium text-[var(--color-fox-700)] hover:bg-[var(--color-fox-300)]/40"
             >

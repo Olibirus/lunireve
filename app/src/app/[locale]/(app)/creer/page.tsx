@@ -33,6 +33,16 @@ const THEME_OPTIONS = [
   "humour",
   "courage",
   "decouverte",
+  "noel",
+  "anniversaire",
+  "ecole",
+  "voyage",
+  "animaux",
+  "espace",
+  "mer",
+  "saisons",
+  "sport",
+  "famille",
 ];
 const MOODS = ["drole", "mysterieux", "touchant", "palpitant", "doux"] as const;
 const STYLES = ["automatique", "aquarelle", "bd", "anime3d", "crayons", "kawaii"] as const;
@@ -47,6 +57,7 @@ const STYLES = ["automatique", "aquarelle", "bd", "anime3d", "crayons", "kawaii"
 export default function CreateStoryPage() {
   const t = useTranslations("create");
   const tThemes = useTranslations("themes");
+  const tChars = useTranslations("characters");
   const router = useRouter();
 
   const [profiles, setProfiles] = useState<ChildProfile[]>([]);
@@ -81,6 +92,32 @@ export default function CreateStoryPage() {
     setTier(readTier());
     const active = getActiveProfile() ?? all[0] ?? null;
     if (active) applyProfile(active);
+    // Pre-fill from filter params when arriving from an empty library result,
+    // so "create this story" starts from what the family was looking for.
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      setParams((prev) => {
+        const next = { ...prev };
+        const theme = sp.get("theme");
+        if (theme && THEME_OPTIONS.includes(theme)) next.theme = theme;
+        const age = sp.get("age");
+        if (age) {
+          const n = parseInt(age, 10);
+          if (n >= 1 && n <= 16) next.heroAge = n;
+        }
+        const character = sp.get("character");
+        if (character) {
+          try {
+            next.friend = tChars(character);
+          } catch {
+            /* unknown character key */
+          }
+        }
+        return next;
+      });
+    } catch {
+      /* ignore */
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

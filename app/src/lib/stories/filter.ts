@@ -34,8 +34,25 @@ export function applyFilters(filters: StoryFilters): MockStory[] {
   });
 }
 
-/** Themes present in the library (slug list drives chip rails + i18n keys). */
-export const THEMES = [...new Set(mockStories.map((s) => s.theme))];
+/**
+ * Themes for the chip rails. Library themes first, then a broader set so
+ * families can explore (and create) beyond what's already published. Picking
+ * a theme with no library match surfaces the "create a story" CTA.
+ */
+const STORY_THEMES = [...new Set(mockStories.map((s) => s.theme))];
+const EXTRA_THEMES = [
+  "noel",
+  "anniversaire",
+  "ecole",
+  "voyage",
+  "animaux",
+  "espace",
+  "mer",
+  "saisons",
+  "sport",
+  "famille",
+];
+export const THEMES = [...new Set([...STORY_THEMES, ...EXTRA_THEMES])];
 
 /** Library sort options (#9). "liked" reads the real favoritesCount aggregate. */
 export type StorySort = "newest" | "rating" | "liked" | "shortest";

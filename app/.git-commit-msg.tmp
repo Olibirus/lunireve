@@ -1,0 +1,16 @@
+Story UX round 7: language switch, hero image, audio seek, streak, perso card, PDF localization, filters, stars
+
+- Language switcher: robust path translation so switching works on every page incl. stories
+- Hero cover image: fixed background longhands (no more repeated/duplicated image)
+- Audio player: seekable progress bar; closing no longer jumps the page
+- Story toolbar: responsive 2-col (round play centered left, stacked downloads centered right)
+- Navbar streak visible for everyone (child streak when on a child profile)
+- Personalized card: redesigned (bigger centered text, fixed dark-mode colors), text morale->style, middle of 2nd row (end if 1 row), fully clickable
+- PDF: labels follow site language, cover image embedded, interactive one-section-per-page
+- Interactive story sections lengthened for older readers
+- More characters + themes (filters + creation); empty filter shows a prefilled "create this story" CTA
+- FAQ: child profile vs parent account
+- Dark mode: subtle slow twinkling stars on the hero
+- Regenerated all cover images with a centered-subject prompt
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

@@ -4,10 +4,11 @@ import { jsPDF } from "jspdf";
 import type { QuizQuestion, GlossaryEntry, InteractiveNode } from "@/data/mock-stories";
 
 /**
- * Branded multi-page story PDF (#2): not a screenshot — a laid-out document.
- * Page 1 cover (title + meta), story text flowing across pages, quiz on its
- * own page, glossary on its own page. Every page carries the Lunireve header
- * and footer watermark. Pure client-side via jsPDF (zero server cost).
+ * Branded multi-page story PDF (#2): not a screenshot, a laid-out document.
+ * Cover (title + meta + illustration), story text flowing across pages, quiz
+ * and glossary. Interactive stories print every branch gamebook-style, one
+ * section per page. Structural labels follow the site language. Pure
+ * client-side via jsPDF (zero server cost).
  */
 
 const INK = "#1f2d52";
@@ -15,35 +16,80 @@ const MINT = "#6db592";
 const MUTED = "#7d87a5";
 const CREAM = "#faf5eb";
 
+const LABELS = {
+  fr: {
+    quiz: "Le petit quiz",
+    solutions: "Solutions",
+    glossary: "Glossaire",
+    section: "Section",
+    start: "Début",
+    endPath: "Fin de cette histoire.",
+    intro:
+      "Histoire dont vous êtes le héros : à chaque choix, rendez-vous à la page indiquée pour continuer.",
+    gotoPage: "rendez-vous page",
+    footer: "Usage personnel uniquement, pas d'usage commercial",
+  },
+  en: {
+    quiz: "The little quiz",
+    solutions: "Answers",
+    glossary: "Glossary",
+    section: "Section",
+    start: "Start",
+    endPath: "End of this path.",
+    intro:
+      "Choose your own adventure: at each choice, go to the page shown to continue.",
+    gotoPage: "go to page",
+    footer: "Personal use only, no commercial use",
+  },
+} as const;
+
 export type StoryPdfInput = {
   title: string;
   meta: string; // "Conte · 5–6 ans · 6 min"
   paragraphs: string[];
   quiz?: QuizQuestion[];
   glossary?: GlossaryEntry[];
-  /** When set, the PDF lays out the FULL branching story (every section) with
-      page references at each choice, gamebook-style, instead of `paragraphs`. */
+  /** When set, the PDF lays out the FULL branching story (every section), one
+      section per page, with page references at each choice. */
   interactive?: InteractiveNode;
+  /** Cover illustration URL (drawn on the cover page). */
+  coverImage?: string;
+  /** Site language: drives the structural labels. */
+  locale?: "fr" | "en";
 };
 
-export function downloadStoryPdf(data: StoryPdfInput) {
+async function fetchDataUrl(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise<string | null>((resolve) => {
+      const r = new FileReader();
+      r.onloadend = () => resolve(typeof r.result === "string" ? r.result : null);
+      r.onerror = () => resolve(null);
+      r.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
+export async function downloadStoryPdf(data: StoryPdfInput) {
+  const L = LABELS[data.locale === "en" ? "en" : "fr"];
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const M = 56; // margin
   const contentW = W - M * 2;
 
-  let firstPage = true;
+  const coverData = data.coverImage ? await fetchDataUrl(data.coverImage) : null;
 
   function brandFooter() {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(MUTED);
     doc.text("Lunireve · lunireve.com", M, H - 28);
-    // Free-tier licence: personal use only, no commercial use (#24)
-    doc.text("Usage personnel uniquement, pas d'usage commercial", W - M, H - 28, {
-      align: "right",
-    });
+    doc.text(L.footer, W - M, H - 28, { align: "right" });
     doc.setDrawColor(220, 220, 210);
     doc.line(M, H - 38, W - M, H - 38);
   }
@@ -81,18 +127,24 @@ export function downloadStoryPdf(data: StoryPdfInput) {
   doc.setFontSize(11);
   doc.setTextColor("#aab1d4");
   doc.text(data.meta, M, 130 + titleLines.length * 30 + 8);
+  if (coverData) {
+    // Square illustration, fit to content width, centered below the band.
+    const size = Math.min(contentW, H - 300);
+    try {
+      doc.addImage(coverData, "PNG", (W - size) / 2, 250, size, size);
+    } catch {
+      /* ignore bad image data */
+    }
+  }
   brandFooter();
 
-  // ---------- Story ----------
-  firstPage = false;
   let y = 76;
+
+  // ---------- Story ----------
   if (data.interactive) {
     renderInteractive(data.interactive);
   } else {
     y = newPage();
-    doc.setFont("times", "normal");
-    doc.setFontSize(13);
-    doc.setTextColor(INK);
     for (const p of data.paragraphs) {
       const lines = doc.splitTextToSize(p, contentW);
       for (const line of lines) {
@@ -108,11 +160,10 @@ export function downloadStoryPdf(data: StoryPdfInput) {
   }
 
   /**
-   * Interactive story → a gamebook: every unique segment becomes a numbered
-   * section; each choice points to the page where its branch continues, so a
-   * reader can follow any path on paper. Two passes: the first measures to map
-   * section → page (page refs sit on their own single line, so pagination does
-   * not depend on the numbers), the second draws with the resolved pages.
+   * Interactive story -> a gamebook: every unique segment is a numbered
+   * section, ONE SECTION PER PAGE, with page references at each choice. Two
+   * passes: measure to map section -> page (page refs sit on their own line so
+   * pagination is number-independent), then draw with the resolved pages.
    */
   function renderInteractive(root: InteractiveNode) {
     const idOf = new Map<InteractiveNode, number>();
@@ -140,137 +191,131 @@ export function downloadStoryPdf(data: StoryPdfInput) {
 
     for (const pass of ["measure", "draw"] as const) {
       const draw = pass === "draw";
+      // Intro on its own page first.
       let page: number;
-      let y: number;
+      let yy: number;
       if (draw) {
-        y = newPage();
+        yy = newPage();
         page = doc.getNumberOfPages();
       } else {
-        page = 2; // first interactive page (page 1 is the cover)
-        y = 76;
+        page = 2;
+        yy = 76;
       }
       const brk = () => {
         if (draw) {
-          y = newPage();
+          yy = newPage();
           page = doc.getNumberOfPages();
         } else {
           page += 1;
-          y = 76;
+          yy = 76;
         }
       };
 
-      // Intro instruction
       doc.setFont("times", "italic");
       doc.setFontSize(11);
-      const intro = doc.splitTextToSize(
-        "Histoire dont vous êtes le héros : à chaque choix, rendez-vous à la page indiquée pour continuer.",
-        contentW
-      );
+      const intro = doc.splitTextToSize(L.intro, contentW);
       for (const line of intro) {
-        if (y > H - 70) brk();
+        if (yy > H - 70) brk();
         if (draw) {
           doc.setFont("times", "italic");
           doc.setFontSize(11);
           doc.setTextColor(MUTED);
-          doc.text(line, M, y);
+          doc.text(line, M, yy);
         }
-        y += 16;
+        yy += 16;
       }
-      y += 12;
 
-      for (const sec of sections) {
-        if (y > H - 110) brk();
+      sections.forEach((sec) => {
+        // Each section starts on a fresh page (#: avoid confusion).
+        brk();
         pageOf.set(sec.no, page);
         if (draw) {
           doc.setFont("helvetica", "bold");
-          doc.setFontSize(13);
+          doc.setFontSize(14);
           doc.setTextColor(INK);
-          doc.text(sec.no === 1 ? "Début" : `Section ${sec.no}`, M, y);
+          doc.text(sec.no === 1 ? L.start : `${L.section} ${sec.no}`, M, yy);
         }
-        y += 22;
+        yy += 24;
 
         for (const p of sec.paragraphs) {
           doc.setFont("times", "normal");
           doc.setFontSize(12);
           const lines = doc.splitTextToSize(p, contentW);
           for (const line of lines) {
-            if (y > H - 70) brk();
+            if (yy > H - 70) brk();
             if (draw) {
               doc.setFont("times", "normal");
               doc.setFontSize(12);
               doc.setTextColor(INK);
-              doc.text(line, M, y);
+              doc.text(line, M, yy);
             }
-            y += 17;
+            yy += 17;
           }
-          y += 7;
+          yy += 7;
         }
 
         if (sec.question && sec.choices.length) {
+          if (yy > H - 90) brk();
           doc.setFont("helvetica", "bold");
           doc.setFontSize(11.5);
           const qLines = doc.splitTextToSize(sec.question, contentW);
-          if (y > H - 90) brk();
           for (const line of qLines) {
-            if (y > H - 70) brk();
+            if (yy > H - 70) brk();
             if (draw) {
               doc.setFont("helvetica", "bold");
               doc.setFontSize(11.5);
               doc.setTextColor(INK);
-              doc.text(line, M, y);
+              doc.text(line, M, yy);
             }
-            y += 16;
+            yy += 16;
           }
-          y += 4;
+          yy += 4;
           sec.choices.forEach((c, ci) => {
             doc.setFont("helvetica", "normal");
             doc.setFontSize(11);
             const labelLines = doc.splitTextToSize(`${letters[ci]}.  ${c.label}`, contentW - 18);
             for (const line of labelLines) {
-              if (y > H - 70) brk();
+              if (yy > H - 70) brk();
               if (draw) {
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(11);
                 doc.setTextColor(INK);
-                doc.text(line, M + 16, y);
+                doc.text(line, M + 16, yy);
               }
-              y += 15;
+              yy += 15;
             }
-            if (y > H - 70) brk();
+            if (yy > H - 70) brk();
             if (draw) {
               doc.setFont("helvetica", "italic");
               doc.setFontSize(10);
               doc.setTextColor(MINT);
-              doc.text(`rendez-vous page ${pageOf.get(c.target) ?? "?"}`, M + 24, y);
+              doc.text(`${L.gotoPage} ${pageOf.get(c.target) ?? "?"}`, M + 24, yy);
             }
-            y += 18;
+            yy += 18;
           });
         } else {
-          if (y > H - 70) brk();
+          if (yy > H - 70) brk();
           if (draw) {
             doc.setFont("times", "italic");
             doc.setFontSize(11);
             doc.setTextColor(MUTED);
-            doc.text("Fin de cette histoire.", M, y);
+            doc.text(L.endPath, M, yy);
           }
-          y += 18;
+          yy += 18;
         }
-
-        y += 14; // gap between sections
-      }
+      });
     }
   }
 
-  // ---------- Quiz (#23: questions + lettered choices, solutions at the end) ----------
+  // ---------- Quiz ----------
   if (data.quiz && data.quiz.length) {
     const letters = ["A", "B", "C", "D"];
     y = newPage();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(INK);
-    doc.text("Le petit quiz", M, y);
+    doc.text(L.quiz, M, y);
     y += 30;
-    // Questions with choices — NO answer marked
     data.quiz.forEach((q, i) => {
       if (y > H - 120) y = newPage();
       doc.setFont("helvetica", "bold");
@@ -290,7 +335,6 @@ export function downloadStoryPdf(data: StoryPdfInput) {
       y += 14;
     });
 
-    // Solutions block at the bottom (new page if little room left)
     if (y > H - 140) y = newPage();
     else y += 10;
     doc.setDrawColor(220, 220, 210);
@@ -299,7 +343,7 @@ export function downloadStoryPdf(data: StoryPdfInput) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(13);
     doc.setTextColor(INK);
-    doc.text("Solutions", M, y);
+    doc.text(L.solutions, M, y);
     y += 20;
     data.quiz.forEach((q, i) => {
       if (y > H - 70) y = newPage();
@@ -319,7 +363,7 @@ export function downloadStoryPdf(data: StoryPdfInput) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(INK);
-    doc.text("Glossaire", M, y);
+    doc.text(L.glossary, M, y);
     y += 30;
     for (const g of data.glossary) {
       if (y > H - 90) y = newPage();
@@ -337,7 +381,6 @@ export function downloadStoryPdf(data: StoryPdfInput) {
     }
   }
 
-  void firstPage;
   const slug = data.title
     .toLowerCase()
     .normalize("NFD")

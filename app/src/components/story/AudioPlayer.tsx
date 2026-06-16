@@ -58,21 +58,27 @@ export function AudioPlayer({
   const [url, setUrl] = useState<string | null>(audioUrl);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => setUrl(audioUrl), [audioUrl]);
 
   const canPlay = Boolean(url) || (Boolean(storyId) && !error);
 
-  // Closing the modal stops playback and scrolls to the active chapter.
+  // Closing the modal just stops playback (no page jump).
   function onOpenChange(next: boolean) {
     setOpen(next);
     if (!next) {
       audioRef.current?.pause();
       setPlaying(false);
-      document
-        .getElementById(`chapitre-${chapter + 1}`)
-        ?.scrollIntoView({ block: "start" });
+    }
+  }
+
+  function seek(value: number) {
+    if (audioRef.current) {
+      audioRef.current.currentTime = value;
+      setCurrent(value);
     }
   }
 
@@ -116,9 +122,24 @@ export function AudioPlayer({
     const el = audioRef.current;
     if (!el) return;
     const onEnded = () => setPlaying(false);
+    const onTime = () => setCurrent(el.currentTime);
+    const onMeta = () => setDuration(Number.isFinite(el.duration) ? el.duration : 0);
     el.addEventListener("ended", onEnded);
-    return () => el.removeEventListener("ended", onEnded);
-  }, [open]);
+    el.addEventListener("timeupdate", onTime);
+    el.addEventListener("loadedmetadata", onMeta);
+    return () => {
+      el.removeEventListener("ended", onEnded);
+      el.removeEventListener("timeupdate", onTime);
+      el.removeEventListener("loadedmetadata", onMeta);
+    };
+  }, [open, url]);
+
+  const fmt = (s: number) => {
+    if (!Number.isFinite(s) || s <= 0) return "0:00";
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+  };
 
   return (
     <>
@@ -162,6 +183,30 @@ export function AudioPlayer({
           <p className="text-center text-xs uppercase tracking-widest text-[var(--color-ink-400)]">
             {t("playerChapter", { current: chapter + 1, total: chapterCount })}
           </p>
+
+          {/* Seek bar — click or drag to move through the audio */}
+          <div className="px-1">
+            <input
+              type="range"
+              min={0}
+              max={duration || 0}
+              step={0.1}
+              value={Math.min(current, duration || 0)}
+              disabled={!url || !duration}
+              onChange={(e) => seek(Number(e.target.value))}
+              aria-label={t("playerSeek")}
+              className="audio-seek h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[var(--color-cream-200)] disabled:opacity-50"
+              style={{
+                background: duration
+                  ? `linear-gradient(to right, var(--color-ink-800) ${(current / duration) * 100}%, var(--color-cream-200) ${(current / duration) * 100}%)`
+                  : undefined,
+              }}
+            />
+            <div className="mt-1 flex justify-between text-[10px] tabular-nums text-[var(--color-ink-400)]">
+              <span>{fmt(current)}</span>
+              <span>{fmt(duration)}</span>
+            </div>
+          </div>
 
           <div className="flex items-center justify-center gap-3 py-2">
             <button

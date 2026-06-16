@@ -25,8 +25,9 @@ const STYLE =
   "Children's storybook illustration, warm and dreamy, soft painterly gouache texture, " +
   "gentle bedtime palette of deep navy blue, soft indigo and mint green with warm candle-like highlights, " +
   "cozy and reassuring mood, whimsical, hand-illustrated. " +
-  "A single uninterrupted full-bleed scene with one clear focal subject. " +
-  "Do NOT split the image into panels, frames, a diptych, a grid, or side-by-side halves; one cohesive picture only. " +
+  "A single uninterrupted full-bleed scene with ONE clear focal subject placed in the CENTER of the frame, " +
+  "with comfortable empty margins around it so the picture stays well framed when cropped to a square, a portrait card, or a wide banner. " +
+  "Do NOT split the image into panels, frames, a diptych, a grid, or side-by-side halves; one cohesive centered picture only. " +
   "No text, no letters, no words, no logos, no borders.";
 
 // Optional: regenerate only specific slugs, e.g. `ONLY=foo,bar pnpm img:generate`.

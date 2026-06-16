@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { StoryCard } from "@/components/story/StoryCard";
+import { EmptyResults } from "@/components/story/EmptyResults";
 import { StorySearch } from "@/components/story/StorySearch";
 import { StoryBreadcrumb } from "@/components/story/StoryBreadcrumb";
 import { applyFilters, THEMES, type StoryFilters } from "@/lib/stories/filter";
@@ -189,12 +190,7 @@ export async function StoryFunnel({
         </div>
 
         {stories.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-[var(--color-ink-200)] bg-[var(--color-cream-100)] p-12 text-center">
-            <p className="font-serif text-xl">{t("funnel.emptyTitle")}</p>
-            <p className="mt-2 text-sm text-[var(--color-ink-500)]">
-              {t("funnel.emptyBody")}
-            </p>
-          </div>
+          <EmptyResults theme={active.theme} age={active.age} character={active.character} />
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-7">
             {stories.map((s) => (

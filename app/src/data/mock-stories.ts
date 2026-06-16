@@ -356,7 +356,31 @@ export const mockStories: MockStory[] = [
 ];
 
 /** Distinct character slugs present in the library — powers the character filter. */
-export const CHARACTERS = [...new Set(mockStories.map((s) => s.character))];
+/**
+ * Characters offered as filters and personalization options. Starts with the
+ * characters that have stories, then a broader cast (like the big bedtime-story
+ * sites) so families have plenty to browse and to build personalized stories
+ * from. Picking one with no library match leads to the "create a story" CTA.
+ */
+const STORY_CHARACTERS = [...new Set(mockStories.map((s) => s.character))];
+const EXTRA_CHARACTERS = [
+  "licorne",
+  "sirene",
+  "pirate",
+  "chevalier",
+  "fee",
+  "sorciere",
+  "robot",
+  "lion",
+  "lapin",
+  "chat",
+  "hibou",
+  "loup",
+  "princesse",
+  "astronaute",
+  "dinosaure",
+];
+export const CHARACTERS = [...new Set([...STORY_CHARACTERS, ...EXTRA_CHARACTERS])];
 
 export function findStory(slug: string): MockStory | undefined {
   return mockStories.find((s) => s.slug === slug);
@@ -952,19 +976,23 @@ export type InteractiveNode = {
 };
 
 export function interactiveTree(_slug: string): InteractiveNode {
-  // ----- Final endings (3 paragraphs each) -----
+  // ----- Final endings -----
   const finDouce: InteractiveNode = {
     paragraphs: [
-      "Tu décides de les raccompagner tout doucement, sans te presser. Tu fredonnes la berceuse que ta maman te chante les soirs d'orage, et les étoiles se calment, l'une après l'autre.",
-      "Une à une, elles remontent au ciel et se posent exactement à leur place, comme des perles qu'on remet sur un collier. Le ciel, peu à peu, redevient entier.",
-      "La plus petite étoile s'attarde une seconde près de ta joue, tiède comme un baiser, puis file rejoindre les autres. « Reviens nous voir en rêve », murmure-t-elle. Et tu sais déjà que tu le feras. Fin.",
+      "Tu décides de les raccompagner tout doucement, sans te presser. Tu te souviens de la berceuse que ta maman te chante les soirs d'orage, celle qui parle d'une lune qui veille et d'un vent qui se couche. Tu la fredonnes, d'abord du bout des lèvres, puis un peu plus fort, et ta voix tremble à peine.",
+      "Une chose étonnante se produit : les étoiles, qui dansaient en tous sens comme des moustiques affolés, ralentissent. Elles s'approchent de ta bouche pour mieux écouter, tièdes comme des braises douces, et leur lumière bat au rythme de ta chanson.",
+      "Une à une, apaisées, elles remontent vers le ciel et se posent exactement à leur place, comme des perles qu'on remet sur un collier. Là où il y avait des trous noirs, la nuit redevient entière, et le grand sourire du ciel retrouve toutes ses dents.",
+      "La plus petite étoile s'attarde une seconde près de ta joue, si proche que tu sens sa chaleur, légère comme un baiser. « Tu nous as parlé avec douceur alors que tu aurais pu avoir peur, murmure-t-elle. On s'en souviendra. Reviens nous voir, en rêve. »",
+      "Puis elle file rejoindre les autres. Tu refermes la fenêtre, le cœur tout calme, et tu te glisses sous la couette. Cette nuit-là, tu dors comme on dort après avoir fait quelque chose de bien : profondément, et le sourire aux lèvres. Fin.",
     ],
   };
   const finCourse: InteractiveNode = {
     paragraphs: [
-      "Tu décides de faire la course ! Tu lances les étoiles vers le ciel comme on lance des cerfs-volants, et elles filent en riant, laissant derrière elles des traînées argentées.",
-      "Le ciel se remplit de rires et de lumière. On dirait un feu d'artifice qui aurait décidé de rentrer à la maison. Jamais une nuit n'avait été aussi joyeuse.",
-      "Quand la dernière étoile a retrouvé sa place, le ciel scintille plus fort que d'habitude, juste pour te remercier. Tu rentres te coucher, le cœur battant encore de la course. Fin.",
+      "Tu décides de faire la course ! « Le dernier au ciel a perdu ! » cries-tu en riant. Les étoiles adorent l'idée : elles se mettent à tourbillonner autour de toi, impatientes, en lâchant de minuscules étincelles d'excitation.",
+      "Tu les lances vers le haut comme on lance des cerfs-volants, et elles filent en riant, laissant derrière elles de longues traînées argentées qui restent un moment accrochées dans l'air avant de s'effacer.",
+      "Le ciel se remplit de rires et de lumière. On dirait un feu d'artifice qui aurait décidé de rentrer à la maison tout seul. Les chats du quartier lèvent la tête, les chouettes hululent d'étonnement, et même la vieille horloge de l'église semble retenir son tic-tac pour regarder.",
+      "Jamais une nuit n'avait été aussi joyeuse. Tu cours d'un bout à l'autre du jardin pour ne rien rater, la tête renversée, jusqu'à ce que la toute dernière étoile retrouve sa place tout là-haut.",
+      "Alors le ciel entier scintille plus fort que d'habitude, juste une seconde, juste pour te remercier. Tu rentres te coucher, essoufflé, le cœur qui bat encore comme un tambour de fête. Tu mets longtemps à t'endormir, mais ce n'est pas grave : certaines nuits méritent qu'on les savoure. Fin.",
     ],
   };
 
@@ -981,27 +1009,31 @@ export function interactiveTree(_slug: string): InteractiveNode {
 
   // ----- Method nodes (each leads to the final choice) -----
   const ailes = finalChoice([
-    "Tu enfiles les ailes en tissu. À peine posées sur tes épaules, elles se mettent à battre toutes seules, et te voilà dans le ciel, plus haut que les nuages, plus haut que le clocher du village.",
-    "Les étoiles perdues te suivent comme des poussins suivent leur maman. Le vent est doux, l'air sent la nuit et la réglisse. Tu n'as pas peur du tout : on dirait que tu sais voler depuis toujours.",
-    "Te voilà arrivé tout là-haut, là où chaque étoile a son petit trou de lumière qui l'attend.",
+    "Tu enfiles les ailes en tissu. Elles sont plus légères qu'un mouchoir et sentent la lavande et le grenier. Pendant une seconde, tu te sens un peu ridicule, planté là avec des ailes cousues main sur les épaules.",
+    "Puis, à peine posées, elles se mettent à battre toutes seules, d'abord en frémissant, ensuite à grands coups réguliers, et tes pieds quittent le plancher. Te voilà dans le ciel, plus haut que les nuages, plus haut que le clocher du village dont la girouette grince en te regardant passer.",
+    "Les étoiles perdues s'envolent derrière toi et te suivent comme des poussins suivent leur maman. Le vent est doux, l'air sent la nuit et la réglisse, et la ville en dessous ressemble à une maquette éclairée par des bougies.",
+    "Tu n'as pas peur du tout : on dirait que tu sais voler depuis toujours, que tu n'avais simplement jamais essayé. Tu montes encore, jusqu'au-dessus des toits, jusqu'au-dessus du vent, jusque tout là-haut où chaque étoile a son petit trou de lumière qui l'attend, exactement à sa taille.",
   ]);
   const bateau = finalChoice([
-    "Tu montes sur le bateau de papier. Dès que tu poses le pied dedans, il grandit, grandit, jusqu'à devenir un vrai voilier qui sent le carton et l'aventure.",
-    "Il vogue sur un fleuve de lumière qui traverse la nuit en serpentant entre les toits endormis. Les étoiles perdues s'installent à bord, ravies de la promenade, et chantent une chanson de marins tout doux.",
-    "Au bout du fleuve, une cascade d'étoiles remonte vers le ciel. Ton bateau s'en approche tout doucement.",
+    "Tu montes sur le bateau de papier en faisant bien attention de ne pas le déchirer. Dès que tu poses le pied dedans, il grandit d'un coup, grandit encore, jusqu'à devenir un vrai voilier dont la coque sent le carton et l'aventure, avec une voile blanche pliée comme une page.",
+    "Il glisse hors du jardin et se met à voguer sur un fleuve de lumière qui n'était pas là une minute plus tôt, un ruban argenté qui traverse la nuit en serpentant entre les toits endormis et les cheminées qui fument doucement.",
+    "Les étoiles perdues s'installent à bord, soulagées, et se serrent les unes contre les autres à la proue. Elles entonnent une chanson de marins toute douce, dans une langue que tu ne connais pas mais que tu comprends quand même : elle parle de rentrer chez soi.",
+    "Le fleuve monte, monte en pente douce vers le ciel, et au bout, une cascade renversée d'étoiles coule vers le haut, vers la nuit. Ton voilier s'en approche tout doucement, et tu sens que le moment des adieux est arrivé.",
   ]);
   const renard = finalChoice([
-    "Tu sonnes la clochette, et le renard arrive en trois bonds, son livre bleu sous le bras. « Des étoiles perdues ? J'ai justement un chapitre là-dessus », dit-il en feuilletant ses pages.",
-    "Le livre s'ouvre sur une carte du ciel toute scintillante. « Il suffit de lire le nom de chaque étoile à voix haute, explique le renard, et elle retrouve son chemin. »",
-    "Vous lisez ensemble, ta voix et la sienne, jusqu'à ce que toutes les étoiles soient prêtes à repartir.",
+    "Tu sonnes la clochette de cuivre. Son tintement clair se perd dans la nuit, et tu attends, le cœur battant. Puis, en trois bonds souples, un renard surgit de l'ombre, son pelage roux luisant sous la lune et un gros livre relié de cuir bleu coincé sous le bras.",
+    "« Des étoiles perdues ? dit-il en ajustant de petites lunettes rondes sur son museau. Quelle chance, j'ai justement un chapitre là-dessus. » Il s'assoit, pose le livre sur ses genoux et le feuillette avec sérieux, mouillant son doigt pour tourner les pages.",
+    "Le livre s'ouvre enfin sur une carte du ciel toute scintillante, où chaque étoile porte un nom écrit en lettres minuscules. « Voilà, dit le renard. Il suffit de lire le nom de chaque étoile à voix haute, et elle retrouve son chemin toute seule. Mais il faut le dire avec le cœur, pas seulement avec la bouche. »",
+    "Alors vous lisez ensemble, ta voix et la sienne mêlées, doucement, nom après nom. À chaque nom prononcé, une étoile se redresse, frémit, et se prépare à repartir. Bientôt, elles sont toutes prêtes, alignées devant toi comme une classe avant la récréation.",
   ]);
 
   // ----- Second level: where the stars are hidden -----
   const grenier: InteractiveNode = {
     paragraphs: [
-      "Tu montes au grenier sur la pointe des pieds. Les marches grincent comme si elles racontaient un secret. Sous la lucarne, une vieille boîte en bois vibre tout doucement.",
-      "Tu l'ouvres : à l'intérieur, trois étoiles minuscules, tombées du ciel, clignotent comme des lucioles fatiguées. « Aide-nous à rentrer », chuchote la plus brillante.",
-      "Sur l'étagère poussiéreuse, tu aperçois trois objets étranges : une paire d'ailes en tissu, un bateau de papier plié avec soin, et une petite clochette en cuivre.",
+      "Tu montes au grenier sur la pointe des pieds. Chaque marche grince d'une note différente, comme si l'escalier essayait de te raconter un secret trop vieux pour les mots. Tout en haut, la porte est entrouverte, et un rai de lumière argentée passe par la fente.",
+      "Sous la lucarne couverte de poussière et de toiles d'araignée, une vieille boîte en bois vibre tout doucement, comme un cœur qui bat. Plus tu t'approches, plus la vibration se transforme en un tintement minuscule, celui-là même qui t'a réveillé.",
+      "Tu soulèves le couvercle avec précaution. À l'intérieur, blotties dans un vieux foulard, trois étoiles minuscules tombées du ciel clignotent comme des lucioles fatiguées. « Aide-nous à rentrer, chuchote la plus brillante d'une voix de clochette. On ne sait plus comment remonter, et le ciel a froid sans nous. »",
+      "Tu regardes autour de toi. Sur l'étagère poussiéreuse, à côté d'un cheval à bascule qui te manque depuis des années, trois objets étranges semblent t'attendre, posés là exprès : une paire d'ailes en tissu cousues main, un bateau de papier plié avec un soin extraordinaire, et une petite clochette en cuivre toute cabossée.",
     ],
     question: "Comment vas-tu raccompagner les étoiles ?",
     choices: [
@@ -1013,9 +1045,10 @@ export function interactiveTree(_slug: string): InteractiveNode {
 
   const jardin: InteractiveNode = {
     paragraphs: [
-      "Tu sors dans le jardin, pieds nus dans l'herbe fraîche. La nuit est tiède et tout sent bon la terre mouillée et le jasmin.",
-      "L'herbe est pleine de petites lumières : des étoiles tombées pendant la nuit, accrochées aux brins comme des gouttes de rosée. Elles tintent doucement quand tu t'approches, comme un carillon minuscule.",
-      "Au fond du jardin, trois chemins s'offrent à toi : l'échelle du cerisier qui monte étrangement haut ce soir, la vieille barque retournée près du bassin, et le terrier du renard d'où sort une lueur bleue.",
+      "Tu sors dans le jardin, pieds nus dans l'herbe fraîche qui chatouille et qui mouille tes orteils. La nuit est tiède, étonnamment tiède pour la saison, et tout sent bon la terre humide, le jasmin et un peu la pluie de la veille.",
+      "Tu fais quelques pas et tu t'arrêtes net, le souffle coupé. L'herbe est pleine de petites lumières : des étoiles tombées pendant la nuit, accrochées aux brins comme des gouttes de rosée géantes. Elles tintent doucement quand tu t'approches, toutes ensemble, comme un carillon minuscule suspendu dans le noir.",
+      "« Vous êtes tombées ? » demandes-tu tout bas. Pour toute réponse, elles brillent un peu plus fort, comme des enfants timides qui n'osent pas avouer qu'ils se sont perdus. Tu comprends qu'elles attendent que quelqu'un les ramène là-haut.",
+      "Au fond du jardin, trois chemins s'offrent à toi, et chacun semble t'appeler à sa manière : l'échelle du vieux cerisier, qui monte ce soir bien plus haut que d'habitude et se perd dans les nuages ; la vieille barque retournée près du bassin, qui frémit comme si elle avait hâte ; et le terrier du renard, d'où sort une étrange lueur bleue et une odeur de vieux livres.",
     ],
     question: "Par où passes-tu pour les ramener ?",
     choices: [
@@ -1028,9 +1061,10 @@ export function interactiveTree(_slug: string): InteractiveNode {
   // ----- Root -----
   return {
     paragraphs: [
-      "Cette nuit, un bruit étrange te réveille : un tintement, comme des grelots très loin. Tu ouvres un œil, puis les deux. Le bruit ne s'arrête pas.",
-      "Par la fenêtre, tu remarques quelque chose d'impossible : il manque des étoiles dans le ciel. De grands trous noirs, là où elles brillaient hier soir. On dirait un sourire à qui il manque des dents.",
-      "Le tintement recommence, plus net cette fois. Il vient de quelque part dans la maison... ou peut-être du jardin.",
+      "Cette nuit-là, un bruit étrange te réveille : un tintement léger, comme des grelots agités très loin, ou comme du verre qui s'entrechoque tout doucement. Tu ouvres un œil, puis les deux. Tu attends, immobile sous la couette, persuadé que ça va s'arrêter. Mais le bruit continue, patient, régulier.",
+      "Tu repousses la couette et tu vas à la fenêtre, le carrelage froid sous tes pieds. Et là, tu remarques quelque chose d'absolument impossible : il manque des étoiles dans le ciel. De grands trous noirs s'ouvrent là où elles brillaient hier soir encore. On dirait un sourire à qui il manque plusieurs dents.",
+      "Tu te frottes les yeux. Tu comptes les trous : un, deux, trois, et peut-être un quatrième plus loin. Le ciel a l'air blessé, incomplet, et ça te serre un peu le cœur sans que tu saches pourquoi.",
+      "Le tintement recommence, plus net cette fois, et tu es sûr d'une chose : il ne vient pas du dehors, mais de l'intérieur. De quelque part dans la maison qui dort... ou peut-être du jardin, juste en dessous. Tu hésites une seconde, le cœur battant, puis tu décides d'aller voir.",
     ],
     question: "Où vas-tu chercher en premier ?",
     choices: [

@@ -2,10 +2,35 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { useRouter } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+
+/**
+ * Translate the current URL path from one locale to another using the
+ * configured pathname map, including dynamic segments. Done manually so it
+ * works reliably for every route (incl. story pages), instead of relying on
+ * the typed router which can't translate a concrete dynamic path from a string.
+ */
+function translatePath(externalPath: string, fromLoc: string, toLoc: string): string {
+  for (const value of Object.values(routing.pathnames)) {
+    const fromPat = typeof value === "string" ? value : (value as Record<string, string>)[fromLoc];
+    const toPat = typeof value === "string" ? value : (value as Record<string, string>)[toLoc];
+    if (!fromPat || !toPat) continue;
+    const names: string[] = [];
+    const regex = new RegExp(
+      "^" + fromPat.replace(/\[(\w+)\]/g, (_m, n) => { names.push(n); return "([^/]+)"; }) + "$"
+    );
+    const match = externalPath.match(regex);
+    if (match) {
+      let target = toPat;
+      names.forEach((n, i) => { target = target.replace(`[${n}]`, match[i + 1]); });
+      return target;
+    }
+  }
+  return externalPath;
+}
 
 /**
  * Compact locale switcher (feedback #26): shows only the current locale
@@ -15,7 +40,6 @@ import { cn } from "@/lib/utils/cn";
 export function LanguageSwitcher({ className }: { className?: string }) {
   const locale = useLocale();
   const router = useRouter();
-  const pathname = usePathname();
   const t = useTranslations("lang");
   const [, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
@@ -32,10 +56,18 @@ export function LanguageSwitcher({ className }: { className?: string }) {
   function switchTo(nextLocale: string) {
     setOpen(false);
     if (nextLocale === locale) return;
+    const { pathname, search, hash } = window.location;
+    const prefix = `/${locale}`;
+    // Strip the current locale prefix to get the external path in this locale.
+    let ext = pathname;
+    if (locale !== routing.defaultLocale && (pathname === prefix || pathname.startsWith(`${prefix}/`))) {
+      ext = pathname.slice(prefix.length) || "/";
+    }
+    const translated = translatePath(ext, locale, nextLocale);
+    const base = nextLocale === routing.defaultLocale ? "" : `/${nextLocale}`;
+    const target = `${base}${translated === "/" ? "" : translated}` || "/";
     startTransition(() => {
-      // next-intl's typed router can't infer dynamic pathnames here, but the
-      // current pathname is always valid at runtime — loosen for the switch.
-      router.replace(pathname as never, { locale: nextLocale as never });
+      router.replace(`${target}${search}${hash}`);
     });
   }
 

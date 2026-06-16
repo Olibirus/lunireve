@@ -112,8 +112,18 @@ export default async function StoryDetailPage({
           while the page scrolls over it. Image slot: the real illustration
           becomes a fixed-attachment background at /illustrations/story-<slug>.png */}
       <section
-        className={cn(story.cover, "relative h-[72svh] md:h-[88svh] bg-fixed bg-cover bg-center bg-no-repeat")}
-        style={heroImg ? { backgroundImage: `url(${heroImg})` } : undefined}
+        className={cn("relative h-[72svh] md:h-[88svh]", !heroImg && story.cover)}
+        style={
+          heroImg
+            ? {
+                backgroundImage: `url(${heroImg})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                backgroundAttachment: "fixed",
+              }
+            : undefined
+        }
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         {/* Breadcrumb sits ON the illustration (#33), styled like the old
@@ -186,17 +196,22 @@ export default async function StoryDetailPage({
       {/* Reading toolbar — audio, downloads, comfort settings (#19/#20) */}
       <section className="mx-auto max-w-3xl px-5 md:px-8 -mt-7 relative z-10">
         <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 md:p-5 shadow-[var(--shadow-card)]">
-          {/* Round play button on the left, stacked downloads on the right. */}
-          <div className="flex items-center justify-between gap-4">
-            <AudioPlayer
-              round
-              title={story.title}
-              audioUrl={story.audioUrl}
-              chapterCount={3}
-            />
-            <DownloadButtons
-              stacked
-              pdf={{
+          {/* Two columns: round play button centered left, stacked downloads
+              centered right (buttons left-aligned to each other). Stacks on mobile. */}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:items-center">
+            <div className="flex justify-center">
+              <AudioPlayer
+                round
+                title={story.title}
+                audioUrl={story.audioUrl}
+                chapterCount={3}
+              />
+            </div>
+            <div className="flex justify-center">
+              <DownloadButtons
+                stacked
+                locale={locale}
+                pdf={{
                 title: story.title,
                 meta: `${tAll(`genres.${story.genre}`)} · ${age} · ${story.readingMinutes} min`,
                 // Full content goes to the PDF regardless of what's shown on
@@ -206,8 +221,10 @@ export default async function StoryDetailPage({
                 quiz,
                 glossary,
                 interactive,
+                coverImage: heroImg ?? undefined,
               }}
-            />
+              />
+            </div>
           </div>
           {/* Centered controls: favorite, share, report, text size, dyslexia. */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 border-t border-[var(--color-ink-100)] pt-4">

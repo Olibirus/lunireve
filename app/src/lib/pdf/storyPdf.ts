@@ -83,15 +83,28 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
   const contentW = W - M * 2;
 
   const coverData = data.coverImage ? await fetchDataUrl(data.coverImage) : null;
+  const logoData = await fetchDataUrl("/logo-s.png");
 
   function brandFooter() {
+    doc.setDrawColor(220, 220, 210);
+    doc.line(M, H - 46, W - M, H - 46);
+    // Logo bottom-left on every page; licence note bottom-right.
+    if (logoData) {
+      try {
+        doc.addImage(logoData, "PNG", M, H - 38, 52, 15);
+      } catch {
+        /* ignore */
+      }
+    } else {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(INK);
+      doc.text("LUNIREVE", M, H - 28);
+    }
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(MUTED);
-    doc.text("Lunireve · lunireve.com", M, H - 28);
     doc.text(L.footer, W - M, H - 28, { align: "right" });
-    doc.setDrawColor(220, 220, 210);
-    doc.line(M, H - 38, W - M, H - 38);
   }
 
   function brandHeader() {
@@ -130,8 +143,22 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
   if (coverData) {
     // Square illustration, fit to content width, centered below the band.
     const size = Math.min(contentW, H - 300);
+    const imgX = (W - size) / 2;
+    const imgY = 250;
     try {
-      doc.addImage(coverData, "PNG", (W - size) / 2, 250, size, size);
+      doc.addImage(coverData, "PNG", imgX, imgY, size, size);
+      // Logo in the bottom-right corner of the illustration, on a soft pill
+      // so it stays legible over any artwork.
+      if (logoData) {
+        const lw = 58;
+        const lh = 17;
+        const pad = 8;
+        const lx = imgX + size - lw - pad;
+        const ly = imgY + size - lh - pad;
+        doc.setFillColor("#faf5eb");
+        doc.roundedRect(lx - 5, ly - 4, lw + 10, lh + 8, 6, 6, "F");
+        doc.addImage(logoData, "PNG", lx, ly, lw, lh);
+      }
     } catch {
       /* ignore bad image data */
     }
@@ -146,9 +173,13 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
   } else {
     y = newPage();
     for (const p of data.paragraphs) {
+      // Set the font BEFORE measuring so wrapping matches the drawn size and
+      // text never overflows the margin (works for every story).
+      doc.setFont("times", "normal");
+      doc.setFontSize(13);
       const lines = doc.splitTextToSize(p, contentW);
       for (const line of lines) {
-        if (y > H - 70) y = newPage();
+        if (y > H - 78) y = newPage();
         doc.setFont("times", "normal");
         doc.setFontSize(13);
         doc.setTextColor(INK);

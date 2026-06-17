@@ -7,6 +7,7 @@ after each batch (must stay green).
 ## Cross-session changes log
 <!-- Add ONE line per cross-territory edit, newest on top:
      `YYYY-MM-DD [Session X]: touched <folder> for <reason>` -->
+2026-06-17 [Session A]: touched data/mock-stories.ts (EN content, locale-aware), lib/userScope+favorites (per-profile), lib/pdf, (app)/creer for round-8 fixes
 2026-06-17 [Session A]: touched data/mock-stories.ts (chars/themes, interactive length), lib/stories/filter.ts, lib/pdf, (app)/creer (filter prefill), data/faq.ts for round-7 fixes
 2026-06-13 [Session A]: touched data/mock-stories.ts (quiz length), scripts/generate-images.ts, app/sitemap.ts, i18n/routing.ts for perso page + image fix
 2026-06-13 [Session A]: added app/sitemap.ts + app/robots.ts, public/llms.txt + favicons (moved to public root), root layout icons/manifest for SEO

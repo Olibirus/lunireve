@@ -1,13 +1,12 @@
 "use client";
 
-import { scopedKey } from "./userScope";
+import { profileScopedKey } from "./userScope";
 import { tierLimits } from "./tier";
 
 /**
- * Favorites store — per-account scoped, tier-capped. Replaces the inline
- * `lunireve:favorites` reads/writes that previously lived (unscoped) in the
- * story card, story page, and account pages, which leaked one account's
- * favorites to every other login on the device.
+ * Favorites store — scoped per account AND per active child profile, tier-
+ * capped. A freshly created child profile starts with no favorites instead of
+ * inheriting the parent's (or another child's).
  */
 
 const BASE = "lunireve:favorites";
@@ -18,7 +17,7 @@ export function favoritesCap(): number {
 
 export function readFavorites(): string[] {
   try {
-    return JSON.parse(localStorage.getItem(scopedKey(BASE)) ?? "[]") as string[];
+    return JSON.parse(localStorage.getItem(profileScopedKey(BASE)) ?? "[]") as string[];
   } catch {
     return [];
   }
@@ -30,7 +29,7 @@ export function isFavorite(slug: string): boolean {
 
 function write(list: string[]) {
   try {
-    localStorage.setItem(scopedKey(BASE), JSON.stringify(list));
+    localStorage.setItem(profileScopedKey(BASE), JSON.stringify(list));
   } catch {
     /* quota / private mode — non-fatal */
   }

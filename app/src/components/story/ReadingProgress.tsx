@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { profileScopedKey } from "@/lib/userScope";
 import { BookOpen, X } from "lucide-react";
 
 /**
@@ -17,7 +18,9 @@ import { BookOpen, X } from "lucide-react";
  */
 export function ReadingProgress({ slug }: { slug: string }) {
   const t = useTranslations("story");
-  const key = `lunireve:progress:${slug}`;
+  // Scoped per account + active child profile, so a fresh child profile starts
+  // with no reading progress (not the parent's).
+  const key = profileScopedKey(`lunireve:progress:${slug}`);
   const [resumeAt, setResumeAt] = useState<number | null>(null);
   const [live, setLive] = useState(0);
 

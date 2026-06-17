@@ -23,3 +23,25 @@ export function currentUser(): string {
 export function scopedKey(base: string): string {
   return `${base}::u:${currentUser()}`;
 }
+
+/**
+ * The active child profile id ("parent" when reading as the parent / none
+ * active). Read directly from localStorage to avoid a circular import.
+ */
+export function currentProfile(): string {
+  if (typeof window === "undefined") return "parent";
+  try {
+    return localStorage.getItem("lunireve:activeProfile") || "parent";
+  } catch {
+    return "parent";
+  }
+}
+
+/**
+ * Namespace a key to the account AND the active child profile, so per-reader
+ * data (reading progress, favorites) never leaks between a parent and a
+ * freshly created child profile.
+ */
+export function profileScopedKey(base: string): string {
+  return `${base}::u:${currentUser()}::p:${currentProfile()}`;
+}

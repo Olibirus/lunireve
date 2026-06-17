@@ -952,15 +952,102 @@ const FALLBACK_CONTENT: StoryContent = {
   ],
 };
 
-export function storyQuiz(slug: string): QuizQuestion[] {
-  return (STORY_CONTENT[slug] ?? FALLBACK_CONTENT).quiz;
+/** Generic English fallback. */
+const FALLBACK_CONTENT_EN: StoryContent = {
+  body: [
+    "Once upon a time, deep in a wood where even the oldest oaks had forgotten their names, there was a little house with blue shutters. No one thought anyone could live there, and yet someone did.",
+    "The house belonged to a child the others called, for lack of anything better, 'the little one'. Her real name she kept to herself, the way you keep a precious hazelnut in the hollow of your hand.",
+    "One November day, while she was making verbena tea, the little one heard a scratching at her door. She opened it. On the doorstep stood a fox, a leather-bound blue book under one arm.",
+    "'Excuse me, I got lost inside my story. Could you help me find the page again?'",
+    "The little one stepped aside, held out her hand, and said very seriously: 'Do come in. The tea is almost ready.'",
+  ],
+  quiz: [
+    {
+      question: "Who knocks at the little house's door?",
+      choices: ["A hungry wolf", "A fox with a book", "The village postman"],
+      answer: 1,
+      explanation: "It is a tired fox, carrying a leather-bound blue book.",
+    },
+    {
+      question: "What is the little one making?",
+      choices: ["A cake", "A soup", "Verbena tea"],
+      answer: 2,
+      explanation: "She was making verbena tea, one November day.",
+    },
+    {
+      question: "What does the fox ask for?",
+      choices: ["To find his page", "A place to sleep", "The way out of the forest"],
+      answer: 0,
+      explanation: "He got lost inside his story and is looking for his page.",
+    },
+  ],
+  glossary: [
+    { word: "verbena", definition: "A plant brewed to make a gently flavoured herbal tea." },
+    { word: "leather-bound", definition: "A book with a solid cover, often made of leather or thick board." },
+  ],
+};
+
+/**
+ * English per-story content. Populated story by story (and by the generation
+ * pipeline later). Anything missing falls back to the French text so the page
+ * still works, while audio/PDF stay consistent with whatever language is shown.
+ */
+const STORY_CONTENT_EN: Record<string, StoryContent> = {
+  "le-renard-qui-ne-voulait-pas-dormir": {
+    body: [
+      "Filo the little fox did not want to sleep. Ever. 'Five more minutes!' he said every night. Then five more. And five more again.",
+      "That evening, his mum blew out the candle and kissed him between the ears. But the moment she left the den, Filo opened his eyes wide again. Sleep, really? While outside the night was doing mysterious things without him?",
+      "He poked his snout out of the den. The sky was huge and pricked with stars. And there, right at the top, the moon was watching him. 'Not asleep, little fox?' she asked, in a voice as soft as an eiderdown.",
+      "'I don't want to sleep,' said Filo. 'If I sleep, I'll miss everything!' The moon smiled. 'Miss everything? Come, let me show you a secret.'",
+      "She lit up the sleeping forest. Filo saw the closed flowers getting their colours ready for tomorrow. He saw the huddled birds mending their songs. He even saw the wind, lying down in the branches, gathering strength to blow the morning clouds.",
+      "'You see, whispered the moon. At night, no one misses anything. Everyone is getting ready for tomorrow. The most beautiful things of the day are made while we sleep.'",
+      "Filo gave a great big foxy yawn. If even the wind was having a nap, then maybe... He curled back up in the den, his tail wrapped around his nose.",
+      "And that night, Filo slept deeply, to get ready, like everyone else, for a very big day. Good night, little fox.",
+    ],
+    quiz: [
+      {
+        question: "What does Filo say every night so he won't sleep?",
+        choices: ["'Five more minutes!'", "'I'm too hungry!'", "'There's a monster!'"],
+        answer: 0,
+        explanation: "Filo always asks for five more minutes, then five more!",
+      },
+      {
+        question: "Who talks to Filo when he leaves the den?",
+        choices: ["An owl", "The moon", "His mum"],
+        answer: 1,
+        explanation: "It is the moon, with her voice as soft as an eiderdown.",
+      },
+      {
+        question: "What do the flowers do during the night?",
+        choices: ["They dance", "They get their colours ready for tomorrow", "They change places"],
+        answer: 1,
+        explanation: "At night, the closed flowers get their colours ready for the next day.",
+      },
+    ],
+    glossary: [
+      { word: "den", definition: "The home dug under the ground where foxes and rabbits live." },
+      { word: "eiderdown", definition: "A big, soft, puffy quilt filled with feathers." },
+    ],
+  },
+};
+
+/** Pick the content for a story in the requested locale (FR text if no EN yet). */
+function contentFor(slug: string, locale: string): StoryContent {
+  if (locale === "en") {
+    return STORY_CONTENT_EN[slug] ?? STORY_CONTENT[slug] ?? FALLBACK_CONTENT_EN;
+  }
+  return STORY_CONTENT[slug] ?? FALLBACK_CONTENT;
+}
+
+export function storyQuiz(slug: string, locale: string = "fr"): QuizQuestion[] {
+  return contentFor(slug, locale).quiz;
 }
 
 export type GlossaryEntry = { word: string; definition: string };
 
 /** Per-story glossary — powers the inline dotted-underline definitions. */
-export function storyGlossary(slug: string): GlossaryEntry[] {
-  return (STORY_CONTENT[slug] ?? FALLBACK_CONTENT).glossary;
+export function storyGlossary(slug: string, locale: string = "fr"): GlossaryEntry[] {
+  return contentFor(slug, locale).glossary;
 }
 
 /**
@@ -975,7 +1062,8 @@ export type InteractiveNode = {
   choices?: { label: string; next: InteractiveNode }[];
 };
 
-export function interactiveTree(_slug: string): InteractiveNode {
+export function interactiveTree(_slug: string, locale: string = "fr"): InteractiveNode {
+  if (locale === "en") return interactiveTreeEn();
   // ----- Final endings -----
   const finDouce: InteractiveNode = {
     paragraphs: [
@@ -1074,13 +1162,139 @@ export function interactiveTree(_slug: string): InteractiveNode {
   };
 }
 
+/** English version of the interactive "lost stars" story (same structure). */
+function interactiveTreeEn(): InteractiveNode {
+  const endSoft: InteractiveNode = {
+    paragraphs: [
+      "You decide to take them home gently, without rushing. You remember the lullaby your mum sings on stormy nights, the one about a watching moon and a wind lying down to rest. You hum it, softly at first, then a little louder, your voice barely trembling.",
+      "Something wonderful happens: the stars, which were darting about like startled midges, begin to slow. They lean towards your mouth to listen, warm as gentle embers, their light beating in time with your song.",
+      "One by one, calmed, they rise back to the sky and settle exactly in their places, like pearls returned to a necklace. Where the black gaps had been, the night is whole again, and the great smile of the sky gets all its teeth back.",
+      "The smallest star lingers a second by your cheek, so close you feel its warmth, light as a kiss. 'You spoke to us gently when you could have been afraid,' it whispers. 'We won't forget. Come and see us, in a dream.'",
+      "Then it darts off to join the others. You close the window, your heart all calm, and slip under the covers. That night you sleep the way you sleep after doing something kind: deeply, with a smile. The End.",
+    ],
+  };
+  const endRace: InteractiveNode = {
+    paragraphs: [
+      "You decide to race! 'Last one to the sky loses!' you cry, laughing. The stars love the idea: they whirl around you, impatient, letting off tiny sparks of excitement.",
+      "You fling them upward like kites, and they shoot off laughing, trailing long silver streaks that hang in the air for a moment before fading.",
+      "The sky fills with laughter and light. It looks like fireworks that decided to come home all by themselves. The neighbourhood cats look up, the owls hoot in surprise, and even the old church clock seems to hold its tick to watch.",
+      "Never had a night been so joyful. You run from one end of the garden to the other so as not to miss a thing, head tipped back, until the very last star finds its place high above.",
+      "Then the whole sky sparkles brighter than usual, just for a second, just to thank you. You go back to bed, out of breath, your heart still drumming like a festival. The End.",
+    ],
+  };
+
+  const finalChoice = (intro: string[]): InteractiveNode => ({
+    paragraphs: intro,
+    question: "How do you say goodbye to them?",
+    choices: [
+      { label: "Very gently, with a song", next: endSoft },
+      { label: "By racing up to the sky", next: endRace },
+    ],
+  });
+
+  const wings = finalChoice([
+    "You slip on the cloth wings. They are lighter than a handkerchief and smell of lavender and attic. For a second you feel a little silly, standing there with hand-sewn wings on your shoulders.",
+    "Then, the moment they settle, they begin to beat on their own, gently at first, then in strong steady strokes, and your feet leave the floor. There you are in the sky, higher than the clouds, higher than the village steeple.",
+    "The lost stars fly behind you like ducklings following their mother. The wind is soft, the air smells of night and liquorice, and the town below looks like a model lit by candles.",
+    "You are not afraid at all: it feels as if you have always known how to fly. You climb higher still, all the way up to where each star has its own little hole of light waiting for it.",
+  ]);
+  const boat = finalChoice([
+    "You climb onto the paper boat, careful not to tear it. The moment you step in, it grows, and grows, until it is a real sailboat whose hull smells of cardboard and adventure, with a white sail folded like a page.",
+    "It slips out of the garden and sails along a river of light that was not there a minute before, a silver ribbon winding through the night between sleeping roofs and gently smoking chimneys.",
+    "The lost stars settle on board, relieved, huddling at the bow. They strike up a soft sailors' song in a language you do not know but understand all the same: it is about going home.",
+    "The river climbs in a gentle slope towards the sky, and at the end a waterfall of stars pours upward into the night. Your boat draws slowly near, and you feel the time for goodbyes has come.",
+  ]);
+  const fox = finalChoice([
+    "You ring the little brass bell. Its clear chime fades into the night, and you wait, heart pounding. Then, in three soft bounds, a fox appears from the shadows, his red coat gleaming in the moonlight and a big blue leather book under his arm.",
+    "'Lost stars? he says, adjusting small round glasses on his snout. How lucky, I have a chapter on that.' He sits, lays the book on his knees and leafs through it carefully, wetting a finger to turn the pages.",
+    "The book opens at last on a sparkling map of the sky, each star named in tiny letters. 'There,' says the fox. 'You just read each star's name aloud, and it finds its own way home. But you must say it with your heart, not only your mouth.'",
+    "So you read together, your voice and his, softly, name after name. With each name spoken, a star straightens, shivers, and gets ready to leave. Soon they are all ready, lined up before you like a class before playtime.",
+  ]);
+
+  const attic: InteractiveNode = {
+    paragraphs: [
+      "You climb to the attic on tiptoe. Each step creaks a different note, as if the staircase were trying to tell a secret too old for words. At the top, the door is ajar, and a beam of silver light slips through the gap.",
+      "Under the dusty skylight, an old wooden box vibrates very softly, like a beating heart. The closer you get, the more the vibration turns into a tiny chiming, the very one that woke you.",
+      "You lift the lid carefully. Inside, nestled in an old scarf, three tiny fallen stars blink like tired fireflies. 'Help us home,' whispers the brightest in a bell-like voice. 'We don't know how to climb back, and the sky is cold without us.'",
+      "You look around. On the dusty shelf, beside a rocking horse you have missed for years, three strange objects seem to be waiting just for you: a pair of hand-sewn cloth wings, a paper boat folded with extraordinary care, and a little dented brass bell.",
+    ],
+    question: "How will you take the stars back?",
+    choices: [
+      { label: "Put on the cloth wings", next: wings },
+      { label: "Board the paper boat", next: boat },
+      { label: "Ring the bell (it calls a fox!)", next: fox },
+    ],
+  };
+
+  const garden: InteractiveNode = {
+    paragraphs: [
+      "You step out into the garden, barefoot in the cool grass that tickles and wets your toes. The night is warm, surprisingly warm for the season, and everything smells of damp earth, jasmine, and a little of yesterday's rain.",
+      "You take a few steps and stop short, breath caught. The grass is full of little lights: stars fallen during the night, clinging to the blades like giant dewdrops. They chime softly as you approach, all together, like a tiny carillon hung in the dark.",
+      "'Did you fall?' you ask under your breath. For an answer, they shine a little brighter, like shy children who dare not admit they got lost. You understand they are waiting for someone to take them back up.",
+      "At the bottom of the garden, three paths offer themselves, each calling to you in its own way: the ladder of the old cherry tree, climbing far higher than usual tonight; the upturned old boat by the pond, quivering as if eager; and the fox's burrow, with its strange blue glow and a smell of old books.",
+    ],
+    question: "Which way do you go to bring them back?",
+    choices: [
+      { label: "Climb the cherry-tree ladder (like wings)", next: wings },
+      { label: "Turn the boat over by the pond", next: boat },
+      { label: "Knock at the fox's burrow", next: fox },
+    ],
+  };
+
+  return {
+    paragraphs: [
+      "That night, a strange sound wakes you: a light chiming, like little bells shaken far away, or like glass clinking very gently. You open one eye, then both. You wait, still under the covers, sure it will stop. But the sound goes on, patient, steady.",
+      "You push back the covers and go to the window, the cold tiles under your feet. And there, you notice something utterly impossible: stars are missing from the sky. Great black gaps have opened where they shone only last night. It looks like a smile with several teeth missing.",
+      "You rub your eyes. You count the gaps: one, two, three, and maybe a fourth further off. The sky looks hurt, unfinished, and it tightens your chest a little without your knowing why.",
+      "The chiming starts again, clearer now, and you are sure of one thing: it does not come from outside, but from within. From somewhere in the sleeping house... or perhaps from the garden, just below. You hesitate a second, heart pounding, then decide to go and look.",
+    ],
+    question: "Where do you look first?",
+    choices: [
+      { label: "In the attic, on tiptoe", next: attic },
+      { label: "In the garden, barefoot in the grass", next: garden },
+    ],
+  };
+}
+
 /**
  * Quiz + glossary matched to the interactive "étoiles perdues" tree above.
  * Interactive stories share the same branching content for now, so they share
  * this quiz instead of the unrelated FALLBACK_CONTENT trio (feedback: the
  * interactive quiz was about the wrong story).
  */
-export function interactiveQuiz(): QuizQuestion[] {
+export function interactiveQuiz(locale: string = "fr"): QuizQuestion[] {
+  if (locale === "en") {
+    return [
+      {
+        question: "What wakes the child that night?",
+        choices: ["A faint chiming, like little bells", "A big storm", "A bad dream"],
+        answer: 0,
+        explanation: "It is a chiming, like bells far away, that wakes them.",
+      },
+      {
+        question: "What does the child notice through the window?",
+        choices: ["It is snowing", "Stars are missing from the sky", "The moon has vanished"],
+        answer: 1,
+        explanation: "Stars are missing, like a smile with gaps in its teeth.",
+      },
+      {
+        question: "What must be done to help the little stars?",
+        choices: ["Hide them in a box", "Take them back up to the sky", "Keep them at home"],
+        answer: 1,
+        explanation: "They must be taken back up high, to their place in the sky.",
+      },
+      {
+        question: "What does the hero learn along the way?",
+        choices: [
+          "That it is better to sleep right away",
+          "That the night hides adventures and you can help someone smaller than you",
+          "That you must never get out of bed",
+        ],
+        answer: 1,
+        explanation: "The night holds lovely surprises, and even a child can help the stars get home.",
+      },
+    ];
+  }
   return [
     {
       question: "Qu'est-ce qui réveille l'enfant cette nuit-là ?",
@@ -1113,7 +1327,14 @@ export function interactiveQuiz(): QuizQuestion[] {
   ];
 }
 
-export function interactiveGlossary(): GlossaryEntry[] {
+export function interactiveGlossary(locale: string = "fr"): GlossaryEntry[] {
+  if (locale === "en") {
+    return [
+      { word: "chiming", definition: "The small, clear sound a little bell makes." },
+      { word: "skylight", definition: "A tiny window, often set in a roof or an attic." },
+      { word: "sailboat", definition: "A boat that moves thanks to the wind pushing its sails." },
+    ];
+  }
   return [
     { word: "tintement", definition: "Le petit bruit clair que fait une clochette ou un grelot." },
     { word: "lucarne", definition: "Une toute petite fenêtre, souvent dans un toit ou un grenier." },
@@ -1125,6 +1346,6 @@ export function interactiveGlossary(): GlossaryEntry[] {
  * Rich reading text used on the detail page. Kept separate from the card data
  * to avoid shipping long bodies in grid queries.
  */
-export function storyBody(slug: string): string[] {
-  return (STORY_CONTENT[slug] ?? FALLBACK_CONTENT).body;
+export function storyBody(slug: string, locale: string = "fr"): string[] {
+  return contentFor(slug, locale).body;
 }

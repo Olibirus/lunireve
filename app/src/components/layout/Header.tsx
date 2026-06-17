@@ -130,6 +130,36 @@ function MenuLink({
   );
 }
 
+/** Collapsible section for the mobile menu: tap the heading to reveal options. */
+function MobileSection({
+  id,
+  label,
+  open,
+  onToggle,
+  children,
+}: {
+  id: string;
+  label: string;
+  open: boolean;
+  onToggle: (id: string | null) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border-b border-[var(--color-ink-100)]">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => onToggle(open ? null : id)}
+        className="flex w-full items-center justify-between px-1 py-3 text-xs uppercase tracking-widest text-[var(--color-ink-500)]"
+      >
+        {label}
+        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+      </button>
+      {open && <div className="flex flex-wrap gap-1.5 pb-3">{children}</div>}
+    </div>
+  );
+}
+
 export function Header() {
   const t = useTranslations();
   const router = useRouter();
@@ -137,6 +167,8 @@ export function Header() {
   const [logged, setLogged] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Which mobile accordion section is expanded (collapsed by default).
+  const [mobileSection, setMobileSection] = useState<string | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -343,8 +375,8 @@ export function Header() {
           aria-label="Navigation mobile"
           className="lg:hidden border-t border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-4 pb-6 pt-3 max-h-[75vh] overflow-y-auto"
         >
-          <p className="px-1 text-xs uppercase tracking-widest text-[var(--color-ink-400)]">{t("nav.stories")}</p>
-          <div className="mt-1 flex flex-wrap gap-1.5">
+          {/* Collapsible sections: tap a heading to reveal its options (#) */}
+          <MobileSection id="stories" label={t("nav.stories")} open={mobileSection === "stories"} onToggle={setMobileSection}>
             {GENRES.map((g) => (
               <Link
                 key={g}
@@ -355,10 +387,9 @@ export function Header() {
                 {t(`genres.${g}`)}
               </Link>
             ))}
-          </div>
+          </MobileSection>
 
-          <p className="mt-4 px-1 text-xs uppercase tracking-widest text-[var(--color-ink-400)]">{t("nav.byAge")}</p>
-          <div className="mt-1 flex flex-wrap gap-1.5">
+          <MobileSection id="age" label={t("nav.byAge")} open={mobileSection === "age"} onToggle={setMobileSection}>
             {AGE_RANGES.map((r) => (
               <Link
                 key={r}
@@ -369,10 +400,9 @@ export function Header() {
                 {ageLabel(r)}
               </Link>
             ))}
-          </div>
+          </MobileSection>
 
-          <p className="mt-4 px-1 text-xs uppercase tracking-widest text-[var(--color-ink-400)]">{t("nav.byDuration")}</p>
-          <div className="mt-1 flex flex-wrap gap-1.5">
+          <MobileSection id="duration" label={t("nav.byDuration")} open={mobileSection === "duration"} onToggle={setMobileSection}>
             {DURATION_BUCKETS.map((b) => (
               <Link
                 key={b}
@@ -383,7 +413,7 @@ export function Header() {
                 {t(`durations.${b}`)}
               </Link>
             ))}
-          </div>
+          </MobileSection>
 
           <div className="mt-5 grid gap-2">
             <Link

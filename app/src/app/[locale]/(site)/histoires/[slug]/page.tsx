@@ -41,10 +41,15 @@ import { cn } from "@/lib/utils/cn";
  * dyslexia (#20), real ratings with login gate (#3/#22), open glossary (#30).
  */
 
-/** Wrap the first occurrence of each glossary word in a tooltip span. */
-function withGlossary(text: string, glossary: GlossaryEntry[]): ReactNode[] {
+/** Wrap glossary words (first occurrence each, tracked via `used`) in a tooltip. */
+function applyGlossary(
+  text: string,
+  glossary: GlossaryEntry[],
+  used: Set<string>
+): ReactNode[] {
   let parts: ReactNode[] = [text];
   for (const entry of glossary) {
+    if (used.has(entry.word)) continue;
     const next: ReactNode[] = [];
     let wrapped = false;
     for (const part of parts) {
@@ -58,12 +63,12 @@ function withGlossary(text: string, glossary: GlossaryEntry[]): ReactNode[] {
         continue;
       }
       wrapped = true;
+      used.add(entry.word);
       next.push(part.slice(0, idx));
       next.push(
         <span key={`${entry.word}-${idx}`} className="glossary-term" tabIndex={0}>
           {part.slice(idx, idx + entry.word.length)}
-          {/* Definition lives in the DOM (not a CSS attr) so it always renders,
-              for every story, present and future. */}
+          {/* Definition lives in the DOM (not a CSS attr) so it always renders. */}
           <span className="glossary-tip" role="tooltip">
             {entry.definition}
           </span>
@@ -74,6 +79,30 @@ function withGlossary(text: string, glossary: GlossaryEntry[]): ReactNode[] {
     parts = next;
   }
   return parts;
+}
+
+/**
+ * Render a paragraph: only the words SPOKEN by a character (inside « … »)
+ * are italic, not the whole line, and glossary terms get their tooltip.
+ */
+function renderParagraph(text: string, glossary: GlossaryEntry[]): ReactNode[] {
+  const used = new Set<string>();
+  const out: ReactNode[] = [];
+  const re = /«[^»]*»/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let key = 0;
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push(...applyGlossary(text.slice(last, m.index), glossary, used));
+    out.push(
+      <em key={`q${key++}`} className="italic text-[var(--color-indigo-soft-700)]">
+        {applyGlossary(m[0], glossary, used)}
+      </em>
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(...applyGlossary(text.slice(last), glossary, used));
+  return out;
 }
 
 export default async function StoryDetailPage({
@@ -89,12 +118,12 @@ export default async function StoryDetailPage({
   const story = findStory(slug);
   if (!story) notFound();
 
-  const body = storyBody(slug);
+  const body = storyBody(slug, locale);
   // Interactive stories carry their own branching tree, quiz and glossary so
   // the quiz matches the story the reader actually plays (not the fallback).
-  const interactive = story.interactive ? interactiveTree(slug) : undefined;
-  const quiz = story.interactive ? interactiveQuiz() : storyQuiz(slug);
-  const glossary = story.interactive ? interactiveGlossary() : storyGlossary(slug);
+  const interactive = story.interactive ? interactiveTree(slug, locale) : undefined;
+  const quiz = story.interactive ? interactiveQuiz(locale) : storyQuiz(slug, locale);
+  const glossary = story.interactive ? interactiveGlossary(locale) : storyGlossary(slug, locale);
   const age = ageLabel(story.ageRange);
   const bucket = durationBucket(story.readingMinutes);
   const heroImg = storyImageSrc(slug);
@@ -244,7 +273,6 @@ export default async function StoryDetailPage({
           ) : (
             <>
               {body.map((p, i) => {
-                const isDialogue = p.trimStart().startsWith("«");
                 const chapterStart = i > 0 && i % 4 === 0;
                 return (
                   <p
@@ -252,13 +280,12 @@ export default async function StoryDetailPage({
                     id={i % 4 === 0 ? `chapitre-${i / 4 + 1}` : undefined}
                     className={cn(
                       i === 0 && "drop-cap",
-                      isDialogue && "dialogue",
                       // Clear visual break between chapters (#3)
                       chapterStart &&
                         "!mt-14 border-t border-[var(--color-ink-100)] pt-10"
                     )}
                   >
-                    {withGlossary(p, glossary)}
+                    {renderParagraph(p, glossary)}
                   </p>
                 );
               })}
@@ -278,9 +305,9 @@ export default async function StoryDetailPage({
         </div>
       </section>
 
-      {/* Rating + actions side by side at the end (#12), quiz, open glossary (#30) */}
-      <section className="mx-auto max-w-3xl px-5 md:px-8 pb-12 space-y-6">
-        <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-6">
+      {/* Rating CTA — wide (body width) to push engagement (#) */}
+      <section className="mx-auto max-w-4xl px-5 md:px-8 pt-12">
+        <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-7 md:p-9">
           <RatingStars slug={story.slug} average={story.rating} count={story.ratingCount} />
           <div className="mt-5 flex flex-wrap justify-center gap-1 border-t border-[var(--color-ink-100)] pt-4">
             <FavoriteButton slug={story.slug} />
@@ -288,7 +315,10 @@ export default async function StoryDetailPage({
             <ReportDialog slug={story.slug} />
           </div>
         </div>
+      </section>
 
+      {/* Quiz + glossary + print — standard reading width */}
+      <section className="mx-auto max-w-3xl px-5 md:px-8 pt-6 space-y-6">
         <StoryQuiz questions={quiz} />
 
         {/* Glossary — open by default (#30) */}
@@ -319,23 +349,27 @@ export default async function StoryDetailPage({
             {t("printCta")}
           </Button>
         </div>
+      </section>
 
-        {/* Personalize CTA */}
-        <div className="band-ink relative overflow-hidden rounded-3xl p-7 md:p-9 text-[var(--color-cream-50)]">
-          <Sparkles aria-hidden className="absolute right-6 top-6 h-8 w-8 text-[var(--color-mint-400)] opacity-60" />
-          <h3 className="font-serif text-2xl tracking-tight max-w-md">
+      {/* Personalize CTA — wide (body width), bigger and centered to convert (#) */}
+      <section className="mx-auto max-w-4xl px-5 md:px-8 pt-6">
+        <div className="band-ink relative overflow-hidden rounded-3xl p-8 md:p-12 text-center text-[var(--color-cream-50)]">
+          <Sparkles aria-hidden className="absolute right-6 top-6 h-9 w-9 text-[var(--color-mint-400)] opacity-60" />
+          <h3 className="mx-auto font-serif text-2xl md:text-3xl tracking-tight max-w-xl leading-[1.12]">
             {t("personalizeTitle")}
           </h3>
-          <p className="mt-2 text-sm text-[var(--color-indigo-soft-200)] max-w-md leading-relaxed">
+          <p className="mx-auto mt-3 text-sm md:text-base text-[var(--color-indigo-soft-200)] max-w-xl leading-relaxed">
             {t("personalizeBody")}
           </p>
-          <Button asChild variant="mint" size="md" className="mt-5">
+          <Button asChild variant="mint" size="lg" className="mt-6">
             <Link href="/creer">{t("personalizeCta")}</Link>
           </Button>
         </div>
+      </section>
 
-        {/* Free tags — all clickable (#10), route to library search */}
-        <div className="flex flex-wrap items-center gap-2 pt-2">
+      {/* Free tags — all clickable (#10), route to library search */}
+      <section className="mx-auto max-w-3xl px-5 md:px-8 pt-6 pb-12">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs uppercase tracking-widest text-[var(--color-ink-500)]">
             {t("themesLabel")}
           </span>

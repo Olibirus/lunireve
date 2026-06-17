@@ -395,8 +395,10 @@
     max-width: 280px;
     padding: 10px 14px;
     border-radius: 14px;
-    background: var(--color-ink-800);
-    color: var(--color-cream-50);
+    /* Fixed colors (not theme tokens): in dark mode the cream/ink tokens flip,
+       which made the text the same color as the card (empty black card). */
+    background: #1f2d52;
+    color: #faf5eb;
     font-family: var(--font-sans);
     font-size: 0.8rem;
     line-height: 1.5;

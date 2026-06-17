@@ -1,6 +1,6 @@
 "use client";
 
-import { profileScopedKey } from "./userScope";
+import { profileScopedKey, profileScopedKeyFor } from "./userScope";
 
 /**
  * Reading history — per account AND per active reader (parent / each child
@@ -72,4 +72,20 @@ export function recordQuizResult(slug: string, score: number, total: number) {
 /** All read stories for the current reader, newest first. */
 export function readHistory(): ReadingRecord[] {
   return Object.values(readMap()).sort((a, b) => b.lastReadAt.localeCompare(a.lastReadAt));
+}
+
+/**
+ * History for a specific reader (child profile id, or "parent"), newest first.
+ * Lets the parent dashboard roll up every reader's reading + quiz results.
+ */
+export function readHistoryFor(profileId: string): ReadingRecord[] {
+  let map: Record<string, ReadingRecord> = {};
+  try {
+    map = JSON.parse(
+      localStorage.getItem(profileScopedKeyFor(KEY, profileId)) ?? "{}"
+    ) as Record<string, ReadingRecord>;
+  } catch {
+    map = {};
+  }
+  return Object.values(map).sort((a, b) => b.lastReadAt.localeCompare(a.lastReadAt));
 }

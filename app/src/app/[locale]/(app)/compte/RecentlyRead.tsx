@@ -4,18 +4,23 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { mockStories, type MockStory } from "@/data/mock-stories";
-import { readHistory, type ReadingRecord } from "@/lib/readingHistory";
+import { readProfiles } from "@/lib/profiles";
+import { readHistoryFor, type ReadingRecord } from "@/lib/readingHistory";
 import { storyImageSrc } from "@/lib/storyImage";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { FoxMark, type FoxColor } from "@/components/brand/FoxCloud";
+import { ChevronLeft, ChevronRight, Star, User } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
-type Item = { story: MockStory; record: ReadingRecord };
+type Reader = { id: string; name: string; avatar: FoxColor | null };
+type Item = { key: string; story: MockStory; record: ReadingRecord; reader: Reader };
 
 /**
- * Parent dashboard "Lu récemment" (#30): the stories this reader has opened,
- * newest first (leftmost), each with the last-read date and quiz result. Four
- * cards fit on screen; with more, left/right arrows page through the rest.
- * Scoped per account + reader, so it never shows another account's history.
+ * Parent dashboard "Lu récemment" (#30): rolled up across every reader on the
+ * account (the parent plus each child profile), newest first (leftmost). Each
+ * card shows who read it, the last-read date and the quiz result, so the
+ * parent can monitor what each child read and how they scored. Four cards fit;
+ * with more, arrows page through. Scoped per account, so it never shows
+ * another account's history.
  */
 export function RecentlyRead() {
   const t = useTranslations("account");
@@ -25,14 +30,21 @@ export function RecentlyRead() {
 
   useEffect(() => {
     const bySlug = new Map(mockStories.map((s) => [s.slug, s]));
-    const list = readHistory()
-      .map((record) => {
+    const readers: Reader[] = [
+      { id: "parent", name: t("readerParent"), avatar: null },
+      ...readProfiles().map((p) => ({ id: p.id, name: p.name, avatar: p.avatar })),
+    ];
+
+    const list: Item[] = [];
+    for (const reader of readers) {
+      for (const record of readHistoryFor(reader.id)) {
         const story = bySlug.get(record.slug);
-        return story ? { story, record } : null;
-      })
-      .filter((x): x is Item => x !== null);
+        if (story) list.push({ key: `${reader.id}:${record.slug}`, story, record, reader });
+      }
+    }
+    list.sort((a, b) => b.record.lastReadAt.localeCompare(a.record.lastReadAt));
     setItems(list);
-  }, []);
+  }, [t]);
 
   if (items.length === 0) return null;
 
@@ -73,7 +85,7 @@ export function RecentlyRead() {
         ref={scroller}
         className="mt-4 flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {items.map(({ story, record }) => {
+        {items.map(({ key, story, record, reader }) => {
           const img = storyImageSrc(story.slug);
           const date = new Date(record.lastReadAt).toLocaleDateString(locale, {
             day: "numeric",
@@ -81,7 +93,7 @@ export function RecentlyRead() {
           });
           return (
             <div
-              key={story.slug}
+              key={key}
               className="snap-start shrink-0 w-[62%] sm:w-[calc((100%-1rem)/2)] md:w-[calc((100%-3rem)/4)]"
             >
               <Link
@@ -112,10 +124,21 @@ export function RecentlyRead() {
                   </div>
                 </div>
               </Link>
-              <p className="mt-1.5 text-xs text-[var(--color-ink-500)]">
-                {t("readOn", { date })}
-                {record.quiz ? ` · ${t("quizResult", { score: record.quiz.score, total: record.quiz.total })}` : ""}
-              </p>
+              <div className="mt-1.5 flex items-center gap-1.5 text-xs text-[var(--color-ink-500)]">
+                {reader.avatar ? (
+                  <FoxMark color={reader.avatar} className="h-4 w-4 shrink-0" />
+                ) : (
+                  <User className="h-3.5 w-3.5 shrink-0" />
+                )}
+                <span className="truncate">
+                  {reader.name} · {t("readOn", { date })}
+                </span>
+              </div>
+              {record.quiz && (
+                <p className="text-xs text-[var(--color-ink-400)]">
+                  {t("quizResult", { score: record.quiz.score, total: record.quiz.total })}
+                </p>
+              )}
             </div>
           );
         })}

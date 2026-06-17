@@ -699,6 +699,7 @@
     "customCount": "{count, plural, =0 {No stories created yet} =1 {1 story created} other {# stories created}}",
     "customEmpty": "No personalized story yet. Let's create one!",
     "recentlyRead": "Recently read",
+    "readerParent": "Parent",
     "readOn": "Read on {date}",
     "quizResult": "Quiz: {score}/{total}",
     "recentPrev": "More recent stories",

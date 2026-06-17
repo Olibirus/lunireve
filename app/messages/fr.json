@@ -699,6 +699,7 @@
     "customCount": "{count, plural, =0 {Aucune histoire créée pour l'instant} =1 {1 histoire créée} other {# histoires créées}}",
     "customEmpty": "Aucune histoire personnalisée pour l'instant. Créons-en une !",
     "recentlyRead": "Lu récemment",
+    "readerParent": "Parent",
     "readOn": "Lu le {date}",
     "quizResult": "Quiz : {score}/{total}",
     "recentPrev": "Histoires plus récentes",

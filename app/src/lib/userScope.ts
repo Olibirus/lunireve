@@ -41,10 +41,19 @@ export function currentProfile(): string {
 }
 
 /**
+ * Namespace a key to the account AND a specific reader (a child profile id, or
+ * "parent"). Used directly when the parent dashboard rolls up every reader's
+ * history, where the active profile is not the reader being read.
+ */
+export function profileScopedKeyFor(base: string, profileId: string): string {
+  return `${base}::u:${currentUser()}::p:${profileId}`;
+}
+
+/**
  * Namespace a key to the account AND the active child profile, so per-reader
  * data (reading progress, favorites) never leaks between a parent and a
  * freshly created child profile.
  */
 export function profileScopedKey(base: string): string {
-  return `${base}::u:${currentUser()}::p:${currentProfile()}`;
+  return profileScopedKeyFor(base, currentProfile());
 }

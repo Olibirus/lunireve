@@ -4,15 +4,17 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type { QuizQuestion } from "@/data/mock-stories";
+import { recordQuizResult } from "@/lib/readingHistory";
 import { Check, RotateCcw, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
  * Step-by-step quiz (brief §5/§33): one question at a time, "next" to
  * advance, final recap shows every answer with right/wrong + explanation.
- * Restartable at will. Results recording (rallye / analytics) is Phase 2.
+ * Restartable at will. When `slug` is given, the final score is saved to the
+ * reading history so the parent dashboard can show each child's results.
  */
-export function StoryQuiz({ questions }: { questions: QuizQuestion[] }) {
+export function StoryQuiz({ questions, slug }: { questions: QuizQuestion[]; slug?: string }) {
   const t = useTranslations("story");
   const [step, setStep] = useState(0);
   const [picked, setPicked] = useState<(number | null)[]>(
@@ -30,7 +32,10 @@ export function StoryQuiz({ questions }: { questions: QuizQuestion[] }) {
 
   function next() {
     if (step < questions.length - 1) setStep(step + 1);
-    else setFinished(true);
+    else {
+      setFinished(true);
+      if (slug) recordQuizResult(slug, score, questions.length);
+    }
   }
 
   function restart() {

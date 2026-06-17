@@ -6,6 +6,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import {
   readProfiles,
   setActiveProfile,
+  clearActiveProfile,
   profileLimit,
   type ChildProfile,
 } from "@/lib/profiles";
@@ -105,6 +106,7 @@ export default function ProfileSelectorPage() {
 
       <Link
         href="/compte"
+        onClick={() => clearActiveProfile()}
         className="mt-12 inline-flex items-center gap-2 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-5 py-2.5 text-sm text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
       >
         <User className="h-4 w-4" />

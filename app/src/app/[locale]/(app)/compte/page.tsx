@@ -7,6 +7,7 @@ import {
   readProfiles,
   deleteProfile,
   setActiveProfile,
+  clearActiveProfile,
   profileLimit,
   type ChildProfile,
 } from "@/lib/profiles";
@@ -14,6 +15,7 @@ import { readCustomStories } from "@/lib/customStories";
 import { readFavorites } from "@/lib/favorites";
 import { mockStories, type MockStory } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
+import { RecentlyRead } from "./RecentlyRead";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Flame, Heart, Lock, Pencil, Plus, Trash2, Wand2 } from "lucide-react";
@@ -22,23 +24,24 @@ import { BookOpen, Flame, Heart, Lock, Pencil, Plus, Trash2, Wand2 } from "lucid
 export default function AccountDashboardPage() {
   const t = useTranslations("account");
   const router = useRouter();
+  // Entering the parent dashboard = reading as the parent. Drop any active
+  // child profile during the first render (before child components read their
+  // scoped stores), so favorites / history are the parent's own, never a
+  // child's. Guarded for SSR (no localStorage on the server).
+  useState(() => {
+    if (typeof window !== "undefined") clearActiveProfile();
+    return null;
+  });
+
   const [profiles, setProfiles] = useState<ChildProfile[] | null>(null);
   const [storyCount, setStoryCount] = useState(0);
   const [favorites, setFavorites] = useState<MockStory[]>([]);
-  const [recent, setRecent] = useState<MockStory[]>([]);
 
   useEffect(() => {
     setProfiles(readProfiles());
     setStoryCount(readCustomStories().length);
     const favs = readFavorites();
     setFavorites(mockStories.filter((s) => favs.includes(s.slug)).slice(0, 4));
-    // Recently read = stories with any saved reading progress, newest first
-    const read: MockStory[] = [];
-    for (const s of mockStories) {
-      const v = Number(localStorage.getItem(`lunireve:progress:${s.slug}`) ?? "0");
-      if (v > 0) read.push(s);
-    }
-    setRecent(read.slice(0, 4));
   }, []);
 
   function openChild(p: ChildProfile) {
@@ -186,17 +189,8 @@ export default function AccountDashboardPage() {
         )}
       </section>
 
-      {/* Recently read (#30) */}
-      {recent.length > 0 && (
-        <section>
-          <h2 className="font-serif text-2xl tracking-tight sparkle">{t("recentlyRead")}</h2>
-          <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {recent.map((s) => (
-              <StoryCard key={s.slug} story={s} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Recently read (#30) — date + quiz result, carousel past 4 */}
+      <RecentlyRead />
     </div>
   );
 }

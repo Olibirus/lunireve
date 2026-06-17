@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { profileScopedKey } from "@/lib/userScope";
+import { getRecord, recordProgress } from "@/lib/readingHistory";
 import { BookOpen, X } from "lucide-react";
 
 /**
@@ -18,17 +18,16 @@ import { BookOpen, X } from "lucide-react";
  */
 export function ReadingProgress({ slug }: { slug: string }) {
   const t = useTranslations("story");
-  // Scoped per account + active child profile, so a fresh child profile starts
-  // with no reading progress (not the parent's).
-  const key = profileScopedKey(`lunireve:progress:${slug}`);
   const [resumeAt, setResumeAt] = useState<number | null>(null);
   const [live, setLive] = useState(0);
 
-  // Restore: offer resume if meaningful progress was saved.
+  // Restore: offer resume if meaningful progress was saved. Scoped per account
+  // + active reader via the reading-history store, so a fresh child profile
+  // starts with no progress (not the parent's).
   useEffect(() => {
-    const stored = Number(localStorage.getItem(key) ?? "0");
+    const stored = getRecord(slug)?.progress ?? 0;
     if (stored > 10 && stored < 90) setResumeAt(stored);
-  }, [key]);
+  }, [slug]);
 
   // Track: save scroll % through the story body, throttled via rAF.
   useEffect(() => {
@@ -48,18 +47,12 @@ export function ReadingProgress({ slug }: { slug: string }) {
         if (range <= 0) return;
         const progress = Math.min(100, Math.max(0, ((vh - rect.top) / range) * 100));
         setLive(progress);
-        if (progress > 0) {
-          try {
-            localStorage.setItem(key, String(Math.round(progress)));
-          } catch {
-            /* non-fatal */
-          }
-        }
+        recordProgress(slug, progress);
       });
     }
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [key]);
+  }, [slug]);
 
   function resume() {
     const body = document.getElementById("story-body");

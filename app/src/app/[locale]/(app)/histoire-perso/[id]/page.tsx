@@ -199,7 +199,7 @@ export default function CustomStoryPage() {
 
       {/* Quiz + share */}
       <section className="mx-auto max-w-3xl px-5 md:px-8 pb-16 space-y-6" data-no-print>
-        <StoryQuiz questions={buildQuiz(story)} />
+        <StoryQuiz questions={buildQuiz(story)} slug={story.id} />
 
         <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-6">
           <h2 className="font-serif text-lg tracking-tight">{t("create.shareTitle")}</h2>

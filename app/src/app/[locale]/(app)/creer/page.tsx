@@ -16,6 +16,7 @@ import {
 } from "@/lib/customStories";
 import { generateStoryAction } from "@/app/actions/generateStory";
 import { readCharacters, type SavedCharacter } from "@/lib/characters";
+import { InlineCharacterCreator } from "./InlineCharacterCreator";
 import { pushNotification } from "@/lib/notifications";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
@@ -83,6 +84,7 @@ export default function CreateStoryPage() {
   });
   const set = <K extends keyof CustomStoryParams>(k: K, v: CustomStoryParams[K]) =>
     setParams((p) => ({ ...p, [k]: v }));
+  const refreshCharacters = () => setCharacters(readCharacters());
 
   useEffect(() => {
     const all = readProfiles();
@@ -374,6 +376,41 @@ export default function CreateStoryPage() {
                 onChange={(e) => set("heroName", e.target.value)}
                 className="mt-1.5"
               />
+              {characters.filter((c) => c.role === "main").length > 0 && (
+                <>
+                  <p className="mt-2 text-xs text-[var(--color-ink-500)]">{t("orPick")}</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {characters
+                      .filter((c) => c.role === "main")
+                      .map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            set("heroName", c.name);
+                            if (c.description) set("trait", c.description);
+                          }}
+                          className={cn(
+                            "rounded-full border px-3 py-1 text-xs",
+                            params.heroName === c.name
+                              ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
+                              : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
+                          )}
+                        >
+                          {c.name}
+                        </button>
+                      ))}
+                  </div>
+                </>
+              )}
+              <InlineCharacterCreator
+                role="main"
+                onCreated={(c) => {
+                  refreshCharacters();
+                  set("heroName", c.name);
+                  if (c.description) set("trait", c.description);
+                }}
+              />
             </div>
             <div>
               <Label>{t("heroAge")}</Label>
@@ -500,30 +537,37 @@ export default function CreateStoryPage() {
             <p className="text-xs text-[var(--color-ink-400)]">{t("optionalNote")}</p>
             <div>
               <Label htmlFor="friend">{t("friend")}</Label>
-              {characters.length > 0 && (
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {characters.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => set("friend", `${c.name}, ${c.description}`)}
-                      className={cn(
-                        "rounded-full border px-3 py-1 text-xs",
-                        params.friend.startsWith(c.name)
-                          ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
-                          : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
-                      )}
+              {characters.filter((c) => c.role === "secondary").length > 0 && (
+                <>
+                  <p className="mt-1.5 text-xs text-[var(--color-ink-500)]">{t("orPick")}</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {characters
+                      .filter((c) => c.role === "secondary")
+                      .map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() =>
+                            set("friend", c.description ? `${c.name}, ${c.description}` : c.name)
+                          }
+                          className={cn(
+                            "rounded-full border px-3 py-1 text-xs",
+                            params.friend.startsWith(c.name)
+                              ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
+                              : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
+                          )}
+                        >
+                          {c.name}
+                        </button>
+                      ))}
+                    <Link
+                      href="/compte/personnages"
+                      className="rounded-full border border-dashed border-[var(--color-ink-200)] px-3 py-1 text-xs text-[var(--color-ink-400)] hover:text-[var(--color-ink-700)]"
                     >
-                      {c.name}
-                    </button>
-                  ))}
-                  <Link
-                    href="/compte/personnages"
-                    className="rounded-full border border-dashed border-[var(--color-ink-200)] px-3 py-1 text-xs text-[var(--color-ink-400)] hover:text-[var(--color-ink-700)]"
-                  >
-                    {t("manageCharacters")}
-                  </Link>
-                </div>
+                      {t("manageCharacters")}
+                    </Link>
+                  </div>
+                </>
               )}
               <Input
                 id="friend"
@@ -532,6 +576,13 @@ export default function CreateStoryPage() {
                 placeholder={t("friendPlaceholder")}
                 onChange={(e) => set("friend", e.target.value)}
                 className="mt-1.5"
+              />
+              <InlineCharacterCreator
+                role="secondary"
+                onCreated={(c) => {
+                  refreshCharacters();
+                  set("friend", c.description ? `${c.name}, ${c.description}` : c.name);
+                }}
               />
             </div>
             <div>

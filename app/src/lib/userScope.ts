@@ -31,7 +31,10 @@ export function scopedKey(base: string): string {
 export function currentProfile(): string {
   if (typeof window === "undefined") return "parent";
   try {
-    return localStorage.getItem("lunireve:activeProfile") || "parent";
+    // Must match the key profiles.ts writes via scopedKey(ACTIVE_KEY), i.e.
+    // the account-scoped active-profile key, otherwise per-child separation
+    // never triggers (and parent/child readers share one bucket).
+    return localStorage.getItem(scopedKey("lunireve:activeProfile")) || "parent";
   } catch {
     return "parent";
   }

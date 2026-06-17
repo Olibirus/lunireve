@@ -11,6 +11,7 @@ import {
 import { mockStories, ageToRange, type MockStory } from "@/data/mock-stories";
 import { readCustomStories, type CustomStory } from "@/lib/customStories";
 import { readFavorites } from "@/lib/favorites";
+import { readHistory } from "@/lib/readingHistory";
 import { StoryCard } from "@/components/story/StoryCard";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -36,12 +37,14 @@ export default function ChildBubblePage() {
 
     setCustom(readCustomStories().filter((c) => c.profileId === p.id));
 
-    // Resume: most advanced unfinished story
+    // Resume: most advanced unfinished story, from this reader's history only
     let best: { story: MockStory; progress: number } | null = null;
-    for (const s of mockStories) {
-      const v = Number(localStorage.getItem(`lunireve:progress:${s.slug}`) ?? "0");
-      if (v > 10 && v < 90 && (!best || v > best.progress)) {
-        best = { story: s, progress: v };
+    const bySlug = new Map(mockStories.map((s) => [s.slug, s]));
+    for (const rec of readHistory()) {
+      const s = bySlug.get(rec.slug);
+      if (!s) continue;
+      if (rec.progress > 10 && rec.progress < 90 && (!best || rec.progress > best.progress)) {
+        best = { story: s, progress: rec.progress };
       }
     }
     setResume(best);

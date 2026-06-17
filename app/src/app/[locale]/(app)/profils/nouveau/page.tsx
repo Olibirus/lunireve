@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter, Link } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { createProfile } from "@/lib/profiles";
 import { FOX_COLORS, FoxMark, type FoxColor } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const THEME_OPTIONS = [
@@ -63,16 +62,8 @@ export default function NewProfilePage() {
 
   return (
     <section className="mx-auto max-w-xl px-5 py-12 md:py-16">
-      <Link
-        href="/profils"
-        className="inline-flex items-center gap-2 text-sm text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        {t("back")}
-      </Link>
-
       <h1
-        className="mt-6 font-serif text-3xl md:text-4xl tracking-tight"
+        className="font-serif text-3xl md:text-4xl tracking-tight"
         style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}
       >
         {t("title")}
@@ -243,8 +234,7 @@ export default function NewProfilePage() {
           <Button
             variant="ghost"
             size="md"
-            disabled={step === 0}
-            onClick={() => setStep((s) => s - 1)}
+            onClick={() => (step === 0 ? router.push("/profils") : setStep((s) => s - 1))}
           >
             {t("back")}
           </Button>

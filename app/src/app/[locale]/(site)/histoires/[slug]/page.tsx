@@ -319,7 +319,7 @@ export default async function StoryDetailPage({
 
       {/* Quiz + glossary + print — standard reading width */}
       <section className="mx-auto max-w-3xl px-5 md:px-8 pt-6 space-y-6">
-        <StoryQuiz questions={quiz} />
+        <StoryQuiz questions={quiz} slug={story.slug} />
 
         {/* Glossary — open by default (#30) */}
         <details open className="group rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-6 open:pb-4">

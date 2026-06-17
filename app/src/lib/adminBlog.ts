@@ -70,21 +70,48 @@ export type AdminArticle = BlogArticle & {
   coverImageUrl?: string;
 };
 
+/** Slugs the admin deleted, so seeded public articles don't reappear on merge. */
+const KEY_DELETED = "lunireve:adminBlog:deleted";
+
 function seed(): AdminArticle[] {
   return blogArticles.map((a) => ({ ...a, status: "published" as const }));
 }
 
+function readDeleted(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(KEY_DELETED) ?? "[]") as string[];
+  } catch {
+    return [];
+  }
+}
+
+/** Drafts first, then newest published. */
+function sortArticles(list: AdminArticle[]): AdminArticle[] {
+  return [...list].sort((a, b) =>
+    (b.publishedAt ?? "9999-12-31").localeCompare(a.publishedAt ?? "9999-12-31")
+  );
+}
+
+/**
+ * The CMS list = stored articles (admin edits + creations) MERGED with every
+ * public article from `mock-blog`, minus anything the admin deleted. This keeps
+ * the admin blog in sync with the live blog: a newly published public article
+ * always shows up here even if the store was seeded earlier (the bug where the
+ * latest article was missing).
+ */
 export function readArticles(): AdminArticle[] {
   try {
+    const deleted = readDeleted();
     const raw = localStorage.getItem(KEY);
-    if (!raw) {
-      const seeded = seed();
-      localStorage.setItem(KEY, JSON.stringify(seeded));
-      return seeded;
-    }
-    return JSON.parse(raw) as AdminArticle[];
+    const stored: AdminArticle[] = raw ? (JSON.parse(raw) as AdminArticle[]) : [];
+    const storedSlugs = new Set(stored.map((a) => a.slug));
+    const extras = blogArticles
+      .filter((a) => !storedSlugs.has(a.slug) && !deleted.includes(a.slug))
+      .map((a) => ({ ...a, status: "published" as const }));
+    const merged = [...extras, ...stored].filter((a) => !deleted.includes(a.slug));
+    return sortArticles(merged);
   } catch {
-    return seed();
+    return sortArticles(seed());
   }
 }
 
@@ -143,5 +170,14 @@ export function saveArticle(article: AdminArticle, originalSlug?: string) {
 }
 
 export function deleteArticle(slug: string) {
+  // Tombstone the slug so a seeded public article doesn't reappear on merge.
+  try {
+    const deleted = readDeleted();
+    if (!deleted.includes(slug)) {
+      localStorage.setItem(KEY_DELETED, JSON.stringify([...deleted, slug]));
+    }
+  } catch {
+    /* non-fatal */
+  }
   write(readArticles().filter((a) => a.slug !== slug));
 }

@@ -2,6 +2,7 @@
 
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { logout } from "@/app/actions/auth";
+import { moderationPendingCount } from "@/data/mock-admin";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import {
   BarChart3,
@@ -23,7 +24,7 @@ import { cn } from "@/lib/utils/cn";
 const NAV = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { href: "/admin/histoires", label: "Histoires", icon: BookOpen },
-  { href: "/admin/moderation", label: "Modération", icon: ShieldAlert },
+  { href: "/admin/moderation", label: "Modération", icon: ShieldAlert, badge: moderationPendingCount },
   { href: "/admin/utilisateurs", label: "Utilisateurs", icon: Users },
   { href: "/admin/blog", label: "Blog", icon: Newspaper },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
@@ -55,6 +56,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               "exact" in rest && rest.exact
                 ? pathname === href
                 : pathname.startsWith(href);
+            const badge = "badge" in rest ? rest.badge : 0;
             return (
               <Link
                 key={href}
@@ -68,6 +70,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               >
                 <Icon className="h-4 w-4" />
                 {label}
+                {!!badge && (
+                  <span className="ml-auto inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-bold text-white">
+                    {badge}
+                  </span>
+                )}
               </Link>
             );
           })}

@@ -9,6 +9,7 @@ import {
 } from "@/data/mock-admin";
 import { DataTable, type Column } from "@/components/admin/DataTable";
 import { StatusPill } from "@/components/admin/AdminShell";
+import { SlidersHorizontal } from "lucide-react";
 
 /** Minutes → "3 h 20" / "45 min". */
 function formatMinutes(min: number): string {
@@ -26,7 +27,13 @@ const TIER_TONE = { free: "gray", plus: "green", max: "amber" } as const;
  * lifetime spend = subscription + print) with sortable headers and Excel-style
  * filters (DataTable). Demo rows until Supabase Auth + Stripe land.
  */
-export function UsersTable({ rows }: { rows: AdminUser[] }) {
+export function UsersTable({
+  rows,
+  onManage,
+}: {
+  rows: AdminUser[];
+  onManage?: (u: AdminUser) => void;
+}) {
   const columns = useMemo<Column<AdminUser>[]>(
     () => [
       {
@@ -164,8 +171,31 @@ export function UsersTable({ rows }: { rows: AdminUser[] }) {
         ),
         exp: (u) => (u.status === "active" ? "Actif" : "Désactivé"),
       },
+      ...(onManage
+        ? [
+            {
+              key: "actions",
+              label: "Gérer",
+              type: "num" as const,
+              align: "right" as const,
+              sortVal: () => "",
+              cell: (u: AdminUser) => (
+                <button
+                  type="button"
+                  onClick={() => onManage(u)}
+                  aria-label={`Gérer ${u.name}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-ink-100)] px-2.5 py-1.5 text-xs text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
+                >
+                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                  Gérer
+                </button>
+              ),
+              exp: () => "",
+            },
+          ]
+        : []),
     ],
-    []
+    [onManage]
   );
 
   return (

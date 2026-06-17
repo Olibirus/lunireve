@@ -12,6 +12,7 @@ import {
   revenueByCountry,
   revenueSeries,
   revenueForecast,
+  currentMonthRevenue,
   formatEur,
 } from "@/data/mock-admin";
 
@@ -20,6 +21,8 @@ export default function AdminDashboard() {
   const topStories = [...storyAnalytics].sort((a, b) => b.opens - a.opens).slice(0, 5);
   const maxTierMrr = Math.max(...revenueByTier.map((t) => t.mrr), 1);
   const maxCountryRev = Math.max(...revenueByCountry.map((c) => c.revenue), 1);
+  const month = currentMonthRevenue();
+  const monthProgressPct = Math.round((month.mtd / Math.max(1, month.forecast)) * 100);
 
   return (
     <>
@@ -59,6 +62,27 @@ export default function AdminDashboard() {
         <Kpi label="ARPU" value={formatEur(revenueKpis.arpu, 2)} hint="par abonné payant / mois" />
         <Kpi label="Abonnés payants" value={revenueKpis.activeSubscribers} />
       </div>
+
+      {/* Ongoing month: month-to-date + end-of-month forecast */}
+      <section className="mt-6 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 className="font-serif text-lg capitalize tracking-tight">Mois en cours, {month.monthLabel}</h3>
+          <span className="text-xs text-[var(--color-ink-400)]">
+            jour {month.dayOfMonth} / {month.daysInMonth}
+          </span>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
+          <Kpi label="Depuis le 1er (réalisé)" value={formatEur(month.mtd)} hint={`${monthProgressPct}% de la prévision`} />
+          <Kpi label="Prévision fin de mois" value={formatEur(month.forecast)} hint="du 1er au dernier jour" />
+          <Kpi label="Reste à venir (est.)" value={formatEur(Math.max(0, month.forecast - month.mtd))} />
+        </div>
+        <div className="mt-4 h-2 w-full rounded-full bg-[var(--color-cream-200)]">
+          <span
+            className="block h-2 rounded-full bg-[var(--color-mint-500)]"
+            style={{ width: `${Math.min(100, monthProgressPct)}%` }}
+          />
+        </div>
+      </section>
 
       {/* Revenue graph */}
       <section className="mt-6 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-5">

@@ -56,6 +56,13 @@ export type AdminUser = {
   signedUpAt: string;
   lastActiveAt: string;
   status: "active" | "disabled";
+  /** Goodwill gestures granted by an admin (free months, refunds, free print). */
+  compensations?: Compensation[];
+};
+
+export type Compensation = {
+  label: string;
+  grantedAt: string; // YYYY-MM-DD
 };
 
 /** Total lifetime value = subscription + print. */
@@ -375,6 +382,25 @@ export const revenueKpis = {
   recurringSharePct: Math.round((recurringToDate / (recurringToDate + oneOffToDate)) * 100),
 };
 
+/**
+ * Revenue for the ongoing calendar month (1st → today) plus the full-month
+ * forecast (1st → end). Reads the current month's point from the series/
+ * forecast as the full-month estimate, then prorates by days elapsed.
+ */
+export function currentMonthRevenue() {
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const dayOfMonth = now.getDate();
+
+  const point = [...revenueSeries, ...revenueForecast].find((p) => p.month === ym);
+  // Full-month estimate: the month's point if known, else MRR + a typical print month.
+  const forecast = point ? point.recurring + point.oneOff : Math.round(mrr * 1.12);
+  const mtd = Math.round((forecast * dayOfMonth) / daysInMonth);
+  const monthLabel = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  return { monthLabel, mtd, forecast, dayOfMonth, daysInMonth };
+}
+
 /** Global KPIs (DEMO). Phase 2 = live counts. */
 const totalUsers = revenueByTier.reduce((s, t) => s + t.subscribers, 0);
 export const globalKpis = {
@@ -393,5 +419,11 @@ export const globalKpis = {
   pendingSubmissions: mockSubmissions.filter((s) => s.status === "pending").length,
   openReports: mockReports.filter((r) => r.status === "open").length,
 };
+
+/** Pending moderation tasks (submissions awaiting review + unresolved reports)
+ * — drives the red count badge next to "Modération" in the admin sidebar. */
+export const moderationPendingCount =
+  mockSubmissions.filter((s) => s.status === "pending").length +
+  mockReports.filter((r) => r.status !== "resolved").length;
 
 export const DATE_RANGES = ["7", "15", "30", "60", "90", "180", "360", "all"] as const;

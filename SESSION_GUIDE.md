@@ -7,6 +7,7 @@ after each batch (must stay green).
 ## Cross-session changes log
 <!-- Add ONE line per cross-territory edit, newest on top:
      `YYYY-MM-DD [Session X]: touched <folder> for <reason>` -->
+2026-06-17 [Session A]: added i18n/routing /v2 route for homepage-v2 test page (round 9)
 2026-06-18 [Session B]: reading history per reader + quiz results. New lib/readingHistory.ts; touched components/story/{ReadingProgress,StoryQuiz}, (site)/histoires/[slug] (pass slug to quiz), lib/userScope (currentProfile reads scoped active-profile key). Parent navbar logo + recently-read carousel.
 2026-06-17 [Session A]: touched data/mock-stories.ts (EN content, locale-aware), lib/userScope+favorites (per-profile), lib/pdf, (app)/creer for round-8 fixes
 2026-06-17 [Session A]: touched data/mock-stories.ts (chars/themes, interactive length), lib/stories/filter.ts, lib/pdf, (app)/creer (filter prefill), data/faq.ts for round-7 fixes

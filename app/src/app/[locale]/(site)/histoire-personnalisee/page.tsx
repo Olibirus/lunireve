@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
+import { cn } from "@/lib/utils/cn";
 import {
   Sparkles,
   User,
@@ -33,10 +34,10 @@ export default async function PersonalizedStoryPage({
   const gets = ["get1", "get2", "get3", "get4"] as const;
 
   const steps = [
-    { icon: User, title: "step1Title", desc: "step1Desc" },
-    { icon: MapPin, title: "step2Title", desc: "step2Desc" },
-    { icon: Palette, title: "step3Title", desc: "step3Desc" },
-    { icon: Wand2, title: "step4Title", desc: "step4Desc" },
+    { icon: User, title: "step1Title", desc: "step1Desc", cover: "cover-indigo" },
+    { icon: MapPin, title: "step2Title", desc: "step2Desc", cover: "cover-meadow" },
+    { icon: Palette, title: "step3Title", desc: "step3Desc", cover: "cover-peach" },
+    { icon: Wand2, title: "step4Title", desc: "step4Desc", cover: "cover-sea" },
   ] as const;
 
   const whys = [
@@ -98,8 +99,8 @@ export default async function PersonalizedStoryPage({
         </div>
       </section>
 
-      {/* Process */}
-      <section className="mx-auto max-w-7xl px-5 md:px-8 py-16 md:py-24">
+      {/* Process — vertical, alternating sides, joined by curved dashed arrows */}
+      <section className="mx-auto max-w-5xl px-5 md:px-8 py-16 md:py-24">
         <div className="text-center">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-indigo-soft-600)] sparkle">
             {t("processKicker")}
@@ -111,34 +112,75 @@ export default async function PersonalizedStoryPage({
             {t("processTitle")}
           </h2>
         </div>
-        <ol className="mt-14 grid gap-6 md:grid-cols-4 lg:gap-8">
+
+        <ol className="mt-14">
           {steps.map((s, i) => {
             const Icon = s.icon;
+            const pictureLeft = i % 2 === 0; // step 1 & 3: picture left, text right
             return (
-              <li
-                key={s.title}
-                className="relative rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-7"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="rounded-2xl bg-[var(--color-cream-100)] p-2.5">
-                    <Icon className="h-5 w-5 text-[var(--color-indigo-soft-600)]" />
-                  </span>
-                  <span
-                    className="font-serif text-4xl leading-none text-[var(--color-indigo-soft-300)]"
-                    style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 80" }}
-                  >
-                    {i + 1}
-                  </span>
+              <li key={s.title}>
+                <div className="grid items-center gap-6 md:grid-cols-2 md:gap-12">
+                  {/* Picture */}
+                  <div className={cn(pictureLeft ? "md:order-1" : "md:order-2")}>
+                    <div
+                      className={cn(
+                        s.cover,
+                        "relative flex aspect-[4/3] items-center justify-center rounded-3xl shadow-[var(--shadow-card)]"
+                      )}
+                    >
+                      <span
+                        className="absolute left-5 top-4 font-serif text-5xl leading-none text-white/85"
+                        style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 80" }}
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="rounded-full bg-white/25 p-5 backdrop-blur-sm">
+                        <Icon className="h-9 w-9 text-white" />
+                      </span>
+                    </div>
+                  </div>
+                  {/* Text */}
+                  <div className={cn(pictureLeft ? "md:order-2" : "md:order-1")}>
+                    <span className="text-xs uppercase tracking-widest text-[var(--color-indigo-soft-600)]">
+                      {t("stepLabel")} {i + 1}
+                    </span>
+                    <h3
+                      className="mt-2 font-serif text-2xl tracking-tight leading-snug"
+                      style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
+                    >
+                      {t(s.title)}
+                    </h3>
+                    <p className="mt-3 text-[var(--color-ink-500)] leading-relaxed">
+                      {t(s.desc)}
+                    </p>
+                  </div>
                 </div>
-                <h3
-                  className="mt-6 font-serif text-xl leading-snug tracking-tight"
-                  style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
-                >
-                  {t(s.title)}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-500)]">
-                  {t(s.desc)}
-                </p>
+
+                {/* Curved dashed connector to the next step (desktop only) */}
+                {i < steps.length - 1 && (
+                  <div className="hidden md:block" aria-hidden>
+                    <svg
+                      viewBox="0 0 200 90"
+                      className="mx-auto my-2 h-20 w-56 text-[var(--color-indigo-soft-400)]"
+                      fill="none"
+                      style={{ transform: pictureLeft ? "scaleX(-1)" : undefined }}
+                    >
+                      <path
+                        d="M40 6 C 120 14, 150 40, 90 56 C 50 67, 80 80, 150 84"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeDasharray="3 9"
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="M150 84 l -11 -5 M150 84 l -4 -11"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </div>
+                )}
               </li>
             );
           })}

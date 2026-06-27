@@ -3,19 +3,10 @@ import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { FoxCloud } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Accordion } from "@/components/ui/Accordion";
+import { SectionStars } from "@/components/marketing/SectionStars";
 import { FAQ_FR, FAQ_EN } from "@/data/faq";
-import {
-  ShieldCheck,
-  Sparkles,
-  Stethoscope,
-  Feather,
-  HeartHandshake,
-  Globe2,
-  BookHeart,
-  ArrowRight,
-} from "lucide-react";
+import { Library, Sparkles, Wand2, BookHeart, ArrowRight } from "lucide-react";
 
 export default async function AboutPage({
   params,
@@ -36,32 +27,28 @@ export default async function AboutPage({
     allFaq[4].items[0],
   ];
 
-  const values = [
-    { icon: BookHeart, key: "valueLiterary" },
-    { icon: HeartHandshake, key: "valueFamily" },
-    { icon: Feather, key: "valueCrafted" },
-    { icon: Globe2, key: "valueBilingual" },
-  ] as const;
-
-  const trust = [
-    { icon: ShieldCheck, key: "trustGdpr" },
-    { icon: Sparkles, key: "trustAi" },
-    { icon: Stethoscope, key: "trustPediatric" },
+  // The four core services, used for the strengths strip and the detail section.
+  const services = [
+    { icon: Library, key: "svcLibrary" },
+    { icon: Sparkles, key: "svcInteractive" },
+    { icon: Wand2, key: "svcPersonalized" },
+    { icon: BookHeart, key: "svcPrinted" },
   ] as const;
 
   return (
     <>
       {/* Intro */}
-      <section className="relative overflow-hidden">
+      <section className="relative isolate overflow-hidden">
+        <SectionStars />
         <div
           aria-hidden
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0 -z-[5] pointer-events-none"
           style={{
             background:
               "radial-gradient(circle at 85% 10%, rgba(183,223,204,0.45) 0%, transparent 45%), radial-gradient(circle at 10% 90%, rgba(133,143,193,0.18) 0%, transparent 40%)",
           }}
         />
-        <div className="relative mx-auto max-w-7xl px-5 md:px-8 pt-16 md:pt-24 pb-16">
+        <div className="relative mx-auto max-w-7xl px-5 md:px-8 pt-16 md:pt-24 pb-12">
           <div className="grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
             <div>
               <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-indigo-soft-600)] sparkle">
@@ -91,11 +78,35 @@ export default async function AboutPage({
               <FoxCloud className="relative w-full max-w-md mx-auto" />
             </div>
           </div>
+
+          {/* Strengths (stat style) directly under the hero */}
+          <div className="relative mt-12">
+            <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-indigo-soft-600)]">
+              {t("strengthsKicker")}
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+              {services.map(({ icon: Icon, key }) => (
+                <div
+                  key={key}
+                  className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-5 shadow-[var(--shadow-soft)]"
+                >
+                  <Icon className="h-5 w-5 text-[var(--color-indigo-soft-600)]" />
+                  <p
+                    className="mt-3 font-serif text-lg leading-tight tracking-tight"
+                    style={{ fontVariationSettings: "'opsz' 36, 'SOFT' 30, 'wght' 500" }}
+                  >
+                    {t(`${key}Short`)}
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--color-ink-500)]">{t(`${key}Tag`)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
         <div className="dot-rule mx-auto max-w-7xl" aria-hidden />
       </section>
 
-      {/* Story */}
+      {/* Why Lunireve / story */}
       <section className="mx-auto max-w-4xl px-5 md:px-8 py-16 md:py-24">
         <div className="grid md:grid-cols-[160px_1fr] gap-8 md:gap-14">
           <div>
@@ -111,23 +122,24 @@ export default async function AboutPage({
         </div>
       </section>
 
-      {/* Values */}
-      <section className="bg-[var(--color-cream-100)] border-y border-[var(--color-ink-100)]">
-        <div className="mx-auto max-w-7xl px-5 md:px-8 py-20 md:py-24">
+      {/* Services — one block per core offering */}
+      <section className="relative isolate overflow-hidden bg-[var(--color-cream-100)] border-y border-[var(--color-ink-100)]">
+        <SectionStars offset={3} />
+        <div className="relative mx-auto max-w-7xl px-5 md:px-8 py-20 md:py-24">
           <div className="max-w-2xl">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-indigo-soft-600)]">
-              {t("valuesKicker")}
+              {t("servicesKicker")}
             </p>
             <h2
               className="mt-3 font-serif text-3xl md:text-5xl tracking-tight leading-[1.05]"
               style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}
             >
-              {t("valuesTitle")}
+              {t("servicesTitle")}
             </h2>
           </div>
 
           <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-7">
-            {values.map(({ icon: Icon, key }) => (
+            {services.map(({ icon: Icon, key }) => (
               <article
                 key={key}
                 className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-6 shadow-[var(--shadow-soft)]"
@@ -150,53 +162,8 @@ export default async function AboutPage({
         </div>
       </section>
 
-      {/* Trust */}
-      <section className="mx-auto max-w-7xl px-5 md:px-8 py-20 md:py-24">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-          <div className="max-w-2xl">
-            <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-indigo-soft-600)]">
-              {t("trustKicker")}
-            </p>
-            <h2
-              className="mt-3 font-serif text-3xl md:text-5xl tracking-tight leading-[1.05]"
-              style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}
-            >
-              {t("trustTitle")}
-            </h2>
-          </div>
-          <p className="text-[var(--color-ink-500)] md:max-w-sm leading-relaxed">
-            {t("trustSubtitle")}
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-5 md:gap-7">
-          {trust.map(({ icon: Icon, key }) => (
-            <div
-              key={key}
-              className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-7"
-            >
-              <div className="flex items-center gap-3">
-                <span className="inline-flex rounded-xl border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-2 text-[var(--color-ink-700)]">
-                  <Icon className="h-4 w-4" />
-                </span>
-                <Badge variant="mint">{t(`${key}Badge`)}</Badge>
-              </div>
-              <h3
-                className="mt-5 font-serif text-xl tracking-tight"
-                style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
-              >
-                {t(`${key}Title`)}
-              </h3>
-              <p className="mt-2 text-sm text-[var(--color-ink-500)] leading-relaxed">
-                {t(`${key}Desc`)}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* FAQ (#21) */}
-      <section className="mx-auto max-w-3xl px-5 md:px-8 pb-16">
+      {/* FAQ */}
+      <section className="mx-auto max-w-3xl px-5 md:px-8 py-16">
         <h2
           className="mb-6 text-center font-serif text-3xl md:text-4xl tracking-tight"
           style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}

@@ -471,25 +471,55 @@ html.dark [data-dialog-overlay] {
   cursor: pointer;
 }
 
-/* Dark-mode twinkling stars — a subtle touch, only at night, never on by day.
-   Respects reduced-motion. */
+/* Dark-mode twinkling stars — only at night. Each star has a soft glow/halo so
+   it reads as a star, not dust. Faster, varied twinkle. Respects reduced-motion. */
 @keyframes lr-twinkle {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 0.85; }
+  0%, 100% { opacity: 0.05; transform: scale(0.7); }
+  50% { opacity: 0.95; transform: scale(1); }
 }
 .star-field { display: none; }
 html.dark .star-field { display: block; }
 .star-field .star {
   position: absolute;
-  width: 2px;
-  height: 2px;
+  width: 4px;
+  height: 4px;
   border-radius: 9999px;
   background: #ffffff;
+  /* halo + faint outer ring so the star has presence */
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.75), 0 0 0 3px rgba(255, 255, 255, 0.08);
   opacity: 0;
-  animation: lr-twinkle var(--dur, 6s) ease-in-out infinite;
+  animation: lr-twinkle var(--dur, 3.5s) ease-in-out infinite;
   animation-delay: var(--delay, 0s);
 }
-.star-field .star.big { width: 3px; height: 3px; }
+.star-field .star.big {
+  width: 6px;
+  height: 6px;
+  box-shadow: 0 0 9px 2px rgba(255, 255, 255, 0.8), 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
 @media (prefers-reduced-motion: reduce) {
-  .star-field .star { animation: none; opacity: 0.4; }
+  .star-field .star { animation: none; opacity: 0.5; }
+}
+
+/* Shimmer skeleton loaders (modern, premium waiting state) */
+@keyframes lr-shimmer {
+  100% { transform: translateX(100%); }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-cream-200);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: lr-shimmer 1.4s infinite;
+}
+html.dark .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
 }

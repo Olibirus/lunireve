@@ -50,7 +50,13 @@ export function AuthModal({
   );
 
   useEffect(() => {
-    const state = loginState.ok ? loginState : signupState.ok ? signupState : null;
+    // A pending-confirmation signup stays on the modal: the user must click
+    // the emailed link before they can log in.
+    const state = loginState.ok
+      ? loginState
+      : signupState.ok && !signupState.pendingConfirmation
+      ? signupState
+      : null;
     if (state) {
       onOpenChange(false);
       onLoggedIn?.();
@@ -134,7 +140,7 @@ export function AuthModal({
               label={t("password")}
               autoComplete="new-password"
               withGenerator
-              minLength={8}
+              minLength={10}
               hint={t("passwordHint")}
               onGenerated={setPwGenerated}
             />
@@ -144,7 +150,7 @@ export function AuthModal({
                 name="passwordConfirm"
                 label={t("passwordConfirm")}
                 autoComplete="new-password"
-                minLength={8}
+                minLength={10}
               />
             )}
             <label className="flex items-center gap-2.5 text-sm text-[var(--color-ink-600)]">
@@ -156,7 +162,18 @@ export function AuthModal({
                 {signupState.message ?? t("error")}
               </p>
             )}
-            <Button type="submit" variant="mint" size="lg" disabled={signupPending} className="w-full justify-center">
+            {signupState.ok && signupState.pendingConfirmation && (
+              <p role="status" className="rounded-xl border border-[var(--color-mint-300)] bg-[var(--color-mint-100)] px-4 py-2.5 text-sm text-[var(--color-ink-700)]">
+                {t("confirmEmailSent")}
+              </p>
+            )}
+            <Button
+              type="submit"
+              variant="mint"
+              size="lg"
+              disabled={signupPending || (signupState.ok && signupState.pendingConfirmation)}
+              className="w-full justify-center"
+            >
               {signupPending ? t("pending") : t("signupSubmit")}
             </Button>
             <OAuthButtons />

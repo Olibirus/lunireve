@@ -479,7 +479,9 @@
     "backToBlog": "Back to the journal",
     "tldr": "The essentials in 30 seconds",
     "authorNote": "The Lunireve team",
-    "relatedTitle": "Read next"
+    "relatedTitle": "Read next",
+    "emptyTitle": "Articles are on their way",
+    "emptyBody": "The journal in this language is being prepared. Check back very soon, or switch language to browse our articles."
   },
   "homeV2": {
     "metaTitle": "Home",
@@ -559,7 +561,8 @@
     "usernameOrEmail": "Email or username",
     "password": "Password",
     "passwordConfirm": "Confirm password",
-    "passwordHint": "8 characters minimum",
+    "passwordHint": "10 characters minimum, with at least one letter and one digit",
+    "confirmEmailSent": "Almost there! We sent you a confirmation email. Click the link to activate your account, then log in.",
     "submit": "Log in",
     "pending": "One moment…",
     "error": "Incorrect credentials. Try again.",

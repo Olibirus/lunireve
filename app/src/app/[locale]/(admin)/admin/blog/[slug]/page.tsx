@@ -49,6 +49,8 @@ export default function BlogEditorPage() {
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [tag, setTag] = useState("Rituel");
+  // Article language: drives which locale's blog lists it (FR default).
+  const [language, setLanguage] = useState<"fr" | "en">("fr");
   const [cover, setCover] = useState<string>("cover-indigo");
   const [coverImageUrl, setCoverImageUrl] = useState<string | undefined>();
   const [status, setStatus] = useState<"draft" | "published">("draft");
@@ -74,6 +76,7 @@ export default function BlogEditorPage() {
     setSlug(a.slug);
     setSlugTouched(true);
     setTag(a.tag);
+    setLanguage(a.language ?? "fr");
     setCover(a.cover);
     setCoverImageUrl(a.coverImageUrl);
     setStatus(a.status);
@@ -152,6 +155,7 @@ export default function BlogEditorPage() {
       slug: slug || slugify(title),
       title,
       tag,
+      language,
       cover,
       coverImageUrl,
       readingMinutes,
@@ -327,6 +331,26 @@ export default function BlogEditorPage() {
             <div>
               <Label htmlFor="b-tag">Tag</Label>
               <Input id="b-tag" value={tag} onChange={(e) => setTag(e.target.value)} className="mt-1.5" />
+            </div>
+            <div>
+              <Label>Langue de l&apos;article</Label>
+              <div className="mt-1.5 flex gap-1.5">
+                {(["fr", "en"] as const).map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setLanguage(l)}
+                    className={cn(
+                      "rounded-xl border px-4 py-2 text-sm",
+                      language === l
+                        ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
+                        : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
+                    )}
+                  >
+                    {l === "fr" ? "Français" : "English"}
+                  </button>
+                ))}
+              </div>
             </div>
             <div>
               <Label htmlFor="b-mins">Temps de lecture (min)</Label>

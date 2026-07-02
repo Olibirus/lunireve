@@ -1,6 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { blogArticles } from "@/data/mock-blog";
+import { articlesForLocale } from "@/data/mock-blog";
 import { blogImageSrc } from "@/lib/storyImage";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,20 @@ export default async function BlogIndexPage({
   setRequestLocale(locale);
   const t = await getTranslations("blog");
 
-  const [featured, ...rest] = blogArticles;
+  // Only articles written in the visitor's language (FR/EN pairs share a
+  // baseId in the DB schema; mock data is FR-first).
+  const articles = articlesForLocale(locale);
+
+  if (articles.length === 0) {
+    return (
+      <section className="mx-auto max-w-2xl px-5 md:px-8 py-24 text-center">
+        <h1 className="font-serif text-3xl tracking-tight">{t("emptyTitle")}</h1>
+        <p className="mt-4 text-[var(--color-ink-500)] leading-relaxed">{t("emptyBody")}</p>
+      </section>
+    );
+  }
+
+  const [featured, ...rest] = articles;
 
   return (
     <>

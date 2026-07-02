@@ -1,4 +1,7 @@
 import type { MetadataRoute } from "next";
+import { and, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { stories } from "@/db/schema";
 import {
   mockStories,
   GENRES,
@@ -6,6 +9,12 @@ import {
   DURATION_BUCKETS,
 } from "@/data/mock-stories";
 import { blogArticles } from "@/data/mock-blog";
+
+/**
+ * Regenerate at most hourly: when the n8n pipeline publishes new library
+ * stories to the DB they appear here automatically — no redeploy needed.
+ */
+export const revalidate = 3600;
 
 /**
  * Public sitemap (/sitemap.xml). Lists every crawlable URL for both locales:
@@ -37,7 +46,34 @@ function entry(
   };
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+/** Published library stories from the DB (n8n pipeline output). */
+async function dbStoryEntries(now: Date): Promise<MetadataRoute.Sitemap> {
+  try {
+    const rows = await db
+      .select({
+        slug: stories.slug,
+        language: stories.language,
+        updatedAt: stories.updatedAt,
+      })
+      .from(stories)
+      .where(and(eq(stories.type, "library"), eq(stories.status, "published")));
+
+    return rows.map((s) => {
+      const path = s.language === "en" ? `/en/stories/${s.slug}` : `/histoires/${s.slug}`;
+      return {
+        url: `${BASE}${path}`,
+        lastModified: s.updatedAt ?? now,
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+      };
+    });
+  } catch {
+    // DB unreachable (e.g. paused project) — the static sitemap still serves.
+    return [];
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const staticPages: MetadataRoute.Sitemap = [
@@ -63,15 +99,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const storyPages = mockStories.map((s) =>
     entry(`/histoires/${s.slug}`, `/stories/${s.slug}`, 0.8, "weekly", now),
   );
-  const blogPages = blogArticles.map((a) =>
-    entry(
-      `/blog/${a.slug}`,
-      `/blog/${a.slug}`,
-      0.7,
-      "monthly",
-      a.publishedAt ? new Date(a.publishedAt) : now,
-    ),
-  );
+  // One entry per article in ITS language only — no hreflang alternate until
+  // the translated pair actually exists (FR/EN pairs share a baseId in the DB).
+  const blogPages: MetadataRoute.Sitemap = blogArticles.map((a) => ({
+    url: `${BASE}${a.language === "en" ? `/en/blog/${a.slug}` : `/blog/${a.slug}`}`,
+    lastModified: a.publishedAt ? new Date(a.publishedAt) : now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
 
   return [
     ...staticPages,
@@ -80,5 +115,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...durationPages,
     ...storyPages,
     ...blogPages,
+    ...(await dbStoryEntries(now)),
   ];
 }

@@ -10,6 +10,7 @@ export type ArticleSection = {
 };
 
 export type BlogArticle = {
+  language: "fr" | "en";
   slug: string;
   title: string;
   excerpt: string;
@@ -24,6 +25,7 @@ export type BlogArticle = {
 export const blogArticles: BlogArticle[] = [
   {
     slug: "histoires-du-soir-en-vacances",
+    language: "fr",
     title: "Partir en vacances léger : toutes les histoires du soir dans votre poche",
     excerpt:
       "La valise déborde déjà, et il reste les livres du soir. Bonne nouvelle : le rituel du coucher tient désormais dans un téléphone. Voici comment garder le moment histoire intact, où que vous soyez cet été.",
@@ -71,6 +73,7 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "peur-du-noir",
+    language: "fr",
     title: "Peur du noir : le guide complet pour aider votre enfant (sans forcer)",
     excerpt:
       "Près d'un enfant sur deux a peur du noir entre 3 et 8 ans. Pourquoi cette peur apparaît, ce qui marche vraiment pour l'apaiser, et comment les histoires deviennent votre meilleur allié.",
@@ -129,6 +132,7 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "lire-a-voix-haute",
+    language: "fr",
     title: "Lire à voix haute 15 minutes par jour : ce que dit vraiment la science",
     excerpt:
       "1,4 million de mots d'avance avant le CP. Un vocabulaire plus riche, une meilleure concentration, un lien renforcé. Le point complet sur l'habitude familiale la mieux documentée par la recherche.",
@@ -178,6 +182,7 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "rituel-du-soir-sans-ecran",
+    language: "fr",
     title: "Remplacer l'écran du soir par les histoires : le plan en 14 jours",
     excerpt:
       "Retirer la tablette du coucher sans crise, c'est possible, à condition de remplacer le plaisir au lieu de le supprimer. Méthode progressive, jour par jour, testée par des milliers de familles.",
@@ -246,7 +251,16 @@ export function findArticle(slug: string): BlogArticle | undefined {
 export function relatedArticles(slug: string, limit = 3): BlogArticle[] {
   const current = findArticle(slug);
   if (!current) return [];
-  const sameTag = blogArticles.filter((a) => a.slug !== slug && a.tag === current.tag);
-  const others = blogArticles.filter((a) => a.slug !== slug && a.tag !== current.tag);
+  // Same language only — never suggest an FR article on an EN page.
+  const pool = blogArticles.filter(
+    (a) => a.slug !== slug && a.language === current.language
+  );
+  const sameTag = pool.filter((a) => a.tag === current.tag);
+  const others = pool.filter((a) => a.tag !== current.tag);
   return [...sameTag, ...others].slice(0, limit);
+}
+
+/** Articles for one site language (blog index, sitemap). */
+export function articlesForLocale(locale: string): BlogArticle[] {
+  return blogArticles.filter((a) => a.language === (locale === "en" ? "en" : "fr"));
 }

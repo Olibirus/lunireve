@@ -103,7 +103,10 @@ export function readArticles(): AdminArticle[] {
   try {
     const deleted = readDeleted();
     const raw = localStorage.getItem(KEY);
-    const stored: AdminArticle[] = raw ? (JSON.parse(raw) as AdminArticle[]) : [];
+    // Backfill `language` for articles stored before the field existed.
+    const stored: AdminArticle[] = (raw ? (JSON.parse(raw) as AdminArticle[]) : []).map(
+      (a) => ({ ...a, language: a.language ?? "fr" })
+    );
     const storedSlugs = new Set(stored.map((a) => a.slug));
     const extras = blogArticles
       .filter((a) => !storedSlugs.has(a.slug) && !deleted.includes(a.slug))

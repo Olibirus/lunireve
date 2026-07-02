@@ -551,6 +551,24 @@ export const newsletterPreferences = pgTable("newsletter_preferences", {
 });
 
 // ============================================================================
+// Security: login rate limiting
+// ============================================================================
+
+/**
+ * One row per FAILED login attempt. The login action counts recent rows for
+ * an identifier (username/email + IP) and refuses when the threshold is hit.
+ * Rows older than the window are pruned opportunistically on write.
+ */
+export const authAttempts = pgTable("auth_attempts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  identifier: varchar("identifier", { length: 340 }).notNull(),
+  ip: varchar("ip", { length: 64 }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .default(sql`now()`),
+});
+
+// ============================================================================
 // Type exports
 // ============================================================================
 

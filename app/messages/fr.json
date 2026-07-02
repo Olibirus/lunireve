@@ -479,7 +479,9 @@
     "backToBlog": "Retour au journal",
     "tldr": "L'essentiel en 30 secondes",
     "authorNote": "L'équipe Lunireve",
-    "relatedTitle": "À lire ensuite"
+    "relatedTitle": "À lire ensuite",
+    "emptyTitle": "Les articles arrivent",
+    "emptyBody": "Le journal dans cette langue est en préparation. Revenez très bientôt, ou changez de langue pour découvrir nos articles."
   },
   "homeV2": {
     "metaTitle": "Accueil",
@@ -559,7 +561,8 @@
     "usernameOrEmail": "Email ou identifiant",
     "password": "Mot de passe",
     "passwordConfirm": "Confirmer le mot de passe",
-    "passwordHint": "8 caractères minimum",
+    "passwordHint": "10 caractères minimum, avec au moins une lettre et un chiffre",
+    "confirmEmailSent": "Presque fini ! Nous vous avons envoyé un email de confirmation. Cliquez sur le lien pour activer votre compte, puis connectez-vous.",
     "submit": "Se connecter",
     "pending": "Un instant…",
     "error": "Identifiants incorrects. Réessayez.",

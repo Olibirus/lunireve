@@ -39,15 +39,43 @@ export const CHARACTER_TRAITS = [
 /** A character can star as the hero or play a supporting role. */
 export type CharacterRole = "main" | "secondary";
 
+/**
+ * Visual appearance picked in the creation wizard. All fields optional and
+ * stored as option ids from lib/characterOptions.ts. Human and animal fields
+ * live side by side; only the ones matching the character's type are set.
+ */
+export type CharacterAppearance = {
+  // Human
+  skin?: string;
+  hairColor?: string;
+  /** A cut from HAIR_STYLES, or a special (chauve/foulard/hidjab). */
+  hairStyle?: string;
+  eyes?: string;
+  glasses?: string;
+  build?: string;
+  mobility?: string[];
+  hat?: string;
+  clothing?: string[];
+  extras?: string[];
+  // Animal
+  family?: string;
+  species?: string;
+  coat?: string;
+  size?: string;
+  accessories?: string[];
+};
+
 export type SavedCharacter = {
   id: string;
   name: string;
   type: CharacterType;
   role: CharacterRole;
   gender: CharacterGender;
-  /** Free description: "un chien beige très gourmand" */
+  age?: number;
+  /** Composed one-line summary (auto-built from appearance by the wizard). */
   description: string;
-  traits: string[]; // up to 4
+  traits: string[]; // up to 4 (trait ids from characterOptions)
+  appearance?: CharacterAppearance;
   createdAt: string;
 };
 

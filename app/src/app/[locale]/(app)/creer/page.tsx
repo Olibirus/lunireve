@@ -16,13 +16,12 @@ import {
 } from "@/lib/customStories";
 import { generateStoryAction } from "@/app/actions/generateStory";
 import { readCharacters, type SavedCharacter } from "@/lib/characters";
-import { InlineCharacterCreator } from "./InlineCharacterCreator";
 import { pushNotification } from "@/lib/notifications";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, Lock, Sparkles, Wand2 } from "lucide-react";
+import { ArrowLeft, Check, Lock, Plus, Sparkles, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const THEME_OPTIONS = [
@@ -59,6 +58,7 @@ export default function CreateStoryPage() {
   const t = useTranslations("create");
   const tThemes = useTranslations("themes");
   const tChars = useTranslations("characters");
+  const tCharsPage = useTranslations("characters_page");
   const router = useRouter();
 
   const [profiles, setProfiles] = useState<ChildProfile[]>([]);
@@ -84,7 +84,6 @@ export default function CreateStoryPage() {
   });
   const set = <K extends keyof CustomStoryParams>(k: K, v: CustomStoryParams[K]) =>
     setParams((p) => ({ ...p, [k]: v }));
-  const refreshCharacters = () => setCharacters(readCharacters());
 
   useEffect(() => {
     const all = readProfiles();
@@ -403,14 +402,13 @@ export default function CreateStoryPage() {
                   </div>
                 </>
               )}
-              <InlineCharacterCreator
-                role="main"
-                onCreated={(c) => {
-                  refreshCharacters();
-                  set("heroName", c.name);
-                  if (c.description) set("trait", c.description);
-                }}
-              />
+              <Link
+                href="/compte/personnages/nouveau"
+                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3 py-1 text-xs text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
+              >
+                <Plus className="h-3 w-3" />
+                {tCharsPage("createInline")}
+              </Link>
             </div>
             <div>
               <Label>{t("heroAge")}</Label>
@@ -577,13 +575,13 @@ export default function CreateStoryPage() {
                 onChange={(e) => set("friend", e.target.value)}
                 className="mt-1.5"
               />
-              <InlineCharacterCreator
-                role="secondary"
-                onCreated={(c) => {
-                  refreshCharacters();
-                  set("friend", c.description ? `${c.name}, ${c.description}` : c.name);
-                }}
-              />
+              <Link
+                href="/compte/personnages/nouveau"
+                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3 py-1 text-xs text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
+              >
+                <Plus className="h-3 w-3" />
+                {tCharsPage("createInline")}
+              </Link>
             </div>
             <div>
               <Label htmlFor="place">{t("place")}</Label>

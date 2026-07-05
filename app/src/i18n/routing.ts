@@ -109,6 +109,10 @@ export const routing = defineRouting({
       fr: "/compte/personnages",
       en: "/account/characters",
     },
+    "/compte/personnages/nouveau": {
+      fr: "/compte/personnages/nouveau",
+      en: "/account/characters/new",
+    },
     "/compte/parametres": {
       fr: "/compte/parametres",
       en: "/account/settings",

@@ -1,10 +1,17 @@
 "use server";
 
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { stories } from "@/db/schema";
 import { getSession, getCurrentUserId } from "@/lib/auth/session";
+import { generateImage } from "@/lib/ai";
+import { personalizedImagePrompt } from "@/lib/ai/stylePrompts";
+import { STORAGE_BUCKETS, fetchToBuffer, uploadAsset } from "@/lib/supabase/storage";
 import {
   insertCustomStory,
   selectCustomStory,
   selectCustomStoriesByUser,
+  selectCustomStoryImageInputs,
 } from "@/db/customStories";
 import type { CustomStory, CustomStoryParams } from "@/lib/customStories";
 
@@ -64,5 +71,50 @@ export async function listMyCustomStories(): Promise<CustomStory[]> {
   } catch (e) {
     console.error("[Lunireve] listMyCustomStories failed:", e);
     return [];
+  }
+}
+
+export type StoryImageState =
+  | { ok: true; url: string; cached: boolean }
+  | { ok: false };
+
+/**
+ * Lazy illustration for a personalized story (mirrors the audio pattern):
+ * generated at first view, uploaded to Supabase Storage, cached on the row
+ * so every later visit is free.
+ *
+ * Session-gated: generation burns provider credits, so anonymous callers only
+ * ever receive an already-cached URL — they can never trigger a paid call.
+ */
+export async function ensureCustomStoryImage(id: string): Promise<StoryImageState> {
+  try {
+    const inputs = await selectCustomStoryImageInputs(id);
+    if (!inputs) return { ok: false };
+    if (inputs.heroImageUrl) return { ok: true, url: inputs.heroImageUrl, cached: true };
+
+    const session = await getSession();
+    if (!session) return { ok: false };
+
+    const out = await generateImage("personalized", {
+      prompt: personalizedImagePrompt(inputs.style, inputs.imagePrompt),
+      size: "1024x1024",
+    });
+    const bytes = await fetchToBuffer(out.imageUrl);
+    const url = await uploadAsset(
+      STORAGE_BUCKETS.images,
+      `${id}/hero.png`,
+      bytes,
+      "image/png"
+    );
+
+    await db
+      .update(stories)
+      .set({ heroImageUrl: url, updatedAt: new Date() })
+      .where(eq(stories.id, id));
+
+    return { ok: true, url, cached: false };
+  } catch (e) {
+    console.error("[Lunireve] ensureCustomStoryImage failed:", e);
+    return { ok: false };
   }
 }

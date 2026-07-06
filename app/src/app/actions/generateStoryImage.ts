@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { stories } from "@/db/schema";
 import { generateImage } from "@/lib/ai";
+import { getSession } from "@/lib/auth/session";
 import type { ImageGenerationInput, ImageTier } from "@/lib/ai";
 import { STORAGE_BUCKETS, fetchToBuffer, uploadAsset } from "@/lib/supabase/storage";
 
@@ -56,6 +57,9 @@ export async function generateStoryImage(args: {
   force?: boolean;
 }): Promise<StoryImageResult> {
   const { storyId, slot, prompt, tier = "library", force = false } = args;
+
+  // Paid generation — session required (admin runs the library pipeline).
+  if (!(await getSession())) return { ok: false, error: "auth_required" };
 
   try {
     const [row] = await db
@@ -111,6 +115,9 @@ export async function generateStandaloneImage(args: {
   quality?: ImageGenerationInput["quality"];
   referenceImageUrl?: string;
 }): Promise<StoryImageResult> {
+  // Paid generation — session required.
+  if (!(await getSession())) return { ok: false, error: "auth_required" };
+
   try {
     const url = await runImage(
       args.tier ?? "personalized",

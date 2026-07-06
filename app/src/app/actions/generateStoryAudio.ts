@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { stories } from "@/db/schema";
 import { generateSpeech } from "@/lib/ai";
+import { getSession } from "@/lib/auth/session";
 import type { AudioTier, Language, VoiceType } from "@/lib/ai";
 import { STORAGE_BUCKETS, uploadAsset } from "@/lib/supabase/storage";
 
@@ -78,6 +79,11 @@ export async function generateStoryAudio(args: {
     if (row.audioUrl && isDefaultVoice && !force) {
       return { ok: true, url: row.audioUrl, cached: true };
     }
+
+    // Generation burns TTS credits — anonymous callers only ever get the
+    // cached URL above; a session is required to trigger a paid render.
+    const session = await getSession();
+    if (!session) return { ok: false, error: "auth_required" };
 
     const text = args.text ?? chaptersToText(row.chapters);
     if (!text.trim()) return { ok: false, error: "Story has no text to narrate." };

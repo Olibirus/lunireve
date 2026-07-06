@@ -73,6 +73,8 @@ export type CustomStory = {
   title: string;
   params: CustomStoryParams;
   body: string[];
+  /** Cached illustration (Supabase Storage URL), set after first generation. */
+  imageUrl?: string;
   /** Difficult words + child-friendly definitions, when the story has any. */
   glossary?: { word: string; definition: string }[];
   createdAt: string;

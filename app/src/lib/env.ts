@@ -27,6 +27,9 @@ const serverSchema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
 
+  // --- Session signing (HMAC key for the auth cookie; ≥32 chars) ---
+  SESSION_SECRET: z.string().min(32).optional(),
+
   // --- AI providers (all optional at boot — required at call site) ---
   ANTHROPIC_API_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),

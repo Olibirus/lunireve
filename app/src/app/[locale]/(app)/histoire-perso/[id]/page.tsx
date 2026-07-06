@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { findCustomStory, type CustomStory } from "@/lib/customStories";
-import { fetchCustomStory } from "@/app/actions/customStories";
+import { fetchCustomStory, ensureCustomStoryImage } from "@/app/actions/customStories";
 import { AudioPlayer } from "@/components/story/AudioPlayer";
 import { DownloadButtons } from "@/components/story/DownloadButtons";
 import { StoryQuiz } from "@/components/story/StoryQuiz";
@@ -84,6 +84,9 @@ export default function CustomStoryPage() {
   const params = useParams<{ id: string }>();
   const [story, setStory] = useState<CustomStory | null | undefined>(undefined);
   const [copied, setCopied] = useState(false);
+  // Lazy illustration: cached URL from the row, or generated on first view.
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
 
   useEffect(() => {
     // Local-first (instant on the creating device + offline), then fall back to
@@ -105,6 +108,28 @@ export default function CustomStoryPage() {
       cancelled = true;
     };
   }, [params.id]);
+
+  // Illustration: DB-backed stories (PS- ids) get a real generated image,
+  // created on first view then cached on the story row for everyone.
+  useEffect(() => {
+    if (!story || !story.id.startsWith("PS-")) return;
+    if (story.imageUrl) {
+      setImageUrl(story.imageUrl);
+      return;
+    }
+    let cancelled = false;
+    setImageLoading(true);
+    ensureCustomStoryImage(story.id)
+      .then((res) => {
+        if (!cancelled && res.ok) setImageUrl(res.url);
+      })
+      .finally(() => {
+        if (!cancelled) setImageLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [story]);
 
   async function copyLink() {
     try {
@@ -205,14 +230,28 @@ export default function CustomStoryPage() {
         </div>
       </section>
 
-      {/* Illustration slot + body */}
+      {/* Illustration + body */}
       <section className="mx-auto max-w-4xl px-5 md:px-8 py-10">
-        <FoxImagePlaceholder
-          slotId={`custom-${story.id.slice(0, 8)}`}
-          aspect="21:9"
-          prompt={`Illustration for a personalized children's story: hero ${story.params.heroName}, theme ${story.params.theme}, style ${story.params.style}. Warm night-sky palette, no text.`}
-          className="mb-10"
-        />
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt={`Illustration : ${story.title}`}
+            className="mb-10 aspect-square w-full max-w-2xl mx-auto rounded-3xl object-cover shadow-[var(--shadow-card)]"
+          />
+        ) : imageLoading ? (
+          <div
+            aria-hidden
+            className="mb-10 aspect-square w-full max-w-2xl mx-auto animate-pulse rounded-3xl bg-[var(--color-cream-200)]"
+          />
+        ) : (
+          <FoxImagePlaceholder
+            slotId={`custom-${story.id.slice(0, 8)}`}
+            aspect="21:9"
+            prompt={`Illustration for a personalized children's story: hero ${story.params.heroName}, theme ${story.params.theme}, style ${story.params.style}. Warm night-sky palette, no text.`}
+            className="mb-10"
+          />
+        )}
 
         <div id="story-body" className="prose-reading reading-size-m mx-auto max-w-[74ch]">
           {story.body.map((p, i) => {

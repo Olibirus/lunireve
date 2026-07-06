@@ -28,6 +28,8 @@ type CustomStoryMetadata = {
   profileId: string | null;
   glossary?: { word: string; definition: string }[];
   model?: string;
+  /** Scene-1 visual description from the text model — feeds lazy image gen. */
+  imagePrompt?: string;
 };
 
 // Combining diacritical marks (U+0300–U+036F) left behind by NFD decomposition.
@@ -54,6 +56,7 @@ function rowToCustomStory(row: typeof stories.$inferSelect): CustomStory | null 
     params: meta.params,
     body: meta.body,
     glossary: meta.glossary?.length ? meta.glossary : undefined,
+    imageUrl: row.heroImageUrl ?? undefined,
     createdAt: (row.createdAt ?? new Date()).toISOString(),
   };
 }
@@ -71,6 +74,7 @@ export async function insertCustomStory(input: {
   ownerUserId: string | null;
   glossary?: { word: string; definition: string }[];
   model?: string;
+  imagePrompt?: string;
 }): Promise<string> {
   const { title, body, params, profileId, ownerUserId } = input;
 
@@ -87,6 +91,7 @@ export async function insertCustomStory(input: {
     profileId,
     glossary: input.glossary?.length ? input.glossary : undefined,
     model: input.model,
+    imagePrompt: input.imagePrompt,
   };
 
   await db.insert(stories).values({
@@ -131,4 +136,33 @@ export async function selectCustomStoriesByUser(
     .where(and(eq(stories.ownerUserId, userId), eq(stories.type, "text_story")))
     .orderBy(desc(stories.createdAt));
   return rows.map(rowToCustomStory).filter((s): s is CustomStory => s !== null);
+}
+
+/** What the lazy illustration path needs: cached URL + generation inputs. */
+export async function selectCustomStoryImageInputs(id: string): Promise<{
+  heroImageUrl: string | null;
+  style: CustomStoryParams["style"];
+  imagePrompt: string;
+} | null> {
+  const [row] = await db
+    .select({
+      heroImageUrl: stories.heroImageUrl,
+      generationMetadata: stories.generationMetadata,
+      title: stories.title,
+    })
+    .from(stories)
+    .where(and(eq(stories.id, id), eq(stories.type, "text_story")))
+    .limit(1);
+  if (!row) return null;
+  const meta = row.generationMetadata as CustomStoryMetadata | null;
+  if (!meta?.params) return null;
+  const p = meta.params;
+  return {
+    heroImageUrl: row.heroImageUrl,
+    style: p.style,
+    // Older rows predate stored imagePrompt — rebuild a scene from the params.
+    imagePrompt:
+      meta.imagePrompt ??
+      `hero ${p.heroName}, theme ${p.theme}${p.place ? `, set in ${p.place}` : ""}${p.friend ? `, with ${p.friend}` : ""}, night-time bedtime mood`,
+  };
 }

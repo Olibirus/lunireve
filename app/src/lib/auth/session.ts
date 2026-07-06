@@ -1,15 +1,36 @@
 import { cookies } from "next/headers";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 /**
- * TEMPORARY auth — dev/testing only (brief decision #30).
+ * Cookie session with HMAC signing.
  *
- * Hardcoded credentials, plain cookie session:
- *   admin / 123456 → role "admin"
- *   user  / 123456 → role "user"
+ * The payload is JSON but every cookie carries an HMAC-SHA256 signature over
+ * it, keyed by SESSION_SECRET. Without the secret a forged cookie fails
+ * verification — critical because a session is what gates the paid AI
+ * generation actions (text/image/audio credits).
  *
- * Replaced by Supabase Auth before public launch. Nothing here is secure
- * and nothing pretends to be — do NOT ship this to production.
+ * Temp credentials (admin/user/123456) remain for testing only; the full
+ * Supabase Auth session swap replaces them before public launch.
  */
+
+// Server-only secret. The dev fallback keeps local work friction-free; in
+// production SESSION_SECRET must be set (a missing one is logged loudly).
+const SECRET = process.env.SESSION_SECRET ?? "lunireve-dev-secret-not-for-prod";
+if (!process.env.SESSION_SECRET && process.env.NODE_ENV === "production") {
+  console.error(
+    "[Lunireve] SESSION_SECRET is not set in production — sessions are signed with the known dev fallback. Set it NOW."
+  );
+}
+
+function sign(payload: string): string {
+  return createHmac("sha256", SECRET).update(payload).digest("base64url");
+}
+
+function verify(payload: string, signature: string): boolean {
+  const expected = Buffer.from(sign(payload));
+  const given = Buffer.from(signature);
+  return expected.length === given.length && timingSafeEqual(expected, given);
+}
 
 export type Tier = "free" | "plus" | "max";
 
@@ -54,7 +75,17 @@ export async function getSession(): Promise<Session | null> {
   const raw = store.get(COOKIE)?.value;
   if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw) as Session;
+    // Format: base64url(json) + "." + hmac. Anything else is rejected —
+    // including old unsigned cookies (those users simply log in again).
+    const dot = raw.lastIndexOf(".");
+    if (dot === -1) return null;
+    const payload = raw.slice(0, dot);
+    const signature = raw.slice(dot + 1);
+    if (!verify(payload, signature)) return null;
+
+    const parsed = JSON.parse(
+      Buffer.from(payload, "base64url").toString("utf8")
+    ) as Session;
     if (parsed.role === "admin" || parsed.role === "user") return parsed;
     return null;
   } catch {
@@ -67,10 +98,12 @@ export async function setSession(session: Session, remember = true) {
   // remember = true → 30-day persistent cookie; false → session cookie
   // (cleared when the browser closes), by omitting maxAge.
   const maxAge = remember ? 60 * 60 * 24 * 30 : undefined;
-  store.set(COOKIE, JSON.stringify(session), {
+  const payload = Buffer.from(JSON.stringify(session), "utf8").toString("base64url");
+  store.set(COOKIE, `${payload}.${sign(payload)}`, {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
+    secure: process.env.NODE_ENV === "production",
     maxAge,
   });
   // Non-httpOnly companion: lets client components gate UI (ratings, likes)

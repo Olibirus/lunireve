@@ -148,6 +148,8 @@ export async function generateStoryAction(
         ownerUserId: session.userId ?? null,
         glossary,
         model: result.model,
+        // Scene-1 visual brief — consumed by the lazy illustration action.
+        imagePrompt: result.scenes[0]?.imagePrompt || undefined,
       });
     } catch (e) {
       console.error("[Lunireve] failed to persist generated story:", e);

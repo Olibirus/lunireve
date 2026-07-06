@@ -33,18 +33,32 @@ export function resetQuota(): void {
   }
 }
 
+/** One secondary character: "Léo est... un copain". Relation ids live in lib/storyOptions.ts. */
+export type StoryCompanion = { name: string; relation: string };
+
 export type CustomStoryParams = {
   heroName: string;
   heroAge: number;
+  /** Hero kind (garcon/fille free, animal/adulte paid). See HERO_TYPES. */
+  heroType?: string;
   trait: string;
   theme: string;
   mood: "drole" | "mysterieux" | "touchant" | "palpitant" | "doux";
   language: "fr" | "en";
+  /** Legacy composed summary of the companions (kept for old stories + prompt). */
   friend: string;
   place: string;
   fear: string;
   /** Illustration style (#15) — drives the future image generation. */
   style: "automatique" | "aquarelle" | "bd" | "anime3d" | "crayons" | "kawaii";
+  /** Up to MAX_COMPANIONS secondary characters. */
+  companions?: StoryCompanion[];
+  /** Reading-level override; defaults to heroAge when absent. */
+  readingAge?: number;
+  /** Up to MAX_EXTRA_INFO free-text sentences to weave into the plot. */
+  extraInfo?: string[];
+  /** Optional illustration skin-tone preference (STORY_SKIN_TONES id). */
+  skinTone?: string;
 };
 
 export function findCustomStory(id: string): CustomStory | undefined {

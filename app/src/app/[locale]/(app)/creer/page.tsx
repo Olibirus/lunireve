@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { readProfiles, getActiveProfile, type ChildProfile } from "@/lib/profiles";
 import {
@@ -13,7 +13,19 @@ import {
   resetQuota,
   type CustomStoryParams,
   type CustomTier,
+  type StoryCompanion,
 } from "@/lib/customStories";
+import {
+  HERO_TYPES,
+  FREE_HERO_MAX_AGE,
+  COMPANION_RELATIONS,
+  MAX_COMPANIONS,
+  MAX_EXTRA_INFO,
+  STORY_SKIN_TONES,
+  storyOptLabel,
+  relationLabel,
+} from "@/lib/storyOptions";
+import { moderateText, isValidName } from "@/lib/moderation";
 import { generateStoryAction } from "@/app/actions/generateStory";
 import { readCharacters, type SavedCharacter } from "@/lib/characters";
 import { pushNotification } from "@/lib/notifications";
@@ -21,7 +33,7 @@ import { FoxMark } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, Lock, Plus, Sparkles, Wand2 } from "lucide-react";
+import { ArrowLeft, Check, Lock, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const THEME_OPTIONS = [
@@ -47,18 +59,34 @@ const THEME_OPTIONS = [
 const MOODS = ["drole", "mysterieux", "touchant", "palpitant", "doux"] as const;
 const STYLES = ["automatique", "aquarelle", "bd", "anime3d", "crayons", "kawaii"] as const;
 
+/** Reading-age ranges for the override select (first age of each range). */
+const READING_RANGES = [
+  { value: 1, label: "1-2" },
+  { value: 3, label: "3-4" },
+  { value: 5, label: "5-6" },
+  { value: 7, label: "7-8" },
+  { value: 9, label: "9-10" },
+  { value: 11, label: "11-12" },
+];
+
 /**
- * Personalized story flow — feedback round 2:
- * continuous variable-speed loading bar (#12/#13), illustration style
- * choice (#15), saved characters as one-tap secondary characters (#16),
- * and on completion: in-app notification + redirect to the story's own
- * shareable URL /histoire-perso/<id> (#10/#14).
+ * Personalized story flow, modeled on the 4-step meshistoiresdusoir UX:
+ * 1. the hero (saved characters one-tap, or direct entry: name/age/type),
+ * 2. companions (up to 4, name + relation),
+ * 3. the adventure (reading age, mood, theme, place, extra info),
+ * 4. final settings (visual style, skin tone, language, recap, privacy note).
+ *
+ * Free-tier gates match the brief: hero is a child (boy/girl) aged <= 12;
+ * animal/adult heroes, 13+, and non-default visual styles are paid perks.
+ * All free-text inputs are screened by lib/moderation.ts before generation
+ * (instant feedback here, hard gate server-side in generateStoryAction).
  */
 export default function CreateStoryPage() {
   const t = useTranslations("create");
   const tThemes = useTranslations("themes");
   const tChars = useTranslations("characters");
   const tCharsPage = useTranslations("characters_page");
+  const locale = useLocale();
   const router = useRouter();
 
   const [profiles, setProfiles] = useState<ChildProfile[]>([]);
@@ -69,10 +97,13 @@ export default function CreateStoryPage() {
   const [step, setStep] = useState(0);
   const [phase, setPhase] = useState<"form" | "loading">("form");
   const [progress, setProgress] = useState(0);
+  const [selectedHeroId, setSelectedHeroId] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const [params, setParams] = useState<CustomStoryParams>({
     heroName: "",
     heroAge: 6,
+    heroType: "garcon",
     trait: "",
     theme: "aventure",
     mood: "doux",
@@ -81,6 +112,9 @@ export default function CreateStoryPage() {
     place: "",
     fear: "",
     style: "automatique",
+    companions: [],
+    extraInfo: [],
+    skinTone: "",
   });
   const set = <K extends keyof CustomStoryParams>(k: K, v: CustomStoryParams[K]) =>
     setParams((p) => ({ ...p, [k]: v }));
@@ -109,7 +143,7 @@ export default function CreateStoryPage() {
         const character = sp.get("character");
         if (character) {
           try {
-            next.friend = tChars(character);
+            next.companions = [{ name: tChars(character), relation: "autre" }];
           } catch {
             /* unknown character key */
           }
@@ -124,14 +158,90 @@ export default function CreateStoryPage() {
 
   function applyProfile(p: ChildProfile) {
     setProfileId(p.id);
+    setSelectedHeroId(null);
     setParams((prev) => ({
       ...prev,
       heroName: p.name,
-      heroAge: p.age,
+      heroAge: Math.min(p.age, FREE_HERO_MAX_AGE),
       theme: p.themes[0] ?? prev.theme,
       // Story length now follows the child's age (set via heroAge), not a picker.
       language: p.language === "both" ? "fr" : p.language,
     }));
+  }
+
+  /** One tap on a saved main character fills the whole hero step. */
+  function applySavedHero(c: SavedCharacter) {
+    setSelectedHeroId(c.id);
+    setParams((prev) => ({
+      ...prev,
+      heroName: c.name,
+      heroAge: typeof c.age === "number" ? Math.min(c.age, isFree ? FREE_HERO_MAX_AGE : 16) : prev.heroAge,
+      heroType:
+        c.type === "animal" && !isFree
+          ? "animal"
+          : c.gender === "fille"
+          ? "fille"
+          : "garcon",
+      trait: c.description || prev.trait,
+    }));
+  }
+
+  function addCompanion(companion: StoryCompanion) {
+    setParams((prev) => {
+      const list = prev.companions ?? [];
+      if (list.length >= MAX_COMPANIONS) return prev;
+      return { ...prev, companions: [...list, companion] };
+    });
+  }
+
+  function updateCompanion(index: number, patch: Partial<StoryCompanion>) {
+    setParams((prev) => ({
+      ...prev,
+      companions: (prev.companions ?? []).map((c, i) => (i === index ? { ...c, ...patch } : c)),
+    }));
+  }
+
+  function removeCompanion(index: number) {
+    setParams((prev) => ({
+      ...prev,
+      companions: (prev.companions ?? []).filter((_, i) => i !== index),
+    }));
+  }
+
+  function setExtraInfo(index: number, value: string) {
+    setParams((prev) => ({
+      ...prev,
+      extraInfo: (prev.extraInfo ?? []).map((s, i) => (i === index ? value : s)),
+    }));
+  }
+
+  /**
+   * Client-side moderation per step: instant feedback before moving on.
+   * The server re-checks everything in generateStoryAction (the real gate).
+   */
+  function validateStep(s: number): string | null {
+    if (s === 0) {
+      if (!isValidName(params.heroName)) return "invalidName";
+      if (params.trait && !moderateText(params.trait).ok) return "notAllowed";
+    }
+    if (s === 1) {
+      for (const c of params.companions ?? []) {
+        if (c.name.trim() && !isValidName(c.name)) return "invalidName";
+      }
+    }
+    if (s === 2) {
+      if (params.place && !moderateText(params.place).ok) return "notAllowed";
+      for (const info of params.extraInfo ?? []) {
+        if (info && !moderateText(info).ok) return "notAllowed";
+      }
+    }
+    return null;
+  }
+
+  function goNext() {
+    const error = validateStep(step);
+    setFormError(error);
+    if (!error) setStep((s) => s + 1);
   }
 
   const interval = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -143,21 +253,48 @@ export default function CreateStoryPage() {
   );
 
   function startGeneration() {
+    // Last full client check before spending the quota.
+    for (const s of [0, 1, 2]) {
+      const error = validateStep(s);
+      if (error) {
+        setFormError(error);
+        setStep(s);
+        return;
+      }
+    }
+    setFormError(null);
+
+    // Compose the legacy `friend` summary from the companions so old
+    // consumers (stub story, PDF, result page) keep working unchanged.
+    const companions = (params.companions ?? []).filter((c) => c.name.trim().length >= 2);
+    const friend = companions
+      .map((c) => `${c.name} (${relationLabel(c.relation, locale)})`)
+      .join(", ");
+    const finalParams: CustomStoryParams = { ...params, companions, friend };
+    setParams(finalParams);
+
     setPhase("loading");
     setProgress(0);
 
     // Real generation runs in parallel with the loading screen; the local
-    // template story keeps the experience intact if the call fails. `id` is the
-    // DB-assigned story id (null on stub/failure) — used for the shareable URL.
+    // template story keeps the experience intact if the call fails, EXCEPT
+    // when the server blocked the content: then we return to the form.
     let settled: { title: string; body: string[]; id: string | null } | null = null;
-    generateStoryAction(params, profileId)
+    generateStoryAction(finalParams, profileId)
       .then((res) => {
-        settled = res && res.ok
+        if (!res.ok && res.reason === "moderation") {
+          if (interval.current) clearInterval(interval.current);
+          setPhase("form");
+          setStep(0);
+          setFormError("moderationBlocked");
+          return;
+        }
+        settled = res.ok
           ? { title: res.title, body: res.body, id: res.id }
-          : { ...buildStubStory(params), id: null };
+          : { ...buildStubStory(finalParams), id: null };
       })
       .catch(() => {
-        settled = { ...buildStubStory(params), id: null };
+        settled = { ...buildStubStory(finalParams), id: null };
       });
 
     // Continuous bar with variable speed (#13): quick start, slowdown as
@@ -179,7 +316,7 @@ export default function CreateStoryPage() {
           const story = saveCustomStory(
             settled.title,
             settled.body,
-            params,
+            finalParams,
             profileId,
             settled.id ?? undefined
           );
@@ -197,11 +334,25 @@ export default function CreateStoryPage() {
     }, 110);
   }
 
+  const isFree = tier === "free";
   const limit = customLimitFor(tier);
   const isUnlimited = !Number.isFinite(limit);
   const quotaLeft = isUnlimited ? Infinity : limit - used;
   const steps = [t("step1"), t("step2"), t("step3"), t("step4")];
   const canNext = step === 0 ? params.heroName.trim().length >= 2 : true;
+  const savedHeroes = characters.filter((c) => c.role === "main");
+  const savedCompanions = characters.filter((c) => c.role === "secondary");
+  const companions = params.companions ?? [];
+  const extraInfo = params.extraInfo ?? [];
+
+  const chip = (active: boolean, disabled = false) =>
+    cn(
+      "rounded-full border px-3 py-1.5 text-sm transition-colors",
+      active
+        ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
+        : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]",
+      disabled && "cursor-not-allowed opacity-40 hover:bg-transparent"
+    );
 
   /* ---------- Loading screen ---------- */
   if (phase === "loading") {
@@ -364,78 +515,132 @@ export default function CreateStoryPage() {
       </ol>
 
       <div className="mt-8 rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-6 md:p-8 shadow-[var(--shadow-soft)]">
+        {formError && (
+          <p className="mb-5 flex items-start gap-2 rounded-xl border border-[var(--color-fox-300)] bg-[var(--color-fox-300)]/10 px-4 py-3 text-sm text-[var(--color-fox-700)]">
+            <X className="mt-0.5 h-4 w-4 shrink-0" />
+            {t(formError)}
+          </p>
+        )}
+
+        {/* ---------- Step 1: the hero ---------- */}
         {step === 0 && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div>
-              <Label htmlFor="hero-name">{t("heroName")}</Label>
+              <h2 className="font-serif text-xl tracking-tight">{t("heroTitle")}</h2>
+              <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("heroHint")}</p>
+            </div>
+
+            {savedHeroes.length > 0 && (
+              <div>
+                <p className="text-xs text-[var(--color-ink-500)]">{t("heroPickSaved")}</p>
+                <div className="mt-2 grid grid-cols-2 gap-2.5">
+                  {savedHeroes.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => applySavedHero(c)}
+                      className={cn(
+                        "rounded-2xl border-2 p-3 text-left transition-colors",
+                        selectedHeroId === c.id
+                          ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]"
+                          : "border-[var(--color-ink-100)] hover:border-[var(--color-ink-200)] hover:bg-[var(--color-cream-100)]"
+                      )}
+                    >
+                      <span className="block font-serif text-base tracking-tight">{c.name}</span>
+                      <span className="block text-xs text-[var(--color-ink-500)]">
+                        {tCharsPage(`type_${c.type}`)}
+                        {typeof c.age === "number" && ` · ${tCharsPage("ageUnit", { age: c.age })}`}
+                      </span>
+                    </button>
+                  ))}
+                  <Link
+                    href="/compte/personnages/nouveau"
+                    className="flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-[var(--color-ink-200)] p-3 text-center text-xs text-[var(--color-ink-500)] hover:border-[var(--color-mint-500)] hover:text-[var(--color-ink-800)]"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {tCharsPage("createInline")}
+                  </Link>
+                </div>
+                <p className="mt-3 text-xs text-[var(--color-ink-400)]">{t("heroOrManual")}</p>
+              </div>
+            )}
+
+            <div>
+              <Label htmlFor="hero-name">{t("heroName")} *</Label>
               <Input
                 id="hero-name"
                 value={params.heroName}
                 maxLength={30}
-                onChange={(e) => set("heroName", e.target.value)}
+                onChange={(e) => {
+                  set("heroName", e.target.value);
+                  setSelectedHeroId(null);
+                }}
                 className="mt-1.5"
               />
-              {characters.filter((c) => c.role === "main").length > 0 && (
-                <>
-                  <p className="mt-2 text-xs text-[var(--color-ink-500)]">{t("orPick")}</p>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {characters
-                      .filter((c) => c.role === "main")
-                      .map((c) => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => {
-                            set("heroName", c.name);
-                            if (c.description) set("trait", c.description);
-                          }}
-                          className={cn(
-                            "rounded-full border px-3 py-1 text-xs",
-                            params.heroName === c.name
-                              ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
-                              : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
-                          )}
-                        >
-                          {c.name}
-                        </button>
-                      ))}
-                  </div>
-                </>
-              )}
-              <Link
-                href="/compte/personnages/nouveau"
-                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3 py-1 text-xs text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
-              >
-                <Plus className="h-3 w-3" />
-                {tCharsPage("createInline")}
-              </Link>
             </div>
+
             <div>
               <Label>{t("heroAge")}</Label>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {Array.from({ length: 16 }, (_, i) => i + 1).map((a) => (
-                  <button
-                    key={a}
-                    type="button"
-                    onClick={() => set("heroAge", a)}
-                    className={cn(
-                      "h-10 w-10 rounded-xl border text-sm",
-                      params.heroAge === a
-                        ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
-                        : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
-                    )}
-                  >
-                    {a}
-                  </button>
-                ))}
+                {Array.from({ length: 16 }, (_, i) => i + 1).map((a) => {
+                  const locked = isFree && a > FREE_HERO_MAX_AGE;
+                  return (
+                    <button
+                      key={a}
+                      type="button"
+                      disabled={locked}
+                      onClick={() => set("heroAge", a)}
+                      className={cn(
+                        "h-10 w-10 rounded-xl border text-sm",
+                        params.heroAge === a
+                          ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
+                          : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]",
+                        locked && "cursor-not-allowed opacity-40 hover:bg-transparent"
+                      )}
+                    >
+                      {a}
+                    </button>
+                  );
+                })}
               </div>
+              {isFree && (
+                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-[var(--color-ink-400)]">
+                  <Lock className="h-3 w-3" />
+                  {t("heroAgeLockNote")}
+                </p>
+              )}
             </div>
+
+            <div>
+              <Label>{t("heroType")}</Label>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {HERO_TYPES.map((h) => {
+                  const locked = isFree && !h.free;
+                  return (
+                    <button
+                      key={h.id}
+                      type="button"
+                      disabled={locked}
+                      onClick={() => set("heroType", h.id)}
+                      className={chip(params.heroType === h.id, locked)}
+                    >
+                      {locked && <Lock className="mr-1 inline h-3 w-3" />}
+                      {storyOptLabel(h, locale)}
+                    </button>
+                  );
+                })}
+              </div>
+              {isFree && (
+                <p className="mt-1.5 text-xs text-[var(--color-ink-400)]">{t("heroTypeLockNote")}</p>
+              )}
+            </div>
+
             <div>
               <Label htmlFor="hero-trait">{t("heroTrait")}</Label>
               <Input
                 id="hero-trait"
                 value={params.trait}
-                maxLength={60}
+                maxLength={80}
                 placeholder={t("heroTraitPlaceholder")}
                 onChange={(e) => set("trait", e.target.value)}
                 className="mt-1.5"
@@ -444,8 +649,136 @@ export default function CreateStoryPage() {
           </div>
         )}
 
+        {/* ---------- Step 2: companions ---------- */}
         {step === 1 && (
           <div className="space-y-6">
+            <div>
+              <h2 className="font-serif text-xl tracking-tight">{t("companionsTitle")}</h2>
+              <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("companionsHint")}</p>
+            </div>
+
+            {savedCompanions.length > 0 && (
+              <div>
+                <p className="text-xs text-[var(--color-ink-500)]">{t("companionsFromSaved")}</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {savedCompanions.map((c) => {
+                    const added = companions.some((x) => x.name === c.name);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        disabled={added || companions.length >= MAX_COMPANIONS}
+                        onClick={() =>
+                          addCompanion({
+                            name: c.name,
+                            relation:
+                              c.type === "animal"
+                                ? "animal"
+                                : c.gender === "fille"
+                                ? "copine"
+                                : c.gender === "garcon"
+                                ? "copain"
+                                : "autre",
+                          })
+                        }
+                        className={chip(added, !added && companions.length >= MAX_COMPANIONS)}
+                      >
+                        {added ? <Check className="mr-1 inline h-3 w-3" /> : <Plus className="mr-1 inline h-3 w-3" />}
+                        {c.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {companions.map((c, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Input
+                    value={c.name}
+                    maxLength={30}
+                    placeholder={t("companionNamePlaceholder")}
+                    aria-label={t("companionNamePlaceholder")}
+                    onChange={(e) => updateCompanion(i, { name: e.target.value })}
+                    className="flex-1"
+                  />
+                  <span className="text-xs text-[var(--color-ink-400)]">{t("companionIs")}</span>
+                  <select
+                    value={c.relation}
+                    aria-label={t("companionRelation")}
+                    onChange={(e) => updateCompanion(i, { relation: e.target.value })}
+                    className="h-10 rounded-xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-2.5 text-sm text-[var(--color-ink-800)]"
+                  >
+                    {COMPANION_RELATIONS.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {storyOptLabel(r, locale)}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => removeCompanion(i)}
+                    aria-label={t("companionRemove")}
+                    className="rounded-lg p-2 text-[var(--color-ink-400)] hover:text-[var(--color-fox-700)]"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+
+              {companions.length < MAX_COMPANIONS && (
+                <button
+                  type="button"
+                  onClick={() => addCompanion({ name: "", relation: "copain" })}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3.5 py-1.5 text-sm text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  {t("companionAdd", { count: companions.length, max: MAX_COMPANIONS })}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ---------- Step 3: the adventure ---------- */}
+        {step === 2 && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="font-serif text-xl tracking-tight">{t("adventureTitle")}</h2>
+              <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("adventureHint")}</p>
+            </div>
+
+            <div>
+              <Label htmlFor="reading-age">{t("readingAge")}</Label>
+              <select
+                id="reading-age"
+                value={params.readingAge ?? ""}
+                onChange={(e) =>
+                  set("readingAge", e.target.value ? parseInt(e.target.value, 10) : undefined)
+                }
+                className="mt-1.5 h-10 w-full max-w-sm rounded-xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-2.5 text-sm text-[var(--color-ink-800)]"
+              >
+                <option value="">{t("readingAgeDefault")}</option>
+                {READING_RANGES.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {t("readingRangeLabel", { range: r.label })}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <Label>{t("mood")}</Label>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {MOODS.map((m) => (
+                  <button key={m} type="button" onClick={() => set("mood", m)} className={chip(params.mood === m)}>
+                    {t(`mood_${m}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div>
               <Label>{t("theme")}</Label>
               <div className="mt-2 flex flex-wrap gap-1.5">
@@ -454,59 +787,124 @@ export default function CreateStoryPage() {
                     key={slug}
                     type="button"
                     onClick={() => set("theme", slug)}
-                    className={cn(
-                      "rounded-full border px-3 py-1.5 text-sm",
-                      params.theme === slug
-                        ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
-                        : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
-                    )}
+                    className={chip(params.theme === slug)}
                   >
                     {tThemes(slug)}
                   </button>
                 ))}
               </div>
             </div>
+
             <div>
-              <Label>{t("mood")}</Label>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {MOODS.map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => set("mood", m)}
-                    className={cn(
-                      "rounded-xl border px-3.5 py-2 text-sm",
-                      params.mood === m
-                        ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
-                        : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
-                    )}
-                  >
-                    {t(`mood_${m}`)}
-                  </button>
+              <Label htmlFor="place">{t("place")}</Label>
+              <Input
+                id="place"
+                value={params.place}
+                maxLength={80}
+                placeholder={t("placePlaceholder")}
+                onChange={(e) => set("place", e.target.value)}
+                className="mt-1.5"
+              />
+            </div>
+
+            <div>
+              <Label>{t("extraInfoTitle")}</Label>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("extraInfoHint")}</p>
+              <div className="mt-2 space-y-2">
+                {extraInfo.map((info, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input
+                      value={info}
+                      maxLength={140}
+                      placeholder={t("extraInfoPlaceholder")}
+                      aria-label={`${t("extraInfoTitle")} #${i + 1}`}
+                      onChange={(e) => setExtraInfo(i, e.target.value)}
+                      className="flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        set("extraInfo", extraInfo.filter((_, x) => x !== i))
+                      }
+                      aria-label={t("companionRemove")}
+                      className="rounded-lg p-2 text-[var(--color-ink-400)] hover:text-[var(--color-fox-700)]"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 ))}
+                {extraInfo.length < MAX_EXTRA_INFO && (
+                  <button
+                    type="button"
+                    onClick={() => set("extraInfo", [...extraInfo, ""])}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3.5 py-1.5 text-sm text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    {t("extraInfoAdd", { count: extraInfo.length, max: MAX_EXTRA_INFO })}
+                  </button>
+                )}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ---------- Step 4: final settings + recap ---------- */}
+        {step === 3 && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="font-serif text-xl tracking-tight">{t("finalTitle")}</h2>
+              <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("finalHint")}</p>
+            </div>
+
             <div>
               <Label>{t("style")}</Label>
               <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("styleHint")}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {STYLES.map((s) => (
+                {STYLES.map((s) => {
+                  const locked = isFree && s !== "automatique";
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      disabled={locked}
+                      onClick={() => set("style", s)}
+                      className={chip(params.style === s, locked)}
+                    >
+                      {locked && <Lock className="mr-1 inline h-3 w-3" />}
+                      {t(`style_${s}`)}
+                    </button>
+                  );
+                })}
+              </div>
+              {isFree && (
+                <p className="mt-1.5 text-xs text-[var(--color-ink-400)]">{t("styleLockedNote")}</p>
+              )}
+            </div>
+
+            <div>
+              <Label>{t("skinTone")}</Label>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("skinToneHint")}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => set("skinTone", "")}
+                  className={chip(!params.skinTone)}
+                >
+                  {t("skinToneNone")}
+                </button>
+                {STORY_SKIN_TONES.map((s) => (
                   <button
-                    key={s}
+                    key={s.id}
                     type="button"
-                    onClick={() => set("style", s)}
-                    className={cn(
-                      "rounded-xl border px-3.5 py-2 text-sm",
-                      params.style === s
-                        ? "border-transparent bg-[var(--color-indigo-soft-500)] text-white"
-                        : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
-                    )}
+                    onClick={() => set("skinTone", s.id)}
+                    className={chip(params.skinTone === s.id)}
                   >
-                    {t(`style_${s}`)}
+                    {storyOptLabel(s, locale)}
                   </button>
                 ))}
               </div>
             </div>
+
             <div>
               <Label>{t("language")}</Label>
               <div className="mt-2 flex gap-1.5">
@@ -515,126 +913,64 @@ export default function CreateStoryPage() {
                     key={l}
                     type="button"
                     onClick={() => set("language", l)}
-                    className={cn(
-                      "rounded-xl border px-4 py-2 text-sm",
-                      params.language === l
-                        ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
-                        : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
-                    )}
+                    className={chip(params.language === l)}
                   >
                     {l === "fr" ? "Français" : "English"}
                   </button>
                 ))}
               </div>
             </div>
-          </div>
-        )}
 
-        {step === 2 && (
-          <div className="space-y-5">
-            <p className="text-xs text-[var(--color-ink-400)]">{t("optionalNote")}</p>
             <div>
-              <Label htmlFor="friend">{t("friend")}</Label>
-              {characters.filter((c) => c.role === "secondary").length > 0 && (
-                <>
-                  <p className="mt-1.5 text-xs text-[var(--color-ink-500)]">{t("orPick")}</p>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {characters
-                      .filter((c) => c.role === "secondary")
-                      .map((c) => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() =>
-                            set("friend", c.description ? `${c.name}, ${c.description}` : c.name)
-                          }
-                          className={cn(
-                            "rounded-full border px-3 py-1 text-xs",
-                            params.friend.startsWith(c.name)
-                              ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
-                              : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
-                          )}
-                        >
-                          {c.name}
-                        </button>
-                      ))}
-                    <Link
-                      href="/compte/personnages"
-                      className="rounded-full border border-dashed border-[var(--color-ink-200)] px-3 py-1 text-xs text-[var(--color-ink-400)] hover:text-[var(--color-ink-700)]"
+              <h3 className="font-serif text-lg tracking-tight text-center">
+                {t("summaryTitle", { name: params.heroName })}
+              </h3>
+              <dl className="mt-4 space-y-2 text-sm">
+                {[
+                  [
+                    t("heroName"),
+                    `${params.heroName}, ${t("readingRangeLabel", { range: params.heroAge })} (${storyOptLabel(
+                      HERO_TYPES.find((h) => h.id === params.heroType) ?? HERO_TYPES[0],
+                      locale
+                    ).toLowerCase()})`,
+                  ],
+                  companions.filter((c) => c.name.trim()).length > 0 && [
+                    t("recapCompanions"),
+                    companions
+                      .filter((c) => c.name.trim())
+                      .map((c) => `${c.name} (${relationLabel(c.relation, locale)})`)
+                      .join(", "),
+                  ],
+                  [t("mood"), t(`mood_${params.mood}`)],
+                  [t("theme"), tThemes(params.theme)],
+                  params.place && [t("place"), params.place],
+                  [
+                    t("readingAge"),
+                    params.readingAge
+                      ? t("readingRangeLabel", {
+                          range:
+                            READING_RANGES.find((r) => r.value === params.readingAge)?.label ??
+                            String(params.readingAge),
+                        })
+                      : t("readingAgeDefault"),
+                  ],
+                  [t("style"), t(`style_${params.style}`)],
+                ]
+                  .filter((x): x is [string, string] => Boolean(x))
+                  .map(([k, v]) => (
+                    <div
+                      key={k}
+                      className="flex justify-between gap-4 rounded-xl bg-[var(--color-cream-100)] px-4 py-2.5"
                     >
-                      {t("manageCharacters")}
-                    </Link>
-                  </div>
-                </>
-              )}
-              <Input
-                id="friend"
-                value={params.friend}
-                maxLength={80}
-                placeholder={t("friendPlaceholder")}
-                onChange={(e) => set("friend", e.target.value)}
-                className="mt-1.5"
-              />
-              <Link
-                href="/compte/personnages/nouveau"
-                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3 py-1 text-xs text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
-              >
-                <Plus className="h-3 w-3" />
-                {tCharsPage("createInline")}
-              </Link>
+                      <dt className="shrink-0 text-[var(--color-ink-500)]">{k}</dt>
+                      <dd className="text-right font-medium">{v}</dd>
+                    </div>
+                  ))}
+              </dl>
+              <p className="mt-4 text-center text-xs text-[var(--color-ink-400)]">
+                {t("privacyNote")}
+              </p>
             </div>
-            <div>
-              <Label htmlFor="place">{t("place")}</Label>
-              <Input
-                id="place"
-                value={params.place}
-                maxLength={60}
-                placeholder={t("placePlaceholder")}
-                onChange={(e) => set("place", e.target.value)}
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label htmlFor="fear">{t("fear")}</Label>
-              <Input
-                id="fear"
-                value={params.fear}
-                maxLength={60}
-                placeholder={t("fearPlaceholder")}
-                onChange={(e) => set("fear", e.target.value)}
-                className="mt-1.5"
-              />
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div>
-            <h2 className="font-serif text-xl tracking-tight text-center">
-              {t("summaryTitle", { name: params.heroName })}
-            </h2>
-            <dl className="mt-5 space-y-2 text-sm">
-              {[
-                [t("heroName"), `${params.heroName}, ${params.heroAge} ans`],
-                [t("theme"), tThemes(params.theme)],
-                [t("mood"), t(`mood_${params.mood}`)],
-                [t("style"), t(`style_${params.style}`)],
-                params.trait && [t("heroTrait"), params.trait],
-                params.friend && [t("friend"), params.friend],
-                params.place && [t("place"), params.place],
-                params.fear && [t("fear"), params.fear],
-              ]
-                .filter((x): x is [string, string] => Boolean(x))
-                .map(([k, v]) => (
-                  <div
-                    key={k}
-                    className="flex justify-between gap-4 rounded-xl bg-[var(--color-cream-100)] px-4 py-2.5"
-                  >
-                    <dt className="text-[var(--color-ink-500)]">{k}</dt>
-                    <dd className="text-right font-medium">{v}</dd>
-                  </div>
-                ))}
-            </dl>
           </div>
         )}
 
@@ -643,17 +979,15 @@ export default function CreateStoryPage() {
             variant="ghost"
             size="md"
             disabled={step === 0}
-            onClick={() => setStep((s) => s - 1)}
+            onClick={() => {
+              setFormError(null);
+              setStep((s) => s - 1);
+            }}
           >
             {t("back")}
           </Button>
           {step < 3 ? (
-            <Button
-              variant="primary"
-              size="md"
-              disabled={!canNext}
-              onClick={() => setStep((s) => s + 1)}
-            >
+            <Button variant="primary" size="md" disabled={!canNext} onClick={goNext}>
               {t("next")}
             </Button>
           ) : (

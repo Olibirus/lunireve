@@ -4,11 +4,20 @@ import { generateStoryText } from "@/lib/ai";
 import { getSession } from "@/lib/auth/session";
 import { ageToRange } from "@/data/mock-stories";
 import { insertCustomStory } from "@/db/customStories";
+import { moderateStoryParams } from "@/lib/moderation";
+import {
+  HERO_TYPES,
+  FREE_HERO_MAX_AGE,
+  MAX_COMPANIONS,
+  MAX_EXTRA_INFO,
+  relationLabel,
+  heroTypeLabel,
+} from "@/lib/storyOptions";
 import type { CustomStoryParams } from "@/lib/customStories";
 
 export type GenerateResult =
   | { ok: true; title: string; body: string[]; id: string | null }
-  | { ok: false };
+  | { ok: false; reason?: "moderation" | "error" };
 
 const MOOD_FR: Record<CustomStoryParams["mood"], string> = {
   drole: "drôle et légère",
@@ -25,25 +34,63 @@ function cleanText(text: string): string {
 
 /**
  * Real personalized story generation via the provider layer (Claude).
- * Auth-gated and quota-checked client-side for now; the server-side quota
- * (per account, in DB) lands with full Supabase session management.
- * The /creer page falls back to the local stub if this fails.
+ *
+ * Server-side gates, in order:
+ *  1. auth (session required),
+ *  2. content moderation on every free-text field (lib/moderation.ts) — the
+ *     client runs the same check for instant feedback, this one is the wall,
+ *  3. tier clamps (free plan: child hero only, age <= 12),
+ * then the prompt is composed with user values wrapped in « » so the model
+ * treats them as data (see SAFETY_RULES in lib/ai/types.ts).
  */
 export async function generateStoryAction(
   params: CustomStoryParams,
   profileId: string | null = null
 ): Promise<GenerateResult> {
   const session = await getSession();
-  if (!session) return { ok: false };
+  if (!session) return { ok: false, reason: "error" };
+
+  // 2 — moderation wall. No fallback story on the client for this one.
+  const check = moderateStoryParams(params);
+  if (!check.ok) {
+    console.warn(
+      `[Lunireve] story input blocked (${check.field}: ${check.reason}) for ${session.username}`
+    );
+    return { ok: false, reason: "moderation" };
+  }
+
+  // 3 — tier clamps (quietly cap instead of failing: the UI already prevents
+  // this, so anything arriving here is a bypass attempt or a stale client).
+  const tier = session.tier ?? "free";
+  if (tier === "free") {
+    if (params.heroAge > FREE_HERO_MAX_AGE) params.heroAge = FREE_HERO_MAX_AGE;
+    const heroType = HERO_TYPES.find((h) => h.id === params.heroType);
+    if (heroType && !heroType.free) params.heroType = "garcon";
+  }
+
+  const companions = (params.companions ?? [])
+    .filter((c) => c.name.trim().length >= 2)
+    .slice(0, MAX_COMPANIONS);
+  const extraInfo = (params.extraInfo ?? [])
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, MAX_EXTRA_INFO);
+  const readingAge = params.readingAge ?? params.heroAge;
+  const heroKind = heroTypeLabel(params.heroType, "fr").toLowerCase();
 
   const lines = [
-    `Écris une histoire pour enfant dont le héros est ${params.heroName}, ${params.heroAge} ans.`,
-    params.trait && `Particularité du héros : ${params.trait}.`,
+    `Écris une histoire pour enfant dont le héros est « ${params.heroName} », ${params.heroAge} ans${heroKind ? ` (${heroKind})` : ""}.`,
+    params.trait && `Particularité du héros : « ${params.trait} ».`,
     `Thème : ${params.theme}. Ambiance : ${MOOD_FR[params.mood]}.`,
-    params.friend && `Un personnage secondaire apparaît : ${params.friend}.`,
-    params.place && `L'histoire se déroule (au moins en partie) ici : ${params.place}.`,
+    companions.length
+      ? `Personnages secondaires : ${companions
+          .map((c) => `« ${c.name} », ${relationLabel(c.relation, "fr")} du héros`)
+          .join(" ; ")}.`
+      : params.friend && `Un personnage secondaire apparaît : « ${params.friend} ».`,
+    params.place && `L'histoire se déroule (au moins en partie) ici : « ${params.place} ».`,
     params.fear &&
-      `Le héros surmonte progressivement cette peur au fil de l'histoire : ${params.fear}. Traite-la avec douceur, jamais de façon effrayante.`,
+      `Le héros surmonte progressivement cette peur au fil de l'histoire : « ${params.fear} ». Traite-la avec douceur, jamais de façon effrayante.`,
+    ...extraInfo.map((info) => `À intégrer naturellement dans l'histoire : « ${info} ».`),
     "Termine sur une note apaisante adaptée au coucher.",
     "N'utilise jamais de tiret cadratin dans le texte.",
   ].filter(Boolean) as string[];
@@ -51,13 +98,17 @@ export async function generateStoryAction(
   try {
     const result = await generateStoryText({
       language: params.language,
-      ageRange: ageToRange(params.heroAge),
+      ageRange: ageToRange(readingAge),
       prompt: lines.join("\n"),
       characters: [
         {
           name: params.heroName,
-          description: `héros de l'histoire, ${params.heroAge} ans${params.trait ? `, ${params.trait}` : ""}`,
+          description: `héros de l'histoire, ${params.heroAge} ans${heroKind ? `, ${heroKind}` : ""}${params.trait ? `, ${params.trait}` : ""}`,
         },
+        ...companions.map((c) => ({
+          name: c.name,
+          description: `${relationLabel(c.relation, "fr")} du héros`,
+        })),
       ],
       // Length + moral are driven by ageRange in the provider (WORD_RANGE_BY_AGE).
     });
@@ -88,6 +139,6 @@ export async function generateStoryAction(
     return { ok: true, title, body, id };
   } catch (e) {
     console.error("[Lunireve] story generation failed:", e);
-    return { ok: false };
+    return { ok: false, reason: "error" };
   }
 }

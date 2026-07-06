@@ -3,6 +3,7 @@ import { env } from "@/lib/env";
 import {
   WORD_RANGE_BY_AGE,
   endsWithMoral,
+  SAFETY_RULES,
   type TextProvider,
   type StoryGenerationInput,
   type StoryGenerationOutput,
@@ -47,6 +48,7 @@ function buildSystemPrompt(input: StoryGenerationInput) {
     : "End the final scene with a gentle one-sentence moral that follows naturally from the story's theme.";
 
   return `${voice}
+${SAFETY_RULES}
 Age range: ${input.ageRange}. ${ageGuidance}
 Length requirement (STRICT, non-negotiable):
 - Write EXACTLY ${sceneCount} scenes.

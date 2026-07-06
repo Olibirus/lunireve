@@ -1,9 +1,10 @@
 import OpenAI from "openai";
 import { env } from "@/lib/env";
-import type {
-  TextProvider,
-  StoryGenerationInput,
-  StoryGenerationOutput,
+import {
+  SAFETY_RULES,
+  type TextProvider,
+  type StoryGenerationInput,
+  type StoryGenerationOutput,
 } from "../types";
 
 /**
@@ -24,9 +25,9 @@ export const openaiTextProvider: TextProvider = {
     const client = getClient();
 
     const systemPrompt =
-      input.language === "fr"
+      (input.language === "fr"
         ? "Tu es un·e auteur·rice de contes pour enfants francophone."
-        : "You are an English-language children's storybook author.";
+        : "You are an English-language children's storybook author.") + SAFETY_RULES;
 
     const userPrompt = [
       `Age: ${input.ageRange}. Target ~${input.targetWords ?? 600} words, 6-10 scenes.`,

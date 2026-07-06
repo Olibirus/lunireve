@@ -108,7 +108,7 @@ export function GenreCarousel() {
   return (
     <section className="relative isolate overflow-hidden py-14 md:py-20">
       <SectionStars />
-      <div className="mx-auto max-w-7xl px-5 md:px-8">
+      <div className="mx-auto max-w-[88rem] px-5 md:px-10">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2
@@ -141,8 +141,9 @@ export function GenreCarousel() {
           </div>
         </div>
 
-        {/* Viewport (margins on both sides come from the max-w container) */}
-        <div className="mt-8 overflow-hidden">
+        {/* Viewport: vertical padding gives the hover-scaled cards room so
+            their top/bottom aren't clipped by the horizontal overflow. */}
+        <div className="mt-6 overflow-hidden py-6">
           <div
             ref={trackRef}
             className={cn("drag-x flex", drag && "dragging")}
@@ -170,7 +171,7 @@ export function GenreCarousel() {
                   <div
                     className={cn(
                       GENRE_COVER[g] ?? "cover-indigo",
-                      "relative aspect-square w-full overflow-hidden rounded-3xl border border-[var(--color-ink-100)] shadow-[var(--shadow-soft)] transition-transform group-hover:scale-[1.03]"
+                      "relative aspect-square w-full overflow-hidden rounded-3xl border border-[var(--color-ink-100)] shadow-[var(--shadow-card)] transition-transform duration-300 group-hover:scale-[1.04]"
                     )}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -184,10 +185,10 @@ export function GenreCarousel() {
                         (e.target as HTMLImageElement).style.display = "none";
                       }}
                     />
-                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                     <span
-                      className="absolute inset-x-0 bottom-0 p-4 font-serif text-lg md:text-xl leading-tight text-white drop-shadow"
-                      style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
+                      className="absolute inset-x-0 bottom-0 p-4 md:p-5 font-serif text-xl md:text-2xl leading-tight text-white"
+                      style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500", textShadow: "0 1px 10px rgba(0,0,0,0.6)" }}
                     >
                       {t(`genres.${g}`)}
                     </span>

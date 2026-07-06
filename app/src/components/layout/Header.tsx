@@ -274,7 +274,7 @@ export function Header() {
               lengths on the right, each column with its own title. */}
           <NavDropdown label={t("nav.byAge")} contentClassName="min-w-0 w-max">
             <div className="grid grid-cols-[auto_auto] gap-x-3 p-1">
-              <div>
+              <div className="min-w-[7.5rem]">
                 <p className="px-3 pb-1 pt-1 text-[10px] font-medium uppercase tracking-widest text-[var(--color-ink-400)]">
                   {t("nav.byAge")}
                 </p>

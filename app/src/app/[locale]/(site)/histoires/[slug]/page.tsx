@@ -223,7 +223,7 @@ export default async function StoryDetailPage({
       <ReadingProgress slug={story.slug} />
 
       {/* Reading toolbar — audio, downloads, comfort settings (#19/#20) */}
-      <section className="mx-auto max-w-3xl px-5 md:px-8 -mt-7 relative z-10">
+      <section className="mx-auto max-w-4xl px-5 md:px-8 -mt-7 relative z-10">
         <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 md:p-5 shadow-[var(--shadow-card)]">
           {/* Two columns: round play button centered left, stacked downloads
               centered right (buttons left-aligned to each other). Stacks on mobile. */}
@@ -267,7 +267,7 @@ export default async function StoryDetailPage({
 
       {/* Body — single centered column, wider measure (#5) */}
       <section className="mx-auto max-w-4xl px-5 md:px-8 py-10 md:py-14">
-        <div id="story-body" className="prose-reading reading-size-m mx-auto max-w-[74ch]">
+        <div id="story-body" className="prose-reading reading-size-m mx-auto">
           {story.interactive && interactive ? (
             <InteractiveStory tree={interactive} />
           ) : (
@@ -318,7 +318,7 @@ export default async function StoryDetailPage({
       </section>
 
       {/* Quiz + glossary + print — standard reading width */}
-      <section className="mx-auto max-w-3xl px-5 md:px-8 pt-6 space-y-6">
+      <section className="mx-auto max-w-4xl px-5 md:px-8 pt-6 space-y-6">
         <StoryQuiz questions={quiz} slug={story.slug} />
 
         {/* Glossary — open by default (#30) */}
@@ -368,7 +368,7 @@ export default async function StoryDetailPage({
       </section>
 
       {/* Free tags — all clickable (#10), route to library search */}
-      <section className="mx-auto max-w-3xl px-5 md:px-8 pt-6 pb-12">
+      <section className="mx-auto max-w-4xl px-5 md:px-8 pt-6 pb-12">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs uppercase tracking-widest text-[var(--color-ink-500)]">
             {t("themesLabel")}
@@ -376,7 +376,7 @@ export default async function StoryDetailPage({
           {story.tags.map((tag) => (
             <Link
               key={tag}
-              href={{ pathname: "/histoires", query: { q: tag } }}
+              href={{ pathname: "/histoires", query: { tag } }}
               className="rounded-full border border-[var(--color-ink-100)] px-3 py-1 text-xs text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
             >
               #{tag}

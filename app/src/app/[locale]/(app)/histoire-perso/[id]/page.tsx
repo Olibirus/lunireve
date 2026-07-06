@@ -59,23 +59,64 @@ function buildQuiz(story: CustomStory): QuizQuestion[] {
   ];
 }
 
-/** Inline «...» quotes styled like the library story pages. */
-function renderDialogue(text: string): ReactNode[] {
+type Glossary = { word: string; definition: string }[];
+
+/** Wrap glossary words (first occurrence each, tracked via `used`) with a tooltip. */
+function applyGlossary(text: string, glossary: Glossary, used: Set<string>): ReactNode[] {
+  let parts: ReactNode[] = [text];
+  for (const entry of glossary) {
+    if (used.has(entry.word)) continue;
+    const next: ReactNode[] = [];
+    let wrapped = false;
+    for (const part of parts) {
+      if (typeof part !== "string" || wrapped) {
+        next.push(part);
+        continue;
+      }
+      const idx = part.toLowerCase().indexOf(entry.word.toLowerCase());
+      if (idx === -1) {
+        next.push(part);
+        continue;
+      }
+      wrapped = true;
+      used.add(entry.word);
+      next.push(part.slice(0, idx));
+      next.push(
+        <span key={`${entry.word}-${idx}`} className="glossary-term" tabIndex={0}>
+          {part.slice(idx, idx + entry.word.length)}
+          <span className="glossary-tip" role="tooltip">
+            {entry.definition}
+          </span>
+        </span>
+      );
+      next.push(part.slice(idx + entry.word.length));
+    }
+    parts = next;
+  }
+  return parts;
+}
+
+/**
+ * Render a paragraph like library stories: only the words SPOKEN inside «...»
+ * are italic (not the whole line), and glossary terms get their hover tooltip.
+ */
+function renderParagraph(text: string, glossary: Glossary): ReactNode[] {
+  const used = new Set<string>();
   const out: ReactNode[] = [];
   const re = /«[^»]*»/g;
   let last = 0;
   let m: RegExpExecArray | null;
   let key = 0;
   while ((m = re.exec(text))) {
-    if (m.index > last) out.push(text.slice(last, m.index));
+    if (m.index > last) out.push(...applyGlossary(text.slice(last, m.index), glossary, used));
     out.push(
       <em key={`q${key++}`} className="italic text-[var(--color-indigo-soft-700)]">
-        {m[0]}
+        {applyGlossary(m[0], glossary, used)}
       </em>
     );
     last = m.index + m[0].length;
   }
-  if (last < text.length) out.push(text.slice(last));
+  if (last < text.length) out.push(...applyGlossary(text.slice(last), glossary, used));
   return out;
 }
 
@@ -165,8 +206,8 @@ export default function CustomStoryPage() {
 
   return (
     <>
-      {/* Reading progress bar + resume banner (same as library stories) */}
-      <ReadingProgress slug={story.id} />
+      {/* Reading progress bar (pinned to the very top: no navbar in this view) */}
+      <ReadingProgress slug={story.id} top="top-0" />
 
       {/* Hero */}
       <section className="cover-night relative h-[50svh] md:h-[60svh] bg-fixed">
@@ -200,7 +241,7 @@ export default function CustomStoryPage() {
       </section>
 
       {/* Toolbar — audio, downloads, then the same controls as any story */}
-      <section className="mx-auto max-w-3xl px-5 md:px-8 -mt-7 relative z-10" data-no-print>
+      <section className="mx-auto max-w-4xl px-5 md:px-8 -mt-7 relative z-10" data-no-print>
         <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 shadow-[var(--shadow-card)]">
           <div className="flex flex-wrap items-center gap-2">
             <AudioPlayer
@@ -253,17 +294,12 @@ export default function CustomStoryPage() {
           />
         )}
 
-        <div id="story-body" className="prose-reading reading-size-m mx-auto max-w-[74ch]">
-          {story.body.map((p, i) => {
-            const trimmed = p.trimStart();
-            const isDialogueLine =
-              trimmed.startsWith("«") || trimmed.startsWith("-") || trimmed.startsWith("–");
-            return (
-              <p key={i} className={cn(i === 0 && "drop-cap", isDialogueLine && "dialogue")}>
-                {renderDialogue(p)}
-              </p>
-            );
-          })}
+        <div id="story-body" className="prose-reading reading-size-m mx-auto">
+          {story.body.map((p, i) => (
+            <p key={i} className={cn(i === 0 && "drop-cap")}>
+              {renderParagraph(p, story.glossary ?? [])}
+            </p>
+          ))}
           <p className="not-prose-reading mt-10 text-center italic text-[var(--color-ink-500)]">
             {t("story.endNote")}
           </p>
@@ -271,7 +307,7 @@ export default function CustomStoryPage() {
       </section>
 
       {/* Quiz + glossary + print + next episode + share */}
-      <section className="mx-auto max-w-3xl px-5 md:px-8 pb-16 space-y-6" data-no-print>
+      <section className="mx-auto max-w-4xl px-5 md:px-8 pb-16 space-y-6" data-no-print>
         <StoryQuiz questions={buildQuiz(story)} slug={story.id} />
 
         {/* Glossary — only when the generation flagged difficult words */}

@@ -19,6 +19,8 @@ export type StoryFilters = {
   character?: string;
   duration?: DurationBucket;
   audio?: boolean;
+  /** Exact tag match (from story-page hashtags). Precise, not fuzzy search. */
+  tag?: string;
 };
 
 export function applyFilters(filters: StoryFilters): MockStory[] {
@@ -30,6 +32,11 @@ export function applyFilters(filters: StoryFilters): MockStory[] {
     if (filters.duration && durationBucket(s.readingMinutes) !== filters.duration)
       return false;
     if (filters.audio && !s.hasAudio) return false;
+    if (
+      filters.tag &&
+      !s.tags.some((tg) => tg.toLowerCase() === filters.tag!.toLowerCase())
+    )
+      return false;
     return true;
   });
 }
@@ -102,5 +109,7 @@ export function filtersFromSearchParams(
   if (duration === "short" || duration === "medium" || duration === "long")
     f.duration = duration;
   if (one(sp.audio) === "1") f.audio = true;
+  const tag = one(sp.tag);
+  if (tag) f.tag = tag;
   return f;
 }

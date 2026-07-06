@@ -58,7 +58,7 @@ export default async function LibraryPage({
   // Build a query object preserving other params while toggling one key.
   const baseQuery: Record<string, string> = {};
   for (const [k, v] of Object.entries(sp)) {
-    if (typeof v === "string" && ["character", "age", "theme", "interactive", "sort"].includes(k)) {
+    if (typeof v === "string" && ["character", "age", "theme", "interactive", "sort", "tag"].includes(k)) {
       baseQuery[k] = v;
     }
   }

@@ -16,7 +16,15 @@ import { BookOpen, X } from "lucide-react";
  * With accounts (Batch 5), the key gains a profile prefix and history syncs
  * to the DB — this component's logic doesn't change.
  */
-export function ReadingProgress({ slug }: { slug: string }) {
+export function ReadingProgress({
+  slug,
+  top = "top-20",
+}: {
+  slug: string;
+  /** Where to pin the bar. Library pages have an 80px navbar (top-20); the
+      personalized/child view has no navbar, so it pins to top-0. */
+  top?: string;
+}) {
   const t = useTranslations("story");
   const [resumeAt, setResumeAt] = useState<number | null>(null);
   const [live, setLive] = useState(0);
@@ -72,7 +80,7 @@ export function ReadingProgress({ slug }: { slug: string }) {
           bar is always visible, not hidden behind the navbar. */}
       <div
         aria-hidden
-        className="fixed left-0 top-20 z-30 h-1 w-full bg-[var(--color-ink-100)]/60"
+        className={`fixed left-0 ${top} z-30 h-1 w-full bg-[var(--color-ink-100)]/60`}
       >
         <div
           className="h-full bg-[var(--color-fox-500)] transition-[width] duration-150"

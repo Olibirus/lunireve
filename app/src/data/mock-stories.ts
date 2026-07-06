@@ -100,7 +100,7 @@ export const mockStories: MockStory[] = [
     theme: "emotions",
     subTheme: "sommeil",
     character: "renard",
-    tags: ["coucher", "lune", "rituel du soir"],
+    tags: ["renard", "coucher", "lune", "nuit", "sommeil", "rituel du soir", "douceur"],
     excerpt:
       "Filo le petit renard trouve toujours une raison pour ne pas aller au lit. Jusqu'à la nuit où la lune lui confie un secret.",
     cover: "cover-night",
@@ -122,7 +122,7 @@ export const mockStories: MockStory[] = [
     theme: "aventure",
     subTheme: "voyages-sous-la-mer",
     character: "enfant-fille",
-    tags: ["mer", "baleine", "voilier"],
+    tags: ["mer", "baleine", "voilier", "ocean", "amitie", "voyage", "aventure"],
     excerpt:
       "Le jour où Léa tombe de son voilier, elle rencontre une baleine qui l'emmène bien plus loin qu'elle ne l'imaginait.",
     cover: "cover-sea",
@@ -144,7 +144,7 @@ export const mockStories: MockStory[] = [
     theme: "nature",
     subTheme: "jardin",
     character: "grand-mere",
-    tags: ["potager", "graines", "famille"],
+    tags: ["potager", "jardin", "graines", "nature", "famille", "grand-mere", "patience", "magie"],
     excerpt:
       "Chez Mamie Rose, les tomates chantent et les carottes dansent. Aujourd'hui, une graine mystérieuse vient d'arriver.",
     cover: "cover-meadow",
@@ -166,7 +166,7 @@ export const mockStories: MockStory[] = [
     theme: "amitie",
     subTheme: "confiance-en-soi",
     character: "dragon",
-    tags: ["dragon", "forêt", "timidité"],
+    tags: ["dragon", "foret", "timidite", "courage", "amitie", "confiance", "fantastique"],
     excerpt:
       "Dans la forêt d'Argoat vit un dragon qui n'ose pas faire peur à personne. Timothée va lui apprendre le courage.",
     cover: "cover-peach",
@@ -188,7 +188,7 @@ export const mockStories: MockStory[] = [
     theme: "aventure",
     subTheme: "voyages-spatiaux",
     character: "enfant-fille",
-    tags: ["étoiles", "course", "espace"],
+    tags: ["etoiles", "course", "espace", "nuit", "ciel", "aventure", "reve"],
     excerpt:
       "Chaque siècle, les étoiles organisent une course folle. Cette année, une enfant a été invitée à y participer.",
     cover: "cover-indigo",
@@ -210,7 +210,7 @@ export const mockStories: MockStory[] = [
     theme: "emotions",
     subTheme: "patience",
     character: "ours",
-    tags: ["patience", "printemps", "maman"],
+    tags: ["ours", "patience", "printemps", "maman", "emotions", "saisons", "nature"],
     excerpt:
       "Petit ours voudrait que le printemps arrive plus vite. Heureusement, sa maman connaît un truc magique.",
     cover: "cover-mint",
@@ -232,7 +232,7 @@ export const mockStories: MockStory[] = [
     theme: "decouverte",
     subTheme: "mille-et-une-nuits",
     character: "marchand",
-    tags: ["Marrakech", "rêves", "souk"],
+    tags: ["marrakech", "reves", "souk", "marche", "voyage", "sagesse", "nuit", "partage"],
     excerpt:
       "Au cœur du vieux Marrakech, un homme vend des rêves en bocal. Mais que se passe-t-il quand un bocal se brise ?",
     cover: "cover-sand",
@@ -254,7 +254,7 @@ export const mockStories: MockStory[] = [
     theme: "aventure",
     subTheme: "extraterrestres",
     character: "enfant-garcon",
-    tags: ["comète", "jumeaux", "nuit"],
+    tags: ["comete", "jumeaux", "nuit", "etoiles", "espace", "aventure", "ciel"],
     excerpt:
       "Émile et Zoé voient chaque soir la même étoile filante. Et si cette étoile cherchait quelque chose ?",
     cover: "cover-dusk",
@@ -276,7 +276,7 @@ export const mockStories: MockStory[] = [
     theme: "fantastique",
     subTheme: "petits-enqueteurs",
     character: "enfant-fille",
-    tags: ["bibliothèque", "mystère", "nuit"],
+    tags: ["bibliotheque", "mystere", "nuit", "livres", "aventure", "magie", "interactif"],
     excerpt:
       "On raconte que certaines nuits, la bibliothèque municipale change de trottoir. Camille a décidé d'en avoir le cœur net.",
     cover: "cover-night",
@@ -298,7 +298,7 @@ export const mockStories: MockStory[] = [
     theme: "humour",
     subTheme: "inventions-farfelues",
     character: "gateau",
-    tags: ["cuisine", "chocolat", "rire"],
+    tags: ["cuisine", "gateau", "chocolat", "rire", "humour", "famille", "patience"],
     excerpt:
       "Ce matin, le gâteau au chocolat refuse d'entrer dans le four. Il a des choses à dire, lui aussi.",
     cover: "cover-peach",
@@ -320,7 +320,7 @@ export const mockStories: MockStory[] = [
     theme: "courage",
     subTheme: "mer",
     character: "phare",
-    tags: ["Bretagne", "tempête", "courage"],
+    tags: ["bretagne", "phare", "tempete", "courage", "mer", "nuit", "amitie"],
     excerpt:
       "Au bout de la Bretagne, un tout petit phare va devoir sauver un bateau malgré sa lumière vacillante.",
     cover: "cover-sea",
@@ -342,7 +342,7 @@ export const mockStories: MockStory[] = [
     theme: "nature",
     subTheme: "royaume-miniature",
     character: "reine",
-    tags: ["forêt", "champignons", "royaume"],
+    tags: ["foret", "champignons", "royaume", "nature", "fantastique", "aventure", "reine"],
     excerpt:
       "Sous la mousse du vieil hêtre règne une reine minuscule. Cette semaine, son royaume a été volé.",
     cover: "cover-meadow",

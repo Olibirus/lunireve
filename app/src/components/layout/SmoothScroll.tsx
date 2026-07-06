@@ -1,25 +1,34 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 /**
- * Premium smooth scrolling: wheel input is eased toward its target with a
- * gentle lerp, so the page keeps gliding briefly after the user stops
- * scrolling ("slow release"). Native scrolling is preserved (we drive
- * window.scrollTo), so position: fixed, bg-attachment and anchors keep
- * working. Desktop-wheel only; touch, keyboard and scrollbars stay native.
- * Disabled for prefers-reduced-motion. Wheel events over an inner scrollable
- * element (dropdowns, search results) are left alone.
+ * Premium smooth scrolling: wheel input is eased toward a target with a gentle
+ * lerp, so the page keeps gliding briefly after the user stops ("slow
+ * release"). Everything else stays native, and control is handed back the
+ * instant the user scrolls another way (scrollbar drag, middle-click
+ * autoscroll, keyboard). Re-initialised on every route change so a new page
+ * never inherits the previous page's scroll target (which used to jump to the
+ * footer). Disabled for reduced-motion and coarse pointers (touch).
  */
 export function SmoothScroll() {
+  const pathname = usePathname();
+
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    // Skip coarse pointers (phones/tablets): native momentum is already good.
     if (window.matchMedia("(pointer: coarse)").matches) return;
 
     let target = window.scrollY;
     let raf = 0;
     let running = false;
+    // Ring buffer of the scroll positions WE set, so async scroll events from
+    // our own animation aren't mistaken for user input.
+    const recent: number[] = [];
+    const remember = (v: number) => {
+      recent.push(v);
+      if (recent.length > 6) recent.shift();
+    };
 
     const maxScroll = () =>
       document.documentElement.scrollHeight - window.innerHeight;
@@ -31,8 +40,9 @@ export function SmoothScroll() {
         running = false;
         return;
       }
-      // 0.11 = easing strength: quick to respond, slow to settle.
-      window.scrollTo({ top: current + diff * 0.11, behavior: "auto" });
+      const next = current + diff * 0.12; // easing: quick to respond, slow to settle
+      remember(next);
+      window.scrollTo(0, next);
       raf = requestAnimationFrame(loop);
     }
 
@@ -55,7 +65,7 @@ export function SmoothScroll() {
       if (e.ctrlKey || e.defaultPrevented) return; // pinch-zoom etc.
       if (insideScrollable(e.target)) return;
       e.preventDefault();
-      if (!running) target = window.scrollY; // resync after native jumps
+      if (!running) target = window.scrollY; // resync after a native jump
       const step = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
       target = Math.max(0, Math.min(maxScroll(), target + step));
       if (!running) {
@@ -64,12 +74,23 @@ export function SmoothScroll() {
       }
     }
 
+    // Any scroll we did NOT drive (scrollbar drag, autoscroll, keys, browser
+    // restoration) cancels the animation and resyncs, so it never fights back.
+    function onScroll() {
+      if (recent.some((v) => Math.abs(v - window.scrollY) < 3)) return;
+      running = false;
+      cancelAnimationFrame(raf);
+      target = window.scrollY;
+    }
+
     window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }

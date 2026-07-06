@@ -35,7 +35,7 @@ export default async function BlogArticlePage({ params }: Props) {
 
   return (
     <>
-      <article className="mx-auto max-w-4xl px-5 md:px-8 pt-8 md:pt-12 pb-16">
+      <article className="mx-auto max-w-5xl px-5 md:px-8 pt-8 md:pt-12 pb-16">
         <Link
           href="/blog"
           className="inline-flex items-center gap-2 text-sm text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
@@ -121,7 +121,7 @@ export default async function BlogArticlePage({ params }: Props) {
       {/* Internal linking — 3 related articles, by tag (SEO + engagement) */}
       {related.length > 0 && (
         <section className="bg-[var(--color-cream-100)]">
-          <div className="mx-auto max-w-5xl px-5 md:px-8 py-16">
+          <div className="mx-auto max-w-6xl px-5 md:px-8 py-16">
             <h2
               className="font-serif text-2xl md:text-3xl tracking-tight"
               style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}

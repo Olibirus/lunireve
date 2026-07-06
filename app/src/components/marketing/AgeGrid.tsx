@@ -40,7 +40,7 @@ export function AgeGrid() {
           </p>
         </div>
 
-        <div className="mx-auto mt-10 grid max-w-3xl grid-cols-3 gap-5 md:gap-8">
+        <div className="mx-auto mt-12 grid max-w-4xl grid-cols-3 gap-6 md:gap-10">
           {AGE_RANGES.map((r) => (
             <Link
               key={r}
@@ -51,7 +51,7 @@ export function AgeGrid() {
               <div
                 className={cn(
                   AGE_COVER[r],
-                  "relative aspect-square w-full max-w-[11rem] overflow-hidden rounded-full border-4 border-[var(--color-cream-50)] shadow-[var(--shadow-card)] transition-transform group-hover:scale-105"
+                  "relative aspect-square w-full max-w-[15rem] overflow-hidden rounded-full border-4 border-[var(--color-cream-50)] shadow-[var(--shadow-card)] transition-transform duration-300 group-hover:scale-105"
                 )}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -67,7 +67,7 @@ export function AgeGrid() {
                 />
               </div>
               <span
-                className="font-serif text-lg md:text-xl tracking-tight text-[var(--color-ink-800)] group-hover:text-[var(--color-indigo-soft-600)] transition-colors"
+                className="font-serif text-xl md:text-2xl tracking-tight text-[var(--color-ink-800)] group-hover:text-[var(--color-indigo-soft-600)] transition-colors"
                 style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
               >
                 {ageLabel(r)}

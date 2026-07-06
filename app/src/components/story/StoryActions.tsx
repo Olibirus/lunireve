@@ -65,30 +65,118 @@ export function FavoriteButton({ slug }: { slug: string }) {
   );
 }
 
+/**
+ * Share menu: main social networks + copy link, in a small popover. The
+ * native share sheet is offered too when the browser supports it (mobile).
+ */
 export function ShareButton() {
   const t = useTranslations("story");
+  const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [canNative, setCanNative] = useState(false);
 
-  async function share() {
-    const url = window.location.href;
+  useEffect(() => setCanNative(typeof navigator !== "undefined" && !!navigator.share), []);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    // Close on any outside click (popover buttons stopPropagation).
+    const id = setTimeout(() => document.addEventListener("click", close), 0);
+    return () => {
+      clearTimeout(id);
+      document.removeEventListener("click", close);
+    };
+  }, [open]);
+
+  function popup(shareUrl: string) {
+    window.open(shareUrl, "_blank", "noopener,noreferrer,width=640,height=560");
+    setOpen(false);
+  }
+
+  function networks() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(document.title);
+    return [
+      { name: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${url}` },
+      { name: "X (Twitter)", href: `https://twitter.com/intent/tweet?url=${url}&text=${title}` },
+      { name: "WhatsApp", href: `https://api.whatsapp.com/send?text=${title}%20${url}` },
+      { name: "Pinterest", href: `https://pinterest.com/pin/create/button/?url=${url}&description=${title}` },
+      { name: "E-mail", href: `mailto:?subject=${title}&body=${url}` },
+    ];
+  }
+
+  async function copyLink() {
     try {
-      if (navigator.share) {
-        await navigator.share({ url, title: document.title });
-        return;
-      }
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => {
+        setCopied(false);
+        setOpen(false);
+      }, 1200);
     } catch {
-      /* user cancelled the share sheet */
+      /* clipboard unavailable */
+    }
+  }
+
+  async function nativeShare() {
+    try {
+      await navigator.share({ url: window.location.href, title: document.title });
+      setOpen(false);
+    } catch {
+      /* user cancelled */
     }
   }
 
   return (
-    <Button variant="ghost" size="sm" onClick={share}>
-      <Share2 className="h-4 w-4" />
-      {copied ? t("shareCopied") : t("share")}
-    </Button>
+    <span className="relative inline-block">
+      <Button
+        variant="ghost"
+        size="sm"
+        aria-expanded={open}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((o) => !o);
+        }}
+      >
+        <Share2 className="h-4 w-4" />
+        {t("share")}
+      </Button>
+
+      {open && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="absolute bottom-full left-1/2 z-40 mb-2 w-48 -translate-x-1/2 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-1.5 shadow-[var(--shadow-float)]"
+        >
+          {canNative && (
+            <button
+              type="button"
+              onClick={nativeShare}
+              className="block w-full rounded-xl px-3 py-2 text-left text-sm text-[var(--color-ink-700)] hover:bg-[var(--color-cream-100)]"
+            >
+              {t("shareNative")}
+            </button>
+          )}
+          {typeof window !== "undefined" &&
+            networks().map((n) => (
+              <button
+                key={n.name}
+                type="button"
+                onClick={() => popup(n.href)}
+                className="block w-full rounded-xl px-3 py-2 text-left text-sm text-[var(--color-ink-700)] hover:bg-[var(--color-cream-100)]"
+              >
+                {n.name}
+              </button>
+            ))}
+          <button
+            type="button"
+            onClick={copyLink}
+            className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-[var(--color-indigo-soft-600)] hover:bg-[var(--color-cream-100)]"
+          >
+            {copied ? t("shareCopied") : t("shareCopy")}
+          </button>
+        </div>
+      )}
+    </span>
   );
 }
 

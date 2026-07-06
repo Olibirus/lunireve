@@ -1,15 +1,17 @@
 import { setRequestLocale } from "next-intl/server";
 import { PromoBanner } from "@/components/marketing/PromoBanner";
-import { Hero } from "@/components/marketing/Hero";
-import { ThreeWays } from "@/components/marketing/ThreeWays";
-import { HowItWorks } from "@/components/marketing/HowItWorks";
-import { FeaturedStories } from "@/components/marketing/FeaturedStories";
-import { PrintTeaser } from "@/components/marketing/PrintTeaser";
+import { HeroV2 } from "@/components/marketing/HeroV2";
+import { ParallaxBand } from "@/components/marketing/ParallaxBand";
+import { GenreCarousel } from "@/components/marketing/GenreCarousel";
+import { AgeGrid } from "@/components/marketing/AgeGrid";
+import { PersonalizeBand } from "@/components/marketing/PersonalizeBand";
+import { AboutTeaser } from "@/components/marketing/AboutTeaser";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 
 /**
- * Homepage. Pure composition — each section is a standalone component so we can
- * A/B test order or swap sections without touching the shell.
+ * Homepage (v2 promoted to default): hero (search + read/personalize CTAs)
+ * -> parallax band -> genre cards carousel -> round age cards -> personalized
+ * CTA -> about teaser -> newsletter.
  */
 export default async function HomePage({
   params,
@@ -22,12 +24,12 @@ export default async function HomePage({
   return (
     <>
       <PromoBanner />
-      <Hero />
-      <div className="dot-rule mx-auto max-w-5xl" aria-hidden />
-      <ThreeWays />
-      <FeaturedStories />
-      <HowItWorks />
-      <PrintTeaser />
+      <HeroV2 />
+      <ParallaxBand />
+      <GenreCarousel />
+      <AgeGrid />
+      <PersonalizeBand />
+      <AboutTeaser />
       <NewsletterBand />
     </>
   );

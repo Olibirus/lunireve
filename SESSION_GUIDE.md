@@ -7,6 +7,7 @@ after each batch (must stay green).
 ## Cross-session changes log
 <!-- Add ONE line per cross-territory edit, newest on top:
      `YYYY-MM-DD [Session X]: touched <folder> for <reason>` -->
+2026-06-28 [Session A]: touched data/mock-blog.ts (EN fallback), i18n/routing (removed /v2); homepage v2 promoted to /, old V1 marketing components deleted
 2026-06-17 [Session A]: added i18n/routing /v2 route for homepage-v2 test page (round 9)
 2026-07-06 [Session B]: round-10 batch. New components/account/AccountShell.tsx (full-width portal chrome, shared by /compte + /creer). Touched lib/pdf/storyPdf.ts (logo ratio + www.lunireve.com footer), lib/ai (glossary in output schema, length-retry in anthropic provider), db/customStories.ts (glossary in metadata), app/actions/generateStory.ts (glossary, sequelOf, stronger place/extraInfo prompt lines). Perso story page: parity with library stories + next-episode CTA.
 2026-07-06 [Session B]: story flow v2 + moderation. New lib/moderation.ts + lib/storyOptions.ts; touched app/actions/generateStory.ts (moderation gate, tier clamps, companions/extraInfo prompt) and lib/ai/types.ts + providers (SAFETY_RULES in system prompts). CustomStoryParams extended (heroType, companions, readingAge, extraInfo, skinTone).

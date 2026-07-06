@@ -21,7 +21,6 @@ export const routing = defineRouting({
   // We'll expand this as we add pages.
   pathnames: {
     "/": "/",
-    "/v2": "/v2",
     "/histoires": {
       fr: "/histoires",
       en: "/stories",

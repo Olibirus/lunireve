@@ -299,6 +299,8 @@
     "favorited": "In your favourites",
     "favoritesCapped": "Favourites limit reached. <upgrade>Upgrade your plan</upgrade> to save more.",
     "shareCopied": "Link copied!",
+    "shareCopy": "Copy link",
+    "shareNative": "Share via your device...",
     "report": "Report",
     "reportTitle": "Report a problem",
     "reportSubtitle": "Thank you for helping keep Lunireve safe and polished.",

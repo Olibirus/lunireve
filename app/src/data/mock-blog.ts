@@ -262,5 +262,9 @@ export function relatedArticles(slug: string, limit = 3): BlogArticle[] {
 
 /** Articles for one site language (blog index, sitemap). */
 export function articlesForLocale(locale: string): BlogArticle[] {
-  return blogArticles.filter((a) => a.language === (locale === "en" ? "en" : "fr"));
+  const wanted = locale === "en" ? "en" : "fr";
+  const matches = blogArticles.filter((a) => a.language === wanted);
+  // No article written in this language yet: show the full catalogue rather
+  // than an empty page (the EN pipeline will fill real pairs later).
+  return matches.length > 0 ? matches : blogArticles;
 }

@@ -270,24 +270,31 @@ export function Header() {
             </div>
           </NavDropdown>
 
-          {/* Age labels are short, so the panel was far too wide (#3): two
-              compact columns sized to content instead of one wide column. */}
+          {/* Combined Age + Length menu: ages stacked on the left, reading
+              lengths on the right, each column with its own title. */}
           <NavDropdown label={t("nav.byAge")} contentClassName="min-w-0 w-max">
-            <div className="grid grid-cols-2 gap-x-1">
-              {AGE_RANGES.map((r) => (
-                <MenuLink key={r} href={{ pathname: "/histoires/age/[range]", params: { range: r } }}>
-                  {ageLabel(r)}
-                </MenuLink>
-              ))}
+            <div className="grid grid-cols-[auto_auto] gap-x-3 p-1">
+              <div>
+                <p className="px-3 pb-1 pt-1 text-[10px] font-medium uppercase tracking-widest text-[var(--color-ink-400)]">
+                  {t("nav.byAge")}
+                </p>
+                {AGE_RANGES.map((r) => (
+                  <MenuLink key={r} href={{ pathname: "/histoires/age/[range]", params: { range: r } }}>
+                    {ageLabel(r)}
+                  </MenuLink>
+                ))}
+              </div>
+              <div className="border-l border-[var(--color-ink-100)] pl-3">
+                <p className="px-3 pb-1 pt-1 text-[10px] font-medium uppercase tracking-widest text-[var(--color-ink-400)]">
+                  {t("nav.byDuration")}
+                </p>
+                {DURATION_BUCKETS.map((b) => (
+                  <MenuLink key={b} href={{ pathname: "/histoires/duree/[bucket]", params: { bucket: b } }}>
+                    {t(`durations.${b}`)}
+                  </MenuLink>
+                ))}
+              </div>
             </div>
-          </NavDropdown>
-
-          <NavDropdown label={t("nav.byDuration")}>
-            {DURATION_BUCKETS.map((b) => (
-              <MenuLink key={b} href={{ pathname: "/histoires/duree/[bucket]", params: { bucket: b } }}>
-                {t(`durations.${b}`)}
-              </MenuLink>
-            ))}
           </NavDropdown>
 
           {/* Create — the product's USP, given a filled background (#4) */}

@@ -1,7 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
-import { FoxCloud } from "@/components/brand/FoxCloud";
 import { Button } from "@/components/ui/button";
 import { Accordion } from "@/components/ui/Accordion";
 import { SectionStars } from "@/components/marketing/SectionStars";
@@ -75,7 +74,28 @@ export default async function AboutPage({
                     "radial-gradient(circle at 50% 50%, rgba(183,223,204,0.85) 0%, rgba(248,180,135,0.3) 55%, transparent 70%)",
                 }}
               />
-              <FoxCloud className="relative w-full max-w-md mx-auto" />
+              {/* Extra twinkles hugging the logo (on top of the section field) */}
+              <div aria-hidden className="star-field absolute inset-0 pointer-events-none">
+                {[
+                  { top: "12%", left: "18%", dur: "2.6s", delay: "0.2s", big: true },
+                  { top: "8%", left: "72%", dur: "3.4s", delay: "1.4s" },
+                  { top: "70%", left: "10%", dur: "3s", delay: "0.8s" },
+                  { top: "78%", left: "80%", dur: "2.8s", delay: "2s", big: true },
+                ].map((s, i) => (
+                  <span
+                    key={i}
+                    className={s.big ? "star big" : "star"}
+                    style={{ top: s.top, left: s.left, "--dur": s.dur, "--delay": s.delay } as React.CSSProperties}
+                  />
+                ))}
+              </div>
+              {/* The real logo, drifting softly like a cloud */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-s.png"
+                alt="Lunireve"
+                className="float-soft relative mx-auto w-full max-w-sm"
+              />
             </div>
           </div>
 
@@ -107,7 +127,8 @@ export default async function AboutPage({
       </section>
 
       {/* Why Lunireve / story */}
-      <section className="mx-auto max-w-4xl px-5 md:px-8 py-16 md:py-24">
+      <section className="relative isolate overflow-hidden mx-auto max-w-4xl px-5 md:px-8 py-16 md:py-24">
+        <SectionStars offset={7} />
         <div className="grid md:grid-cols-[160px_1fr] gap-8 md:gap-14">
           <div>
             <p className="text-xs uppercase tracking-widest text-[var(--color-ink-500)]">
@@ -163,7 +184,8 @@ export default async function AboutPage({
       </section>
 
       {/* FAQ */}
-      <section className="mx-auto max-w-3xl px-5 md:px-8 py-16">
+      <section className="relative isolate overflow-hidden mx-auto max-w-3xl px-5 md:px-8 py-16">
+        <SectionStars offset={10} />
         <h2
           className="mb-6 text-center font-serif text-3xl md:text-4xl tracking-tight"
           style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}
@@ -179,7 +201,8 @@ export default async function AboutPage({
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-7xl px-5 md:px-8 pb-20 md:pb-28">
+      <section className="relative isolate overflow-hidden mx-auto max-w-7xl px-5 md:px-8 pb-20 md:pb-28">
+        <SectionStars offset={2} />
         <div className="relative overflow-hidden rounded-[2rem] band-ink text-[var(--color-cream-50)] px-6 md:px-14 py-14 md:py-20">
           <div
             aria-hidden

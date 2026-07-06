@@ -358,9 +358,11 @@
 /* ---------- Reading comfort (story page) ---------- */
 @layer utilities {
   /* Text size steps — applied on #story-body by ReadingSettings */
-  .reading-size-s { font-size: 1rem; }
-  .reading-size-m { font-size: 1.1875rem; }
-  .reading-size-l { font-size: 1.4rem; }
+  /* Compound selectors so the size always beats .prose-reading's own
+     font-size regardless of utility ordering (M and L used to render alike). */
+  .prose-reading.reading-size-s, .reading-size-s { font-size: 1rem; }
+  .prose-reading.reading-size-m, .reading-size-m { font-size: 1.1875rem; }
+  .prose-reading.reading-size-l, .reading-size-l { font-size: 1.5rem; }
 
   /* Dyslexia mode — swaps the reading font, loosens spacing */
   .reading-dyslexia,
@@ -523,3 +525,17 @@ html.dark .skeleton::after {
 @media (prefers-reduced-motion: reduce) {
   .skeleton::after { animation: none; }
 }
+
+/* Slow, soft floating motion (About hero logo: a cloud drifting in place) */
+@keyframes lr-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+.float-soft { animation: lr-float 5.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .float-soft { animation: none; }
+}
+
+/* Carousel drag affordance */
+.drag-x { cursor: grab; touch-action: pan-y; user-select: none; }
+.drag-x.dragging { cursor: grabbing; }

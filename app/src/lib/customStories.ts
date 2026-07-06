@@ -59,6 +59,8 @@ export type CustomStoryParams = {
   extraInfo?: string[];
   /** Optional illustration skin-tone preference (STORY_SKIN_TONES id). */
   skinTone?: string;
+  /** Title of the previous episode when this story is a sequel. */
+  sequelOf?: string;
 };
 
 export function findCustomStory(id: string): CustomStory | undefined {
@@ -71,6 +73,8 @@ export type CustomStory = {
   title: string;
   params: CustomStoryParams;
   body: string[];
+  /** Difficult words + child-friendly definitions, when the story has any. */
+  glossary?: { word: string; definition: string }[];
   createdAt: string;
 };
 
@@ -120,7 +124,8 @@ export function saveCustomStory(
   body: string[],
   params: CustomStoryParams,
   profileId: string | null,
-  id?: string
+  id?: string,
+  glossary?: { word: string; definition: string }[]
 ): CustomStory {
   const story: CustomStory = {
     id: id ?? crypto.randomUUID(),
@@ -128,6 +133,7 @@ export function saveCustomStory(
     title,
     params,
     body,
+    glossary: glossary?.length ? glossary : undefined,
     createdAt: new Date().toISOString(),
   };
   try {

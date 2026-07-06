@@ -82,6 +82,11 @@ export interface StoryGenerationOutput {
   }>;
   /** Full running text, useful for TTS and full-page view. */
   fullText: string;
+  /**
+   * Genuinely difficult words used in the story with child-friendly
+   * definitions (0-5 entries, empty when the story has none).
+   */
+  glossary?: Array<{ word: string; definition: string }>;
   /** Model that generated this, for provenance + debugging. */
   model: string;
 }

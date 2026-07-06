@@ -74,6 +74,16 @@ async function fetchDataUrl(url: string): Promise<string | null> {
   }
 }
 
+/** Natural width/height of an image data URL, so drawings keep its ratio. */
+function imageSize(dataUrl: string): Promise<{ w: number; h: number } | null> {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+    img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
+
 export async function downloadStoryPdf(data: StoryPdfInput) {
   const L = LABELS[data.locale === "en" ? "en" : "fr"];
   const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -84,17 +94,28 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
 
   const coverData = data.coverImage ? await fetchDataUrl(data.coverImage) : null;
   const logoData = await fetchDataUrl("/logo-s.png");
+  // Draw the logo at its NATURAL ratio (fixed height, derived width) so it is
+  // never squeezed, whatever the source file's dimensions.
+  const logoDims = logoData ? await imageSize(logoData) : null;
+  const logoRatio = logoDims && logoDims.h > 0 ? logoDims.w / logoDims.h : 3.4;
+
+  function drawLogo(x: number, y: number, h: number) {
+    if (!logoData) return 0;
+    const w = h * logoRatio;
+    try {
+      doc.addImage(logoData, "PNG", x, y, w, h);
+      return w;
+    } catch {
+      return 0;
+    }
+  }
 
   function brandFooter() {
     doc.setDrawColor(220, 220, 210);
     doc.line(M, H - 46, W - M, H - 46);
-    // Logo bottom-left on every page; licence note bottom-right.
+    // Logo bottom-left, site link centered, licence note bottom-right.
     if (logoData) {
-      try {
-        doc.addImage(logoData, "PNG", M, H - 38, 52, 15);
-      } catch {
-        /* ignore */
-      }
+      drawLogo(M, H - 38, 15);
     } else {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
@@ -103,6 +124,11 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
     }
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
+    doc.setTextColor(MINT);
+    doc.textWithLink("www.lunireve.com", W / 2, H - 28, {
+      align: "center",
+      url: "https://www.lunireve.com",
+    });
     doc.setTextColor(MUTED);
     doc.text(L.footer, W - M, H - 28, { align: "right" });
   }
@@ -148,16 +174,16 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
     try {
       doc.addImage(coverData, "PNG", imgX, imgY, size, size);
       // Logo in the bottom-right corner of the illustration, on a soft pill
-      // so it stays legible over any artwork.
+      // so it stays legible over any artwork. Natural ratio preserved.
       if (logoData) {
-        const lw = 58;
         const lh = 17;
+        const lw = lh * logoRatio;
         const pad = 8;
         const lx = imgX + size - lw - pad;
         const ly = imgY + size - lh - pad;
         doc.setFillColor("#faf5eb");
         doc.roundedRect(lx - 5, ly - 4, lw + 10, lh + 8, 6, 6, "F");
-        doc.addImage(logoData, "PNG", lx, ly, lw, lh);
+        drawLogo(lx, ly, lh);
       }
     } catch {
       /* ignore bad image data */

@@ -62,9 +62,11 @@ ${input.characters?.length ? `Characters to use consistently: ${input.characters
 Return ONLY valid JSON matching this TypeScript type, nothing else:
 {
   "title": string,
-  "scenes": Array<{ "text": string, "imagePrompt": string }>
+  "scenes": Array<{ "text": string, "imagePrompt": string }>,
+  "glossary": Array<{ "word": string, "definition": string }>
 }
-The "imagePrompt" for each scene should be a vivid English prompt describing the scene's visual — style, composition, mood — ready to feed to an image model.`;
+The "imagePrompt" for each scene should be a vivid English prompt describing the scene's visual — style, composition, mood — ready to feed to an image model.
+The "glossary" lists ONLY the genuinely difficult words you actually used (0 to 5), each with a one-sentence definition a child of this age understands, in the story's language. Empty array if none.`;
 }
 
 function getClient() {
@@ -74,40 +76,71 @@ function getClient() {
   return new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
 }
 
+type ParsedStory = {
+  title: string;
+  scenes: Array<{ text: string; imagePrompt: string }>;
+  glossary?: Array<{ word: string; definition: string }>;
+};
+
 export const anthropicTextProvider: TextProvider = {
   async generateStory(input) {
     const client = getClient();
+    const { min, max } = WORD_RANGE_BY_AGE[input.ageRange];
 
-    const res = await client.messages.create({
-      model: MODEL,
-      // Headroom for the longest ages (~2,100 words + per-scene image prompts,
-      // in JSON) which overflow 4096.
-      max_tokens: 8192,
-      system: buildSystemPrompt(input),
-      messages: [{ role: "user", content: input.prompt }],
-    });
+    async function callOnce(extraInstruction?: string): Promise<ParsedStory> {
+      const res = await client.messages.create({
+        model: MODEL,
+        // Headroom for the longest ages (~2,100 words + per-scene image prompts,
+        // in JSON) which overflow 4096.
+        max_tokens: 8192,
+        system: buildSystemPrompt(input),
+        messages: [
+          {
+            role: "user",
+            content: extraInstruction ? `${input.prompt}\n\n${extraInstruction}` : input.prompt,
+          },
+        ],
+      });
 
-    const textBlock = res.content.find((b) => b.type === "text");
-    if (!textBlock || textBlock.type !== "text") {
-      throw new Error("Anthropic returned no text block.");
+      const textBlock = res.content.find((b) => b.type === "text");
+      if (!textBlock || textBlock.type !== "text") {
+        throw new Error("Anthropic returned no text block.");
+      }
+
+      // Strip any accidental code fence wrapping.
+      const raw = textBlock.text.trim().replace(/^```json\s*|\s*```$/g, "");
+      try {
+        return JSON.parse(raw) as ParsedStory;
+      } catch {
+        throw new Error(`Anthropic returned invalid JSON:\n${raw.slice(0, 500)}`);
+      }
     }
 
-    // Strip any accidental code fence wrapping.
-    const raw = textBlock.text.trim().replace(/^```json\s*|\s*```$/g, "");
+    let parsed = await callOnce();
+    let fullText = parsed.scenes.map((s) => s.text).join("\n\n");
 
-    let parsed: { title: string; scenes: Array<{ text: string; imagePrompt: string }> };
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      throw new Error(`Anthropic returned invalid JSON:\n${raw.slice(0, 500)}`);
+    // Length enforcement: the age-driven word range is a product rule (same for
+    // personalized stories, the library pipeline and everything future). If the
+    // model drifts outside the band, retry once with a corrective instruction.
+    const words = fullText.split(/\s+/).filter(Boolean).length;
+    if (words < min * 0.85 || words > max * 1.2) {
+      const fix =
+        words < min
+          ? `IMPORTANT: your previous draft was only ${words} words, which is too short. The story MUST be between ${min} and ${max} words. Rewrite it at full length.`
+          : `IMPORTANT: your previous draft was ${words} words, which is too long. The story MUST be between ${min} and ${max} words. Rewrite it tighter.`;
+      try {
+        parsed = await callOnce(fix);
+        fullText = parsed.scenes.map((s) => s.text).join("\n\n");
+      } catch {
+        /* keep the first draft rather than failing the whole generation */
+      }
     }
-
-    const fullText = parsed.scenes.map((s) => s.text).join("\n\n");
 
     return {
       title: parsed.title,
       scenes: parsed.scenes,
       fullText,
+      glossary: Array.isArray(parsed.glossary) ? parsed.glossary.slice(0, 5) : [],
       model: MODEL,
     } satisfies StoryGenerationOutput;
   },

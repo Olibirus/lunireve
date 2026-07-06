@@ -16,7 +16,13 @@ import {
 import type { CustomStoryParams } from "@/lib/customStories";
 
 export type GenerateResult =
-  | { ok: true; title: string; body: string[]; id: string | null }
+  | {
+      ok: true;
+      title: string;
+      body: string[];
+      glossary: { word: string; definition: string }[];
+      id: string | null;
+    }
   | { ok: false; reason?: "moderation" | "error" };
 
 const MOOD_FR: Record<CustomStoryParams["mood"], string> = {
@@ -80,6 +86,8 @@ export async function generateStoryAction(
 
   const lines = [
     `Écris une histoire pour enfant dont le héros est « ${params.heroName} », ${params.heroAge} ans${heroKind ? ` (${heroKind})` : ""}.`,
+    params.sequelOf &&
+      `IMPORTANT : cette histoire est l'ÉPISODE SUIVANT de « ${params.sequelOf} ». Garde le même héros et les mêmes personnages, fais un bref clin d'œil à l'aventure précédente au début, mais invente une intrigue NOUVELLE et clairement différente.`,
     params.trait && `Particularité du héros : « ${params.trait} ».`,
     `Thème : ${params.theme}. Ambiance : ${MOOD_FR[params.mood]}.`,
     companions.length
@@ -87,10 +95,14 @@ export async function generateStoryAction(
           .map((c) => `« ${c.name} », ${relationLabel(c.relation, "fr")} du héros`)
           .join(" ; ")}.`
       : params.friend && `Un personnage secondaire apparaît : « ${params.friend} ».`,
-    params.place && `L'histoire se déroule (au moins en partie) ici : « ${params.place} ».`,
+    params.place &&
+      `CONSIGNE OBLIGATOIRE : une partie importante de l'histoire se déroule ici : « ${params.place} ». Ce lieu doit apparaître explicitement dans le récit.`,
     params.fear &&
       `Le héros surmonte progressivement cette peur au fil de l'histoire : « ${params.fear} ». Traite-la avec douceur, jamais de façon effrayante.`,
-    ...extraInfo.map((info) => `À intégrer naturellement dans l'histoire : « ${info} ».`),
+    ...extraInfo.map(
+      (info) =>
+        `CONSIGNE OBLIGATOIRE à intégrer naturellement dans l'intrigue : « ${info} ».`
+    ),
     "Termine sur une note apaisante adaptée au coucher.",
     "N'utilise jamais de tiret cadratin dans le texte.",
   ].filter(Boolean) as string[];
@@ -118,6 +130,10 @@ export async function generateStoryAction(
       : cleanText(result.fullText).split("\n\n").filter(Boolean);
 
     const title = cleanText(result.title);
+    const glossary = (result.glossary ?? []).map((g) => ({
+      word: cleanText(g.word),
+      definition: cleanText(g.definition),
+    }));
 
     // Persist to the DB so the /histoire-perso/<id> link is shareable across
     // devices. A storage failure must not lose the generated story, so we fall
@@ -130,13 +146,14 @@ export async function generateStoryAction(
         params,
         profileId,
         ownerUserId: session.userId ?? null,
+        glossary,
         model: result.model,
       });
     } catch (e) {
       console.error("[Lunireve] failed to persist generated story:", e);
     }
 
-    return { ok: true, title, body, id };
+    return { ok: true, title, body, glossary, id };
   } catch (e) {
     console.error("[Lunireve] story generation failed:", e);
     return { ok: false, reason: "error" };

@@ -26,6 +26,7 @@ type CustomStoryMetadata = {
   params: CustomStoryParams;
   body: string[];
   profileId: string | null;
+  glossary?: { word: string; definition: string }[];
   model?: string;
 };
 
@@ -52,6 +53,7 @@ function rowToCustomStory(row: typeof stories.$inferSelect): CustomStory | null 
     title: row.title,
     params: meta.params,
     body: meta.body,
+    glossary: meta.glossary?.length ? meta.glossary : undefined,
     createdAt: (row.createdAt ?? new Date()).toISOString(),
   };
 }
@@ -67,6 +69,7 @@ export async function insertCustomStory(input: {
   params: CustomStoryParams;
   profileId: string | null;
   ownerUserId: string | null;
+  glossary?: { word: string; definition: string }[];
   model?: string;
 }): Promise<string> {
   const { title, body, params, profileId, ownerUserId } = input;
@@ -82,6 +85,7 @@ export async function insertCustomStory(input: {
     params,
     body,
     profileId,
+    glossary: input.glossary?.length ? input.glossary : undefined,
     model: input.model,
   };
 

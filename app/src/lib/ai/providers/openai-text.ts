@@ -37,6 +37,7 @@ export const openaiTextProvider: TextProvider = {
         : "",
       `Brief: ${input.prompt}`,
       `Each scene's imagePrompt should be a vivid English description, ready for an image model.`,
+      `The glossary lists ONLY genuinely difficult words you actually used (0-5), each with a one-sentence child-friendly definition in the story's language; empty array if none.`,
     ]
       .filter(Boolean)
       .join("\n");
@@ -69,8 +70,20 @@ export const openaiTextProvider: TextProvider = {
                   required: ["text", "imagePrompt"],
                 },
               },
+              glossary: {
+                type: "array",
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  properties: {
+                    word: { type: "string" },
+                    definition: { type: "string" },
+                  },
+                  required: ["word", "definition"],
+                },
+              },
             },
-            required: ["title", "scenes"],
+            required: ["title", "scenes", "glossary"],
           },
         },
       },
@@ -82,12 +95,14 @@ export const openaiTextProvider: TextProvider = {
     const parsed = JSON.parse(content) as {
       title: string;
       scenes: Array<{ text: string; imagePrompt: string }>;
+      glossary?: Array<{ word: string; definition: string }>;
     };
 
     return {
       title: parsed.title,
       scenes: parsed.scenes,
       fullText: parsed.scenes.map((s) => s.text).join("\n\n"),
+      glossary: Array.isArray(parsed.glossary) ? parsed.glossary.slice(0, 5) : [],
       model: MODEL,
     } satisfies StoryGenerationOutput;
   },

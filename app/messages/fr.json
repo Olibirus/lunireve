@@ -50,6 +50,7 @@
   "customStory": {
     "badge": "Histoire personnalisée",
     "back": "Retour à l'espace enfant",
+    "backParent": "Retour à mon compte",
     "notFoundTitle": "Histoire introuvable sur cet appareil",
     "notFoundBody": "Les histoires personnalisées sont pour l'instant rangées sur l'appareil qui les a créées. Le partage entre appareils arrive très bientôt."
   },
@@ -803,6 +804,19 @@
     "subtitle": "Gérez les profils, suivez les lectures, créez des histoires.",
     "logout": "Se déconnecter",
     "backToStories": "Toutes les histoires",
+    "currentPlan": {
+      "kicker": "Votre formule actuelle",
+      "changePlan": "Changer de formule",
+      "upgradeCta": "Passer à un forfait supérieur",
+      "upgradeToMax": "Passer à Max",
+      "comparePlans": "Comparer les formules",
+      "cancelCta": "Résilier",
+      "nothingToCancel": "Vous êtes sur la formule Découverte : aucun abonnement à résilier. Vous pouvez passer à une formule payante à tout moment.",
+      "cancelPrompt": "Résilier la formule {plan} ? Vous conserverez ses avantages jusqu'à la fin de la période en cours, puis reviendrez sur Découverte.",
+      "cancelConfirm": "Confirmer la résiliation",
+      "cancelKeep": "Garder ma formule",
+      "cancelledConfirmation": "Résiliation enregistrée. Vous garderez les avantages de votre formule jusqu'à la fin de la période en cours."
+    },
     "createStory": "Créer une histoire",
     "browseLibrary": "Parcourir la bibliothèque",
     "family": "Mes enfants",

@@ -50,6 +50,7 @@
   "customStory": {
     "badge": "Personalised story",
     "back": "Back to the child space",
+    "backParent": "Back to my account",
     "notFoundTitle": "Story not found on this device",
     "notFoundBody": "Personalised stories currently live on the device that created them. Cross-device sharing is coming very soon."
   },
@@ -804,6 +805,19 @@
     "logout": "Log out",
     "createStory": "Create a story",
     "backToStories": "All stories",
+    "currentPlan": {
+      "kicker": "Your current plan",
+      "changePlan": "Change plan",
+      "upgradeCta": "Upgrade your plan",
+      "upgradeToMax": "Upgrade to Max",
+      "comparePlans": "Compare plans",
+      "cancelCta": "Cancel plan",
+      "nothingToCancel": "You're on the Discovery plan: nothing to cancel. You can upgrade to a paid plan whenever you like.",
+      "cancelPrompt": "Cancel the {plan} plan? You'll keep its perks until the end of the current period, then return to Discovery.",
+      "cancelConfirm": "Confirm cancellation",
+      "cancelKeep": "Keep my plan",
+      "cancelledConfirmation": "Cancellation recorded. You'll keep your plan's perks until the end of the current period."
+    },
     "browseLibrary": "Browse the library",
     "family": "My children",
     "childMeta": "{age} years old",

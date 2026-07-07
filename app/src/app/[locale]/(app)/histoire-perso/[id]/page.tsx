@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { findCustomStory, type CustomStory } from "@/lib/customStories";
+import { getActiveProfileId } from "@/lib/profiles";
 import { fetchCustomStory, ensureCustomStoryImage } from "@/app/actions/customStories";
 import { AudioPlayer } from "@/components/story/AudioPlayer";
 import { DownloadButtons } from "@/components/story/DownloadButtons";
@@ -125,9 +126,16 @@ export default function CustomStoryPage() {
   const params = useParams<{ id: string }>();
   const [story, setStory] = useState<CustomStory | null | undefined>(undefined);
   const [copied, setCopied] = useState(false);
+  // Whose space are we in? Set once on mount so the back link is correct:
+  // child (bubble active) => /enfant, parent (no active profile) => /compte.
+  const [backHref, setBackHref] = useState<"/enfant" | "/compte">("/compte");
   // Lazy illustration: cached URL from the row, or generated on first view.
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
+
+  useEffect(() => {
+    setBackHref(getActiveProfileId() ? "/enfant" : "/compte");
+  }, []);
 
   useEffect(() => {
     // Local-first (instant on the creating device + offline), then fall back to
@@ -214,11 +222,11 @@ export default function CustomStoryPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         <div className="absolute left-0 right-0 top-4 mx-auto max-w-4xl px-5 md:px-8" data-no-print>
           <Link
-            href="/enfant"
+            href={backHref}
             className="inline-flex items-center gap-2 rounded-full bg-black/25 px-3.5 py-1.5 text-sm text-white backdrop-blur-sm hover:bg-black/40"
           >
             <ArrowLeft className="h-4 w-4" />
-            {t("customStory.back")}
+            {backHref === "/enfant" ? t("customStory.back") : t("customStory.backParent")}
           </Link>
         </div>
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-5 md:px-8 pb-10">

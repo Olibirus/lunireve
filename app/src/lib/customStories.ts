@@ -43,6 +43,8 @@ export type CustomStoryParams = {
   heroType?: string;
   trait: string;
   theme: string;
+  /** Optional finer angle inside the theme (STORY_SUBTHEMES id or free text). */
+  subTheme?: string;
   mood: "drole" | "mysterieux" | "touchant" | "palpitant" | "doux";
   language: "fr" | "en";
   /** Legacy composed summary of the companions (kept for old stories + prompt). */

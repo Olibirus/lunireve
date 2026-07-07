@@ -7,6 +7,7 @@ after each batch (must stay green).
 ## Cross-session changes log
 <!-- Add ONE line per cross-territory edit, newest on top:
      `YYYY-MM-DD [Session X]: touched <folder> for <reason>` -->
+2026-06-28 [Session A]: touched (app)/creer + histoire-perso + personnages, lib/storyOptions + customStories, actions/generateStory for meshistoiresdusoir-inspired round (subthemes, done screen, FAQ, quota bar, thumbs, hero deep-link, sequel recap-first)
 2026-06-28 [Session A]: touched (app)/histoire-perso (glossary hover, progress top-0, wider grid), data/mock-stories (more tags), lib/stories/filter (tag filter)
 2026-06-28 [Session A]: touched data/mock-blog.ts (EN fallback), i18n/routing (removed /v2); homepage v2 promoted to /, old V1 marketing components deleted
 2026-06-17 [Session A]: added i18n/routing /v2 route for homepage-v2 test page (round 9)

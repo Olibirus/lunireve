@@ -7,11 +7,13 @@ import {
   readCharacters,
   deleteCharacter,
   slotsLeft,
+  characterLimits,
   type SavedCharacter,
 } from "@/lib/characters";
 import { traitLabel } from "@/lib/characterOptions";
+import { readTier } from "@/lib/tier";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, UserSquare } from "lucide-react";
+import { Plus, Trash2, UserSquare, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -52,10 +54,42 @@ export default function CharactersPage() {
         </Button>
       </div>
 
+      {/* Quota bar: used / max per role, with an upgrade nudge on free plans */}
       {slots && (
-        <p className="mt-3 text-xs text-[var(--color-ink-400)]">
-          {t("slots", { main: slots.main, secondary: slots.secondary })}
-        </p>
+        <div className="mt-4 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--color-ink-600)]">
+            <span>
+              {t("quotaLabel", {
+                used: characters.length,
+                max: characterLimits().main + characterLimits().secondary,
+              })}
+            </span>
+            {readTier() === "free" && (
+              <Link
+                href="/compte/abonnement"
+                className="font-medium text-[var(--color-indigo-soft-600)] underline underline-offset-2 hover:text-[var(--color-ink-800)]"
+              >
+                {t("quotaUpgrade")}
+              </Link>
+            )}
+          </div>
+          <div className="mt-2 h-1.5 rounded-full bg-[var(--color-cream-200)]">
+            <div
+              className="h-1.5 rounded-full bg-[var(--color-mint-500)] transition-[width]"
+              style={{
+                width: `${Math.min(
+                  100,
+                  (characters.length /
+                    Math.max(1, characterLimits().main + characterLimits().secondary)) *
+                    100
+                )}%`,
+              }}
+            />
+          </div>
+          <p className="mt-2 text-[11px] text-[var(--color-ink-400)]">
+            {t("slots", { main: slots.main, secondary: slots.secondary })}
+          </p>
+        </div>
       )}
 
       <div className="mt-6 grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -109,6 +143,16 @@ export default function CharactersPage() {
                   </span>
                 ))}
               </div>
+            )}
+            {/* One tap from the character straight into the story flow (hero prefilled) */}
+            {c.role === "main" && (
+              <Link
+                href={{ pathname: "/creer", query: { hero: c.id } }}
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-ink-800)] px-3.5 py-1.5 text-xs font-medium text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)] transition-colors"
+              >
+                <Wand2 className="h-3.5 w-3.5 text-[var(--color-mint-400)]" />
+                {t("createStoryWith", { name: c.name })}
+              </Link>
             )}
           </article>
         ))}

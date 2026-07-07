@@ -89,7 +89,10 @@ export async function generateStoryAction(
     params.sequelOf &&
       `IMPORTANT : cette histoire est l'ÉPISODE SUIVANT de « ${params.sequelOf} ». Garde le même héros et les mêmes personnages, fais un bref clin d'œil à l'aventure précédente au début, mais invente une intrigue NOUVELLE et clairement différente.`,
     params.trait && `Particularité du héros : « ${params.trait} ».`,
-    `Thème : ${params.theme}. Ambiance : ${MOOD_FR[params.mood]}.`,
+    `Thème : ${params.theme}${params.subTheme ? ` (angle précis : « ${params.subTheme} »)` : ""}. Ambiance : ${MOOD_FR[params.mood]}.`,
+    // Appearance and traits must colour the story, never be recited as a list
+    // ("Il avait six ans. Sa peau était claire. Il n'avait pas de lunettes.").
+    "IMPORTANT : intègre l'apparence et le caractère des personnages par petites touches naturelles au fil du récit (un geste, un détail, une réaction). N'énumère JAMAIS leurs attributs sous forme de liste ou de phrases descriptives successives.",
     companions.length
       ? `Personnages secondaires : ${companions
           .map((c) => `« ${c.name} », ${relationLabel(c.relation, "fr")} du héros`)

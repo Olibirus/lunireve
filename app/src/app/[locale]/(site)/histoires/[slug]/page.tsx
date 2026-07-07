@@ -263,6 +263,13 @@ export default async function StoryDetailPage({
             <ReadingSettings />
           </div>
         </div>
+        {/* Usage note: personal use, upgrade path for more */}
+        <p className="mt-3 text-center text-[11px] text-[var(--color-ink-400)]">
+          {t("licenseNote")}{" "}
+          <Link href="/tarifs" className="underline underline-offset-2 hover:text-[var(--color-ink-700)]">
+            {t("licenseCta")}
+          </Link>
+        </p>
       </section>
 
       {/* Body — single centered column, wider measure (#5) */}
@@ -401,7 +408,7 @@ export default async function StoryDetailPage({
             className="font-serif text-3xl md:text-4xl tracking-tight"
             style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}
           >
-            {t("relatedTitle")}
+            {t("relatedIn", { genre: tAll(`genres.${story.genre}`), age })}
           </h2>
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
             {related.map((s) => (

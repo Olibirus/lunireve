@@ -16,7 +16,8 @@ import { FavoriteButton, ShareButton, ReportDialog } from "@/components/story/St
 import { FoxImagePlaceholder } from "@/components/brand/FoxImagePlaceholder";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Copy, Lock, Pencil, Sparkles, Wand2 } from "lucide-react";
+import { ArrowLeft, Copy, Lock, Pencil, Sparkles, ThumbsDown, ThumbsUp, Wand2 } from "lucide-react";
+import { profileScopedKey } from "@/lib/userScope";
 import { cn } from "@/lib/utils/cn";
 import type { QuizQuestion } from "@/data/mock-stories";
 
@@ -180,6 +181,28 @@ export default function CustomStoryPage() {
     };
   }, [story]);
 
+  // Quick thumbs feedback (lighter than stars for a private story). Stored
+  // per account + active profile so each reader keeps their own opinion.
+  const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
+  useEffect(() => {
+    if (!story) return;
+    try {
+      const v = localStorage.getItem(profileScopedKey(`lunireve:feedback:${story.id}`));
+      if (v === "up" || v === "down") setFeedback(v);
+    } catch {
+      /* ignore */
+    }
+  }, [story]);
+  function giveFeedback(v: "up" | "down") {
+    if (!story) return;
+    setFeedback(v);
+    try {
+      localStorage.setItem(profileScopedKey(`lunireve:feedback:${story.id}`), v);
+    } catch {
+      /* ignore */
+    }
+  }
+
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -212,14 +235,36 @@ export default function CustomStoryPage() {
     );
   }
 
+  // Accurate reading time from the real word count (~140 words/min read aloud).
+  const words = story.body.join(" ").split(/\s+/).filter(Boolean).length;
+  const readingMinutes = Math.max(1, Math.round(words / 140));
+  // Teaser: the story's first sentence, shown under the title like a summary.
+  const firstPara = story.body[0] ?? "";
+  const sentenceMatch = firstPara.match(/^[^.!?]*[.!?]/);
+  const teaser = sentenceMatch ? sentenceMatch[0].trim() : firstPara.slice(0, 140);
+
   return (
     <>
       {/* Reading progress bar (pinned to the very top: no navbar in this view) */}
       <ReadingProgress slug={story.id} top="top-0" />
 
-      {/* Hero */}
-      <section className="cover-night relative h-[50svh] md:h-[60svh] bg-fixed">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+      {/* Hero — same treatment as library stories: the story's illustration
+          as background under a dark scrim (not a blur), badges, title, teaser */}
+      <section
+        className={cn("relative h-[50svh] md:h-[60svh] bg-fixed", !imageUrl && "cover-night")}
+        style={
+          imageUrl
+            ? {
+                backgroundImage: `url(${imageUrl})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                backgroundAttachment: "fixed",
+              }
+            : undefined
+        }
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/30 to-black/20" />
         <div className="absolute left-0 right-0 top-4 mx-auto max-w-4xl px-5 md:px-8" data-no-print>
           <Link
             href={backHref}
@@ -238,6 +283,9 @@ export default function CustomStoryPage() {
             <Badge variant="ink" className="bg-black/25 text-white border-0 backdrop-blur-sm">
               {t(`create.mood_${story.params.mood}`)}
             </Badge>
+            <Badge variant="ink" className="bg-black/25 text-white border-0 backdrop-blur-sm">
+              {t("blog.readTime", { minutes: readingMinutes })}
+            </Badge>
           </div>
           <h1
             className="mt-4 font-serif text-3xl md:text-6xl text-white tracking-tight leading-[1.04] max-w-3xl drop-shadow-sm"
@@ -245,6 +293,11 @@ export default function CustomStoryPage() {
           >
             {story.title}
           </h1>
+          {teaser && (
+            <p className="mt-4 max-w-2xl text-base md:text-lg text-white/85 leading-relaxed">
+              {teaser}
+            </p>
+          )}
         </div>
       </section>
 
@@ -277,6 +330,13 @@ export default function CustomStoryPage() {
             <ReadingSettings />
           </div>
         </div>
+        {/* Usage note: personal use, upgrade path for more */}
+        <p className="mt-3 text-center text-[11px] text-[var(--color-ink-400)]">
+          {t("story.licenseNote")}{" "}
+          <Link href="/tarifs" className="underline underline-offset-2 hover:text-[var(--color-ink-700)]">
+            {t("story.licenseCta")}
+          </Link>
+        </p>
       </section>
 
       {/* Illustration + body */}
@@ -316,6 +376,43 @@ export default function CustomStoryPage() {
 
       {/* Quiz + glossary + print + next episode + share */}
       <section className="mx-auto max-w-4xl px-5 md:px-8 pb-16 space-y-6" data-no-print>
+        {/* Quick thumbs feedback (lighter than stars for a private story) */}
+        <div className="flex flex-wrap items-center justify-center gap-3 rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-5">
+          <p className="text-sm font-medium text-[var(--color-ink-700)]">
+            {feedback ? t("customStory.feedbackThanks") : t("customStory.feedbackTitle")}
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              aria-label={t("customStory.feedbackUp")}
+              aria-pressed={feedback === "up"}
+              onClick={() => giveFeedback("up")}
+              className={cn(
+                "rounded-full border p-2.5 transition-colors",
+                feedback === "up"
+                  ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
+                  : "border-[var(--color-ink-100)] text-[var(--color-ink-500)] hover:bg-[var(--color-mint-100)]"
+              )}
+            >
+              <ThumbsUp className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              aria-label={t("customStory.feedbackDown")}
+              aria-pressed={feedback === "down"}
+              onClick={() => giveFeedback("down")}
+              className={cn(
+                "rounded-full border p-2.5 transition-colors",
+                feedback === "down"
+                  ? "border-transparent bg-[var(--color-fox-300)] text-[#17224a]"
+                  : "border-[var(--color-ink-100)] text-[var(--color-ink-500)] hover:bg-[var(--color-cream-100)]"
+              )}
+            >
+              <ThumbsDown className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
         <StoryQuiz questions={buildQuiz(story)} slug={story.id} />
 
         {/* Glossary — only when the generation flagged difficult words */}

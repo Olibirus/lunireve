@@ -24,6 +24,7 @@ import {
   MAX_COMPANIONS,
   MAX_EXTRA_INFO,
   STORY_SKIN_TONES,
+  STORY_SUBTHEMES,
   storyOptLabel,
   relationLabel,
 } from "@/lib/storyOptions";
@@ -35,6 +36,7 @@ import { readCharacters, type SavedCharacter } from "@/lib/characters";
 import { pushNotification } from "@/lib/notifications";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { AccountShell } from "@/components/account/AccountShell";
+import { Accordion } from "@/components/ui/Accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -128,7 +130,7 @@ export default function CreateStoryPage() {
   const [used, setUsed] = useState(0);
   const [tier, setTier] = useState<CustomTier>("free");
   const [step, setStep] = useState(0);
-  const [phase, setPhase] = useState<"form" | "loading">("form");
+  const [phase, setPhase] = useState<"form" | "loading" | "done">("form");
   const [progress, setProgress] = useState(0);
   const [selectedHeroId, setSelectedHeroId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -167,9 +169,10 @@ export default function CreateStoryPage() {
 
     try {
       const sp = new URLSearchParams(window.location.search);
-      // Sequel entry point: prefill everything from the previous episode.
+      // Sequel entry point: prefill everything from the previous episode and
+      // land on the FINAL step (recap) so the parent confirms before launch.
+      // Never auto-generate: they can still walk back to tweak any step.
       const from = sp.get("from");
-      const next = sp.get("next");
       if (from) {
         const applySequel = (prev: CustomStory | null) => {
           if (!prev) {
@@ -182,13 +185,20 @@ export default function CreateStoryPage() {
           };
           setParams(sequelParams);
           if (prev.profileId) setProfileId(prev.profileId);
+          setStep(3);
           setReady(true);
-          if (next === "auto") startGeneration(sequelParams, prev.profileId);
         };
         const local = findCustomStory(from);
         if (local) applySequel(local);
         else fetchCustomStory(from).then(applySequel).catch(() => setReady(true));
         return; // skip the filter prefill below
+      }
+
+      // Deep link from a character card: preselect that saved hero.
+      const heroId = sp.get("hero");
+      if (heroId) {
+        const c = readCharacters().find((x) => x.id === heroId);
+        if (c) applySavedHero(c);
       }
 
       // Pre-fill from filter params when arriving from an empty library result.
@@ -325,6 +335,7 @@ export default function CreateStoryPage() {
 
   const interval = useRef<ReturnType<typeof setInterval> | null>(null);
   const savedIdRef = useRef<string | null>(null);
+  const savedTitleRef = useRef<string | null>(null);
   useEffect(
     () => () => {
       if (interval.current) clearInterval(interval.current);
@@ -386,6 +397,7 @@ export default function CreateStoryPage() {
           settled.glossary
         );
         savedIdRef.current = story.id;
+        savedTitleRef.current = story.title;
         setUsed(quotaUsed());
         pushNotification({
           title: t("notifReady"),
@@ -397,6 +409,7 @@ export default function CreateStoryPage() {
         const stub = buildStubStory(finalParams);
         const story = saveCustomStory(stub.title, stub.body, finalParams, pid);
         savedIdRef.current = story.id;
+        savedTitleRef.current = story.title;
         setUsed(quotaUsed());
         pushNotification({
           title: t("notifReady"),
@@ -417,10 +430,8 @@ export default function CreateStoryPage() {
 
         if (next >= 100 && savedIdRef.current) {
           if (interval.current) clearInterval(interval.current);
-          router.push({
-            pathname: "/histoire-perso/[id]",
-            params: { id: savedIdRef.current },
-          });
+          // Title-reveal completion screen instead of an abrupt redirect.
+          setPhase("done");
           return 100;
         }
         return Math.min(next, savedIdRef.current ? 100 : 94);
@@ -460,7 +471,43 @@ export default function CreateStoryPage() {
   /* ---------- Content (wrapped in the right chrome at the bottom) ---------- */
   let content: React.ReactNode;
 
-  if (phase === "loading") {
+  if (phase === "done") {
+    // Completion: reveal the generated title, one clear CTA to read it.
+    content = (
+      <section className="mx-auto max-w-xl px-5 py-16 md:py-24 text-center">
+        <span className="inline-flex rounded-full bg-[var(--color-mint-100)] p-5">
+          <Check className="h-8 w-8 text-[var(--color-mint-700)]" />
+        </span>
+        <h1 className="mt-6 font-serif text-2xl md:text-3xl tracking-tight">
+          {t("doneTitle")}
+        </h1>
+        <p className="mt-3 text-sm text-[var(--color-ink-500)]">
+          {t("doneSubtitle", { name: params.heroName })}
+        </p>
+        {savedTitleRef.current && (
+          <p
+            className="mt-6 font-serif text-3xl md:text-4xl tracking-tight text-[var(--color-ink-800)]"
+            style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}
+          >
+            « {savedTitleRef.current} »
+          </p>
+        )}
+        <Button
+          variant="mint"
+          size="xl"
+          className="mt-8"
+          onClick={() => {
+            if (savedIdRef.current) {
+              router.push({ pathname: "/histoire-perso/[id]", params: { id: savedIdRef.current } });
+            }
+          }}
+        >
+          <Sparkles className="h-4 w-4" />
+          {t("doneRead")}
+        </Button>
+      </section>
+    );
+  } else if (phase === "loading") {
     const stages = [
       { at: 0, title: t("loading1Title"), body: t("loading1Body") },
       { at: 18, title: t("loading2Title"), body: t("loading2Body", { name: params.heroName }) },
@@ -917,7 +964,7 @@ export default function CreateStoryPage() {
                     <option value="">{t("readingAgeDefault")}</option>
                     {READING_RANGES.map((r) => (
                       <option key={r.value} value={r.value}>
-                        {t("readingRangeLabel", { range: r.label })}
+                        {t("readingRangeLabel", { range: r.label })} · {t(`lengthHint${r.value}`)}
                       </option>
                     ))}
                   </select>
@@ -947,7 +994,10 @@ export default function CreateStoryPage() {
                     <button
                       key={slug}
                       type="button"
-                      onClick={() => set("theme", slug)}
+                      onClick={() => {
+                        set("theme", slug);
+                        set("subTheme", undefined);
+                      }}
                       className={chip(params.theme === slug)}
                     >
                       {tThemes(slug)}
@@ -955,6 +1005,39 @@ export default function CreateStoryPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Optional finer angle inside the theme + free custom input */}
+              {(STORY_SUBTHEMES[params.theme] ?? []).length > 0 && (
+                <div>
+                  <Label htmlFor="sub-theme">{t("subTheme")}</Label>
+                  <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("subThemeHint")}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {(STORY_SUBTHEMES[params.theme] ?? []).map((s) => {
+                      const label = storyOptLabel(s, locale);
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() =>
+                            set("subTheme", params.subTheme === label ? undefined : label)
+                          }
+                          className={chip(params.subTheme === label)}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <Input
+                    id="sub-theme"
+                    value={params.subTheme ?? ""}
+                    maxLength={60}
+                    placeholder={t("subThemePlaceholder")}
+                    onChange={(e) => set("subTheme", e.target.value || undefined)}
+                    className="mt-2 max-w-sm"
+                  />
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="place">{t("place")}</Label>
@@ -1091,6 +1174,7 @@ export default function CreateStoryPage() {
                     ],
                     [t("mood"), t(`mood_${params.mood}`)],
                     [t("theme"), tThemes(params.theme)],
+                    params.subTheme && [t("subTheme"), params.subTheme],
                     params.place && [t("place"), params.place],
                     !isKid && [
                       t("readingAge"),
@@ -1146,6 +1230,20 @@ export default function CreateStoryPage() {
             )}
           </div>
         </div>
+
+        {/* Contextual help: creation-specific FAQ (parents only, kids keep
+            the bubble distraction-free) */}
+        {!isKid && (
+          <div className="mt-10">
+            <h2 className="mb-4 font-serif text-xl tracking-tight">{t("faqTitle")}</h2>
+            <Accordion
+              items={[1, 2, 3, 4, 5].map((n) => ({
+                question: t(`faqQ${n}`),
+                answer: t(`faqA${n}`),
+              }))}
+            />
+          </div>
+        )}
       </section>
     );
   }

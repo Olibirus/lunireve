@@ -143,6 +143,8 @@ export async function selectCustomStoryImageInputs(id: string): Promise<{
   heroImageUrl: string | null;
   style: CustomStoryParams["style"];
   imagePrompt: string;
+  /** Hero visual identity string, repeated at render for consistency. */
+  character: string;
 } | null> {
   const [row] = await db
     .select({
@@ -157,9 +159,14 @@ export async function selectCustomStoryImageInputs(id: string): Promise<{
   const meta = row.generationMetadata as CustomStoryMetadata | null;
   if (!meta?.params) return null;
   const p = meta.params;
+  const kind =
+    p.heroType === "fille" ? "girl" : p.heroType === "animal" ? "animal" : p.heroType === "adulte" ? "adult" : "boy";
+  const tone =
+    p.skinTone === "claire" ? "light skin" : p.skinTone === "mate" ? "tan skin" : p.skinTone === "foncee" ? "dark skin" : "";
   return {
     heroImageUrl: row.heroImageUrl,
     style: p.style,
+    character: `${p.heroName}, a ${p.heroAge}-year-old ${kind}${tone ? `, ${tone}` : ""}${p.trait ? `, ${p.trait}` : ""}`,
     // Older rows predate stored imagePrompt — rebuild a scene from the params.
     imagePrompt:
       meta.imagePrompt ??

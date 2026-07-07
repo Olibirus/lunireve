@@ -3,21 +3,42 @@ import type { CustomStoryParams } from "@/lib/customStories";
 /**
  * Illustration style (#15) → image-model prompt prefix. Single source of truth
  * for every place that renders a personalized illustration (server action,
- * n8n pipeline, test scripts).
+ * n8n pipeline, test scripts). Descriptors are deliberately rich: thin
+ * one-liners produce generic "AI storybook" output, while medium/texture/light
+ * words steer the model toward a recognizable craft.
  */
 export const STYLE_PROMPT: Record<CustomStoryParams["style"], string> = {
-  automatique: "warm, soft children's book illustration",
-  aquarelle: "soft watercolor children's book illustration, gentle washes",
-  bd: "clean comic-book / bande dessinée style, bold outlines, flat colors",
-  anime3d: "cute 3D animated film style, soft lighting, Pixar-like",
-  crayons: "colored-pencil crayon children's illustration, textured strokes",
-  kawaii: "kawaii chibi children's illustration, big eyes, pastel palette",
+  automatique:
+    "warm children's picture-book illustration, soft painterly gouache texture, gentle bedtime palette, cozy candle-like highlights, hand-illustrated feel",
+  aquarelle:
+    "delicate watercolor children's book illustration, wet-on-wet washes, soft pigment blooms, visible paper grain, airy negative space, light pencil underdrawing",
+  bd:
+    "European bande dessinée children's style, confident clean ink outlines, flat vivid colors, simple expressive faces, ligne claire tradition",
+  anime3d:
+    "high-quality 3D animated family-film still, soft global illumination, rounded shapes, expressive big eyes, shallow depth of field, warm rim light",
+  crayons:
+    "colored-pencil children's illustration, visible layered strokes, waxy texture, hand-drawn wobble in the lines, paper tooth showing through",
+  kawaii:
+    "kawaii chibi children's illustration, oversized sparkly eyes, tiny rounded bodies, soft pastel palette, gentle blush cheeks, simple clean background",
 };
 
-/** Compose the final prompt for a personalized story illustration. */
+/**
+ * Compose the final prompt for a personalized story illustration.
+ * `character` is the hero's visual identity (name, age, type, skin tone...):
+ * repeating it keeps the child recognizable across every render.
+ */
 export function personalizedImagePrompt(
   style: CustomStoryParams["style"],
-  scenePrompt: string
+  scenePrompt: string,
+  character?: string
 ): string {
-  return `${STYLE_PROMPT[style]}. Scene: ${scenePrompt}. Children's storybook, warm palette, no text, no letters.`;
+  return [
+    `${STYLE_PROMPT[style]}.`,
+    character ? `Main character (consistent in every image): ${character}.` : "",
+    `Scene: ${scenePrompt}.`,
+    "One cohesive scene with a single centered focal subject and comfortable margins (crops well to square, portrait or wide).",
+    "Children's storybook mood, warm and reassuring. No text, no letters, no logos, no frames, no split panels.",
+  ]
+    .filter(Boolean)
+    .join(" ");
 }

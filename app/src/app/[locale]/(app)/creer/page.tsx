@@ -40,7 +40,7 @@ import { Accordion } from "@/components/ui/Accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, Compass, Lock, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react";
+import { ArrowLeft, Check, Compass, Lock, Pencil, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const THEME_OPTIONS = [
@@ -130,7 +130,10 @@ export default function CreateStoryPage() {
   const [used, setUsed] = useState(0);
   const [tier, setTier] = useState<CustomTier>("free");
   const [step, setStep] = useState(0);
-  const [phase, setPhase] = useState<"form" | "loading" | "done">("form");
+  const [phase, setPhase] = useState<"form" | "loading" | "done" | "rejected">("form");
+  // Form field that tripped the safety gates, when known: highlighted in red
+  // on the form so the parent sees exactly what to rephrase.
+  const [blockedField, setBlockedField] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [selectedHeroId, setSelectedHeroId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -371,6 +374,7 @@ export default function CreateStoryPage() {
 
     setPhase("loading");
     setProgress(0);
+    setBlockedField(null);
     savedIdRef.current = null;
 
     // The story is SAVED and the in-app notification pushed as soon as the
@@ -381,9 +385,10 @@ export default function CreateStoryPage() {
       .then((res) => {
         if (!res.ok && res.reason === "moderation") {
           if (interval.current) clearInterval(interval.current);
-          setPhase("form");
-          setStep(0);
-          setFormError("moderationBlocked");
+          // Dedicated rejection screen: explains, offers to fix (form stays
+          // prefilled, offending field highlighted), browse, or read the FAQ.
+          setBlockedField(res.field ?? null);
+          setPhase("rejected");
           return;
         }
         const settled = res.ok
@@ -452,6 +457,22 @@ export default function CreateStoryPage() {
   const companions = params.companions ?? [];
   const extraInfo = params.extraInfo ?? [];
 
+  /** Step that owns a moderation-blocked field (for the "fix" button). */
+  const stepOfField = (f: string | null): number =>
+    f === "heroName" || f === "trait"
+      ? 0
+      : f === "companions" || f === "friend"
+      ? 1
+      : f === "subTheme" || f === "place" || f === "fear" || f === "extraInfo"
+      ? 2
+      : 0;
+
+  /** Red outline for the field the safety gate pointed at. */
+  const blockedCls = (f: string) =>
+    blockedField === f
+      ? "border-[var(--color-fox-500)] ring-2 ring-[var(--color-fox-500)]/40"
+      : "";
+
   const chip = (active: boolean, disabled = false) =>
     cn(
       "rounded-full border px-3 py-1.5 text-sm transition-colors",
@@ -472,7 +493,50 @@ export default function CreateStoryPage() {
   /* ---------- Content (wrapped in the right chrome at the bottom) ---------- */
   let content: React.ReactNode;
 
-  if (phase === "done") {
+  if (phase === "rejected") {
+    // The request was declined by the kid-safety gates. Explain briefly, keep
+    // the form prefilled and point at the offending field when we know it.
+    content = (
+      <section className="mx-auto max-w-xl px-5 py-16 md:py-24 text-center">
+        <span className="inline-flex rounded-full bg-[var(--color-fox-300)]/25 p-5">
+          <Lock className="h-8 w-8 text-[var(--color-fox-700)]" />
+        </span>
+        <h1 className="mt-6 font-serif text-2xl md:text-3xl tracking-tight">
+          {t("rejectedTitle")}
+        </h1>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[var(--color-ink-500)]">
+          {t("rejectedBody")}
+        </p>
+        {blockedField && (
+          <p className="mx-auto mt-2 max-w-md text-sm font-medium text-[var(--color-fox-700)]">
+            {t("rejectedFieldHint")}
+          </p>
+        )}
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => {
+              setStep(stepOfField(blockedField));
+              setPhase("form");
+            }}
+          >
+            <Pencil className="h-4 w-4" />
+            {t("rejectedFix")}
+          </Button>
+          <Button asChild variant="outline" size="md">
+            <Link href="/histoires">{t("rejectedBrowse")}</Link>
+          </Button>
+          <Link
+            href={{ pathname: "/faq", hash: "personalization" } as never}
+            className="text-sm text-[var(--color-indigo-soft-600)] underline underline-offset-2 hover:text-[var(--color-ink-800)]"
+          >
+            {t("rejectedLearn")}
+          </Link>
+        </div>
+      </section>
+    );
+  } else if (phase === "done") {
     // Completion: reveal the generated title, one clear CTA to read it.
     content = (
       <section className="mx-auto max-w-xl px-5 py-16 md:py-24 text-center">
@@ -741,7 +805,7 @@ export default function CreateStoryPage() {
                     set("heroName", e.target.value);
                     setSelectedHeroId(null);
                   }}
-                  className="mt-1.5"
+                  className={cn("mt-1.5", blockedCls("heroName"))}
                 />
               </div>
 
@@ -840,7 +904,7 @@ export default function CreateStoryPage() {
                   maxLength={80}
                   placeholder={t("heroTraitPlaceholder")}
                   onChange={(e) => set("trait", e.target.value)}
-                  className="mt-1.5"
+                  className={cn("mt-1.5", blockedCls("trait"))}
                 />
                 {counter(params.trait, 80)}
               </div>
@@ -903,7 +967,7 @@ export default function CreateStoryPage() {
                       placeholder={t("companionNamePlaceholder")}
                       aria-label={t("companionNamePlaceholder")}
                       onChange={(e) => updateCompanion(i, { name: e.target.value })}
-                      className="flex-1"
+                      className={cn("flex-1", blockedCls("companions"))}
                     />
                     <span className="text-xs text-[var(--color-ink-400)]">{t("companionIs")}</span>
                     <select
@@ -1035,7 +1099,7 @@ export default function CreateStoryPage() {
                     maxLength={60}
                     placeholder={t("subThemePlaceholder")}
                     onChange={(e) => set("subTheme", e.target.value || undefined)}
-                    className="mt-2 max-w-sm"
+                    className={cn("mt-2 max-w-sm", blockedCls("subTheme"))}
                   />
                 </div>
               )}
@@ -1048,7 +1112,7 @@ export default function CreateStoryPage() {
                   maxLength={80}
                   placeholder={t("placePlaceholder")}
                   onChange={(e) => set("place", e.target.value)}
-                  className="mt-1.5"
+                  className={cn("mt-1.5", blockedCls("place"))}
                 />
                 {counter(params.place, 80)}
               </div>
@@ -1067,7 +1131,7 @@ export default function CreateStoryPage() {
                             placeholder={t("extraInfoPlaceholder")}
                             aria-label={`${t("extraInfoTitle")} #${i + 1}`}
                             onChange={(e) => setExtraInfo(i, e.target.value)}
-                            className="flex-1"
+                            className={cn("flex-1", blockedCls("extraInfo"))}
                           />
                           <button
                             type="button"

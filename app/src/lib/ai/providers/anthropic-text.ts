@@ -47,8 +47,21 @@ function buildSystemPrompt(input: StoryGenerationInput) {
     ? "Termine la dernière scène par une morale douce, en une phrase, qui découle naturellement du thème de l'histoire."
     : "End the final scene with a gentle one-sentence moral that follows naturally from the story's theme.";
 
+  // Anti-generic-AI craft rules: what separates a story families reread from
+  // interchangeable model output. Language-neutral so both locales benefit.
+  const craft = `Writing craft (as important as the length rules):
+- Show, don't tell: emotions live in gestures, senses and dialogue, never "he was brave" or "elle était triste".
+- Ground every scene in 2 or 3 concrete sensory details (a smell, a sound, a texture) that a child recognizes.
+- Give characters real spoken dialogue in their own voice; children in the story talk like children.
+- Vary the opening: never default to "Il était une fois / Once upon a time" unless the genre is a classic fairy tale.
+- Ban filler and clichés: "little did they know", "the adventure of a lifetime", "au fond de lui", "une aventure extraordinaire", "c'est alors que".
+- The text must read aloud beautifully: vary sentence length, use rhythm, and for the youngest ages a gentle repetition the child can anticipate.
+- One clear emotional arc: a desire, a difficulty, a turning point, a warm landing. No lecturing along the way.
+- The names, places and details provided by the family must matter to the plot, not sit there as decoration.`;
+
   return `${voice}
 ${SAFETY_RULES}
+${craft}
 Age range: ${input.ageRange}. ${ageGuidance}
 Length requirement (STRICT, non-negotiable):
 - Write EXACTLY ${sceneCount} scenes.
@@ -65,7 +78,10 @@ Return ONLY valid JSON matching this TypeScript type, nothing else:
   "scenes": Array<{ "text": string, "imagePrompt": string }>,
   "glossary": Array<{ "word": string, "definition": string }>
 }
-The "imagePrompt" for each scene should be a vivid English prompt describing the scene's visual — style, composition, mood — ready to feed to an image model.
+Rules for "imagePrompt" (one per scene, in English):
+- Describe ONE cohesive moment of the scene: setting, action, light, mood.
+- Repeat the main character's full visual identity in EVERY prompt (age, hair, skin tone, outfit, species if animal) so illustrations stay consistent across scenes.
+- Composition: single centered focal subject, child-friendly, warm; no text, no letters, no frames, no split panels.
 The "glossary" lists ONLY the genuinely difficult words you actually used (0 to 5), each with a one-sentence definition a child of this age understands, in the story's language. Empty array if none.`;
 }
 

@@ -88,6 +88,10 @@ export const FAQ_FR: FaqSection[] = [
         q: "Mes histoires personnalisées sont-elles privées ?",
         a: "Oui, elles sont privées par défaut et n'apparaissent pas sur le site. Vous pouvez choisir de partager le lien avec vos proches.",
       },
+      {
+        q: "Pourquoi ma demande d'histoire a-t-elle été refusée ?",
+        a: "Nos histoires sont destinées aux enfants : les prénoms, lieux et idées d'intrigue ne doivent contenir aucune grossièreté, violence explicite, contenu sexuel, allusion aux drogues ou propos haineux, quelle que soit la langue. Les petites peurs, les disputes ou les défis à surmonter sont bien sûr les bienvenus. Reformulez simplement le champ concerné et relancez la création : rien n'est décompté de votre quota.",
+      },
     ],
   },
   {
@@ -229,6 +233,10 @@ export const FAQ_EN: FaqSection[] = [
       {
         q: "Are my personalised stories private?",
         a: "Yes, private by default and not shown on the site. You can choose to share the link with loved ones.",
+      },
+      {
+        q: "Why was my story request declined?",
+        a: "Our stories are for children: names, places and plot ideas must contain no profanity, explicit violence, sexual content, drug references or hateful language, in any language. Small fears, quarrels and challenges to overcome are of course welcome. Simply rephrase the flagged field and try again: nothing is deducted from your quota.",
       },
     ],
   },

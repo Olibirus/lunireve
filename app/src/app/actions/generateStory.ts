@@ -24,7 +24,14 @@ export type GenerateResult =
       glossary: { word: string; definition: string }[];
       id: string | null;
     }
-  | { ok: false; reason?: "moderation" | "error" };
+  | {
+      ok: false;
+      reason?: "moderation" | "error";
+      /** Offending form field when moderation blocked (heroName, trait,
+          subTheme, place, fear, companions, extraInfo). Absent when the
+          rejection came from the generated output. */
+      field?: string;
+    };
 
 const MOOD_FR: Record<CustomStoryParams["mood"], string> = {
   drole: "drôle et légère",
@@ -57,13 +64,17 @@ export async function generateStoryAction(
   const session = await getSession();
   if (!session) return { ok: false, reason: "error" };
 
+  // Normalize per-item field ids (companion2, extraInfo1) to their form field.
+  const uiField = (f: string) =>
+    f.startsWith("companion") ? "companions" : f.startsWith("extraInfo") ? "extraInfo" : f;
+
   // 2a — blocklist wall (free, instant). No fallback story for this one.
   const check = moderateStoryParams(params);
   if (!check.ok) {
     console.warn(
       `[Lunireve] story input blocked (${check.field}: ${check.reason}) for ${session.username}`
     );
-    return { ok: false, reason: "moderation" };
+    return { ok: false, reason: "moderation", field: uiField(check.field) };
   }
 
   // 2b — semantic wall: multilingual, intent-aware classification of every
@@ -89,7 +100,7 @@ export async function generateStoryAction(
     console.warn(
       `[Lunireve] story input blocked by safety gate (${semantic.field}: ${semantic.category}) for ${session.username}`
     );
-    return { ok: false, reason: "moderation" };
+    return { ok: false, reason: "moderation", field: uiField(semantic.field) };
   }
 
   // 3 — tier clamps (quietly cap instead of failing: the UI already prevents
@@ -145,7 +156,7 @@ export async function generateStoryAction(
       characters: [
         {
           name: params.heroName,
-          description: `héros de l'histoire, ${params.heroAge} ans${heroKind ? `, ${heroKind}` : ""}${params.trait ? `, ${params.trait}` : ""}`,
+          description: `héros de l'histoire, ${params.heroAge} ans${heroKind ? `, ${heroKind}` : ""}${params.trait ? `, ${params.trait}` : ""}${params.skinTone ? `, peau ${params.skinTone}` : ""}`,
         },
         ...companions.map((c) => ({
           name: c.name,

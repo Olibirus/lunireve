@@ -96,7 +96,7 @@ export async function ensureCustomStoryImage(id: string): Promise<StoryImageStat
     if (!session) return { ok: false };
 
     const out = await generateImage("personalized", {
-      prompt: personalizedImagePrompt(inputs.style, inputs.imagePrompt),
+      prompt: personalizedImagePrompt(inputs.style, inputs.imagePrompt, inputs.character),
       size: "1024x1024",
     });
     const bytes = await fetchToBuffer(out.imageUrl);

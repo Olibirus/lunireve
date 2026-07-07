@@ -7,6 +7,7 @@ after each batch (must stay green).
 ## Cross-session changes log
 <!-- Add ONE line per cross-territory edit, newest on top:
      `YYYY-MM-DD [Session X]: touched <folder> for <reason>` -->
+2026-07-07 [Session A]: touched (app)/creer (rejected screen + red field), actions/generateStory (field in result), lib/ai (craft rules, richer style prompts, character identity in image path), db/customStories, data/faq
 2026-07-07 [Session A]: added lib/ai/safetyGate.ts (semantic moderation, inputs + output), wired into actions/generateStory; blocklist ES/IT/DE/PT/PL/AR additions + subTheme in lib/moderation + creer validateStep
 2026-06-28 [Session A]: touched (app)/creer + histoire-perso + personnages, lib/storyOptions + customStories, actions/generateStory for meshistoiresdusoir-inspired round (subthemes, done screen, FAQ, quota bar, thumbs, hero deep-link, sequel recap-first)
 2026-06-28 [Session A]: touched (app)/histoire-perso (glossary hover, progress top-0, wider grid), data/mock-stories (more tags), lib/stories/filter (tag filter)

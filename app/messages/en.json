@@ -286,6 +286,7 @@
     "printPromptBody": "Turn it into a real illustrated book, with them as the hero. Sewn binding, cream paper, original illustrations.",
     "printCta": "Make the book",
     "endNote": "The end, sweet dreams.",
+    "openIllustration": "View the illustration fullscreen",
     "relatedTitle": "Read next",
     "relatedIn": "Read next: {genre}, {age}",
     "licenseNote": "Stories are for personal and family use only.",

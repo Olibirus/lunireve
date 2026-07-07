@@ -131,6 +131,7 @@ export function Footer() {
               <li><Link href="/blog" className={linkClass}>{t("footer.blog")}</Link></li>
               <li><Link href="/compte/proposer" className={linkClass}>{t("footer.writeWithUs")}</Link></li>
               <li><Link href="/compte" className={linkClass}>{t("nav.account")}</Link></li>
+              <li><Link href="/connexion" className={linkClass}>{t("nav.login")}</Link></li>
               <li><a href="mailto:hello@lunireve.com" className={linkClass}>{t("footer.contactUs")}</a></li>
             </ul>
           </div>

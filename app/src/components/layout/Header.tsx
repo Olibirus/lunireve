@@ -359,7 +359,7 @@ export function Header() {
               </button>
             </NavDropdown>
           ) : (
-            <Button variant="primary" size="sm" onClick={() => setAuthOpen(true)} className="hidden sm:inline-flex">
+            <Button variant="primary" size="sm" onClick={() => setAuthOpen(true)}>
               <User className="h-4 w-4" />
               {t("nav.authButton")}
             </Button>

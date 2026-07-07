@@ -18,6 +18,7 @@ import {
 } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
 import { storyImageSrc } from "@/lib/storyImage";
+import { HeroImageZoom } from "@/components/story/HeroImageZoom";
 import { StoryBreadcrumb } from "@/components/story/StoryBreadcrumb";
 import { AudioPlayer } from "@/components/story/AudioPlayer";
 import { DownloadButtons } from "@/components/story/DownloadButtons";
@@ -155,9 +156,13 @@ export default async function StoryDetailPage({
         }
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+        {/* Click the hero to open the illustration fullscreen */}
+        {heroImg && (
+          <HeroImageZoom src={heroImg} alt={story.title} label={t("openIllustration")} />
+        )}
         {/* Breadcrumb sits ON the illustration (#33), styled like the old
             back-to-library button which it replaces. */}
-        <div className="absolute left-0 right-0 top-4 mx-auto max-w-5xl px-5 md:px-8">
+        <div className="absolute left-0 right-0 top-4 z-20 mx-auto max-w-5xl px-5 md:px-8">
           <StoryBreadcrumb
             onImage
             trail={[
@@ -166,7 +171,7 @@ export default async function StoryDetailPage({
             ]}
           />
         </div>
-        <div className="absolute inset-x-0 bottom-0 mx-auto max-w-5xl px-5 md:px-8 pb-10 md:pb-16">
+        <div className="absolute inset-x-0 bottom-0 z-20 mx-auto max-w-5xl px-5 md:px-8 pb-10 md:pb-16">
           {/* Clickable filter chips (#10) */}
           <div className="flex flex-wrap items-center gap-2">
             <Link

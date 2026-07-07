@@ -286,6 +286,7 @@
     "printPromptBody": "Transformez-la en vrai livre illustré, avec lui en héros. Reliure cousue, papier crème, illustrations originales.",
     "printCta": "Créer le livre",
     "endNote": "Fin de l'histoire, bonne nuit.",
+    "openIllustration": "Voir l'illustration en plein écran",
     "relatedTitle": "À lire ensuite",
     "relatedIn": "À lire ensuite : {genre}, {age}",
     "licenseNote": "Histoires réservées à un usage personnel et familial.",

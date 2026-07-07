@@ -14,6 +14,7 @@ import { ReadingProgress } from "@/components/story/ReadingProgress";
 import { ReadingSettings } from "@/components/story/ReadingSettings";
 import { FavoriteButton, ShareButton, ReportDialog } from "@/components/story/StoryActions";
 import { FoxImagePlaceholder } from "@/components/brand/FoxImagePlaceholder";
+import { HeroImageZoom } from "@/components/story/HeroImageZoom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Copy, Lock, Pencil, Sparkles, ThumbsDown, ThumbsUp, Wand2 } from "lucide-react";
@@ -265,7 +266,11 @@ export default function CustomStoryPage() {
         }
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/30 to-black/20" />
-        <div className="absolute left-0 right-0 top-4 mx-auto max-w-4xl px-5 md:px-8" data-no-print>
+        {/* Click the hero to open the illustration fullscreen */}
+        {imageUrl && (
+          <HeroImageZoom src={imageUrl} alt={story.title} label={t("story.openIllustration")} />
+        )}
+        <div className="absolute left-0 right-0 top-4 z-20 mx-auto max-w-4xl px-5 md:px-8" data-no-print>
           <Link
             href={backHref}
             className="inline-flex items-center gap-2 rounded-full bg-black/25 px-3.5 py-1.5 text-sm text-white backdrop-blur-sm hover:bg-black/40"
@@ -274,7 +279,7 @@ export default function CustomStoryPage() {
             {backHref === "/enfant" ? t("customStory.back") : t("customStory.backParent")}
           </Link>
         </div>
-        <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-5 md:px-8 pb-10">
+        <div className="absolute inset-x-0 bottom-0 z-20 mx-auto max-w-4xl px-5 md:px-8 pb-10">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="fox" className="border-0">{t("customStory.badge")}</Badge>
             <Badge variant="ink" className="bg-black/25 text-white border-0 backdrop-blur-sm">
@@ -342,12 +347,15 @@ export default function CustomStoryPage() {
       {/* Illustration + body */}
       <section className="mx-auto max-w-4xl px-5 md:px-8 py-10">
         {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imageUrl}
-            alt={`Illustration : ${story.title}`}
-            className="mb-10 aspect-square w-full max-w-2xl mx-auto rounded-3xl object-cover shadow-[var(--shadow-card)]"
-          />
+          <div className="relative mb-10 aspect-square w-full max-w-2xl mx-auto">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imageUrl}
+              alt={`Illustration : ${story.title}`}
+              className="h-full w-full rounded-3xl object-cover shadow-[var(--shadow-card)]"
+            />
+            <HeroImageZoom src={imageUrl} alt={story.title} label={t("story.openIllustration")} />
+          </div>
         ) : imageLoading ? (
           <div
             aria-hidden

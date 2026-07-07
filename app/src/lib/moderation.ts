@@ -2,12 +2,13 @@ import type { CustomStoryParams } from "./customStories";
 
 /**
  * Content moderation for user-provided story inputs (names, places, extra
- * plot details). Defense in depth, three layers:
+ * plot details). Defense in depth, four layers (see lib/ai/safetyGate.ts for
+ * layer 2, the semantic multilingual gate on inputs AND generated output):
  *
  *  1. This module — normalized blocklist screening + shape validation. It
  *     runs CLIENT-SIDE in /creer for instant feedback, and SERVER-SIDE in
- *     generateStoryAction as the real gate (the client check can be bypassed,
- *     the server one cannot).
+ *     generateStoryAction as a free pre-filter (the client check can be
+ *     bypassed, the server one cannot).
  *  2. Prompt hardening (lib/ai SAFETY_RULES) — user field values are declared
  *     as literal data, never instructions, and the model must swap any
  *     inappropriate value for a wholesome alternative.
@@ -76,6 +77,19 @@ const BANNED_TOKENS = new Set<string>([
   "kill", "killing", "murder", "murderer", "behead", "stab",
   "gun", "rifle", "shotgun", "heroin", "meth", "weed",
   "terrorist", "jihadist",
+  // Common profanity in other languages (short tokens the semantic gate can
+  // underscore): ES / IT / DE / PT / PL / AR(latinized)
+  "puta", "puto", "mierda", "cabron", "cabrona", "pendejo", "pendeja",
+  "polla", "verga", "gilipollas", "joder", "follar", "marica", "maricon",
+  "cazzo", "merda", "stronzo", "stronza", "puttana", "vaffanculo", "troia",
+  "porca", "minchia", "coglione",
+  "scheisse", "arschloch", "hurensohn", "fotze", "schwanz", "wichser",
+  "caralho", "foda", "foder", "buceta", "porra", "viado",
+  "kurwa", "chuj", "pizda", "jebac", "spierdalaj",
+  // NOTE: short Arabic-latinized tokens like "nik"/"kus" are deliberately
+  // absent: they collide with real first names; the semantic gate judges
+  // them in context instead.
+  "sharmouta", "kahba", "zamel",
 ]);
 
 /**
@@ -158,6 +172,7 @@ export function moderateStoryParams(params: CustomStoryParams): ParamsModeration
     ["friend", params.friend, 200],
     ["place", params.place, 80],
     ["fear", params.fear, 80],
+    ["subTheme", params.subTheme ?? "", 60],
   ];
   for (const info of params.extraInfo ?? []) freeText.push(["extraInfo", info, 140]);
 

@@ -320,6 +320,7 @@ export default function CreateStoryPage() {
     }
     if (s === 2) {
       if (p.place && !moderateText(p.place).ok) return "notAllowed";
+      if (p.subTheme && !moderateText(p.subTheme).ok) return "notAllowed";
       for (const info of p.extraInfo ?? []) {
         if (info && !moderateText(info).ok) return "notAllowed";
       }

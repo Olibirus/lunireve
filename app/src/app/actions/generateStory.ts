@@ -1,6 +1,7 @@
 "use server";
 
 import { generateStoryText } from "@/lib/ai";
+import { moderateStoryFields, moderateGeneratedStory } from "@/lib/ai/safetyGate";
 import { getSession } from "@/lib/auth/session";
 import { ageToRange } from "@/data/mock-stories";
 import { insertCustomStory } from "@/db/customStories";
@@ -56,11 +57,37 @@ export async function generateStoryAction(
   const session = await getSession();
   if (!session) return { ok: false, reason: "error" };
 
-  // 2 — moderation wall. No fallback story on the client for this one.
+  // 2a — blocklist wall (free, instant). No fallback story for this one.
   const check = moderateStoryParams(params);
   if (!check.ok) {
     console.warn(
       `[Lunireve] story input blocked (${check.field}: ${check.reason}) for ${session.username}`
+    );
+    return { ok: false, reason: "moderation" };
+  }
+
+  // 2b — semantic wall: multilingual, intent-aware classification of every
+  // free-text field (slang, other languages, innocent-words-bad-intent all
+  // score here where the blocklist cannot see them).
+  const semantic = await moderateStoryFields([
+    { field: "heroName", text: params.heroName },
+    { field: "trait", text: params.trait },
+    { field: "subTheme", text: params.subTheme ?? "" },
+    { field: "place", text: params.place },
+    { field: "fear", text: params.fear },
+    { field: "friend", text: params.friend },
+    ...(params.companions ?? []).map((c, i) => ({
+      field: `companion${i + 1}`,
+      text: c.name,
+    })),
+    ...(params.extraInfo ?? []).map((info, i) => ({
+      field: `extraInfo${i + 1}`,
+      text: info,
+    })),
+  ]);
+  if (!semantic.ok) {
+    console.warn(
+      `[Lunireve] story input blocked by safety gate (${semantic.field}: ${semantic.category}) for ${session.username}`
     );
     return { ok: false, reason: "moderation" };
   }
@@ -137,6 +164,19 @@ export async function generateStoryAction(
       word: cleanText(g.word),
       definition: cleanText(g.definition),
     }));
+
+    // 4 — final verification: scan the GENERATED text before storing or
+    // showing it. Catches the rare case where something slipped past the
+    // input gates and the prompt rules.
+    const outputCheck = await moderateGeneratedStory(
+      [title, ...body].join("\n\n")
+    );
+    if (!outputCheck.ok) {
+      console.error(
+        `[Lunireve] generated story blocked by safety gate (${outputCheck.category}) for ${session.username}`
+      );
+      return { ok: false, reason: "moderation" };
+    }
 
     // Persist to the DB so the /histoire-perso/<id> link is shareable across
     // devices. A storage failure must not lose the generated story, so we fall

@@ -25,8 +25,10 @@ import {
   MAX_EXTRA_INFO,
   STORY_SKIN_TONES,
   STORY_SUBTHEMES,
+  OCCASION_PRESETS,
   storyOptLabel,
   relationLabel,
+  type OccasionPreset,
 } from "@/lib/storyOptions";
 import { traitLabel } from "@/lib/characterOptions";
 import { moderateText, isValidName } from "@/lib/moderation";
@@ -136,6 +138,7 @@ export default function CreateStoryPage() {
   const [blockedField, setBlockedField] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [selectedHeroId, setSelectedHeroId] = useState<string | null>(null);
+  const [presetId, setPresetId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [params, setParams] = useState<CustomStoryParams>({
@@ -156,6 +159,30 @@ export default function CreateStoryPage() {
   });
   const set = <K extends keyof CustomStoryParams>(k: K, v: CustomStoryParams[K]) =>
     setParams((p) => ({ ...p, [k]: v }));
+
+  /**
+   * Occasion preset (#5): fills theme + angle + mood and seeds one plot note.
+   * Tapping the active preset again clears it. The seeded note is tagged so
+   * re-picking a preset swaps it cleanly without stacking sentences.
+   */
+  function applyPreset(preset: OccasionPreset) {
+    if (presetId === preset.id) {
+      setPresetId(null);
+      return;
+    }
+    setPresetId(preset.id);
+    const subTheme = locale === "en" ? preset.subThemeEn : preset.subThemeFr;
+    const extra = (locale === "en" ? preset.extraEn : preset.extraFr) ?? "";
+    setParams((p) => {
+      // Drop any note previously seeded by a preset, keep the parent's own.
+      const seeded = new Set(
+        OCCASION_PRESETS.flatMap((x) => [x.extraFr, x.extraEn]).filter(Boolean) as string[]
+      );
+      const kept = (p.extraInfo ?? []).filter((s) => !seeded.has(s));
+      const extraInfo = extra ? [extra, ...kept].slice(0, MAX_EXTRA_INFO) : kept;
+      return { ...p, theme: preset.theme, subTheme: subTheme || undefined, mood: preset.mood, extraInfo };
+    });
+  }
 
   useEffect(() => {
     const all = readProfiles();
@@ -1015,6 +1042,25 @@ export default function CreateStoryPage() {
                 <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("adventureHint")}</p>
               </div>
 
+              {/* Occasion presets (#5): one-tap milestone starters */}
+              <div>
+                <Label>{t("occasionTitle")}</Label>
+                <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("occasionHint")}</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {OCCASION_PRESETS.map((preset) => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => applyPreset(preset)}
+                      className={chip(presetId === preset.id)}
+                    >
+                      <span className="mr-1">{preset.emoji}</span>
+                      {locale === "en" ? preset.en : preset.fr}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {!isKid && (
                 <div>
                   <Label htmlFor="reading-age">{t("readingAge")}</Label>
@@ -1043,7 +1089,10 @@ export default function CreateStoryPage() {
                     <button
                       key={m}
                       type="button"
-                      onClick={() => set("mood", m)}
+                      onClick={() => {
+                        set("mood", m);
+                        setPresetId(null);
+                      }}
                       className={chip(params.mood === m)}
                     >
                       {t(`mood_${m}`)}
@@ -1062,6 +1111,7 @@ export default function CreateStoryPage() {
                       onClick={() => {
                         set("theme", slug);
                         set("subTheme", undefined);
+                        setPresetId(null);
                       }}
                       className={chip(params.theme === slug)}
                     >

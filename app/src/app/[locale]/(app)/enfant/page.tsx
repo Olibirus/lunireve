@@ -12,10 +12,13 @@ import { mockStories, ageToRange, type MockStory } from "@/data/mock-stories";
 import { readCustomStories, type CustomStory } from "@/lib/customStories";
 import { readFavorites } from "@/lib/favorites";
 import { readHistory } from "@/lib/readingHistory";
+import { pickDailyStory } from "@/lib/dailyPick";
+import { storyImageSrc } from "@/lib/storyImage";
 import { StoryCard } from "@/components/story/StoryCard";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { BookOpen, Flame, LogOut, Sparkles, Wand2 } from "lucide-react";
+import { BookOpen, Flame, LogOut, Moon, Sparkles, Wand2 } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 /**
  * Child bubble — the simplified, child-addressed lens on the library.
@@ -61,6 +64,12 @@ export default function ChildBubblePage() {
   if (!profile) return null;
 
   const ageRange = ageToRange(profile.age);
+  // "L'histoire de ce soir" (#1): one deterministic daily pick per child.
+  const daily = pickDailyStory(
+    { profileId: profile.id, age: profile.age, themes: profile.themes },
+    mockStories
+  );
+  const dailyImg = daily ? storyImageSrc(daily.slug) : null;
   const forYou = mockStories
     .filter((s) => s.ageRange === ageRange)
     .sort((a, b) => {
@@ -119,6 +128,48 @@ export default function ChildBubblePage() {
             <span className="text-base font-medium">{t("createStory")}</span>
           </Link>
         </section>
+
+        {/* L'histoire de ce soir (#1) — deterministic daily pick, the routine anchor */}
+        {daily && (
+          <section>
+            <h2 className="sparkle font-serif text-2xl tracking-tight">{t("tonight")}</h2>
+            <Link
+              href={{ pathname: "/histoires/[slug]", params: { slug: daily.slug } }}
+              className="group mt-4 block overflow-hidden rounded-3xl border border-[var(--color-ink-100)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] transition-shadow"
+            >
+              <div className={cn("relative flex min-h-[15rem] items-end", !dailyImg && daily.cover)}>
+                {dailyImg && (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={dailyImg}
+                      alt=""
+                      aria-hidden
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  </>
+                )}
+                <div className="relative z-10 p-6 md:p-8">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-black/35 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                    <Moon className="h-3.5 w-3.5" />
+                    {t("tonightBadge")}
+                  </span>
+                  <h3
+                    className="mt-3 max-w-2xl font-serif text-2xl md:text-4xl text-white tracking-tight leading-tight drop-shadow-sm"
+                    style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 70, 'wght' 500" }}
+                  >
+                    {daily.title}
+                  </h3>
+                  <span className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-[var(--color-cream-50)] px-5 py-2.5 text-sm font-medium text-[var(--color-ink-800)] group-hover:bg-white">
+                    <BookOpen className="h-4 w-4" />
+                    {t("tonightRead")}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </section>
+        )}
 
         {/* Resume */}
         {resume && (

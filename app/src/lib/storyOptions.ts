@@ -112,6 +112,101 @@ export function subThemeLabel(theme: string, id: string, locale: string): string
   return s ? storyOptLabel(s, locale) : id;
 }
 
+/**
+ * Occasion presets (#5) — one tap fills theme + angle + mood + a plot note for
+ * a real-life milestone (birthday, first day of school, tooth fairy...). These
+ * are the stories parents most want printed, and the fastest way to remove the
+ * blank-page friction. `theme` must be a real THEME_OPTIONS slug; `subTheme`
+ * and `extra` are stored as the localized free-text the model reads.
+ */
+export type OccasionPreset = {
+  id: string;
+  emoji: string;
+  fr: string;
+  en: string;
+  theme: string;
+  mood: "drole" | "mysterieux" | "touchant" | "palpitant" | "doux";
+  subThemeFr?: string;
+  subThemeEn?: string;
+  extraFr?: string;
+  extraEn?: string;
+};
+
+export const OCCASION_PRESETS: OccasionPreset[] = [
+  {
+    id: "anniversaire",
+    emoji: "🎂",
+    fr: "Anniversaire",
+    en: "Birthday",
+    theme: "anniversaire",
+    mood: "drole",
+    subThemeFr: "Une fête surprise",
+    subThemeEn: "A surprise party",
+    extraFr: "C'est l'anniversaire du héros aujourd'hui, et une belle surprise l'attend.",
+    extraEn: "It is the hero's birthday today, and a lovely surprise is waiting.",
+  },
+  {
+    id: "rentree",
+    emoji: "🎒",
+    fr: "Rentrée des classes",
+    en: "First day of school",
+    theme: "ecole",
+    mood: "touchant",
+    subThemeFr: "Le premier jour d'école",
+    subThemeEn: "The very first day of school",
+    extraFr: "Le héros fait sa rentrée, un peu intimidé, et se fait un nouvel ami.",
+    extraEn: "The hero starts school, a little nervous, and makes a new friend.",
+  },
+  {
+    id: "petite-souris",
+    emoji: "🦷",
+    fr: "La petite souris",
+    en: "The tooth fairy",
+    theme: "fantastique",
+    mood: "doux",
+    subThemeFr: "La petite souris des dents",
+    subThemeEn: "The tooth fairy visit",
+    extraFr: "Le héros perd sa première dent et attend la visite de la petite souris.",
+    extraEn: "The hero loses their first tooth and waits for the tooth fairy.",
+  },
+  {
+    id: "nouveau-bebe",
+    emoji: "👶",
+    fr: "Un nouveau bébé",
+    en: "A new baby",
+    theme: "famille",
+    mood: "touchant",
+    subThemeFr: "Devenir grand frère ou grande sœur",
+    subThemeEn: "Becoming a big brother or big sister",
+    extraFr: "Un nouveau bébé arrive dans la famille et le héros apprend à devenir grand.",
+    extraEn: "A new baby arrives in the family and the hero learns to be the big one.",
+  },
+  {
+    id: "demenagement",
+    emoji: "📦",
+    fr: "Le déménagement",
+    en: "Moving house",
+    theme: "emotions",
+    mood: "touchant",
+    subThemeFr: "Un nouveau chez-soi",
+    subThemeEn: "A brand-new home",
+    extraFr: "Le héros déménage dans une nouvelle maison et apprivoise ce grand changement.",
+    extraEn: "The hero moves to a new home and gently gets used to the big change.",
+  },
+  {
+    id: "nuit-sans-peur",
+    emoji: "🌙",
+    fr: "Une nuit sans peur",
+    en: "A night without fear",
+    theme: "emotions",
+    mood: "doux",
+    subThemeFr: "Apprivoiser la peur du noir",
+    subThemeEn: "Taming the fear of the dark",
+    extraFr: "Le héros a un peu peur du noir et découvre que la nuit peut être douce.",
+    extraEn: "The hero is a little afraid of the dark and finds out the night can be gentle.",
+  },
+];
+
 /** Optional skin-tone preference for the illustrations (ids match characterOptions). */
 export const STORY_SKIN_TONES: StoryOpt[] = [
   { id: "claire", fr: "Peau claire", en: "Light skin" },

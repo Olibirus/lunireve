@@ -1,3 +1,8 @@
+// Static + ISR: served from the CDN, revalidated hourly. Keeps crawler and
+// prefetch traffic off serverless functions (see Vercel usage incident).
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
 import { setRequestLocale } from "next-intl/server";
 import { PromoBanner } from "@/components/marketing/PromoBanner";
 import { HeroV2 } from "@/components/marketing/HeroV2";

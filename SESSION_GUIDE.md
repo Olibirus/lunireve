@@ -7,6 +7,7 @@ after each batch (must stay green).
 ## Cross-session changes log
 <!-- Add ONE line per cross-territory edit, newest on top:
      `YYYY-MM-DD [Session X]: touched <folder> for <reason>` -->
+2026-07-12 [Session A]: grouped library filters (CHARACTER_GROUPS/THEME_GROUPS in lib/stories/filter + ccat/tcat params), directional sort (sort+dir), extended 6 story bodies + honest readingMinutes in data/mock-stories, InteractiveBand on homepage, bonus step on histoire-personnalisee, about-us.png hero, Accordion animation, getUsername in lib/clientAuth (header name fix)
 2026-07-08 [Session A]: added lib/dailyPick.ts + "histoire de ce soir" section in (app)/enfant; OCCASION_PRESETS in lib/storyOptions + occasion chips in (app)/creer step 2
 2026-07-07 [Session A]: touched (app)/creer (rejected screen + red field), actions/generateStory (field in result), lib/ai (craft rules, richer style prompts, character identity in image path), db/customStories, data/faq
 2026-07-07 [Session A]: added lib/ai/safetyGate.ts (semantic moderation, inputs + output), wired into actions/generateStory; blocklist ES/IT/DE/PT/PL/AR additions + subTheme in lib/moderation + creer validateStep

@@ -10,6 +10,7 @@ import { ParallaxBand } from "@/components/marketing/ParallaxBand";
 import { GenreCarousel } from "@/components/marketing/GenreCarousel";
 import { AgeGrid } from "@/components/marketing/AgeGrid";
 import { PersonalizeBand } from "@/components/marketing/PersonalizeBand";
+import { InteractiveBand } from "@/components/marketing/InteractiveBand";
 import { AboutTeaser } from "@/components/marketing/AboutTeaser";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 
@@ -34,6 +35,7 @@ export default async function HomePage({
       <GenreCarousel />
       <AgeGrid />
       <PersonalizeBand />
+      <InteractiveBand />
       <AboutTeaser />
       <NewsletterBand />
     </>

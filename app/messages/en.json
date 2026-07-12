@@ -227,6 +227,32 @@
       "fineprint": "We keep your address private. No advertising, ever."
     }
   },
+  "interactiveBand": {
+    "kicker": "Interactive stories",
+    "title": "What if your child chose what happens next?",
+    "body": "In our interactive stories, the tale pauses at a crossroads and waits for your child's decision. Every choice opens a different path: read the same story again and live a whole new adventure.",
+    "demoText": "Filo the fox reaches two paths. To the left, the whispering forest. To the right, the moon bridge...",
+    "choiceA": "Follow the whispering forest",
+    "choiceB": "Cross the moon bridge",
+    "demoHint": "Every choice changes the rest of the story.",
+    "cta": "Discover interactive stories"
+  },
+  "filterCats": {
+    "characters": {
+      "animaux": "Animals",
+      "enfants": "Children & family",
+      "creatures": "Magical creatures",
+      "heros": "Heroes & trades",
+      "insolites": "Quirky objects"
+    },
+    "themes": {
+      "aventures": "Adventure & discovery",
+      "liens": "Emotions & bonds",
+      "imaginaire": "Imagination & humour",
+      "nature": "Nature & animals",
+      "quotidien": "Celebrations & daily life"
+    }
+  },
   "library": {
     "kicker": "The library",
     "title": "Stories <accent>picked</accent> by hand",
@@ -238,10 +264,11 @@
     "searchResults": "{count, plural, =0 {No results for \"{query}\"} =1 {1 result for \"{query}\"} other {# results for \"{query}\"}}",
     "interactiveResults": "{count, plural, =0 {No interactive stories} =1 {1 interactive story} other {# interactive stories}}",
     "sortLabel": "Sort by",
-    "sortNewest": "Newest first",
-    "sortRating": "Highest rated",
-    "sortMostLiked": "Most liked",
-    "sortShortest": "Shortest first",
+    "sortNewest": "Date",
+    "sortRating": "Rating",
+    "sortMostLiked": "Likes",
+    "sortDuration": "Length",
+    "sortToggleHint": "Click again to reverse the order",
     "seeMore": "See more stories",
     "prev": "Previous",
     "next": "Next",
@@ -589,6 +616,9 @@
     "step3Desc": "The mood and tone: gentle for bedtime, funny or full of action. You set the feel.",
     "step4Title": "We write an amazing story",
     "step4Desc": "In minutes, we craft a bespoke tale, ready to read and listen to tonight.",
+    "bonusBadge": "Bonus step, optional",
+    "bonusTitle": "Loved the story? The sequel is one tap away.",
+    "bonusDesc": "After reading, a single button starts the next episode: same hero, same companions, a brand-new adventure. Episode after episode, your child builds THEIR bedtime series, the one they ask for every week.",
     "whyKicker": "Why try it",
     "whyTitle": "Why create a personalised story",
     "why1Title": "It's precious for children",

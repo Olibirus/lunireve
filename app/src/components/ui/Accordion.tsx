@@ -35,11 +35,21 @@ export function Accordion({ items }: { items: AccordionItem[] }) {
                 )}
               />
             </button>
-            {isOpen && (
-              <div className="px-5 pb-5 md:px-6 md:pb-6">
-                <p className="text-[var(--color-ink-600)] leading-relaxed">{item.answer}</p>
+            {/* Always mounted: the 0fr -> 1fr grid row animates to the natural
+                height smoothly, no fixed max-height guesswork. */}
+            <div
+              className={cn(
+                "grid transition-all duration-300 ease-in-out",
+                isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+              )}
+              aria-hidden={!isOpen}
+            >
+              <div className="overflow-hidden">
+                <p className="px-5 pb-5 text-[var(--color-ink-600)] leading-relaxed md:px-6 md:pb-6">
+                  {item.answer}
+                </p>
               </div>
-            )}
+            </div>
           </div>
         );
       })}

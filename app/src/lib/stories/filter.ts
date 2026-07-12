@@ -61,33 +61,86 @@ const EXTRA_THEMES = [
 ];
 export const THEMES = [...new Set([...STORY_THEMES, ...EXTRA_THEMES])];
 
-/** Library sort options (#9). "liked" reads the real favoritesCount aggregate. */
-export type StorySort = "newest" | "rating" | "liked" | "shortest";
+/**
+ * Two-level filter rails: the flat 25-character / 18-theme chip walls were
+ * overwhelming, so chips are grouped into a handful of categories. Clicking a
+ * category opens its sub-chips underneath (query-param driven, so the page
+ * stays server-rendered and crawlable). Labels live in messages under
+ * `filterCats.*`.
+ */
+export const CHARACTER_GROUPS: { id: string; members: string[] }[] = [
+  { id: "animaux", members: ["renard", "ours", "lion", "lapin", "chat", "hibou", "loup", "dinosaure"] },
+  { id: "enfants", members: ["enfant-fille", "enfant-garcon", "grand-mere"] },
+  { id: "creatures", members: ["dragon", "licorne", "sirene", "fee", "sorciere"] },
+  { id: "heros", members: ["pirate", "chevalier", "princesse", "reine", "astronaute", "marchand", "robot"] },
+  { id: "insolites", members: ["gateau", "phare"] },
+];
+
+export const THEME_GROUPS: { id: string; members: string[] }[] = [
+  { id: "aventures", members: ["aventure", "decouverte", "voyage", "courage"] },
+  { id: "liens", members: ["emotions", "amitie", "famille"] },
+  { id: "imaginaire", members: ["fantastique", "humour"] },
+  { id: "nature", members: ["nature", "animaux", "mer", "saisons", "espace"] },
+  { id: "quotidien", members: ["noel", "anniversaire", "ecole", "sport"] },
+];
+
+/** The group a filter value belongs to, so an active filter auto-opens it. */
+export function groupOf(
+  groups: { id: string; members: string[] }[],
+  value: string | undefined
+): string | undefined {
+  if (!value) return undefined;
+  return groups.find((g) => g.members.includes(value))?.id;
+}
+
+/**
+ * Library sort (#9), now directional: every criterion is a toggle. First
+ * click applies the natural direction, second click reverses it (most recent
+ * <-> oldest, best rated <-> lowest, most liked <-> least, short <-> long).
+ */
+export type StorySortKey = "newest" | "rating" | "liked" | "duration";
+export type StorySortDir = "desc" | "asc";
+export type StorySort = { key: StorySortKey; dir: StorySortDir };
+
+/** Natural first-click direction per criterion. */
+export const SORT_DEFAULT_DIR: Record<StorySortKey, StorySortDir> = {
+  newest: "desc", // most recent first
+  rating: "desc", // best rated first
+  liked: "desc", // most liked first
+  duration: "asc", // shortest first
+};
 
 export function sortStories(stories: MockStory[], sort: StorySort): MockStory[] {
   const arr = [...stories];
-  switch (sort) {
+  const flip = (n: number) => (sort.dir === "asc" ? -n : n);
+  switch (sort.key) {
     case "rating":
-      // Best rating first; ties broken by vote count (more votes = more trust).
-      return arr.sort((a, b) => b.rating - a.rating || b.ratingCount - a.ratingCount);
+      // Ties broken by vote count (more votes = more trust).
+      return arr.sort((a, b) => flip(b.rating - a.rating || b.ratingCount - a.ratingCount));
     case "liked":
       // Most liked = most favorites (real aggregate, 0 until users favorite).
-      return arr.sort((a, b) => b.favoritesCount - a.favoritesCount || b.rating - a.rating);
-    case "shortest":
-      return arr.sort((a, b) => a.readingMinutes - b.readingMinutes);
+      return arr.sort((a, b) => flip(b.favoritesCount - a.favoritesCount || b.rating - a.rating));
+    case "duration":
+      // "asc" = shortest first (the natural default for this criterion).
+      return arr.sort((a, b) => flip(b.readingMinutes - a.readingMinutes));
     case "newest":
     default:
-      return arr;
+      // Catalogue order is newest-first; "asc" shows the oldest stories first.
+      return sort.dir === "asc" ? arr.reverse() : arr;
   }
 }
 
-/** Read the `sort` query param, falling back to the default library order. */
+/** Read `sort` + `dir` query params, falling back to the default order. */
 export function sortFromSearchParams(
   sp: Record<string, string | string[] | undefined>
 ): StorySort {
-  const s = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort;
-  if (s === "rating" || s === "liked" || s === "shortest") return s;
-  return "newest";
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+  const s = one(sp.sort);
+  const key: StorySortKey =
+    s === "rating" || s === "liked" || s === "duration" || s === "newest" ? s : "newest";
+  const d = one(sp.dir);
+  const dir: StorySortDir = d === "asc" || d === "desc" ? d : SORT_DEFAULT_DIR[key];
+  return { key, dir };
 }
 
 /** Parse Next.js searchParams into typed filters, ignoring junk values. */

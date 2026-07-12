@@ -227,6 +227,32 @@
       "fineprint": "Nous gardons votre adresse à l'abri. Aucune publicité, jamais."
     }
   },
+  "interactiveBand": {
+    "kicker": "Histoires interactives",
+    "title": "Et si votre enfant choisissait la suite ?",
+    "body": "Dans nos histoires interactives, le récit s'arrête à un carrefour et attend la décision de votre enfant. Chaque choix ouvre un chemin différent : on peut relire la même histoire et vivre une toute autre aventure.",
+    "demoText": "Filo le renard arrive devant deux sentiers. À gauche, la forêt qui chuchote. À droite, le pont de lune...",
+    "choiceA": "Suivre la forêt qui chuchote",
+    "choiceB": "Traverser le pont de lune",
+    "demoHint": "Chaque choix change la suite de l'histoire.",
+    "cta": "Découvrir les histoires interactives"
+  },
+  "filterCats": {
+    "characters": {
+      "animaux": "Animaux",
+      "enfants": "Enfants & famille",
+      "creatures": "Créatures magiques",
+      "heros": "Héros & métiers",
+      "insolites": "Objets rigolos"
+    },
+    "themes": {
+      "aventures": "Aventure & découverte",
+      "liens": "Émotions & liens",
+      "imaginaire": "Imaginaire & humour",
+      "nature": "Nature & animaux",
+      "quotidien": "Fêtes & quotidien"
+    }
+  },
   "library": {
     "kicker": "La bibliothèque",
     "title": "Des histoires <accent>choisies</accent> à la main",
@@ -238,10 +264,11 @@
     "searchResults": "{count, plural, =0 {Aucun résultat pour « {query} »} =1 {1 résultat pour « {query} »} other {# résultats pour « {query} »}}",
     "interactiveResults": "{count, plural, =0 {Aucune histoire interactive} =1 {1 histoire interactive} other {# histoires interactives}}",
     "sortLabel": "Trier par",
-    "sortNewest": "Les plus récentes",
-    "sortRating": "Les mieux notées",
-    "sortMostLiked": "Les plus aimées",
-    "sortShortest": "Les plus courtes",
+    "sortNewest": "Date",
+    "sortRating": "Note",
+    "sortMostLiked": "J'aime",
+    "sortDuration": "Durée",
+    "sortToggleHint": "Cliquez à nouveau pour inverser l'ordre",
     "seeMore": "Voir plus d'histoires",
     "prev": "Précédent",
     "next": "Suivant",
@@ -589,6 +616,9 @@
     "step3Desc": "L'ambiance et le ton : douce pour le coucher, drôle ou pleine d'action. Vous donnez l'humeur.",
     "step4Title": "On écrit une histoire incroyable",
     "step4Desc": "En quelques minutes, nous composons un récit sur-mesure, prêt à lire et à écouter ce soir.",
+    "bonusBadge": "Étape bonus, en option",
+    "bonusTitle": "L'histoire a plu ? La suite arrive en un geste.",
+    "bonusDesc": "Après la lecture, un seul bouton suffit pour lancer l'épisode suivant : même héros, mêmes compagnons, une aventure toute neuve. Épisode après épisode, votre enfant construit SA série du soir, celle qu'il réclame chaque semaine.",
     "whyKicker": "Pourquoi se lancer",
     "whyTitle": "Pourquoi créer une histoire personnalisée",
     "why1Title": "C'est précieux pour les enfants",

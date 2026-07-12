@@ -94,12 +94,12 @@ export default async function AboutPage({
                   />
                 ))}
               </div>
-              {/* The real logo, drifting softly like a cloud */}
+              {/* Brand illustration, drifting softly like a cloud */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/logo-s.png"
+                src="/img/website/about-us.png"
                 alt="Lunireve"
-                className="float-soft relative mx-auto w-full max-w-sm"
+                className="float-soft relative mx-auto w-full max-w-md rounded-[2rem] shadow-[var(--shadow-card)]"
               />
             </div>
           </div>
@@ -237,11 +237,12 @@ export default async function AboutPage({
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
+              {/* Visible resting background so it reads as a button (not a link) */}
               <Button
                 asChild
                 variant="ghost"
                 size="lg"
-                className="text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)]"
+                className="bg-white/10 text-[var(--color-cream-50)] ring-1 ring-inset ring-white/20 hover:bg-white/20"
               >
                 <a href="mailto:hello@lunireve.com">{t("ctaSecondary")}</a>
               </Button>

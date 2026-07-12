@@ -31,7 +31,7 @@ export function PersonalizeBand() {
             asChild
             variant="ghost"
             size="xl"
-            className="text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)]"
+            className="bg-white/10 text-[var(--color-cream-50)] ring-1 ring-inset ring-white/20 hover:bg-white/20"
           >
             <Link href="/histoire-personnalisee">{t("processKicker")}</Link>
           </Button>

@@ -30,12 +30,23 @@ export type StoryImageResult =
   | { ok: true; url: string }
   | { ok: false; error: string };
 
+/**
+ * Appended to EVERY prompt regardless of caller: image models love to draw
+ * garbled captions unless told not to, and a children's book cover with broken
+ * AI lettering is unusable.
+ */
+const NO_TEXT_RULE =
+  " Absolutely no text, no words, no letters, no captions, no logos, no watermarks anywhere in the image.";
+
 async function runImage(
   tier: ImageTier,
   input: ImageGenerationInput,
   storagePath: string
 ): Promise<string> {
-  const out = await generateImage(tier, input);
+  const out = await generateImage(tier, {
+    ...input,
+    prompt: input.prompt + NO_TEXT_RULE,
+  });
   const bytes = await fetchToBuffer(out.imageUrl);
   return uploadAsset(STORAGE_BUCKETS.images, storagePath, bytes, "image/png");
 }

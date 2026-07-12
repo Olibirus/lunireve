@@ -82,6 +82,20 @@ export function AudioPlayer({
     }
   }
 
+  /** Attempt playback; only mark as playing if the browser allowed it. */
+  async function playNow(): Promise<void> {
+    const el = audioRef.current;
+    if (!el) return;
+    try {
+      await el.play();
+      setPlaying(true);
+    } catch {
+      // Autoplay blocked (e.g. the user gesture expired while the narration
+      // was generating). Stay paused — the next tap plays instantly.
+      setPlaying(false);
+    }
+  }
+
   async function togglePlay() {
     if (playing) {
       audioRef.current?.pause();
@@ -101,11 +115,8 @@ export function AudioPlayer({
           return;
         }
         setUrl(res.url);
-        // The <audio> element mounts once `url` is set; play on the next tick.
-        requestAnimationFrame(() => {
-          void audioRef.current?.play();
-          setPlaying(true);
-        });
+        // The <audio> element mounts once `url` renders; try on the next tick.
+        requestAnimationFrame(() => void playNow());
       } catch {
         setError(true);
       } finally {
@@ -114,8 +125,7 @@ export function AudioPlayer({
       return;
     }
 
-    void audioRef.current?.play();
-    setPlaying(true);
+    void playNow();
   }
 
   useEffect(() => {
@@ -264,9 +274,15 @@ export function AudioPlayer({
             </button>
           </div>
 
-          <p className="mt-2 rounded-xl bg-[var(--color-cream-100)] px-3 py-2 text-center text-xs text-[var(--color-ink-500)]">
+          {/* The note doubles as a close button: tapping it stops playback
+              and dismisses the modal (via onOpenChange). */}
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="mt-2 w-full rounded-xl bg-[var(--color-cream-100)] px-3 py-2 text-center text-xs text-[var(--color-ink-500)] hover:bg-[var(--color-cream-200)] hover:text-[var(--color-ink-700)] transition-colors"
+          >
             {t("playerCloseNote")}
-          </p>
+          </button>
         </DialogContent>
       </Dialog>
     </>

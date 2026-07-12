@@ -5,8 +5,10 @@ import { db } from "@/db";
 import { stories } from "@/db/schema";
 import { generateSpeech } from "@/lib/ai";
 import { getSession } from "@/lib/auth/session";
+import { findStory, storyBody } from "@/data/mock-stories";
 import type { AudioTier, Language, VoiceType } from "@/lib/ai";
 import { STORAGE_BUCKETS, uploadAsset } from "@/lib/supabase/storage";
+import { env } from "@/lib/env";
 
 /**
  * Lazy audio generation (brief §9.4 + item #11).
@@ -35,6 +37,88 @@ function chaptersToText(
     .map((c) => c.content.trim())
     .filter(Boolean)
     .join("\n\n");
+}
+
+/**
+ * OpenAI TTS caps input around ~4k characters. Longer stories (ages 7-12 run
+ * 800-2100 words) are split at paragraph boundaries and the mp3 chunks are
+ * concatenated — MPEG frames are self-contained, so decoders play the joined
+ * buffer seamlessly.
+ */
+const TTS_CHUNK_CHARS = 3500;
+
+function chunkText(text: string): string[] {
+  if (text.length <= TTS_CHUNK_CHARS) return [text];
+  const chunks: string[] = [];
+  let current = "";
+  for (const para of text.split(/\n\n+/)) {
+    const candidate = current ? `${current}\n\n${para}` : para;
+    if (candidate.length > TTS_CHUNK_CHARS && current) {
+      chunks.push(current);
+      current = para;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) chunks.push(current);
+  return chunks;
+}
+
+async function renderSpeech(
+  tier: AudioTier,
+  input: { text: string; language: Language; voiceType?: VoiceType; voice?: string; speed?: number }
+): Promise<{ audio: Buffer; mimeType: string }> {
+  const parts = chunkText(input.text);
+  const buffers: Buffer[] = [];
+  let mimeType = "audio/mpeg";
+  for (const part of parts) {
+    const out = await generateSpeech(tier, { ...input, text: part });
+    buffers.push(out.audio);
+    mimeType = out.mimeType;
+  }
+  return { audio: Buffer.concat(buffers), mimeType };
+}
+
+/**
+ * Mock library stories (data/mock-stories.ts) have no DB row, so their cache
+ * lives purely in Storage at a deterministic path. A cheap HEAD on the public
+ * URL decides cache-hit vs generate.
+ */
+async function mockStoryAudio(
+  slug: string,
+  tier: AudioTier,
+  isDefaultVoice: boolean,
+  voiceArgs: { voiceType?: VoiceType; voice?: string; speed?: number }
+): Promise<StoryAudioResult> {
+  const story = findStory(slug);
+  if (!story) return { ok: false, error: "Story not found." };
+
+  const path = isDefaultVoice
+    ? `library-mock/${slug}.mp3`
+    : `library-mock/${slug}-${voiceArgs.voiceType}-${voiceArgs.voice ?? "x"}.mp3`;
+  const publicUrl = `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKETS.audio}/${path}`;
+
+  // Cache check: the file either exists publicly or it doesn't.
+  try {
+    const head = await fetch(publicUrl, { method: "HEAD", cache: "no-store" });
+    if (head.ok) return { ok: true, url: publicUrl, cached: true };
+  } catch {
+    /* treat as cache miss */
+  }
+
+  // Paid render — session required.
+  if (!(await getSession())) return { ok: false, error: "auth_required" };
+
+  const text = storyBody(slug, story.language).join("\n\n");
+  if (!text.trim()) return { ok: false, error: "Story has no text to narrate." };
+
+  const speech = await renderSpeech(tier, {
+    text,
+    language: story.language,
+    ...voiceArgs,
+  });
+  const url = await uploadAsset(STORAGE_BUCKETS.audio, path, speech.audio, speech.mimeType);
+  return { ok: true, url, cached: false };
 }
 
 /**
@@ -73,7 +157,15 @@ export async function generateStoryAudio(args: {
       .where(eq(stories.id, storyId))
       .limit(1);
 
-    if (!row) return { ok: false, error: "Story not found." };
+    // No DB row → it's a mock library story addressed by slug (cache lives in
+    // Storage only, until the n8n pipeline moves the library into the DB).
+    if (!row) {
+      return mockStoryAudio(storyId, tier, isDefaultVoice, {
+        voiceType,
+        voice: args.voice,
+        speed: args.speed,
+      });
+    }
 
     // Cache hit: default-voice narration already rendered.
     if (row.audioUrl && isDefaultVoice && !force) {
@@ -88,7 +180,7 @@ export async function generateStoryAudio(args: {
     const text = args.text ?? chaptersToText(row.chapters);
     if (!text.trim()) return { ok: false, error: "Story has no text to narrate." };
 
-    const speech = await generateSpeech(tier, {
+    const speech = await renderSpeech(tier, {
       text,
       language: args.language ?? row.language,
       voiceType,

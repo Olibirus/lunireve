@@ -244,6 +244,8 @@ export default async function StoryDetailPage({
                 title={story.title}
                 audioUrl={story.audioUrl}
                 chapterCount={3}
+                storyId={story.slug}
+                tier="library"
               />
             </div>
             <div className="flex justify-center">

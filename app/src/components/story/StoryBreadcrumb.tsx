@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -16,15 +16,17 @@ type Crumb = {
  * `onImage` renders it as a glassy pill over the hero illustration (same look
  * as the old "back to library" button), instead of plain inline text.
  */
-export async function StoryBreadcrumb({
+export function StoryBreadcrumb({
   trail,
   onImage = false,
 }: {
   trail: Crumb[];
   onImage?: boolean;
 }) {
-  const t = await getTranslations("nav");
-  const tFunnel = await getTranslations("funnel");
+  // useTranslations works in Server AND Client components — this component is
+  // used from both (static story pages, client funnel browser).
+  const t = useTranslations("nav");
+  const tFunnel = useTranslations("funnel");
 
   const crumbs: Crumb[] = [
     { label: t("home"), href: "/" },

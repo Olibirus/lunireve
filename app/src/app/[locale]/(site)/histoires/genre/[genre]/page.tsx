@@ -1,33 +1,38 @@
+// Static + ISR: the funnel shell prerenders per genre; filter refinements
+// resolve client-side from the query string (StoryFunnel), so crawler hits on
+// ?query variants are CDN cache hits, not function invocations.
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
+import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { StoryFunnel } from "@/components/story/StoryFunnel";
-import { filtersFromSearchParams } from "@/lib/stories/filter";
 import { GENRES, type Genre } from "@/data/mock-stories";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
 
 type Props = {
   params: Promise<{ locale: string; genre: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function GenreFunnelPage({ params, searchParams }: Props) {
+export default async function GenreFunnelPage({ params }: Props) {
   const { locale, genre } = await params;
   setRequestLocale(locale);
   if (!GENRES.includes(genre as Genre)) notFound();
 
   const t = await getTranslations();
-  const sp = filtersFromSearchParams(await searchParams);
 
   return (
-    <StoryFunnel
-      title={t(`genres.${genre}`)}
-      subtitle={t("funnel.genreSubtitle")}
-      fixed={{ genre: genre as Genre }}
-      query={sp}
-      pathname="/histoires/genre/[genre]"
-      params={{ genre }}
-    />
+    <Suspense>
+      <StoryFunnel
+        title={t(`genres.${genre}`)}
+        subtitle={t("funnel.genreSubtitle")}
+        fixed={{ genre: genre as Genre }}
+        pathname="/histoires/genre/[genre]"
+        params={{ genre }}
+      />
+    </Suspense>
   );
 }
 

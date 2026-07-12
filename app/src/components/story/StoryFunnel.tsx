@@ -1,10 +1,18 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { StoryCard } from "@/components/story/StoryCard";
 import { EmptyResults } from "@/components/story/EmptyResults";
 import { StorySearch } from "@/components/story/StorySearch";
 import { StoryBreadcrumb } from "@/components/story/StoryBreadcrumb";
-import { applyFilters, THEMES, type StoryFilters } from "@/lib/stories/filter";
+import {
+  applyFilters,
+  filtersFromSearchParams,
+  THEMES,
+  type StoryFilters,
+} from "@/lib/stories/filter";
 import {
   GENRES,
   AGE_RANGES,
@@ -19,6 +27,12 @@ import { cn } from "@/lib/utils/cn";
  * pins genre); the remaining axes render as link-chip rails that refine via
  * query string. Links (not client state) keep every drilldown crawlable —
  * these pages are the SEO engine.
+ *
+ * Client component reading useSearchParams: the host pages prerender STATIC
+ * (one CDN-cached entry per route, query variants included — Vercel ignores
+ * the query string for static routes), and refinements resolve in the browser.
+ * This is what turned crawler traffic on these routes from a function
+ * invocation per hit into a free cache hit (see the usage incident).
  */
 
 type AnyPathname =
@@ -27,22 +41,24 @@ type AnyPathname =
   | "/histoires/audio"
   | "/histoires/duree/[bucket]";
 
-export async function StoryFunnel({
+export function StoryFunnel({
   title,
   subtitle,
   fixed,
-  query,
   pathname,
   params,
 }: {
   title: string;
   subtitle: string;
   fixed: StoryFilters;
-  query: StoryFilters;
   pathname: AnyPathname;
   params?: Record<string, string>;
 }) {
-  const t = await getTranslations();
+  const t = useTranslations();
+  const searchParams = useSearchParams();
+  const query = filtersFromSearchParams(
+    Object.fromEntries(searchParams.entries())
+  );
   const active: StoryFilters = { ...query, ...fixed };
   const stories = applyFilters(active);
 

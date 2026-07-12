@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Wand2 } from "lucide-react";
 
@@ -7,7 +7,7 @@ import { Wand2 } from "lucide-react";
  * end, invite the family to create exactly that story. The chosen filters are
  * forwarded to /creer as query params so the creation form is pre-filled.
  */
-export async function EmptyResults({
+export function EmptyResults({
   theme,
   age,
   character,
@@ -16,7 +16,8 @@ export async function EmptyResults({
   age?: string;
   character?: string;
 }) {
-  const t = await getTranslations("funnel");
+  // Universal: works in server (story pages) and client (funnel browser).
+  const t = useTranslations("funnel");
   const query: Record<string, string> = {};
   if (theme) query.theme = theme;
   if (age) query.age = age.split("-")[0]; // age range -> starting age

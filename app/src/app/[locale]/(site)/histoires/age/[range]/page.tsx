@@ -1,33 +1,38 @@
+// Static + ISR: the funnel shell prerenders per age range; filter refinements
+// resolve client-side from the query string (StoryFunnel), so crawler hits on
+// ?query variants are CDN cache hits, not function invocations.
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
+import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { StoryFunnel } from "@/components/story/StoryFunnel";
-import { filtersFromSearchParams } from "@/lib/stories/filter";
 import { AGE_RANGES, ageLabel, type AgeRange } from "@/data/mock-stories";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
 
 type Props = {
   params: Promise<{ locale: string; range: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function AgeFunnelPage({ params, searchParams }: Props) {
+export default async function AgeFunnelPage({ params }: Props) {
   const { locale, range } = await params;
   setRequestLocale(locale);
   if (!AGE_RANGES.includes(range as AgeRange)) notFound();
 
   const t = await getTranslations();
-  const sp = filtersFromSearchParams(await searchParams);
 
   return (
-    <StoryFunnel
-      title={t("funnel.ageTitle", { age: ageLabel(range) })}
-      subtitle={t("funnel.ageSubtitle")}
-      fixed={{ age: range as AgeRange }}
-      query={sp}
-      pathname="/histoires/age/[range]"
-      params={{ range }}
-    />
+    <Suspense>
+      <StoryFunnel
+        title={t("funnel.ageTitle", { age: ageLabel(range) })}
+        subtitle={t("funnel.ageSubtitle")}
+        fixed={{ age: range as AgeRange }}
+        pathname="/histoires/age/[range]"
+        params={{ range }}
+      />
+    </Suspense>
   );
 }
 

@@ -1,28 +1,33 @@
+// Static + ISR: the funnel shell prerenders once per locale; filter
+// refinements resolve client-side from the query string (StoryFunnel), so
+// crawler hits on ?query variants are CDN cache hits, not function invocations.
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
+import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { StoryFunnel } from "@/components/story/StoryFunnel";
-import { filtersFromSearchParams } from "@/lib/stories/filter";
 import type { Metadata } from "next";
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function AudioFunnelPage({ params, searchParams }: Props) {
+export default async function AudioFunnelPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
   const t = await getTranslations();
-  const sp = filtersFromSearchParams(await searchParams);
 
   return (
-    <StoryFunnel
-      title={t("funnel.audioTitle")}
-      subtitle={t("funnel.audioSubtitle")}
-      fixed={{ audio: true }}
-      query={sp}
-      pathname="/histoires/audio"
-    />
+    <Suspense>
+      <StoryFunnel
+        title={t("funnel.audioTitle")}
+        subtitle={t("funnel.audioSubtitle")}
+        fixed={{ audio: true }}
+        pathname="/histoires/audio"
+      />
+    </Suspense>
   );
 }
 

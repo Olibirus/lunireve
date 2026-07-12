@@ -29,36 +29,105 @@ import type { QuizQuestion } from "@/data/mock-stories";
  * and the "next episode" flow (auto or customized).
  */
 
+/* ------------------------------------------------------------------ */
+/* Quiz — decoys and order are seeded by the story id, so every story  */
+/* gets DIFFERENT wrong answers (stable across reloads of that story). */
+/* ------------------------------------------------------------------ */
+
+const DECOY_NAMES = ["Filo", "Vaïa", "Marius", "Louna", "Sacha", "Poppy", "Timo", "Nino", "Célestine", "Basile"];
+const DECOY_PLACES = [
+  "Dans une école de pirates",
+  "Au fond d'un volcan endormi",
+  "Sur la Lune",
+  "Dans un château en sucre",
+  "Au pays des nuages",
+  "Dans une forêt de bonbons",
+  "Au sommet d'une montagne qui chante",
+  "Dans la poche d'un géant",
+];
+const DECOY_COMPANIONS = [
+  "Un dragon grognon",
+  "Un robot très poli",
+  "Une souris chef d'orchestre",
+  "Un nuage bavard",
+  "Un hibou bibliothécaire",
+  "Une tortue pressée",
+  "Personne du tout",
+];
+
+/** Tiny deterministic RNG (mulberry32) seeded from the story id. */
+function seededRandom(seedText: string): () => number {
+  let h = 1779033703;
+  for (let i = 0; i < seedText.length; i++) {
+    h = Math.imul(h ^ seedText.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  let a = h >>> 0;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Pick n distinct entries (excluding any equal to `not`), then shuffle. */
+function pickDecoys(pool: string[], n: number, rand: () => number, not: string): string[] {
+  const candidates = pool.filter((x) => x.toLowerCase() !== not.toLowerCase());
+  const out: string[] = [];
+  while (out.length < n && candidates.length) {
+    const i = Math.floor(rand() * candidates.length);
+    out.push(candidates.splice(i, 1)[0]);
+  }
+  return out;
+}
+
+function shuffledQuestion(
+  question: string,
+  correct: string,
+  decoys: string[],
+  explanation: string,
+  rand: () => number
+): QuizQuestion {
+  const choices = [correct, ...decoys];
+  for (let i = choices.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [choices[i], choices[j]] = [choices[j], choices[i]];
+  }
+  return { question, choices, answer: choices.indexOf(correct), explanation };
+}
+
 /** Param-based quiz until the pipeline generates one with the story. */
 function buildQuiz(story: CustomStory): QuizQuestion[] {
   const { heroName, place, friend } = story.params;
+  const rand = seededRandom(story.id);
   return [
-    {
-      question: `Comment s'appelle le héros de cette histoire ?`,
-      choices: [heroName, "Filo", "Vaïa"],
-      answer: 0,
-      explanation: `C'est bien ${heroName}, le héros de cette histoire rien qu'à lui.`,
-    },
-    {
-      question: "Où se passe une partie de l'aventure ?",
-      choices: [
-        place || "Près des étoiles",
-        "Dans une école de pirates",
-        "Au fond d'un volcan",
-      ],
-      answer: 0,
-      explanation: place
+    shuffledQuestion(
+      "Comment s'appelle le héros de cette histoire ?",
+      heroName,
+      pickDecoys(DECOY_NAMES, 2, rand, heroName),
+      `C'est bien ${heroName}, le héros de cette histoire rien qu'à lui.`,
+      rand
+    ),
+    shuffledQuestion(
+      "Où se passe une partie de l'aventure ?",
+      place || "Près des étoiles",
+      pickDecoys(DECOY_PLACES, 2, rand, place || ""),
+      place
         ? `L'histoire passe par ${place}.`
         : "L'aventure emmène le héros tout près des étoiles.",
-    },
-    {
-      question: "Qui accompagne le héros ?",
-      choices: [friend || "Une luciole nommée Lumi", "Un dragon grognon", "Personne"],
-      answer: 0,
-      explanation: friend
+      rand
+    ),
+    shuffledQuestion(
+      "Qui accompagne le héros ?",
+      friend || "Une luciole nommée Lumi",
+      pickDecoys(DECOY_COMPANIONS, 2, rand, friend || ""),
+      friend
         ? `${friend} accompagne le héros dans l'aventure.`
         : "Une luciole nommée Lumi guide le héros.",
-    },
+      rand
+    ),
   ];
 }
 

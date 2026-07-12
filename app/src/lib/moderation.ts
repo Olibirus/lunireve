@@ -169,6 +169,7 @@ export function moderateStoryParams(params: CustomStoryParams): ParamsModeration
 
   const freeText: [string, string, number][] = [
     ["trait", params.trait, 80],
+    ["heroDescription", params.heroDescription ?? "", 500],
     ["friend", params.friend, 200],
     ["place", params.place, 80],
     ["fear", params.fear, 80],

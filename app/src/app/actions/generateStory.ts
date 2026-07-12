@@ -13,6 +13,7 @@ import {
   MAX_EXTRA_INFO,
   relationLabel,
   heroTypeLabel,
+  capitalizeName,
 } from "@/lib/storyOptions";
 import type { CustomStoryParams } from "@/lib/customStories";
 
@@ -83,6 +84,7 @@ export async function generateStoryAction(
   const semantic = await moderateStoryFields([
     { field: "heroName", text: params.heroName },
     { field: "trait", text: params.trait },
+    { field: "heroDescription", text: params.heroDescription ?? "" },
     { field: "subTheme", text: params.subTheme ?? "" },
     { field: "place", text: params.place },
     { field: "fear", text: params.fear },
@@ -112,8 +114,12 @@ export async function generateStoryAction(
     if (heroType && !heroType.free) params.heroType = "garcon";
   }
 
+  // Names always render with proper capitals in the story, whatever the
+  // parent typed ("jean-luc" -> "Jean-Luc").
+  params.heroName = capitalizeName(params.heroName);
   const companions = (params.companions ?? [])
     .filter((c) => c.name.trim().length >= 2)
+    .map((c) => ({ ...c, name: capitalizeName(c.name) }))
     .slice(0, MAX_COMPANIONS);
   const extraInfo = (params.extraInfo ?? [])
     .map((s) => s.trim())
@@ -121,12 +127,14 @@ export async function generateStoryAction(
     .slice(0, MAX_EXTRA_INFO);
   const readingAge = params.readingAge ?? params.heroAge;
   const heroKind = heroTypeLabel(params.heroType, "fr").toLowerCase();
+  // A saved character's full description wins over the short trait field.
+  const heroDetail = params.heroDescription?.trim() || params.trait;
 
   const lines = [
     `Écris une histoire pour enfant dont le héros est « ${params.heroName} », ${params.heroAge} ans${heroKind ? ` (${heroKind})` : ""}.`,
     params.sequelOf &&
       `IMPORTANT : cette histoire est l'ÉPISODE SUIVANT de « ${params.sequelOf} ». Garde le même héros et les mêmes personnages, fais un bref clin d'œil à l'aventure précédente au début, mais invente une intrigue NOUVELLE et clairement différente.`,
-    params.trait && `Particularité du héros : « ${params.trait} ».`,
+    heroDetail && `Particularité du héros : « ${heroDetail} ».`,
     `Thème : ${params.theme}${params.subTheme ? ` (angle précis : « ${params.subTheme} »)` : ""}. Ambiance : ${MOOD_FR[params.mood]}.`,
     // Appearance and traits must colour the story, never be recited as a list
     // ("Il avait six ans. Sa peau était claire. Il n'avait pas de lunettes.").
@@ -156,7 +164,7 @@ export async function generateStoryAction(
       characters: [
         {
           name: params.heroName,
-          description: `héros de l'histoire, ${params.heroAge} ans${heroKind ? `, ${heroKind}` : ""}${params.trait ? `, ${params.trait}` : ""}${params.skinTone ? `, peau ${params.skinTone}` : ""}`,
+          description: `héros de l'histoire, ${params.heroAge} ans${heroKind ? `, ${heroKind}` : ""}${heroDetail ? `, ${heroDetail}` : ""}${params.skinTone ? `, peau ${params.skinTone}` : ""}`,
         },
         ...companions.map((c) => ({
           name: c.name,

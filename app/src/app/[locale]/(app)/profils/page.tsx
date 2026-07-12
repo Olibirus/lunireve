@@ -11,6 +11,7 @@ import {
   type ChildProfile,
 } from "@/lib/profiles";
 import { FoxMark } from "@/components/brand/FoxCloud";
+import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import { Flame, Lock, Plus, User } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -57,7 +58,7 @@ export default function ProfileSelectorPage() {
               "hover:border-[var(--color-mint-500)] hover:shadow-[var(--shadow-card)]"
             )}
           >
-            <FoxMark color={p.avatar} className="h-24 w-24 md:h-28 md:w-28" />
+            <ChildAvatar color={p.avatar} className="h-24 w-24 md:h-28 md:w-28" />
             <span className="font-serif text-xl tracking-tight">{p.name}</span>
             <span
               className={cn(
@@ -82,8 +83,8 @@ export default function ProfileSelectorPage() {
             <span className="rounded-full bg-[var(--color-indigo-soft-100)] p-4">
               <Lock className="h-6 w-6 text-[var(--color-indigo-soft-500)]" />
             </span>
-            <span className="text-sm font-medium text-[var(--color-ink-700)]">{t("addChildLocked")}</span>
-            <span className="rounded-full bg-[var(--color-indigo-soft-200)] px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-[var(--color-indigo-soft-700)]">
+            <span className="text-sm font-semibold text-[var(--color-ink-800)]">{t("addChildLocked")}</span>
+            <span className="rounded-full bg-[var(--color-indigo-soft-600)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white">
               {t("upgradeBadge")}
             </span>
           </Link>

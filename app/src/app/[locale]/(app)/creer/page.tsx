@@ -26,23 +26,27 @@ import {
   STORY_SKIN_TONES,
   STORY_SUBTHEMES,
   OCCASION_PRESETS,
+  THEME_GENRES,
+  THEME_UNIVERSES,
   storyOptLabel,
   relationLabel,
+  capitalizeName,
   type OccasionPreset,
 } from "@/lib/storyOptions";
 import { traitLabel } from "@/lib/characterOptions";
 import { moderateText, isValidName } from "@/lib/moderation";
 import { generateStoryAction } from "@/app/actions/generateStory";
-import { fetchCustomStory } from "@/app/actions/customStories";
-import { readCharacters, type SavedCharacter } from "@/lib/characters";
+import { fetchCustomStory, ensureCustomStoryImage } from "@/app/actions/customStories";
+import { readCharacters, createCharacter, slotsLeft, type SavedCharacter } from "@/lib/characters";
 import { pushNotification } from "@/lib/notifications";
 import { FoxMark } from "@/components/brand/FoxCloud";
+import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import { AccountShell } from "@/components/account/AccountShell";
 import { Accordion } from "@/components/ui/Accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Check, Compass, Lock, Pencil, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react";
+import { ArrowLeft, BookmarkPlus, Check, Compass, ImageIcon, Lock, Pencil, Plus, Sparkles, Trash2, Wand2, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const THEME_OPTIONS = [
@@ -265,24 +269,25 @@ export default function CreateStoryPage() {
       ...prev,
       heroName: p.name,
       heroAge: Math.min(p.age, FREE_HERO_MAX_AGE),
+      heroDescription: undefined,
       theme: p.themes[0] ?? prev.theme,
-      language: p.language === "both" ? "fr" : p.language,
     }));
   }
 
   /**
    * One tap on a saved character fills the WHOLE hero step: name, age, type,
-   * trait (description + personality) and skin tone from its appearance.
+   * skin tone, and the character's FULL description (appearance + personality,
+   * carried in heroDescription with no length cap). The 80-char trait input is
+   * hidden while a saved hero is active: all-or-nothing, never a cut blurb.
    */
   function applySavedHero(c: SavedCharacter) {
     setSelectedHeroId(c.id);
-    const traitText = [
+    const fullDescription = [
       c.description,
       ...c.traits.map((id) => traitLabel(id, locale).replace(/^\S+\s/, "")),
     ]
       .filter(Boolean)
-      .join(", ")
-      .slice(0, 80);
+      .join(", ");
     setParams((prev) => ({
       ...prev,
       heroName: c.name,
@@ -296,7 +301,8 @@ export default function CreateStoryPage() {
           : c.gender === "fille"
           ? "fille"
           : "garcon",
-      trait: traitText,
+      trait: "",
+      heroDescription: fullDescription || undefined,
       skinTone: c.appearance?.skin ?? "",
     }));
   }
@@ -333,6 +339,29 @@ export default function CreateStoryPage() {
       extraInfo: (prev.extraInfo ?? []).map((s, i) => (i === index ? value : s)),
     }));
   }
+
+  /**
+   * Save a typed companion into the character library (role secondary), so
+   * pets, grandparents and friends become reusable across every future story.
+   * Type and gender are guessed from the relation.
+   */
+  function saveCompanionToLibrary(c: StoryCompanion) {
+    const adults = ["papa", "maman", "grandpere", "grandmere", "enseignant", "voisin"];
+    const girls = ["copine", "soeur", "maman", "grandmere", "cousine"];
+    const boys = ["copain", "frere", "papa", "grandpere", "cousin"];
+    const created = createCharacter({
+      name: capitalizeName(c.name.trim()),
+      type: c.relation === "animal" ? "animal" : adults.includes(c.relation) ? "adulte" : "enfant",
+      role: "secondary",
+      gender: girls.includes(c.relation) ? "fille" : boys.includes(c.relation) ? "garcon" : "neutre",
+      description: relationLabel(c.relation, locale),
+      traits: [],
+    });
+    if (created) setCharacters(readCharacters());
+  }
+
+  const isCompanionSaved = (name: string) =>
+    characters.some((x) => x.role === "secondary" && x.name === capitalizeName(name.trim()));
 
   /**
    * Client-side moderation per step: instant feedback before moving on.
@@ -390,13 +419,22 @@ export default function CreateStoryPage() {
     }
     setFormError(null);
 
-    // Compose the legacy `friend` summary from the companions so old
-    // consumers (stub story, PDF, result page) keep working unchanged.
-    const companions = (base.companions ?? []).filter((c) => c.name.trim().length >= 2);
+    // Names always carry proper capitals; the story's language follows the
+    // site language the family is browsing in (no picker); the legacy `friend`
+    // summary keeps old consumers (stub story, PDF, result page) working.
+    const companions = (base.companions ?? [])
+      .filter((c) => c.name.trim().length >= 2)
+      .map((c) => ({ ...c, name: capitalizeName(c.name) }));
     const friend = companions
       .map((c) => `${c.name} (${relationLabel(c.relation, locale)})`)
       .join(", ");
-    const finalParams: CustomStoryParams = { ...base, companions, friend };
+    const finalParams: CustomStoryParams = {
+      ...base,
+      heroName: capitalizeName(base.heroName),
+      companions,
+      friend,
+      language: locale === "en" ? "en" : "fr",
+    };
     setParams(finalParams);
 
     setPhase("loading");
@@ -432,6 +470,11 @@ export default function CreateStoryPage() {
         savedIdRef.current = story.id;
         savedTitleRef.current = story.title;
         setUsed(quotaUsed());
+        // Pre-warm the illustration while the reader is still on their way,
+        // so the story page opens with its image already cached.
+        if (story.id.startsWith("PS-")) {
+          ensureCustomStoryImage(story.id).catch(() => {});
+        }
         pushNotification({
           title: t("notifReady"),
           body: story.title,
@@ -451,15 +494,16 @@ export default function CreateStoryPage() {
         });
       });
 
-    // Smoothed progress curve: steady start, gentle taper, no dead crawl.
+    // Gently eased progress: a touch quicker early, a touch slower late, but
+    // close enough that no stage flashes past and the end never feels stuck.
     interval.current = setInterval(() => {
       setProgress((p) => {
         let next = p;
-        if (savedIdRef.current && p >= 85) next = p + 3.5; // finish sprint
-        else if (p < 40) next = p + 1.6;
-        else if (p < 70) next = p + 0.9;
-        else if (p < 85) next = p + 0.5;
-        else next = p + 0.18; // gentle wait, still visibly moving
+        if (savedIdRef.current && p >= 82) next = p + 2.4; // finish, smoothly
+        else if (p < 30) next = p + 1.15;
+        else if (p < 60) next = p + 0.9;
+        else if (p < 82) next = p + 0.65;
+        else next = p + 0.3; // waiting for the model, still clearly moving
 
         if (next >= 100 && savedIdRef.current) {
           if (interval.current) clearInterval(interval.current);
@@ -467,7 +511,7 @@ export default function CreateStoryPage() {
           setPhase("done");
           return 100;
         }
-        return Math.min(next, savedIdRef.current ? 100 : 94);
+        return Math.min(next, savedIdRef.current ? 100 : 95);
       });
     }, 110);
   }
@@ -602,9 +646,9 @@ export default function CreateStoryPage() {
   } else if (phase === "loading") {
     const stages = [
       { at: 0, title: t("loading1Title"), body: t("loading1Body") },
-      { at: 18, title: t("loading2Title"), body: t("loading2Body", { name: params.heroName }) },
+      { at: 25, title: t("loading2Title"), body: t("loading2Body", { name: params.heroName }) },
       { at: 55, title: t("loading3Title"), body: t("loading3Body") },
-      { at: 85, title: t("loading4Title"), body: t("loading4Body") },
+      { at: 82, title: t("loading4Title"), body: t("loading4Body") },
     ];
     content = (
       <section className="mx-auto max-w-xl px-5 py-12 md:py-16 text-center">
@@ -728,28 +772,6 @@ export default function CreateStoryPage() {
           </p>
         )}
 
-        {!isKid && profiles.length > 0 && (
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-xs text-[var(--color-ink-500)]">{t("forWhom")}</span>
-            {profiles.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => applyProfile(p)}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors",
-                  profileId === p.id
-                    ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
-                    : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
-                )}
-              >
-                <FoxMark color={p.avatar} className="h-4 w-4" />
-                {p.name}
-              </button>
-            ))}
-          </div>
-        )}
-
         <ol className="mt-6 flex flex-wrap items-center gap-2 text-xs">
           {steps.map((label, i) => (
             <li
@@ -784,6 +806,35 @@ export default function CreateStoryPage() {
                 <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("heroHint")}</p>
               </div>
 
+              {/* Source 1: the family's child profiles (one tap = child is the hero) */}
+              {!isKid && profiles.length > 0 && (
+                <div>
+                  <p className="text-xs text-[var(--color-ink-500)]">{t("heroFromChildren")}</p>
+                  <div className="mt-2 flex flex-wrap gap-2.5">
+                    {profiles.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => applyProfile(p)}
+                        className={cn(
+                          "flex flex-col items-center gap-1.5 rounded-2xl border-2 px-4 py-3 transition-colors",
+                          profileId === p.id && params.heroName === p.name
+                            ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]"
+                            : "border-[var(--color-ink-100)] hover:border-[var(--color-ink-200)] hover:bg-[var(--color-cream-100)]"
+                        )}
+                      >
+                        <ChildAvatar color={p.avatar} className="h-14 w-14" />
+                        <span className="text-sm font-medium text-[var(--color-ink-800)]">{p.name}</span>
+                        <span className="text-[11px] text-[var(--color-ink-500)]">
+                          {tCharsPage("ageUnit", { age: p.age })}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Source 2: saved characters from the wizard */}
               {savedHeroes.length > 0 && (
                 <div>
                   <p className="text-xs text-[var(--color-ink-500)]">{t("heroPickSaved")}</p>
@@ -829,7 +880,7 @@ export default function CreateStoryPage() {
                   value={params.heroName}
                   maxLength={30}
                   onChange={(e) => {
-                    set("heroName", e.target.value);
+                    setParams((p) => ({ ...p, heroName: e.target.value, heroDescription: undefined }));
                     setSelectedHeroId(null);
                   }}
                   className={cn("mt-1.5", blockedCls("heroName"))}
@@ -923,18 +974,39 @@ export default function CreateStoryPage() {
                 </div>
               )}
 
-              <div>
-                <Label htmlFor="hero-trait">{t("heroTrait")}</Label>
-                <Input
-                  id="hero-trait"
-                  value={params.trait}
-                  maxLength={80}
-                  placeholder={t("heroTraitPlaceholder")}
-                  onChange={(e) => set("trait", e.target.value)}
-                  className={cn("mt-1.5", blockedCls("trait"))}
-                />
-                {counter(params.trait, 80)}
-              </div>
+              {params.heroDescription ? (
+                <div className="rounded-2xl border border-[var(--color-mint-300)] bg-[var(--color-mint-50)] p-4">
+                  <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[var(--color-mint-700)]">
+                    <Check className="h-3.5 w-3.5" />
+                    {t("heroFullProfile")}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-700)]">
+                    {params.heroDescription}
+                  </p>
+                  <p className="mt-2 text-xs text-[var(--color-ink-400)]">
+                    {t("heroFullProfileHint")}{" "}
+                    <Link
+                      href="/compte/personnages"
+                      className="underline underline-offset-2 hover:text-[var(--color-ink-700)]"
+                    >
+                      {t("manageCharacters").replace(/^\+\s*/, "")}
+                    </Link>
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <Label htmlFor="hero-trait">{t("heroTrait")}</Label>
+                  <Input
+                    id="hero-trait"
+                    value={params.trait}
+                    maxLength={80}
+                    placeholder={t("heroTraitPlaceholder")}
+                    onChange={(e) => set("trait", e.target.value)}
+                    className={cn("mt-1.5", blockedCls("trait"))}
+                  />
+                  {counter(params.trait, 80)}
+                </div>
+              )}
             </div>
           )}
 
@@ -1009,6 +1081,28 @@ export default function CreateStoryPage() {
                         </option>
                       ))}
                     </select>
+                    {/* Bookmark: save this companion for reuse in future stories */}
+                    {!isKid && c.name.trim().length >= 2 && (
+                      isCompanionSaved(c.name) ? (
+                        <span
+                          title={t("companionSaved")}
+                          className="rounded-lg p-2 text-[var(--color-mint-700)]"
+                        >
+                          <Check className="h-4 w-4" />
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={slotsLeft("secondary") <= 0}
+                          onClick={() => saveCompanionToLibrary(c)}
+                          title={t("companionSave")}
+                          aria-label={t("companionSave")}
+                          className="rounded-lg p-2 text-[var(--color-ink-400)] hover:text-[var(--color-mint-700)] disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <BookmarkPlus className="h-4 w-4" />
+                        </button>
+                      )
+                    )}
                     <button
                       type="button"
                       onClick={() => removeCompanion(i)}
@@ -1020,16 +1114,27 @@ export default function CreateStoryPage() {
                   </div>
                 ))}
 
-                {companions.length < MAX_COMPANIONS && (
-                  <button
-                    type="button"
-                    onClick={() => addCompanion({ name: "", relation: "copain" })}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3.5 py-1.5 text-sm text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    {t("companionAdd", { count: companions.length, max: MAX_COMPANIONS })}
-                  </button>
-                )}
+                <div className="flex flex-wrap gap-2">
+                  {companions.length < MAX_COMPANIONS && (
+                    <button
+                      type="button"
+                      onClick={() => addCompanion({ name: "", relation: "copain" })}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3.5 py-1.5 text-sm text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      {t("companionAdd", { count: companions.length, max: MAX_COMPANIONS })}
+                    </button>
+                  )}
+                  {!isKid && (
+                    <Link
+                      href="/compte/personnages/nouveau"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3.5 py-1.5 text-sm text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      {tCharsPage("createInline")}
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -1101,10 +1206,34 @@ export default function CreateStoryPage() {
                 </div>
               </div>
 
+              {/* One theme choice, organized in two readable groups: genre
+                  (how the story feels) and universe (what it is about). */}
               <div>
                 <Label>{t("theme")}</Label>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {THEME_OPTIONS.map((slug) => (
+                <p className="mt-2 text-[11px] uppercase tracking-widest text-[var(--color-ink-400)]">
+                  {t("genreGroup")}
+                </p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {THEME_GENRES.map((slug) => (
+                    <button
+                      key={slug}
+                      type="button"
+                      onClick={() => {
+                        set("theme", slug);
+                        set("subTheme", undefined);
+                        setPresetId(null);
+                      }}
+                      className={chip(params.theme === slug)}
+                    >
+                      {tThemes(slug)}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-3 text-[11px] uppercase tracking-widest text-[var(--color-ink-400)]">
+                  {t("universGroup")}
+                </p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {THEME_UNIVERSES.map((slug) => (
                     <button
                       key={slug}
                       type="button"
@@ -1223,19 +1352,39 @@ export default function CreateStoryPage() {
                 <div>
                   <Label>{t("style")}</Label>
                   <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("styleHint")}</p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
+                  {/* Visual style cards: each carries an illustration slot
+                      (/public/illustrations/style-<id>.png swaps in later) so
+                      families SEE what watercolor vs comic-book looks like. */}
+                  <div className="mt-2 grid grid-cols-3 gap-2.5 sm:grid-cols-3 md:grid-cols-6">
                     {STYLES.map((s) => {
                       const locked = isFree && s !== "automatique";
+                      const active = params.style === s;
                       return (
                         <button
                           key={s}
                           type="button"
                           disabled={locked}
                           onClick={() => set("style", s)}
-                          className={chip(params.style === s, locked)}
+                          aria-pressed={active}
+                          className={cn(
+                            "flex flex-col items-center gap-1.5 rounded-2xl border-2 p-2 transition-colors",
+                            active
+                              ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]"
+                              : "border-[var(--color-ink-100)] bg-[var(--color-cream-50)] hover:border-[var(--color-ink-200)] hover:bg-[var(--color-cream-100)]",
+                            locked && "cursor-not-allowed opacity-45"
+                          )}
                         >
-                          {locked && <Lock className="mr-1 inline h-3 w-3" />}
-                          {t(`style_${s}`)}
+                          <span
+                            data-image-slot={`style-${s}`}
+                            title={`style-${s}`}
+                            aria-hidden
+                            className="flex aspect-square w-full items-center justify-center rounded-xl border-2 border-dashed border-[var(--color-ink-200)] bg-[var(--color-cream-100)] text-[var(--color-ink-300)]"
+                          >
+                            {locked ? <Lock className="h-4 w-4" /> : <ImageIcon className="h-5 w-5" />}
+                          </span>
+                          <span className="text-[11px] font-medium leading-tight text-[var(--color-ink-800)]">
+                            {t(`style_${s}`)}
+                          </span>
                         </button>
                       );
                     })}
@@ -1248,33 +1397,15 @@ export default function CreateStoryPage() {
                 </div>
               )}
 
-              {!isKid && (
-                <div>
-                  <Label>{t("language")}</Label>
-                  <div className="mt-2 flex gap-1.5">
-                    {(["fr", "en"] as const).map((l) => (
-                      <button
-                        key={l}
-                        type="button"
-                        onClick={() => set("language", l)}
-                        className={chip(params.language === l)}
-                      >
-                        {l === "fr" ? "Français" : "English"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <div>
                 <h3 className="font-serif text-lg tracking-tight text-center">
-                  {t("summaryTitle", { name: params.heroName })}
+                  {t("summaryTitle", { name: capitalizeName(params.heroName) })}
                 </h3>
                 <dl className="mt-4 space-y-2 text-sm">
                   {[
                     [
                       t("heroName"),
-                      `${params.heroName}, ${t("readingRangeLabel", { range: params.heroAge })} (${storyOptLabel(
+                      `${capitalizeName(params.heroName)}, ${t("readingRangeLabel", { range: params.heroAge })} (${storyOptLabel(
                         HERO_TYPES.find((h) => h.id === params.heroType) ?? HERO_TYPES[0],
                         locale
                       ).toLowerCase()})`,
@@ -1377,7 +1508,7 @@ export default function CreateStoryPage() {
               {t("backToBubble")}
             </Link>
             <span className="flex items-center gap-2 font-serif text-lg tracking-tight">
-              {kidProfile && <FoxMark color={kidProfile.avatar} className="h-8 w-8" />}
+              {kidProfile && <ChildAvatar color={kidProfile.avatar} className="h-9 w-9" />}
               {kidProfile?.name}
             </span>
           </div>

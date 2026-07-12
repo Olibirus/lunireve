@@ -11,12 +11,12 @@ import {
   profileLimit,
   type ChildProfile,
 } from "@/lib/profiles";
-import { readCustomStories } from "@/lib/customStories";
+import { readCustomStories, type CustomStory } from "@/lib/customStories";
 import { readFavorites } from "@/lib/favorites";
 import { mockStories, type MockStory } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
 import { RecentlyRead } from "./RecentlyRead";
-import { FoxMark } from "@/components/brand/FoxCloud";
+import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Flame, Heart, Lock, Pencil, Plus, Trash2, Wand2 } from "lucide-react";
 
@@ -34,12 +34,12 @@ export default function AccountDashboardPage() {
   });
 
   const [profiles, setProfiles] = useState<ChildProfile[] | null>(null);
-  const [storyCount, setStoryCount] = useState(0);
+  const [customStories, setCustomStories] = useState<CustomStory[]>([]);
   const [favorites, setFavorites] = useState<MockStory[]>([]);
 
   useEffect(() => {
     setProfiles(readProfiles());
-    setStoryCount(readCustomStories().length);
+    setCustomStories([...readCustomStories()].reverse());
     const favs = readFavorites();
     setFavorites(mockStories.filter((s) => favs.includes(s.slug)).slice(0, 4));
   }, []);
@@ -93,7 +93,7 @@ export default function AccountDashboardPage() {
               className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-5 shadow-[var(--shadow-soft)]"
             >
               <div className="flex items-center gap-3">
-                <FoxMark color={p.avatar} className="h-14 w-14" />
+                <ChildAvatar color={p.avatar} className="h-14 w-14" />
                 <div>
                   <p className="font-serif text-lg tracking-tight">{p.name}</p>
                   <p className="text-xs text-[var(--color-ink-500)]">
@@ -138,8 +138,8 @@ export default function AccountDashboardPage() {
               className="flex flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-[var(--color-indigo-soft-300)] bg-[var(--color-indigo-soft-50)] p-6 text-center hover:border-[var(--color-indigo-soft-500)] transition-colors"
             >
               <Lock className="h-6 w-6 text-[var(--color-indigo-soft-500)]" />
-              <p className="text-sm font-medium text-[var(--color-ink-700)]">{t("addChildLocked")}</p>
-              <span className="rounded-full bg-[var(--color-indigo-soft-200)] px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-[var(--color-indigo-soft-700)]">
+              <p className="text-sm font-semibold text-[var(--color-ink-800)]">{t("addChildLocked")}</p>
+              <span className="rounded-full bg-[var(--color-indigo-soft-600)] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white">
                 {t("upgradeBadge")}
               </span>
             </Link>
@@ -155,19 +155,56 @@ export default function AccountDashboardPage() {
         </div>
       </section>
 
+      {/* Personalized stories — real cards, not just a count */}
       <section>
-        <h2 className="font-serif text-2xl tracking-tight sparkle">{t("menu.customStories")}</h2>
-        <p className="mt-3 text-sm text-[var(--color-ink-500)]">
-          {t("customCount", { count: storyCount })}
-        </p>
-        <Button asChild variant="outline" size="sm" className="mt-3">
-          <Link href="/compte/histoires">{t("seeAll")}</Link>
-        </Button>
+        <div className="flex flex-wrap items-baseline gap-3">
+          <h2 className="font-serif text-2xl tracking-tight sparkle">{t("menu.customStories")}</h2>
+          {customStories.length > 0 && (
+            <Link
+              href="/compte/histoires"
+              className="text-sm text-[var(--color-indigo-soft-600)] hover:text-[var(--color-ink-800)]"
+            >
+              {t("seeAll")}
+            </Link>
+          )}
+        </div>
+        {customStories.length === 0 ? (
+          <div className="mt-4 rounded-3xl border-2 border-dashed border-[var(--color-ink-200)] bg-[var(--color-cream-100)] p-8 text-center max-w-xl">
+            <Wand2 className="mx-auto h-6 w-6 text-[var(--color-indigo-soft-500)]" />
+            <p className="mt-2 text-sm text-[var(--color-ink-600)]">{t("customEmpty")}</p>
+            <Button asChild variant="mint" size="md" className="mt-4">
+              <Link href="/creer">
+                <Wand2 className="h-4 w-4" />
+                {t("createStory")}
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {customStories.slice(0, 4).map((s) => (
+              <Link
+                key={s.id}
+                href={{ pathname: "/histoire-perso/[id]", params: { id: s.id } }}
+                className="group overflow-hidden rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] transition-shadow"
+              >
+                <span className="cover-night flex aspect-[4/3] items-center justify-center">
+                  <Wand2 className="h-6 w-6 text-white/70 transition-transform group-hover:scale-110" />
+                </span>
+                <span className="block p-3.5">
+                  <span className="block truncate font-serif text-base tracking-tight">{s.title}</span>
+                  <span className="mt-0.5 block text-xs text-[var(--color-ink-500)]">
+                    {s.params.heroName} · {new Date(s.createdAt).toLocaleDateString()}
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Favorites (#30) */}
       <section>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-baseline gap-3">
           <h2 className="font-serif text-2xl tracking-tight sparkle">{t("menu.favorites")}</h2>
           {favorites.length > 0 && (
             <Link href="/compte/favoris" className="text-sm text-[var(--color-indigo-soft-600)] hover:text-[var(--color-ink-800)]">

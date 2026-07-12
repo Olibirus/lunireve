@@ -15,7 +15,7 @@ import { readHistory } from "@/lib/readingHistory";
 import { pickDailyStory } from "@/lib/dailyPick";
 import { storyImageSrc } from "@/lib/storyImage";
 import { StoryCard } from "@/components/story/StoryCard";
-import { FoxMark } from "@/components/brand/FoxCloud";
+import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { BookOpen, Flame, LogOut, Moon, Sparkles, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -90,7 +90,7 @@ export default function ChildBubblePage() {
       <header className="sticky top-0 z-40 border-b border-[var(--color-ink-100)] bg-[var(--color-cream-50)]/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
           <div className="flex items-center gap-3">
-            <FoxMark color={profile.avatar} className="h-10 w-10" />
+            <ChildAvatar color={profile.avatar} className="h-10 w-10" />
             <span className="font-serif text-lg tracking-tight">{profile.name}</span>
             <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-fox-300)]/25 px-2.5 py-0.5 text-xs text-[var(--color-fox-700)]">
               <Flame className="h-3 w-3" />
@@ -161,7 +161,7 @@ export default function ChildBubblePage() {
                   >
                     {daily.title}
                   </h3>
-                  <span className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-[var(--color-cream-50)] px-5 py-2.5 text-sm font-medium text-[var(--color-ink-800)] group-hover:bg-white">
+                  <span className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-2.5 text-sm font-semibold text-[#17224a] shadow-sm group-hover:bg-[var(--color-mint-400)]">
                     <BookOpen className="h-4 w-4" />
                     {t("tonightRead")}
                   </span>

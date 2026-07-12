@@ -42,6 +42,12 @@ export type CustomStoryParams = {
   /** Hero kind (garcon/fille free, animal/adulte paid). See HERO_TYPES. */
   heroType?: string;
   trait: string;
+  /**
+   * Full description of a SAVED character used as hero (appearance +
+   * personality, no length cap). When set, it replaces `trait` in the prompt
+   * and the trait input is hidden: all-or-nothing, never a truncated blurb.
+   */
+  heroDescription?: string;
   theme: string;
   /** Optional finer angle inside the theme (STORY_SUBTHEMES id or free text). */
   subTheme?: string;

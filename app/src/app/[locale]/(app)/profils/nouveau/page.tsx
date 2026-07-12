@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { createProfile } from "@/lib/profiles";
-import { FOX_COLORS, FoxMark, type FoxColor } from "@/components/brand/FoxCloud";
+import { type FoxColor } from "@/components/brand/FoxCloud";
+import { ChildAvatar, AVATAR_COLORS } from "@/components/brand/ChildAvatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +34,7 @@ export default function NewProfilePage() {
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [age, setAge] = useState(6);
-  const [avatar, setAvatar] = useState<FoxColor>("orange");
+  const [avatar, setAvatar] = useState<FoxColor>("golden");
   const [language, setLanguage] = useState<"fr" | "en" | "both">("fr");
   const [themes, setThemes] = useState<string[]>([]);
   const [maxDuration, setMaxDuration] = useState<"none" | "short" | "medium" | "long">("none");
@@ -128,22 +129,22 @@ export default function NewProfilePage() {
         {step === 1 && (
           <div>
             <p className="text-sm text-[var(--color-ink-600)]">{t("avatarHint")}</p>
-            <div className="mt-5 grid grid-cols-3 gap-4">
-              {(Object.keys(FOX_COLORS) as FoxColor[]).map((c) => (
+            <div className="mt-5 grid grid-cols-3 gap-3">
+              {AVATAR_COLORS.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setAvatar(c)}
                   aria-pressed={avatar === c}
                   className={cn(
-                    "flex flex-col items-center gap-2 rounded-2xl border-2 p-4 transition-colors",
+                    "flex flex-col items-center gap-2 rounded-2xl border-2 p-3 transition-colors",
                     avatar === c
                       ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]"
                       : "border-transparent hover:bg-[var(--color-cream-100)]"
                   )}
                 >
-                  <FoxMark color={c} className="h-16 w-16" />
-                  <span className="text-xs text-[var(--color-ink-500)]">
+                  <ChildAvatar color={c} className="h-20 w-20" />
+                  <span className="text-xs text-[var(--color-ink-600)]">
                     {t(`color_${c}`)}
                   </span>
                 </button>
@@ -187,7 +188,7 @@ export default function NewProfilePage() {
                     className={cn(
                       "rounded-full border px-3 py-1.5 text-sm transition-colors",
                       themes.includes(slug)
-                        ? "border-transparent bg-[var(--color-mint-400)] text-[var(--color-ink-800)]"
+                        ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
                         : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
                     )}
                   >
@@ -222,7 +223,7 @@ export default function NewProfilePage() {
 
         {step === 3 && (
           <div className="text-center">
-            <FoxMark color={avatar} className="mx-auto h-24 w-24" />
+            <ChildAvatar color={avatar} className="mx-auto h-24 w-24" />
             <p className="mt-4 font-serif text-2xl tracking-tight">{name}</p>
             <p className="mt-1 text-sm text-[var(--color-ink-500)]">
               {t("confirmSummary", { age, count: themes.length })}

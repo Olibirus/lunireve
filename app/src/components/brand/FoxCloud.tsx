@@ -155,15 +155,21 @@ export function FoxCloud({
  * FoxMark — the small square logo for the header. Just the fox head + book.
  */
 /**
- * Avatar fur colors — the 6 child-profile variants from the product brief.
- * Each entry is the [light, dark] pair of the fur gradient.
+ * Avatar fur colors — the 9 child-profile variants (matching the portraits in
+ * /public/children/<color>.png) plus the legacy brand orange. Each entry is
+ * the [light, dark] pair of the fur gradient, used by FoxMark fallbacks
+ * (chips, badges) when the photo avatar would be too small.
  */
 export const FOX_COLORS = {
   orange: ["#f8b487", "#c96a2e"],
   blue: ["#9bc0e8", "#4a7fb5"],
   mint: ["#9dd1b6", "#4d9973"],
   pink: ["#f4afc5", "#d36a8e"],
+  golden: ["#f2cd7c", "#c99a3a"],
+  grey: ["#c4c9d4", "#8a93a5"],
+  kaki: ["#b8bd8a", "#7c8452"],
   lavender: ["#bfb3e0", "#8a78c0"],
+  red: ["#ee9a8a", "#c04f3a"],
   sand: ["#e3cda0", "#b08d52"],
 } as const;
 export type FoxColor = keyof typeof FOX_COLORS;

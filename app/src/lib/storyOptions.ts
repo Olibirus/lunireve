@@ -11,6 +11,47 @@ export function storyOptLabel(opt: StoryOpt, locale: string): string {
 }
 
 /**
+ * "jean-luc de la mare" -> "Jean-Luc De La Mare": capitalize the first letter
+ * after start / space / hyphen / apostrophe, so generated stories always show
+ * proper names even when the parent typed lowercase. Applied client-side for
+ * display and server-side (authoritative) before the prompt.
+ */
+export function capitalizeName(name: string): string {
+  return name
+    .trim()
+    .replace(/(^|[\s\-'])(\p{L})/gu, (_, sep: string, ch: string) => sep + ch.toUpperCase());
+}
+
+/**
+ * Story themes, organized in two labeled groups so genres (how it feels) and
+ * universes (what it is about) stop reading as one confusing mixed list.
+ * Both feed the single `params.theme` value.
+ */
+export const THEME_GENRES = [
+  "aventure",
+  "amitie",
+  "emotions",
+  "fantastique",
+  "humour",
+  "courage",
+  "decouverte",
+  "famille",
+] as const;
+
+export const THEME_UNIVERSES = [
+  "animaux",
+  "nature",
+  "espace",
+  "mer",
+  "ecole",
+  "voyage",
+  "sport",
+  "saisons",
+  "noel",
+  "anniversaire",
+] as const;
+
+/**
  * Hero kind. Free plan: child heroes only (boy/girl), per the brief; animal
  * and adult heroes are paid perks. Enforced in the UI AND server-side.
  */

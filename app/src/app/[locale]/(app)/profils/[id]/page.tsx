@@ -5,7 +5,8 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
 import { readProfiles, updateProfile, type ChildProfile } from "@/lib/profiles";
-import { FOX_COLORS, FoxMark, type FoxColor } from "@/components/brand/FoxCloud";
+import { type FoxColor } from "@/components/brand/FoxCloud";
+import { ChildAvatar, AVATAR_COLORS } from "@/components/brand/ChildAvatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -110,7 +111,7 @@ export default function EditProfilePage() {
         <div>
           <Label>{t("stepAvatar")}</Label>
           <div className="mt-2 grid grid-cols-6 gap-2">
-            {(Object.keys(FOX_COLORS) as FoxColor[]).map((c) => (
+            {AVATAR_COLORS.map((c) => (
               <button
                 key={c}
                 type="button"
@@ -121,7 +122,7 @@ export default function EditProfilePage() {
                   avatar === c ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]" : "border-transparent hover:bg-[var(--color-cream-100)]"
                 )}
               >
-                <FoxMark color={c} className="h-10 w-10" />
+                <ChildAvatar color={c} className="h-12 w-12" />
               </button>
             ))}
           </div>
@@ -160,7 +161,7 @@ export default function EditProfilePage() {
                 className={cn(
                   "rounded-full border px-3 py-1.5 text-sm",
                   themes.includes(slug)
-                    ? "border-transparent bg-[var(--color-mint-400)] text-[#17224a]"
+                    ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
                     : "border-[var(--color-ink-100)] hover:bg-[var(--color-cream-100)]"
                 )}
               >

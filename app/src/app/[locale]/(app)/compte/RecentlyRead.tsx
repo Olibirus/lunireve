@@ -7,7 +7,8 @@ import { mockStories, type MockStory } from "@/data/mock-stories";
 import { readProfiles } from "@/lib/profiles";
 import { readHistoryFor, type ReadingRecord } from "@/lib/readingHistory";
 import { storyImageSrc } from "@/lib/storyImage";
-import { FoxMark, type FoxColor } from "@/components/brand/FoxCloud";
+import { type FoxColor } from "@/components/brand/FoxCloud";
+import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import { ChevronLeft, ChevronRight, Star, User } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -126,7 +127,7 @@ export function RecentlyRead() {
               </Link>
               <div className="mt-1.5 flex items-center gap-1.5 text-xs text-[var(--color-ink-500)]">
                 {reader.avatar ? (
-                  <FoxMark color={reader.avatar} className="h-4 w-4 shrink-0" />
+                  <ChildAvatar color={reader.avatar} className="h-4 w-4 shrink-0" />
                 ) : (
                   <User className="h-3.5 w-3.5 shrink-0" />
                 )}

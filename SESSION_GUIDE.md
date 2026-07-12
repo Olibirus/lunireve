@@ -5,6 +5,7 @@ always: `github.com/Olibirus/lunireve`, code in `app/`. Run `pnpm build`
 after each batch (must stay green).
 
 ## Cross-session changes log
+2026-07-12 [Session B]: round-11 batch. New components/brand/ChildAvatar.tsx (9 fox portraits /public/children); FOX_COLORS extended (golden/grey/kaki/red). Touched lib/ai/types.ts (SAFETY_RULES: transpose adult topics), app/actions/generateStory.ts (capitalizeName, heroDescription), lib/storyOptions.ts (capitalizeName, THEME_GENRES/UNIVERSES), lib/moderation.ts (heroDescription cap).
 <!-- Add ONE line per cross-territory edit, newest on top:
      `YYYY-MM-DD [Session X]: touched <folder> for <reason>` -->
 2026-07-12 [Session A]: grouped library filters (CHARACTER_GROUPS/THEME_GROUPS in lib/stories/filter + ccat/tcat params), directional sort (sort+dir), extended 6 story bodies + honest readingMinutes in data/mock-stories, InteractiveBand on homepage, bonus step on histoire-personnalisee, about-us.png hero, Accordion animation, getUsername in lib/clientAuth (header name fix)

@@ -47,9 +47,11 @@ export function PersonalizedStoryCard() {
         >
           {t("badge")}
         </span>
+        {/* Explicit cream: the global h3 rule paints ink-800, which is
+            near-invisible on this navy card in light mode */}
         <h3
           className="mt-3 font-serif text-2xl leading-[1.12] tracking-tight md:text-[1.7rem]"
-          style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
+          style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500", color: "#faf5eb" }}
         >
           {t("title")}
         </h3>

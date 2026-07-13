@@ -1,6 +1,5 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { FoxMark } from "@/components/brand/FoxCloud";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GENRES, AGE_RANGES, ageLabel } from "@/data/mock-stories";
@@ -40,12 +39,9 @@ export function Footer() {
         <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-[1.7fr_0.8fr_1fr_1.2fr] lg:gap-12">
           {/* Col 1 — brand + description + newsletter */}
           <div>
-            <div className="flex items-center gap-2.5">
-              <FoxMark className="h-10 w-10" />
-              <span className="font-serif text-2xl tracking-tight text-[var(--color-cream-50)]">
-                Lunireve
-              </span>
-            </div>
+            {/* Real brand logo (transparent PNG) instead of the fox mark */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-s.png" alt="Lunireve" className="h-14 w-auto" />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-[var(--color-indigo-soft-200)]">
               {t("footer.tagline")}
             </p>

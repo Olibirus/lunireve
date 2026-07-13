@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -11,6 +12,9 @@ import {
   applyFilters,
   filtersFromSearchParams,
   THEMES,
+  CHARACTER_GROUPS,
+  THEME_GROUPS,
+  groupOf,
   type StoryFilters,
 } from "@/lib/stories/filter";
 import {
@@ -20,6 +24,7 @@ import {
   CHARACTERS,
   ageLabel,
 } from "@/data/mock-stories";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -61,6 +66,14 @@ export function StoryFunnel({
   );
   const active: StoryFilters = { ...query, ...fixed };
   const stories = applyFilters(active);
+
+  // Two-level rails (same UX as the main library): character and theme chips
+  // are grouped into categories; the open category unfolds its sub-chips.
+  // Client-side open state here (instant), value chips stay crawlable links.
+  const [openCharCat, setOpenCharCat] = useState<string | null>(null);
+  const [openThemeCat, setOpenThemeCat] = useState<string | null>(null);
+  const effOpenCharCat = openCharCat ?? groupOf(CHARACTER_GROUPS, query.character) ?? null;
+  const effOpenThemeCat = openThemeCat ?? groupOf(THEME_GROUPS, query.theme) ?? null;
 
   // Rails to render: every axis not pinned by the route.
   const rails: {
@@ -148,45 +161,129 @@ export function StoryFunnel({
         <div className="dot-rule mx-auto max-w-7xl" aria-hidden />
       </section>
 
-      {/* Refinement rails */}
+      {/* Refinement rails — character and theme are two-level (categories
+          first, sub-chips unfold), the small axes stay flat. */}
       <section className="mx-auto max-w-7xl px-5 md:px-8 py-8 space-y-5">
-        {rails.map((rail) => (
-          <div key={rail.key} className="flex flex-wrap items-baseline gap-2">
-            <span className="text-xs uppercase tracking-widest text-[var(--color-ink-500)] w-28 shrink-0">
-              {rail.label}
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              <Link
-                href={href(chipQuery(rail.key, null))}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs transition-colors",
-                  query[rail.key] === undefined
-                    ? "bg-[var(--color-ink-800)] text-[var(--color-cream-50)] border-transparent"
-                    : "border-[var(--color-ink-100)] text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
-                )}
-              >
-                {t("funnel.all")}
-              </Link>
-              {rail.options.map((opt) => {
-                const selected = String(query[rail.key]) === opt.value;
-                return (
-                  <Link
-                    key={opt.value}
-                    href={href(chipQuery(rail.key, selected ? null : opt.value))}
-                    className={cn(
-                      "rounded-full border px-3 py-1 text-xs transition-colors",
-                      selected
-                        ? "bg-[var(--color-ink-800)] text-[var(--color-cream-50)] border-transparent"
-                        : "border-[var(--color-ink-100)] text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
-                    )}
-                  >
-                    {opt.label}
-                  </Link>
-                );
-              })}
+        {rails.map((rail) => {
+          const chipCls = (selected: boolean) =>
+            cn(
+              "rounded-full border px-3 py-1 text-xs transition-colors",
+              selected
+                ? "bg-[var(--color-ink-800)] text-[var(--color-cream-50)] border-transparent"
+                : "border-[var(--color-ink-100)] text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
+            );
+
+          const grouped =
+            rail.key === "character"
+              ? {
+                  groups: CHARACTER_GROUPS,
+                  open: effOpenCharCat,
+                  setOpen: setOpenCharCat,
+                  catLabel: (id: string) => t(`filterCats.characters.${id}`),
+                  available: CHARACTERS as readonly string[],
+                }
+              : rail.key === "theme"
+              ? {
+                  groups: THEME_GROUPS,
+                  open: effOpenThemeCat,
+                  setOpen: setOpenThemeCat,
+                  catLabel: (id: string) => t(`filterCats.themes.${id}`),
+                  available: THEMES as readonly string[],
+                }
+              : null;
+
+          if (grouped) {
+            const openGroup = grouped.groups.find((g) => g.id === grouped.open);
+            return (
+              <div key={rail.key} className="flex flex-wrap items-start gap-2">
+                <span className="w-28 shrink-0 pt-1 text-xs uppercase tracking-widest text-[var(--color-ink-500)]">
+                  {rail.label}
+                </span>
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-wrap gap-1.5">
+                    <Link
+                      href={href(chipQuery(rail.key, null))}
+                      onClick={() => grouped.setOpen(null)}
+                      className={chipCls(query[rail.key] === undefined && !openGroup)}
+                    >
+                      {t("funnel.all")}
+                    </Link>
+                    {grouped.groups
+                      .filter((g) => g.members.some((m) => grouped.available.includes(m)))
+                      .map((g) => {
+                        const isOpen = grouped.open === g.id;
+                        const holdsActive = Boolean(
+                          query[rail.key] && g.members.includes(String(query[rail.key]))
+                        );
+                        return (
+                          <button
+                            key={g.id}
+                            type="button"
+                            onClick={() => grouped.setOpen(isOpen ? null : g.id)}
+                            aria-expanded={isOpen}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs transition-colors",
+                              isOpen || holdsActive
+                                ? "border-[var(--color-indigo-soft-300)] bg-[var(--color-indigo-soft-100)] font-medium text-[var(--color-indigo-soft-700)]"
+                                : "border-[var(--color-ink-100)] text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
+                            )}
+                          >
+                            {grouped.catLabel(g.id)}
+                            <ChevronDown
+                              className={cn("h-3 w-3 transition-transform", isOpen && "rotate-180")}
+                            />
+                          </button>
+                        );
+                      })}
+                  </div>
+                  {openGroup && (
+                    <div className="flex flex-wrap gap-1.5 rounded-2xl border border-dashed border-[var(--color-indigo-soft-300)]/60 bg-[var(--color-cream-100)]/70 px-3 py-2">
+                      {openGroup.members
+                        .filter((m) => grouped.available.includes(m))
+                        .map((m) => {
+                          const selected = String(query[rail.key]) === m;
+                          return (
+                            <Link
+                              key={m}
+                              href={href(chipQuery(rail.key, selected ? null : m))}
+                              className={chipCls(selected)}
+                            >
+                              {rail.key === "character" ? t(`characters.${m}`) : t(`themes.${m}`)}
+                            </Link>
+                          );
+                        })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div key={rail.key} className="flex flex-wrap items-baseline gap-2">
+              <span className="text-xs uppercase tracking-widest text-[var(--color-ink-500)] w-28 shrink-0">
+                {rail.label}
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                <Link href={href(chipQuery(rail.key, null))} className={chipCls(query[rail.key] === undefined)}>
+                  {t("funnel.all")}
+                </Link>
+                {rail.options.map((opt) => {
+                  const selected = String(query[rail.key]) === opt.value;
+                  return (
+                    <Link
+                      key={opt.value}
+                      href={href(chipQuery(rail.key, selected ? null : opt.value))}
+                      className={chipCls(selected)}
+                    >
+                      {opt.label}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </section>
 
       {/* Results */}

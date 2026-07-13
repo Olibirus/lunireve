@@ -34,6 +34,7 @@ import {
   type OccasionPreset,
 } from "@/lib/storyOptions";
 import { traitLabel } from "@/lib/characterOptions";
+import { findStory } from "@/data/mock-stories";
 import { moderateText, isValidName } from "@/lib/moderation";
 import { generateStoryAction } from "@/app/actions/generateStory";
 import { fetchCustomStory, ensureCustomStoryImage } from "@/app/actions/customStories";
@@ -226,6 +227,36 @@ export default function CreateStoryPage() {
         if (local) applySequel(local);
         else fetchCustomStory(from).then(applySequel).catch(() => setReady(true));
         return; // skip the filter prefill below
+      }
+
+      // "Next chapter" of a LIBRARY story: prefill hero + theme from the book
+      // and land on the recap step; sequelOf drives a brand-new plot. The
+      // hero's name is read from the title ("Léa et la baleine bleue" -> Léa),
+      // falling back to the character label (Renard, Petit garçon...).
+      const fromLib = sp.get("fromLib");
+      if (fromLib) {
+        const lib = findStory(fromLib);
+        if (lib) {
+          const titleName = lib.title.match(/^([A-ZÀ-Ý][\p{L}'-]+)\s+et\s/u)?.[1];
+          const heroName = titleName ?? tChars(lib.character);
+          setParams((prev) => ({
+            ...prev,
+            heroName,
+            heroAge: parseInt(lib.ageRange, 10) || prev.heroAge,
+            heroType:
+              lib.character === "enfant-fille"
+                ? "fille"
+                : lib.character === "enfant-garcon"
+                ? "garcon"
+                : prev.heroType,
+            theme: THEME_OPTIONS.includes(lib.theme) ? lib.theme : prev.theme,
+            subTheme: undefined,
+            sequelOf: lib.title,
+          }));
+          setStep(3);
+          setReady(true);
+          return;
+        }
       }
 
       // Deep link from a character card: preselect that saved hero.

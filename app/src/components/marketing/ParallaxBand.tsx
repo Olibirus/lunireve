@@ -63,8 +63,10 @@ export function ParallaxBand() {
         }}
       />
       <div className="relative mx-auto max-w-3xl px-5 text-center text-white">
+        {/* text-white on the h2 itself: the global heading rule paints it
+            ink-800 otherwise, navy-on-navy in light mode */}
         <h2
-          className="font-serif text-3xl md:text-5xl tracking-tight leading-[1.08]"
+          className="font-serif text-3xl md:text-5xl tracking-tight leading-[1.08] text-white"
           style={{
             fontVariationSettings: "'opsz' 144, 'SOFT' 60, 'wght' 500",
             textShadow: "0 2px 18px rgba(0,0,0,0.55)",

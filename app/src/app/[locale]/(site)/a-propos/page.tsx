@@ -94,12 +94,13 @@ export default async function AboutPage({
                   />
                 ))}
               </div>
-              {/* Brand illustration, drifting softly like a cloud */}
+              {/* Brand illustration, drifting softly like a cloud: bare image,
+                  no frame, no border, no shadow */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/img/website/about-us.png"
                 alt="Lunireve"
-                className="float-soft relative mx-auto w-full max-w-md rounded-[2rem] shadow-[var(--shadow-card)]"
+                className="float-soft relative mx-auto w-full max-w-md"
               />
             </div>
           </div>

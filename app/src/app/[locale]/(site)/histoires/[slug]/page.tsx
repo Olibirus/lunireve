@@ -33,6 +33,7 @@ import { ReadingProgress } from "@/components/story/ReadingProgress";
 import { ReadingSettings } from "@/components/story/ReadingSettings";
 import { StoryQuiz } from "@/components/story/StoryQuiz";
 import { InteractiveStory } from "@/components/story/InteractiveStory";
+import { AutoHideHeader } from "@/components/layout/AutoHideHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, Headphones, Sparkles } from "lucide-react";
@@ -143,6 +144,8 @@ export default async function StoryDetailPage({
 
   return (
     <>
+      {/* Navbar slides away on scroll down, back on scroll up (reading mode) */}
+      <AutoHideHeader />
       {/* Full-viewport parallax hero (#1) — bg-fixed keeps the cover still
           while the page scrolls over it. Image slot: the real illustration
           becomes a fixed-attachment background at /illustrations/story-<slug>.png */}
@@ -233,7 +236,7 @@ export default async function StoryDetailPage({
       <ReadingProgress slug={story.slug} />
 
       {/* Reading toolbar — audio, downloads, comfort settings (#19/#20) */}
-      <section className="mx-auto max-w-4xl px-5 md:px-8 -mt-7 relative z-10">
+      <section className="mx-auto max-w-4xl px-5 md:px-8 -mt-7 relative z-30">
         <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 md:p-5 shadow-[var(--shadow-card)]">
           {/* Two columns: round play button centered left, stacked downloads
               centered right (buttons left-aligned to each other). Stacks on mobile. */}
@@ -286,6 +289,18 @@ export default async function StoryDetailPage({
 
       {/* Body — single centered column, wider measure (#5) */}
       <section className="mx-auto max-w-4xl px-5 md:px-8 py-10 md:py-14">
+        {/* Inline illustration card (same layout as personalized stories) */}
+        {heroImg && (
+          <div className="relative mb-10 aspect-square w-full max-w-2xl mx-auto">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={heroImg}
+              alt={`Illustration : ${story.title}`}
+              className="h-full w-full rounded-3xl object-cover shadow-[var(--shadow-card)]"
+            />
+            <HeroImageZoom src={heroImg} alt={story.title} label={t("openIllustration")} />
+          </div>
+        )}
         <div id="story-body" className="prose-reading reading-size-m mx-auto">
           {story.interactive && interactive ? (
             <InteractiveStory tree={interactive} />
@@ -339,6 +354,30 @@ export default async function StoryDetailPage({
       {/* Quiz + glossary + print — standard reading width */}
       <section className="mx-auto max-w-4xl px-5 md:px-8 pt-6 space-y-6">
         <StoryQuiz questions={quiz} slug={story.slug} />
+
+        {/* Loved it? One tap creates the NEXT chapter of this exact story:
+            /creer opens prefilled from this book (hero, theme, title) with a
+            brand-new plot, landing on the recap step. */}
+        <div className="relative overflow-hidden rounded-3xl border-2 border-dashed border-[var(--color-mint-500)] bg-[var(--color-mint-100)] p-6 md:p-8">
+          <Sparkles
+            aria-hidden
+            className="absolute -right-4 -top-4 h-24 w-24 text-[var(--color-mint-500)] opacity-15"
+          />
+          <p className="text-xs uppercase tracking-widest text-[var(--color-ink-600)]">
+            {t("sequelKicker")}
+          </p>
+          <h2 className="mt-2 font-serif text-xl md:text-2xl tracking-tight">
+            {t("sequelTitle", { title: story.title })}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-600)]">
+            {t("sequelBody")}
+          </p>
+          <Button asChild variant="primary" size="md" className="mt-5">
+            <Link href={{ pathname: "/creer", query: { fromLib: story.slug } }}>
+              {t("sequelCta")}
+            </Link>
+          </Button>
+        </div>
 
         {/* Glossary — open by default (#30) */}
         <details open className="group rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-6 open:pb-4">

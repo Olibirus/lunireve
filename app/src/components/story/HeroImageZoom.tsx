@@ -47,14 +47,16 @@ export function HeroImageZoom({
           aria-modal="true"
           aria-label={alt}
           onClick={() => setOpen(false)}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+          // top-20 + z-30: the lightbox opens BELOW the sticky navbar (h-20,
+          // z-40) so the header stays visible and usable above it.
+          className="fixed inset-x-0 bottom-0 top-20 z-30 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
             alt={alt}
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[95vh] max-w-[95vw] cursor-zoom-out rounded-2xl object-contain shadow-2xl"
+            className="max-h-full max-w-full cursor-zoom-out rounded-2xl object-contain shadow-2xl"
           />
           <button
             type="button"

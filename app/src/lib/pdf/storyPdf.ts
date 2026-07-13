@@ -112,25 +112,27 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
 
   function brandFooter() {
     doc.setDrawColor(220, 220, 210);
-    doc.line(M, H - 46, W - M, H - 46);
+    doc.line(M, H - 66, W - M, H - 66);
     // Logo bottom-left, site link centered, licence note bottom-right.
+    // Deliberately LARGE: the footer doubles as the brand mark on printouts.
     if (logoData) {
-      drawLogo(M, H - 38, 15);
+      drawLogo(M, H - 58, 32);
     } else {
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
+      doc.setFontSize(14);
       doc.setTextColor(INK);
-      doc.text("LUNIREVE", M, H - 28);
+      doc.text("LUNIREVE", M, H - 36);
     }
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
+    doc.setFontSize(12);
     doc.setTextColor(MINT);
-    doc.textWithLink("www.lunireve.com", W / 2, H - 28, {
-      align: "center",
+    doc.textWithLink("www.lunireve.com", W - M, H - 44, {
+      align: "right",
       url: "https://www.lunireve.com",
     });
+    doc.setFontSize(11);
     doc.setTextColor(MUTED);
-    doc.text(L.footer, W - M, H - 28, { align: "right" });
+    doc.text(L.footer, W - M, H - 29, { align: "right" });
   }
 
   function brandHeader() {
@@ -173,17 +175,13 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
     const imgY = 250;
     try {
       doc.addImage(coverData, "PNG", imgX, imgY, size, size);
-      // Logo in the bottom-right corner of the illustration, on a soft pill
-      // so it stays legible over any artwork. Natural ratio preserved.
+      // Logo watermark in the top-right corner of the illustration: large and
+      // on a TRANSPARENT background (no pill, no frame). Natural ratio kept.
       if (logoData) {
-        const lh = 17;
+        const lh = 36;
         const lw = lh * logoRatio;
-        const pad = 8;
-        const lx = imgX + size - lw - pad;
-        const ly = imgY + size - lh - pad;
-        doc.setFillColor("#faf5eb");
-        doc.roundedRect(lx - 5, ly - 4, lw + 10, lh + 8, 6, 6, "F");
-        drawLogo(lx, ly, lh);
+        const pad = 12;
+        drawLogo(imgX + size - lw - pad, imgY + pad, lh);
       }
     } catch {
       /* ignore bad image data */
@@ -205,7 +203,7 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
       doc.setFontSize(13);
       const lines = doc.splitTextToSize(p, contentW);
       for (const line of lines) {
-        if (y > H - 78) y = newPage();
+        if (y > H - 98) y = newPage();
         doc.setFont("times", "normal");
         doc.setFontSize(13);
         doc.setTextColor(INK);
@@ -272,7 +270,7 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
       doc.setFontSize(11);
       const intro = doc.splitTextToSize(L.intro, contentW);
       for (const line of intro) {
-        if (yy > H - 70) brk();
+        if (yy > H - 110) brk();
         if (draw) {
           doc.setFont("times", "italic");
           doc.setFontSize(11);
@@ -299,7 +297,7 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
           doc.setFontSize(12);
           const lines = doc.splitTextToSize(p, contentW);
           for (const line of lines) {
-            if (yy > H - 70) brk();
+            if (yy > H - 110) brk();
             if (draw) {
               doc.setFont("times", "normal");
               doc.setFontSize(12);
@@ -312,12 +310,12 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
         }
 
         if (sec.question && sec.choices.length) {
-          if (yy > H - 90) brk();
+          if (yy > H - 110) brk();
           doc.setFont("helvetica", "bold");
           doc.setFontSize(11.5);
           const qLines = doc.splitTextToSize(sec.question, contentW);
           for (const line of qLines) {
-            if (yy > H - 70) brk();
+            if (yy > H - 110) brk();
             if (draw) {
               doc.setFont("helvetica", "bold");
               doc.setFontSize(11.5);
@@ -332,7 +330,7 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
             doc.setFontSize(11);
             const labelLines = doc.splitTextToSize(`${letters[ci]}.  ${c.label}`, contentW - 18);
             for (const line of labelLines) {
-              if (yy > H - 70) brk();
+              if (yy > H - 110) brk();
               if (draw) {
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(11);
@@ -341,7 +339,7 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
               }
               yy += 15;
             }
-            if (yy > H - 70) brk();
+            if (yy > H - 110) brk();
             if (draw) {
               doc.setFont("helvetica", "italic");
               doc.setFontSize(10);
@@ -351,7 +349,7 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
             yy += 18;
           });
         } else {
-          if (yy > H - 70) brk();
+          if (yy > H - 110) brk();
           if (draw) {
             doc.setFont("times", "italic");
             doc.setFontSize(11);
@@ -374,7 +372,7 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
     doc.text(L.quiz, M, y);
     y += 30;
     data.quiz.forEach((q, i) => {
-      if (y > H - 120) y = newPage();
+      if (y > H - 130) y = newPage();
       doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       doc.setTextColor(INK);
@@ -403,7 +401,7 @@ export async function downloadStoryPdf(data: StoryPdfInput) {
     doc.text(L.solutions, M, y);
     y += 20;
     data.quiz.forEach((q, i) => {
-      if (y > H - 70) y = newPage();
+      if (y > H - 90) y = newPage();
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.setTextColor(MINT);

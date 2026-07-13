@@ -145,7 +145,7 @@ export function ShareButton() {
       {open && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute bottom-full left-1/2 z-40 mb-2 w-48 -translate-x-1/2 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-1.5 shadow-[var(--shadow-float)]"
+          className="absolute bottom-full left-1/2 z-50 mb-2 w-48 -translate-x-1/2 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-1.5 shadow-[var(--shadow-float)]"
         >
           {canNative && (
             <button

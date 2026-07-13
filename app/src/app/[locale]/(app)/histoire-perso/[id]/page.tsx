@@ -15,6 +15,8 @@ import { ReadingSettings } from "@/components/story/ReadingSettings";
 import { FavoriteButton, ShareButton, ReportDialog } from "@/components/story/StoryActions";
 import { FoxImagePlaceholder } from "@/components/brand/FoxImagePlaceholder";
 import { HeroImageZoom } from "@/components/story/HeroImageZoom";
+import { Header } from "@/components/layout/Header";
+import { AutoHideHeader } from "@/components/layout/AutoHideHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Copy, Lock, Pencil, Sparkles, ThumbsDown, ThumbsUp, Wand2 } from "lucide-react";
@@ -315,8 +317,14 @@ export default function CustomStoryPage() {
 
   return (
     <>
-      {/* Reading progress bar (pinned to the very top: no navbar in this view) */}
-      <ReadingProgress slug={story.id} top="top-0" />
+      {/* Full site navbar (theme toggle, navigation), auto-hidden on scroll
+          down and restored on scroll up, exactly like library story pages. */}
+      <div data-no-print>
+        <Header />
+      </div>
+      <AutoHideHeader />
+      {/* Reading progress bar, pinned under the navbar */}
+      <ReadingProgress slug={story.id} />
 
       {/* Hero — same treatment as library stories: the story's illustration
           as background under a dark scrim (not a blur), badges, title, teaser */}
@@ -376,7 +384,7 @@ export default function CustomStoryPage() {
       </section>
 
       {/* Toolbar — audio, downloads, then the same controls as any story */}
-      <section className="mx-auto max-w-4xl px-5 md:px-8 -mt-7 relative z-10" data-no-print>
+      <section className="mx-auto max-w-4xl px-5 md:px-8 -mt-7 relative z-30" data-no-print>
         <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 shadow-[var(--shadow-card)]">
           <div className="flex flex-wrap items-center gap-2">
             <AudioPlayer

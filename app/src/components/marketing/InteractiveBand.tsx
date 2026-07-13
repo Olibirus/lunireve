@@ -50,7 +50,8 @@ export function InteractiveBand() {
               <span className="rounded-2xl border-2 border-[var(--color-mint-400)] bg-[var(--color-mint-50)] px-4 py-3 text-center text-sm font-medium text-[var(--color-ink-800)]">
                 {t("choiceA")}
               </span>
-              <span className="rounded-2xl border-2 border-[var(--color-indigo-soft-300)] bg-[var(--color-indigo-soft-50)] px-4 py-3 text-center text-sm font-medium text-[var(--color-ink-800)]">
+              {/* Fixed dark text: this pastel bg is NOT flipped by dark mode */}
+              <span className="rounded-2xl border-2 border-[var(--color-indigo-soft-300)] bg-[var(--color-indigo-soft-50)] px-4 py-3 text-center text-sm font-medium text-[#17224a]">
                 {t("choiceB")}
               </span>
             </div>

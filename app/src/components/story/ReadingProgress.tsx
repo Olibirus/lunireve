@@ -37,29 +37,34 @@ export function ReadingProgress({
     if (stored > 10 && stored < 90) setResumeAt(stored);
   }, [slug]);
 
-  // Track: save scroll % through the story body, throttled via rAF.
+  // Track: continuous rAF loop (not scroll events) so the bar follows every
+  // frame of the smooth-scroll glide instead of jumping when it settles.
+  // localStorage writes stay throttled to whole-percent changes.
   useEffect(() => {
-    let ticking = false;
-    function onScroll() {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        ticking = false;
-        const body = document.getElementById("story-body");
-        if (!body) return;
+    let raf = 0;
+    let lastSaved = -1;
+    function tick() {
+      const body = document.getElementById("story-body");
+      if (body) {
         const rect = body.getBoundingClientRect();
         const vh = window.innerHeight;
         // 0% when the top of the story first enters the viewport (rect.top = vh),
         // 100% when the last line reaches mid-viewport (rect.bottom = vh/2).
         const range = vh / 2 + rect.height;
-        if (range <= 0) return;
-        const progress = Math.min(100, Math.max(0, ((vh - rect.top) / range) * 100));
-        setLive(progress);
-        recordProgress(slug, progress);
-      });
+        if (range > 0) {
+          const progress = Math.min(100, Math.max(0, ((vh - rect.top) / range) * 100));
+          setLive(progress);
+          const rounded = Math.round(progress);
+          if (rounded !== lastSaved) {
+            lastSaved = rounded;
+            recordProgress(slug, progress);
+          }
+        }
+      }
+      raf = requestAnimationFrame(tick);
     }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [slug]);
 
   function resume() {
@@ -83,7 +88,7 @@ export function ReadingProgress({
         className={`fixed left-0 ${top} z-30 h-1 w-full bg-[var(--color-ink-100)]/60`}
       >
         <div
-          className="h-full bg-[var(--color-fox-500)] transition-[width] duration-150"
+          className="h-full bg-[var(--color-fox-500)]"
           style={{ width: `${live}%` }}
         />
       </div>

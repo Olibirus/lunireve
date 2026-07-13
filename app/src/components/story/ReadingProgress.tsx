@@ -16,15 +16,7 @@ import { BookOpen, X } from "lucide-react";
  * With accounts (Batch 5), the key gains a profile prefix and history syncs
  * to the DB — this component's logic doesn't change.
  */
-export function ReadingProgress({
-  slug,
-  top = "top-20",
-}: {
-  slug: string;
-  /** Where to pin the bar. Library pages have an 80px navbar (top-20); the
-      personalized/child view has no navbar, so it pins to top-0. */
-  top?: string;
-}) {
+export function ReadingProgress({ slug }: { slug: string }) {
   const t = useTranslations("story");
   const [resumeAt, setResumeAt] = useState<number | null>(null);
   const [live, setLive] = useState(0);
@@ -81,11 +73,13 @@ export function ReadingProgress({
   return (
     <>
       {/* Reading progress line pinned just under the navbar (item #6). The
-          header is h-20 (80px), so anchor at top-20 with a faint track so the
-          bar is always visible, not hidden behind the navbar. */}
+          header is h-20 (80px). The offset is a CSS var driven by
+          AutoHideHeader: below the navbar while it is visible, at the very
+          top of the viewport once the navbar slides away. */}
       <div
         aria-hidden
-        className={`fixed left-0 ${top} z-30 h-1 w-full bg-[var(--color-ink-100)]/60`}
+        className="fixed left-0 z-30 h-1 w-full bg-[var(--color-ink-100)]/60 transition-[top] duration-300"
+        style={{ top: "var(--lunireve-header-offset, 5rem)" }}
       >
         <div
           className="h-full bg-[var(--color-fox-500)]"

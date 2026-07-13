@@ -39,6 +39,7 @@ export function AudioPlayer({
   storyId,
   tier = "library",
   round = false,
+  language = "fr",
 }: {
   title: string;
   audioUrl: string | null;
@@ -49,6 +50,8 @@ export function AudioPlayer({
   tier?: AudioTier;
   /** Render the trigger as a big round play button (story page toolbar). */
   round?: boolean;
+  /** Story language: picks the matching pre-rendered outro track. */
+  language?: "fr" | "en";
 }) {
   const t = useTranslations("story");
   const [open, setOpen] = useState(false);
@@ -60,7 +63,12 @@ export function AudioPlayer({
   const [error, setError] = useState(false);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
+  // After the narration ends, a short pre-rendered "thanks for listening"
+  // track plays (public/audio/outro-<lang>.mp3), matching the story language.
+  const [inOutro, setInOutro] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const outroRef = useRef<HTMLAudioElement>(null);
+  const outroSrc = `/audio/outro-${language === "en" ? "en" : "fr"}.mp3`;
 
   useEffect(() => setUrl(audioUrl), [audioUrl]);
 
@@ -71,6 +79,8 @@ export function AudioPlayer({
     setOpen(next);
     if (!next) {
       audioRef.current?.pause();
+      outroRef.current?.pause();
+      setInOutro(false);
       setPlaying(false);
     }
   }
@@ -98,8 +108,19 @@ export function AudioPlayer({
 
   async function togglePlay() {
     if (playing) {
-      audioRef.current?.pause();
+      (inOutro ? outroRef : audioRef).current?.pause();
       setPlaying(false);
+      return;
+    }
+
+    // Resume the outro if that's where playback stopped.
+    if (inOutro) {
+      try {
+        await outroRef.current?.play();
+        setPlaying(true);
+      } catch {
+        setPlaying(false);
+      }
       return;
     }
 
@@ -131,7 +152,20 @@ export function AudioPlayer({
   useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
-    const onEnded = () => setPlaying(false);
+    // End of the narration -> gentle "thanks for listening" outro track.
+    const onEnded = () => {
+      const outro = outroRef.current;
+      if (outro) {
+        setInOutro(true);
+        outro.currentTime = 0;
+        outro.play().catch(() => {
+          setInOutro(false);
+          setPlaying(false);
+        });
+      } else {
+        setPlaying(false);
+      }
+    };
     const onTime = () => setCurrent(el.currentTime);
     const onMeta = () => setDuration(Number.isFinite(el.duration) ? el.duration : 0);
     el.addEventListener("ended", onEnded);
@@ -143,6 +177,18 @@ export function AudioPlayer({
       el.removeEventListener("loadedmetadata", onMeta);
     };
   }, [open, url]);
+
+  // Outro finished: back to a clean, ready-to-replay state.
+  useEffect(() => {
+    const outro = outroRef.current;
+    if (!outro) return;
+    const onEnded = () => {
+      setInOutro(false);
+      setPlaying(false);
+    };
+    outro.addEventListener("ended", onEnded);
+    return () => outro.removeEventListener("ended", onEnded);
+  }, [open]);
 
   const fmt = (s: number) => {
     if (!Number.isFinite(s) || s <= 0) return "0:00";
@@ -189,6 +235,8 @@ export function AudioPlayer({
           </DialogHeader>
 
           {url && <audio ref={audioRef} src={url} preload="metadata" />}
+          {/* Pre-rendered thank-you outro, chained after the narration */}
+          <audio ref={outroRef} src={outroSrc} preload="none" />
 
           <p className="text-center text-xs uppercase tracking-widest text-[var(--color-ink-400)]">
             {t("playerChapter", { current: chapter + 1, total: chapterCount })}

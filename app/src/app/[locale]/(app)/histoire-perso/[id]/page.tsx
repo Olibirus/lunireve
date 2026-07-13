@@ -318,8 +318,10 @@ export default function CustomStoryPage() {
   return (
     <>
       {/* Full site navbar (theme toggle, navigation), auto-hidden on scroll
-          down and restored on scroll up, exactly like library story pages. */}
-      <div data-no-print>
+          down and restored on scroll up, exactly like library story pages.
+          display:contents wrapper: a plain div would become the sticky
+          header's containing block and it would scroll away with the page. */}
+      <div className="contents" data-no-print>
         <Header />
       </div>
       <AutoHideHeader />
@@ -393,6 +395,7 @@ export default function CustomStoryPage() {
               chapterCount={1}
               storyId={story.id.startsWith("PS-") ? story.id : undefined}
               tier="personalized"
+              language={story.params.language}
             />
             <DownloadButtons
               pdf={{

@@ -246,6 +246,7 @@ export default async function StoryDetailPage({
                 round
                 title={story.title}
                 audioUrl={story.audioUrl}
+                language={story.language}
                 chapterCount={3}
                 storyId={story.slug}
                 tier="library"

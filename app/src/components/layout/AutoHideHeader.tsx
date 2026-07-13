@@ -13,6 +13,10 @@ export function AutoHideHeader() {
     const header = document.querySelector("header");
     if (!header) return;
     header.style.transition = "transform 0.25s ease";
+    // Companion elements (reading progress bar) pin themselves to this var:
+    // just under the navbar while visible, at the viewport top once hidden.
+    const root = document.documentElement;
+    root.style.setProperty("--lunireve-header-offset", "5rem");
     let lastY = window.scrollY;
     let hidden = false;
 
@@ -25,9 +29,11 @@ export function AutoHideHeader() {
       if (goingDown && y > 120 && !hidden) {
         hidden = true;
         header.style.transform = "translateY(-100%)";
+        root.style.setProperty("--lunireve-header-offset", "0px");
       } else if ((goingUp || y <= 120) && hidden) {
         hidden = false;
         header.style.transform = "";
+        root.style.setProperty("--lunireve-header-offset", "5rem");
       }
       lastY = y;
     };
@@ -37,6 +43,7 @@ export function AutoHideHeader() {
       window.removeEventListener("scroll", onScroll);
       header.style.transform = "";
       header.style.transition = "";
+      root.style.removeProperty("--lunireve-header-offset");
     };
   }, []);
 

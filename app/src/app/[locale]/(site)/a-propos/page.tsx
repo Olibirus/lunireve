@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Accordion } from "@/components/ui/Accordion";
 import { SectionStars } from "@/components/marketing/SectionStars";
+import { GlowCard } from "@/components/marketing/GlowCard";
 import { FAQ_FR, FAQ_EN } from "@/data/faq";
 import { Library, Sparkles, Wand2, BookHeart, ArrowRight } from "lucide-react";
 
@@ -112,7 +113,7 @@ export default async function AboutPage({
             </p>
             <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
               {services.map(({ icon: Icon, key }) => (
-                <div
+                <GlowCard
                   key={key}
                   className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-5 shadow-[var(--shadow-soft)]"
                 >
@@ -124,7 +125,7 @@ export default async function AboutPage({
                     {t(`${key}Short`)}
                   </p>
                   <p className="mt-1 text-xs text-[var(--color-ink-500)]">{t(`${key}Tag`)}</p>
-                </div>
+                </GlowCard>
               ))}
             </div>
           </div>

@@ -78,7 +78,7 @@ export default function ProfileSelectorPage() {
         {limitReached ? (
           <Link
             href="/tarifs"
-            className="flex w-36 md:w-44 flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-[var(--color-indigo-soft-300)] bg-[var(--color-indigo-soft-50)] p-6 text-center transition-colors hover:border-[var(--color-indigo-soft-500)]"
+            className="flex w-36 md:w-44 flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-[var(--color-indigo-soft-300)] bg-[var(--color-cream-100)] p-6 text-center transition-colors hover:border-[var(--color-indigo-soft-500)]"
           >
             <span className="rounded-full bg-[var(--color-indigo-soft-100)] p-4">
               <Lock className="h-6 w-6 text-[var(--color-indigo-soft-500)]" />

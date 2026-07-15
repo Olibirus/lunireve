@@ -398,6 +398,8 @@ export default function CustomStoryPage() {
               language={story.params.language}
             />
             <DownloadButtons
+              stacked
+              locale={story.params.language}
               pdf={{
                 title: story.title,
                 meta: `${t(`themes.${story.params.theme}`)} · ${story.params.heroName}`,
@@ -405,6 +407,8 @@ export default function CustomStoryPage() {
                 quiz: buildQuiz(story),
                 glossary: story.glossary,
                 locale: story.params.language,
+                // Generated illustration on the PDF cover (same as on page).
+                coverImage: imageUrl ?? undefined,
               }}
             />
           </div>

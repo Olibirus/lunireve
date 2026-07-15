@@ -69,7 +69,21 @@ export type CustomStoryParams = {
   skinTone?: string;
   /** Title of the previous episode when this story is a sequel. */
   sequelOf?: string;
+  /** Id of the previous episode: reused as image reference for consistency. */
+  sequelOfId?: string;
 };
+
+/** Remove a personalized story from the local cache (DB removal is separate). */
+export function deleteCustomStory(id: string): void {
+  try {
+    localStorage.setItem(
+      scopedKey(KEY),
+      JSON.stringify(readCustomStories().filter((s) => s.id !== id))
+    );
+  } catch {
+    /* non-fatal */
+  }
+}
 
 export function findCustomStory(id: string): CustomStory | undefined {
   return readCustomStories().find((s) => s.id === id);

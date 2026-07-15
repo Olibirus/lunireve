@@ -887,6 +887,8 @@
     "favoritesEmpty": "Touche le petit cœur sur une histoire pour la garder ici.",
     "custom": "Tes histoires personnalisées",
     "customEmpty": "Aucune histoire rien qu'à toi pour l'instant. On en invente une ?",
+    "deleteStory": "Supprimer cette histoire",
+    "deleteStoryConfirm": "Supprimer « {title} » ? Cette histoire sera définitivement retirée de votre bibliothèque.",
     "library": "Toute la bibliothèque"
   },
   "account": {

@@ -139,12 +139,34 @@ export async function selectCustomStoriesByUser(
 }
 
 /** What the lazy illustration path needs: cached URL + generation inputs. */
+/**
+ * Delete a personalized story row. Owner-guarded: rows owned by a real user
+ * only fall to that user; unattributed rows (temp accounts) can be removed by
+ * any signed-in session, since only their creator has the link.
+ */
+export async function deleteCustomStoryRow(
+  id: string,
+  ownerUserId: string | null
+): Promise<boolean> {
+  const [row] = await db
+    .select({ ownerUserId: stories.ownerUserId })
+    .from(stories)
+    .where(and(eq(stories.id, id), eq(stories.type, "text_story")))
+    .limit(1);
+  if (!row) return false;
+  if (row.ownerUserId && row.ownerUserId !== ownerUserId) return false;
+  await db.delete(stories).where(eq(stories.id, id));
+  return true;
+}
+
 export async function selectCustomStoryImageInputs(id: string): Promise<{
   heroImageUrl: string | null;
   style: CustomStoryParams["style"];
   imagePrompt: string;
   /** Hero visual identity string, repeated at render for consistency. */
   character: string;
+  /** Previous episode id, when this story is a sequel (image reference). */
+  sequelOfId: string | null;
 } | null> {
   const [row] = await db
     .select({
@@ -166,7 +188,10 @@ export async function selectCustomStoryImageInputs(id: string): Promise<{
   return {
     heroImageUrl: row.heroImageUrl,
     style: p.style,
-    character: `${p.heroName}, a ${p.heroAge}-year-old ${kind}${tone ? `, ${tone}` : ""}${p.trait ? `, ${p.trait}` : ""}`,
+    character: `${p.heroName}, a ${p.heroAge}-year-old ${kind}${tone ? `, ${tone}` : ""}${
+      p.heroDescription || p.trait ? `, ${p.heroDescription || p.trait}` : ""
+    }`,
+    sequelOfId: p.sequelOfId ?? null,
     // Older rows predate stored imagePrompt — rebuild a scene from the params.
     imagePrompt:
       meta.imagePrompt ??

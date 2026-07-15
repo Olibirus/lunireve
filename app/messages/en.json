@@ -887,6 +887,8 @@
     "favoritesEmpty": "Tap the little heart on a story to keep it here.",
     "custom": "Your personalised stories",
     "customEmpty": "No story of your very own yet. Shall we invent one?",
+    "deleteStory": "Delete this story",
+    "deleteStoryConfirm": "Delete {title}? This story will be permanently removed from your library.",
     "library": "The whole library"
   },
   "account": {

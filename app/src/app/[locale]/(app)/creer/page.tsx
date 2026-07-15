@@ -217,6 +217,9 @@ export default function CreateStoryPage() {
           const sequelParams: CustomStoryParams = {
             ...prev.params,
             sequelOf: prev.title,
+            // Image reference: the next episode reuses the previous cover so
+            // the hero stays visually consistent.
+            sequelOfId: prev.id,
           };
           setParams(sequelParams);
           if (prev.profileId) setProfileId(prev.profileId);
@@ -734,9 +737,10 @@ export default function CreateStoryPage() {
           })}
         </ol>
 
-        {/* Keep browsing: the story saves itself and the bell will ring. */}
-        <div className="mt-8 rounded-2xl border border-[var(--color-indigo-soft-200)] bg-[var(--color-indigo-soft-50)] p-4">
-          <p className="text-sm text-[var(--color-ink-600)]">{t("loadingBrowseHint")}</p>
+        {/* Keep browsing: the story saves itself and the bell will ring.
+            Standard cream/ink pairing: readable in light AND dark mode. */}
+        <div className="mt-8 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-4">
+          <p className="text-sm text-[var(--color-ink-700)]">{t("loadingBrowseHint")}</p>
           <Button
             variant="outline"
             size="sm"
@@ -798,7 +802,7 @@ export default function CreateStoryPage() {
         </div>
 
         {params.sequelOf && (
-          <p className="mt-3 rounded-xl bg-[var(--color-indigo-soft-50)] border border-[var(--color-indigo-soft-200)] px-3.5 py-2 text-xs text-[var(--color-indigo-soft-700)]">
+          <p className="mt-3 rounded-xl bg-[var(--color-cream-100)] border border-[var(--color-ink-100)] px-3.5 py-2 text-xs text-[var(--color-ink-700)]">
             {t("sequelBanner", { title: params.sequelOf })}
           </p>
         )}

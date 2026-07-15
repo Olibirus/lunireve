@@ -12,13 +12,35 @@ import {
   type ChildProfile,
 } from "@/lib/profiles";
 import { readCustomStories, type CustomStory } from "@/lib/customStories";
-import { readFavorites } from "@/lib/favorites";
+import { readFavoritesFor } from "@/lib/favorites";
 import { mockStories, type MockStory } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
 import { RecentlyRead } from "./RecentlyRead";
 import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Flame, Heart, Lock, Pencil, Plus, Trash2, Wand2 } from "lucide-react";
+import { BookOpen, Flame, Heart, Lock, Pencil, Plus, Trash2, User, Wand2 } from "lucide-react";
+
+/** One dashboard row: who reads + their items. */
+type ReaderRow<T> = {
+  id: string;
+  name: string;
+  avatar: ChildProfile["avatar"] | null;
+  items: T[];
+};
+
+/** Row header: reader avatar + name, shared by favorites + personalized rows. */
+function ReaderLabel({ row }: { row: ReaderRow<unknown> }) {
+  return (
+    <p className="flex items-center gap-2 text-sm font-medium text-[var(--color-ink-700)]">
+      {row.avatar ? (
+        <ChildAvatar color={row.avatar} className="h-6 w-6" />
+      ) : (
+        <User className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
+      )}
+      {row.name}
+    </p>
+  );
+}
 
 /** Parent dashboard — family overview + quick actions (#11). */
 export default function AccountDashboardPage() {
@@ -35,13 +57,46 @@ export default function AccountDashboardPage() {
 
   const [profiles, setProfiles] = useState<ChildProfile[] | null>(null);
   const [customStories, setCustomStories] = useState<CustomStory[]>([]);
-  const [favorites, setFavorites] = useState<MockStory[]>([]);
+  // Favorites + personalized stories organized per reader: the parent's row
+  // first, then one row per child.
+  const [favoriteRows, setFavoriteRows] = useState<ReaderRow<MockStory>[]>([]);
+  const [storyRows, setStoryRows] = useState<ReaderRow<CustomStory>[]>([]);
 
   useEffect(() => {
-    setProfiles(readProfiles());
-    setCustomStories([...readCustomStories()].reverse());
-    const favs = readFavorites();
-    setFavorites(mockStories.filter((s) => favs.includes(s.slug)).slice(0, 4));
+    const all = readProfiles();
+    setProfiles(all);
+    const stories = [...readCustomStories()].reverse();
+    setCustomStories(stories);
+
+    const readers = [
+      { id: "parent", name: t("readerParent"), avatar: null as ChildProfile["avatar"] | null },
+      ...all.map((p) => ({ id: p.id, name: p.name, avatar: p.avatar as ChildProfile["avatar"] | null })),
+    ];
+    const childIds = new Set(all.map((p) => p.id));
+
+    setFavoriteRows(
+      readers
+        .map((r) => {
+          const favs = readFavoritesFor(r.id);
+          return { ...r, items: mockStories.filter((s) => favs.includes(s.slug)).slice(0, 4) };
+        })
+        .filter((r) => r.items.length > 0)
+    );
+    setStoryRows(
+      readers
+        .map((r) => ({
+          ...r,
+          items: stories
+            .filter((s) =>
+              r.id === "parent"
+                ? !s.profileId || !childIds.has(s.profileId)
+                : s.profileId === r.id
+            )
+            .slice(0, 4),
+        }))
+        .filter((r) => r.items.length > 0)
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function openChild(p: ChildProfile) {
@@ -135,7 +190,7 @@ export default function AccountDashboardPage() {
           {limitReached ? (
             <Link
               href="/tarifs"
-              className="flex flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-[var(--color-indigo-soft-300)] bg-[var(--color-indigo-soft-50)] p-6 text-center hover:border-[var(--color-indigo-soft-500)] transition-colors"
+              className="flex flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-[var(--color-indigo-soft-300)] bg-[var(--color-cream-100)] p-6 text-center hover:border-[var(--color-indigo-soft-500)] transition-colors"
             >
               <Lock className="h-6 w-6 text-[var(--color-indigo-soft-500)]" />
               <p className="text-sm font-semibold text-[var(--color-ink-800)]">{t("addChildLocked")}</p>
@@ -180,23 +235,30 @@ export default function AccountDashboardPage() {
             </Button>
           </div>
         ) : (
-          <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {customStories.slice(0, 4).map((s) => (
-              <Link
-                key={s.id}
-                href={{ pathname: "/histoire-perso/[id]", params: { id: s.id } }}
-                className="group overflow-hidden rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] transition-shadow"
-              >
-                <span className="cover-night flex aspect-[4/3] items-center justify-center">
-                  <Wand2 className="h-6 w-6 text-white/70 transition-transform group-hover:scale-110" />
-                </span>
-                <span className="block p-3.5">
-                  <span className="block truncate font-serif text-base tracking-tight">{s.title}</span>
-                  <span className="mt-0.5 block text-xs text-[var(--color-ink-500)]">
-                    {s.params.heroName} · {new Date(s.createdAt).toLocaleDateString()}
-                  </span>
-                </span>
-              </Link>
+          <div className="mt-4 space-y-6">
+            {storyRows.map((row) => (
+              <div key={row.id}>
+                <ReaderLabel row={row} />
+                <div className="mt-2.5 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {row.items.map((s) => (
+                    <Link
+                      key={s.id}
+                      href={{ pathname: "/histoire-perso/[id]", params: { id: s.id } }}
+                      className="group overflow-hidden rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] transition-shadow"
+                    >
+                      <span className="cover-night flex aspect-[4/3] items-center justify-center">
+                        <Wand2 className="h-6 w-6 text-white/70 transition-transform group-hover:scale-110" />
+                      </span>
+                      <span className="block p-3.5">
+                        <span className="block truncate font-serif text-base tracking-tight">{s.title}</span>
+                        <span className="mt-0.5 block text-xs text-[var(--color-ink-500)]">
+                          {s.params.heroName} · {new Date(s.createdAt).toLocaleDateString()}
+                        </span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}
@@ -206,21 +268,28 @@ export default function AccountDashboardPage() {
       <section>
         <div className="flex flex-wrap items-baseline gap-3">
           <h2 className="font-serif text-2xl tracking-tight sparkle">{t("menu.favorites")}</h2>
-          {favorites.length > 0 && (
+          {favoriteRows.length > 0 && (
             <Link href="/compte/favoris" className="text-sm text-[var(--color-indigo-soft-600)] hover:text-[var(--color-ink-800)]">
               {t("seeAll")}
             </Link>
           )}
         </div>
-        {favorites.length === 0 ? (
+        {favoriteRows.length === 0 ? (
           <div className="mt-4 rounded-3xl border-2 border-dashed border-[var(--color-ink-200)] bg-[var(--color-cream-100)] p-8 text-center max-w-xl">
             <Heart className="mx-auto h-6 w-6 text-[var(--color-indigo-soft-500)]" />
             <p className="mt-2 text-sm text-[var(--color-ink-600)]">{t("favoritesEmpty")}</p>
           </div>
         ) : (
-          <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {favorites.map((s) => (
-              <StoryCard key={s.slug} story={s} />
+          <div className="mt-4 space-y-6">
+            {favoriteRows.map((row) => (
+              <div key={row.id}>
+                <ReaderLabel row={row} />
+                <div className="mt-2.5 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {row.items.map((s) => (
+                    <StoryCard key={s.slug} story={s} />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}

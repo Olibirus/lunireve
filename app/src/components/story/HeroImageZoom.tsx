@@ -23,11 +23,16 @@ export function HeroImageZoom({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    const { overflow } = document.body.style;
+    // Lock BOTH scroll roots: html is the actual scroller in most browsers,
+    // so locking body alone still let the page scroll behind the lightbox.
+    const bodyOverflow = document.body.style.overflow;
+    const htmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = overflow;
+      document.body.style.overflow = bodyOverflow;
+      document.documentElement.style.overflow = htmlOverflow;
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
@@ -47,9 +52,10 @@ export function HeroImageZoom({
           aria-modal="true"
           aria-label={alt}
           onClick={() => setOpen(false)}
-          // top-20 + z-30: the lightbox opens BELOW the sticky navbar (h-20,
-          // z-40) so the header stays visible and usable above it.
-          className="fixed inset-x-0 bottom-0 top-20 z-30 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+          // top-20 keeps the sticky navbar (h-20) visible above the lightbox;
+          // z-[60] puts it above every other layer (audio dialog is z-50), so
+          // nothing floats in front of the image.
+          className="fixed inset-x-0 bottom-0 top-20 z-[60] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

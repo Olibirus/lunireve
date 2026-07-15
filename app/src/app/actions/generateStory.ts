@@ -1,10 +1,15 @@
 "use server";
 
-import { generateStoryText } from "@/lib/ai";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { stories } from "@/db/schema";
+import { generateStoryText, generateImage } from "@/lib/ai";
+import { personalizedImagePrompt } from "@/lib/ai/stylePrompts";
+import { STORAGE_BUCKETS, fetchToBuffer, uploadAsset } from "@/lib/supabase/storage";
 import { moderateStoryFields, moderateGeneratedStory } from "@/lib/ai/safetyGate";
 import { getSession } from "@/lib/auth/session";
 import { ageToRange } from "@/data/mock-stories";
-import { insertCustomStory } from "@/db/customStories";
+import { insertCustomStory, selectCustomStoryImageInputs } from "@/db/customStories";
 import { moderateStoryParams } from "@/lib/moderation";
 import {
   HERO_TYPES,
@@ -152,9 +157,40 @@ export async function generateStoryAction(
       (info) =>
         `CONSIGNE OBLIGATOIRE à intégrer naturellement dans l'intrigue : « ${info} ».`
     ),
+    "Inclus quelques dialogues courts entre les personnages, entre guillemets « », comme dans les histoires de la bibliothèque.",
     "Termine sur une note apaisante adaptée au coucher.",
     "N'utilise jamais de tiret cadratin dans le texte.",
   ].filter(Boolean) as string[];
+
+  // ---- Illustration, IN PARALLEL with the text (it is the slowest step). ----
+  // The cover only needs the hero + theme (not the story text), so it starts
+  // now; after the row is inserted we upload and attach it. Any failure here
+  // is silent: the lazy ensureCustomStoryImage path still covers first view.
+  const heroKindEn =
+    params.heroType === "fille" ? "girl" : params.heroType === "animal" ? "animal" : params.heroType === "adulte" ? "adult" : "boy";
+  const toneEn =
+    params.skinTone === "claire" ? "light skin" : params.skinTone === "mate" ? "tan skin" : params.skinTone === "foncee" ? "dark skin" : "";
+  const characterSheet = `${params.heroName}, a ${params.heroAge}-year-old ${heroKindEn}${toneEn ? `, ${toneEn}` : ""}${heroDetail ? `, ${heroDetail}` : ""}`;
+  const imagePromise: Promise<string | null> = (async () => {
+    let referenceImageUrl: string | undefined;
+    if (params.sequelOfId) {
+      const prev = await selectCustomStoryImageInputs(params.sequelOfId).catch(() => null);
+      referenceImageUrl = prev?.heroImageUrl ?? undefined;
+    }
+    const out = await generateImage("personalized", {
+      prompt: personalizedImagePrompt(
+        params.style,
+        `hero ${params.heroName}, theme ${params.theme}${params.subTheme ? ` (${params.subTheme})` : ""}${params.place ? `, set in ${params.place}` : ""}, night-time bedtime cover illustration`,
+        characterSheet
+      ),
+      referenceImageUrl,
+      size: "1024x1024",
+    });
+    return out.imageUrl;
+  })().catch((e) => {
+    console.warn("[Lunireve] parallel cover generation failed:", e);
+    return null;
+  });
 
   try {
     const result = await generateStoryText({
@@ -215,6 +251,28 @@ export async function generateStoryAction(
       });
     } catch (e) {
       console.error("[Lunireve] failed to persist generated story:", e);
+    }
+
+    // Attach the parallel cover (usually already resolved: text is slower).
+    if (id) {
+      try {
+        const providerUrl = await imagePromise;
+        if (providerUrl) {
+          const bytes = await fetchToBuffer(providerUrl);
+          const url = await uploadAsset(
+            STORAGE_BUCKETS.images,
+            `${id}/hero.png`,
+            bytes,
+            "image/png"
+          );
+          await db
+            .update(stories)
+            .set({ heroImageUrl: url, updatedAt: new Date() })
+            .where(eq(stories.id, id));
+        }
+      } catch (e) {
+        console.warn("[Lunireve] cover attach failed (lazy path will retry):", e);
+      }
     }
 
     return { ok: true, title, body, glossary, id };

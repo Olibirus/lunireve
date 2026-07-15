@@ -1,6 +1,6 @@
 "use client";
 
-import { profileScopedKey } from "./userScope";
+import { profileScopedKey, profileScopedKeyFor } from "./userScope";
 import { tierLimits } from "./tier";
 
 /**
@@ -25,6 +25,21 @@ export function readFavorites(): string[] {
 
 export function isFavorite(slug: string): boolean {
   return readFavorites().includes(slug);
+}
+
+/**
+ * Favorites of a SPECIFIC reader ("parent" or a child profile id), whatever
+ * profile is currently active. Lets the parent dashboard show one favorites
+ * row per reader.
+ */
+export function readFavoritesFor(profileId: string): string[] {
+  try {
+    return JSON.parse(
+      localStorage.getItem(profileScopedKeyFor(BASE, profileId)) ?? "[]"
+    ) as string[];
+  } catch {
+    return [];
+  }
 }
 
 function write(list: string[]) {

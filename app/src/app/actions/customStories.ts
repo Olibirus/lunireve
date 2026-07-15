@@ -12,6 +12,7 @@ import {
   selectCustomStory,
   selectCustomStoriesByUser,
   selectCustomStoryImageInputs,
+  deleteCustomStoryRow,
 } from "@/db/customStories";
 import type { CustomStory, CustomStoryParams } from "@/lib/customStories";
 
@@ -74,6 +75,18 @@ export async function listMyCustomStories(): Promise<CustomStory[]> {
   }
 }
 
+/** Delete a personalized story (parent profile). Session + owner guarded. */
+export async function deleteMyCustomStory(id: string): Promise<{ ok: boolean }> {
+  const session = await getSession();
+  if (!session) return { ok: false };
+  try {
+    return { ok: await deleteCustomStoryRow(id, session.userId ?? null) };
+  } catch (e) {
+    console.error("[Lunireve] deleteMyCustomStory failed:", e);
+    return { ok: false };
+  }
+}
+
 export type StoryImageState =
   | { ok: true; url: string; cached: boolean }
   | { ok: false };
@@ -95,8 +108,21 @@ export async function ensureCustomStoryImage(id: string): Promise<StoryImageStat
     const session = await getSession();
     if (!session) return { ok: false };
 
+    // Sequels reuse the previous episode's illustration as a character
+    // reference, so the hero looks the same from one episode to the next.
+    let referenceImageUrl: string | undefined;
+    if (inputs.sequelOfId) {
+      try {
+        const prev = await selectCustomStoryImageInputs(inputs.sequelOfId);
+        referenceImageUrl = prev?.heroImageUrl ?? undefined;
+      } catch {
+        /* reference is best-effort */
+      }
+    }
+
     const out = await generateImage("personalized", {
       prompt: personalizedImagePrompt(inputs.style, inputs.imagePrompt, inputs.character),
+      referenceImageUrl,
       size: "1024x1024",
     });
     const bytes = await fetchToBuffer(out.imageUrl);

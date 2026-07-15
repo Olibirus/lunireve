@@ -32,16 +32,24 @@ export function ChildAvatar({
   className?: string;
   alt?: string;
 }) {
+  // Round padded card: the source PNGs are tight crops of the fox face, so
+  // the image sits INSIDE the circle (object-contain + padding) instead of
+  // being cropped by it.
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={`/children/${avatarFile(color)}.png`}
-      alt={alt}
+    <span
       aria-hidden={alt === "" ? true : undefined}
       className={cn(
-        "rounded-full object-cover border border-[var(--color-ink-100)] bg-[var(--color-cream-100)]",
+        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full",
+        "border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-[8%]",
         className
       )}
-    />
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/children/${avatarFile(color)}.png`}
+        alt={alt}
+        className="h-full w-full rounded-full object-contain"
+      />
+    </span>
   );
 }

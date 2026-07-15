@@ -105,6 +105,16 @@ export function AuthPanel({
         </form>
       ) : (
         <form action={signupAction} className="space-y-4">
+          {/* Reassurance: free account + free personalized stories, so
+              hesitant visitors don't bail out of the signup. */}
+          <div className="rounded-2xl border border-[var(--color-mint-300)] bg-[var(--color-mint-100)] px-4 py-3">
+            <p className="text-sm font-semibold text-[var(--color-ink-800)]">
+              ✓ {t("freePerkTitle")}
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-[var(--color-ink-600)]">
+              {t("freePerkBody")}
+            </p>
+          </div>
           <div>
             <Label htmlFor="signup-name">{t("displayName")}</Label>
             <Input id="signup-name" name="name" autoComplete="name" required className="mt-1.5" />

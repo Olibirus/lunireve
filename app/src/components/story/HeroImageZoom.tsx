@@ -52,16 +52,15 @@ export function HeroImageZoom({
           aria-modal="true"
           aria-label={alt}
           onClick={() => setOpen(false)}
-          // top-20 keeps the sticky navbar (h-20) visible above the lightbox;
-          // z-[60] puts it above every other layer (audio dialog is z-50), so
-          // nothing floats in front of the image.
-          className="fixed inset-x-0 bottom-0 top-20 z-[60] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+          // TRUE fullscreen: covers the whole viewport including the navbar
+          // (z-[60] sits above the header's z-40 and the dialogs' z-50).
+          // A click ANYWHERE (image, backdrop, cross) closes it.
+          className="fixed inset-0 z-[60] flex cursor-zoom-out items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
             alt={alt}
-            onClick={(e) => e.stopPropagation()}
             className="max-h-full max-w-full cursor-zoom-out rounded-2xl object-contain shadow-2xl"
           />
           <button

@@ -25,7 +25,7 @@ import {
   SORT_DEFAULT_DIR,
   type StorySortKey,
 } from "@/lib/stories/filter";
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, Sparkles } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -235,6 +235,20 @@ export function LibraryBrowser() {
           clearHref={clearRailHref("tcat", "theme")}
           allLabel={tAll("funnel.all")}
         />
+
+        {/* Active tag filter (reached from a story page hashtag): shown as a
+            removable chip, since no rail owns it. */}
+        {baseQuery.tag && (
+          <div className="flex justify-center sm:justify-start sm:pl-[6.75rem]">
+            <Link
+              href={chipHref("tag", null)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-transparent bg-[var(--color-ink-800)] px-3 py-1 text-xs text-[var(--color-cream-50)] transition-colors hover:bg-[var(--color-ink-700)]"
+            >
+              #{baseQuery.tag}
+              <X className="h-3 w-3" />
+            </Link>
+          </div>
+        )}
 
         {/* Interactive toggle */}
         <div className="flex justify-center sm:justify-start sm:pl-[6.75rem]">

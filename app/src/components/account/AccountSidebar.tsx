@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { readProfiles, setActiveProfile, type ChildProfile } from "@/lib/profiles";
+import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import {
   Heart,
   LayoutDashboard,
@@ -24,6 +27,20 @@ import { cn } from "@/lib/utils/cn";
 export function AccountSidebar() {
   const t = useTranslations("account.menu");
   const pathname = usePathname();
+  const router = useRouter();
+  const [children, setChildren] = useState<ChildProfile[]>([]);
+
+  useEffect(() => {
+    setChildren(
+      [...readProfiles()].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }))
+    );
+  }, []);
+
+  /** One click from the sidebar straight into that child's bubble. */
+  function openChild(p: ChildProfile) {
+    setActiveProfile(p.id);
+    router.push("/enfant");
+  }
 
   const groups: {
     label: string;
@@ -86,6 +103,20 @@ export function AccountSidebar() {
                 </li>
               );
             })}
+            {/* One entry per child (alphabetical): straight into their bubble */}
+            {group.label === t("groupChildren") &&
+              children.map((p) => (
+                <li key={p.id}>
+                  <button
+                    type="button"
+                    onClick={() => openChild(p)}
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-[var(--color-ink-600)] transition-colors hover:bg-[var(--color-cream-100)] hover:text-[var(--color-ink-800)]"
+                  >
+                    <ChildAvatar color={p.avatar} className="h-6 w-6" />
+                    <span className="truncate">{p.name}</span>
+                  </button>
+                </li>
+              ))}
           </ul>
         </div>
       ))}

@@ -32,15 +32,16 @@ export function ChildAvatar({
   className?: string;
   alt?: string;
 }) {
-  // Round padded card: the source PNGs are tight crops of the fox face, so
-  // the image sits INSIDE the circle (object-contain + padding) instead of
-  // being cropped by it.
+  // Round card with generous inner padding: the source PNGs are edge-to-edge
+  // fox faces, so the image must fit fully INSIDE the circle (a square only
+  // fits a circle at ~70% of the diameter). Fixed light backdrop keeps the
+  // fox readable in dark mode too.
   return (
     <span
       aria-hidden={alt === "" ? true : undefined}
       className={cn(
         "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full",
-        "border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-[8%]",
+        "border border-[var(--color-ink-100)] bg-[#fdf8ef] p-[14%]",
         className
       )}
     >
@@ -48,7 +49,7 @@ export function ChildAvatar({
       <img
         src={`/children/${avatarFile(color)}.png`}
         alt={alt}
-        className="h-full w-full rounded-full object-contain"
+        className="h-full w-full object-contain"
       />
     </span>
   );

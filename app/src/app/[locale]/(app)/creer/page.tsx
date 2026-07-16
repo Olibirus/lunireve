@@ -112,6 +112,43 @@ function BookWriting() {
 }
 
 /**
+ * Rotating "working on it" words (Claude-thinking style): one short phrase at
+ * a time with a shimmering sweep, cycling while the model writes and draws.
+ * Localized via the create.working* keys, so FR and EN each get their own set.
+ */
+function WorkingTicker({ phrases }: { phrases: string[] }) {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setIndex((i) => (i + 1) % phrases.length), 2400);
+    return () => clearInterval(id);
+  }, [phrases.length]);
+  return (
+    <div className="mt-4 flex h-6 items-center justify-center gap-2" aria-live="polite">
+      <style>{`
+        @keyframes lunireve-shimmer { 0% { background-position: 200% center } 100% { background-position: -200% center } }
+        @keyframes lunireve-fade { 0% { opacity: 0; transform: translateY(3px) } 100% { opacity: 1; transform: none } }
+      `}</style>
+      <Sparkles
+        className="h-3.5 w-3.5 text-[var(--color-mint-500)]"
+        style={{ animation: "pulse 1.6s ease-in-out infinite" }}
+      />
+      <span
+        key={index}
+        className="bg-clip-text text-sm font-medium text-transparent"
+        style={{
+          backgroundImage:
+            "linear-gradient(90deg, var(--color-ink-400) 20%, var(--color-mint-600) 40%, var(--color-indigo-soft-500) 60%, var(--color-ink-400) 80%)",
+          backgroundSize: "200% auto",
+          animation: "lunireve-shimmer 2.2s linear infinite, lunireve-fade 0.4s ease-out",
+        }}
+      >
+        {phrases[index]}
+      </span>
+    </div>
+  );
+}
+
+/**
  * Personalized story flow, 4 steps (meshistoiresdusoir UX): hero first
  * (saved characters one-tap or direct entry), companions, adventure, final
  * settings. Always framed by the family portal: parents get the account
@@ -533,11 +570,12 @@ export default function CreateStoryPage() {
     interval.current = setInterval(() => {
       setProgress((p) => {
         let next = p;
-        if (savedIdRef.current && p >= 82) next = p + 2.4; // finish, smoothly
-        else if (p < 30) next = p + 1.15;
-        else if (p < 60) next = p + 0.9;
-        else if (p < 82) next = p + 0.65;
-        else next = p + 0.3; // waiting for the model, still clearly moving
+        // Near-linear ramp; once the model has answered, glide to 100. While
+        // still waiting past 85%, keep a visible slow creep (never parked):
+        // the animated status words below carry the "working on it" feeling.
+        if (savedIdRef.current) next = p + 2.2;
+        else if (p < 85) next = p + 0.85;
+        else next = p + 0.12;
 
         if (next >= 100 && savedIdRef.current) {
           if (interval.current) clearInterval(interval.current);
@@ -545,7 +583,7 @@ export default function CreateStoryPage() {
           setPhase("done");
           return 100;
         }
-        return Math.min(next, savedIdRef.current ? 100 : 95);
+        return Math.min(next, savedIdRef.current ? 100 : 97);
       });
     }, 110);
   }
@@ -701,6 +739,9 @@ export default function CreateStoryPage() {
             />
           </div>
           <p className="mt-2 text-xs text-[var(--color-ink-400)]">{Math.floor(progress)}%</p>
+          <WorkingTicker
+            phrases={[1, 2, 3, 4, 5, 6, 7, 8].map((n) => t(`working${n}`))}
+          />
         </div>
 
         <ol className="mx-auto mt-8 max-w-md space-y-3 text-left">

@@ -31,11 +31,11 @@ type ReaderRow<T> = {
 /** Row header: reader avatar + name, shared by favorites + personalized rows. */
 function ReaderLabel({ row }: { row: ReaderRow<unknown> }) {
   return (
-    <p className="flex items-center gap-2 text-sm font-medium text-[var(--color-ink-700)]">
+    <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-ink-600)]">
       {row.avatar ? (
-        <ChildAvatar color={row.avatar} className="h-6 w-6" />
+        <ChildAvatar color={row.avatar} className="h-5 w-5" />
       ) : (
-        <User className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
+        <User className="h-3.5 w-3.5 text-[var(--color-indigo-soft-500)]" />
       )}
       {row.name}
     </p>

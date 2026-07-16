@@ -38,6 +38,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, Headphones, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { seoAlternates, absoluteUrl, SITE_URL } from "@/lib/seo";
 
 /**
  * Story page V2 — feedback round 1:
@@ -142,8 +144,66 @@ export default async function StoryDetailPage({
   const chipClass =
     "rounded-full border border-white/30 bg-black/25 px-3 py-1 text-xs text-white backdrop-blur-sm hover:bg-black/40 transition-colors";
 
+  const storyUrl = absoluteUrl(locale, { pathname: "/histoires/[slug]", params: { slug } });
+
   return (
     <>
+      {/* Structured data: the story as a CreativeWork + breadcrumb trail */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "ShortStory",
+          name: story.title,
+          headline: story.title,
+          description: story.excerpt,
+          url: storyUrl,
+          inLanguage: locale === "en" ? "en" : "fr",
+          datePublished: story.publishedAt,
+          genre: tAll(`genres.${story.genre}`),
+          timeRequired: `PT${story.readingMinutes}M`,
+          isAccessibleForFree: true,
+          publisher: { "@id": `${SITE_URL}/#organization` },
+          ...(heroImg ? { image: `${SITE_URL}${heroImg}` } : {}),
+          audience: {
+            "@type": "PeopleAudience",
+            suggestedMinAge: parseInt(story.ageRange, 10) || 1,
+            suggestedMaxAge: parseInt(story.ageRange.split("-")[1] ?? "12", 10) || 12,
+          },
+          ...(story.ratingCount > 0
+            ? {
+                aggregateRating: {
+                  "@type": "AggregateRating",
+                  ratingValue: story.rating,
+                  ratingCount: story.ratingCount,
+                },
+              }
+            : {}),
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Lunireve",
+              item: locale === "en" ? `${SITE_URL}/en` : SITE_URL,
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: tAll(`genres.${story.genre}`),
+              item: absoluteUrl(locale, {
+                pathname: "/histoires/genre/[genre]",
+                params: { genre: story.genre },
+              }),
+            },
+            { "@type": "ListItem", position: 3, name: story.title, item: storyUrl },
+          ],
+        }}
+      />
       {/* Navbar slides away on scroll down, back on scroll up (reading mode) */}
       <AutoHideHeader />
       {/* Full-viewport parallax hero (#1) — bg-fixed keeps the cover still
@@ -478,13 +538,14 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const story = findStory(slug);
   if (!story) return {};
   const image = storyImageSrc(slug);
   return {
     title: story.title,
     description: story.excerpt,
+    alternates: seoAlternates(locale, { pathname: "/histoires/[slug]", params: { slug } }),
     openGraph: {
       title: story.title,
       description: story.excerpt,

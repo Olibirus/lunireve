@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { cn } from "@/lib/utils/cn";
+import { seoAlternates } from "@/lib/seo";
 import {
   Sparkles,
   User,
@@ -307,5 +308,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "personalizedPage" });
-  return { title: t("kicker"), description: t("subtitle") };
+  return {
+    title: t("seoTitle"),
+    description: t("seoDescription"),
+    alternates: seoAlternates(locale, "/histoire-personnalisee"),
+  };
 }

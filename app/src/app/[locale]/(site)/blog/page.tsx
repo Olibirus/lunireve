@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { Metadata } from "next";
+import { seoAlternates } from "@/lib/seo";
 
 export default async function BlogIndexPage({
   params,
@@ -137,5 +138,5 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
-  return { title: t("kicker"), description: t("subtitle") };
+  return { title: t("kicker"), description: t("subtitle"), alternates: seoAlternates(locale, "/blog") };
 }

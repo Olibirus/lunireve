@@ -11,6 +11,7 @@ import { StoryFunnel } from "@/components/story/StoryFunnel";
 import { GENRES, type Genre } from "@/data/mock-stories";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
+import { seoAlternates } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ locale: string; genre: string }>;
@@ -41,8 +42,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!GENRES.includes(genre as Genre)) return {};
   const t = await getTranslations({ locale });
   return {
-    title: t(`genres.${genre}`),
+    title: t("funnel.seoGenreTitle", { genre: t(`genres.${genre}`) }),
     description: t("funnel.genreSubtitle"),
+    alternates: seoAlternates(locale, { pathname: "/histoires/genre/[genre]", params: { genre } }),
   };
 }
 

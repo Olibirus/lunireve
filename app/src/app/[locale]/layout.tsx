@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
@@ -26,30 +26,38 @@ const geistSans = Geist({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://lunireve.com"),
-  title: {
-    default: "Lunireve · Des histoires qui grandissent avec vos enfants",
-    template: "%s · Lunireve",
-  },
-  description:
-    "Une bibliothèque d'histoires pour enfants à lire, écouter et personnaliser. De 1 à 12 ans. En français et en anglais.",
-  icons: {
-    icon: [
-      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    shortcut: "/favicon.ico",
-    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
-  },
-  manifest: "/site.webmanifest",
-  openGraph: {
-    title: "Lunireve",
-    description: "Des histoires qui grandissent avec vos enfants.",
-    type: "website",
-    locale: "fr_FR",
-  },
-};
+/** Locale-aware defaults: keyword-tuned title/description per language. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://lunireve.com"),
+    title: {
+      default: t("defaultTitle"),
+      template: "%s · Lunireve",
+    },
+    description: t("defaultDescription"),
+    icons: {
+      icon: [
+        { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+        { url: "/favicon.svg", type: "image/svg+xml" },
+      ],
+      shortcut: "/favicon.ico",
+      apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+    },
+    manifest: "/site.webmanifest",
+    openGraph: {
+      title: "Lunireve",
+      description: t("ogDescription"),
+      type: "website",
+      locale: locale === "en" ? "en_US" : "fr_FR",
+    },
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -86,7 +94,13 @@ export default async function LocaleLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+        {/* locale MUST be passed explicitly: without it, client components on
+            statically-rendered pages fall back to the default locale for
+            useLocale()/Link, producing French hrefs (or /en/en doubles) all
+            over the English site while the texts stay English. */}
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -294,7 +294,9 @@
       "extras": "More filters",
       "withAudio": "With audio version",
       "newThisWeek": "New this week"
-    }
+    },
+    "seoTitle": "Stories for kids: bedtime stories to read and listen to",
+    "seoDescription": "Browse our children's story library: short bedtime stories, fairy tales, audio stories and interactive adventures, sorted by age (1 to 12) and theme. Free."
   },
   "story": {
     "backToLibrary": "Back to the library",
@@ -633,7 +635,9 @@
     "why3Desc": "Sharing, courage, patience, kindness... gently pass on the value that matters to you, woven into the heart of the story.",
     "ctaTitle": "Ready to create their story?",
     "ctaBody": "Get started, it's free to begin. The first story is ready in a few minutes.",
-    "ctaButton": "Create a story"
+    "ctaButton": "Create a story",
+    "seoTitle": "Personalized story for kids: your child becomes the hero",
+    "seoDescription": "Create a personalized story with your child's name: they become the hero of a unique tale, written and illustrated in minutes, to read and listen to. Free to try."
   },
   "promo": {
     "bannerText": "Summer offer: {percent}% off all subscriptions",
@@ -779,7 +783,7 @@
     "recapSequel": "Next episode of",
     "privacyNote": "Your story will be private: reachable only through its personal link and from your Lunireve account.",
     "sequelBanner": "New episode of \"{title}\": everything is pre-filled, adjust whatever you like.",
-        "working1": "Finding the perfect title…",
+    "working1": "Finding the perfect title…",
     "working2": "The fox sharpens its pencils…",
     "working3": "Writing the first chapter…",
     "working4": "Sketching the hero…",
@@ -787,7 +791,7 @@
     "working6": "Reading it back in a whisper…",
     "working7": "A sprinkle of stardust…",
     "working8": "Final stitches…",
-"loadingBrowse": "Keep exploring the stories",
+    "loadingBrowse": "Keep exploring the stories",
     "loadingBrowseHint": "You can leave this page: the story keeps writing itself, and the notification bell will tell you the moment it's ready.",
     "nextEpisodeTitle": "Want to see {name} again in a new episode?",
     "nextEpisodeBody": "Same hero, same characters: a brand-new adventure. Create the sequel in one click, or customize every detail.",
@@ -1020,7 +1024,12 @@
     "durationSubtitle": "Pick by how much time is left before lights out.",
     "emptyTitle": "No stories match, yet.",
     "emptyBody": "Create your own in minutes: we start from exactly what you were looking for.",
-    "emptyCreateCta": "Create this story"
+    "emptyCreateCta": "Create this story",
+    "seoAgeTitle": "Bedtime story for {age} year olds: read and listen",
+    "seoAgeDescription": "Bedtime stories tailored to children aged {age}: short stories, fairy tales and adventures to read or listen to for free, curated for their age.",
+    "seoAudioTitle": "Audio stories for kids: listen to fairy tales for free",
+    "seoAudioDescription": "Bedtime stories read aloud: press play and let your child drift off listening to a tale. Ages 1 to 12.",
+    "seoGenreTitle": "{genre}: stories for kids to read and listen to"
   },
   "genres": {
     "conte": "Fairy tales",
@@ -1084,5 +1093,10 @@
     "short": "Short stories (under 5 min)",
     "medium": "Medium stories (5–10 min)",
     "long": "Longer stories (over 10 min)"
+  },
+  "meta": {
+    "defaultTitle": "Lunireve: bedtime stories for kids, to read and listen to",
+    "defaultDescription": "Stories for children aged 1 to 12: bedtime stories, stories to fall asleep, fairy tales and adventures to read, listen to and personalise with your child's name.",
+    "ogDescription": "Bedtime stories that grow with your children."
   }
 }

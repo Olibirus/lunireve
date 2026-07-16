@@ -4,6 +4,8 @@ export const dynamic = "force-static";
 export const revalidate = 3600;
 
 import { setRequestLocale } from "next-intl/server";
+import type { Metadata } from "next";
+import { seoAlternates } from "@/lib/seo";
 import { PromoBanner } from "@/components/marketing/PromoBanner";
 import { HeroV2 } from "@/components/marketing/HeroV2";
 import { ParallaxBand } from "@/components/marketing/ParallaxBand";
@@ -19,6 +21,15 @@ import { NewsletterBand } from "@/components/marketing/NewsletterBand";
  * -> parallax band -> genre cards carousel -> round age cards -> personalized
  * CTA -> about teaser -> newsletter.
  */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return { alternates: seoAlternates(locale, "/") };
+}
+
 export default async function HomePage({
   params,
 }: {

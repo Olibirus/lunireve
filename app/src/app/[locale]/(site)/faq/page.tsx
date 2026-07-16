@@ -7,6 +7,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Accordion } from "@/components/ui/Accordion";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { FAQ_FR, FAQ_EN } from "@/data/faq";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { seoAlternates } from "@/lib/seo";
 import type { Metadata } from "next";
 
 /** Dedicated FAQ page (#28) — accordion per section, one answer open at a time. */
@@ -23,6 +25,20 @@ export default async function FaqPage({
 
   return (
     <>
+      {/* Structured data: full Q&A list, eligible for FAQ rich results */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: sections.flatMap((sec) =>
+            sec.items.map((item) => ({
+              "@type": "Question",
+              name: item.q,
+              acceptedAnswer: { "@type": "Answer", text: item.a },
+            }))
+          ),
+        }}
+      />
       <section className="relative">
         <div className="mx-auto max-w-3xl px-5 md:px-8 pt-12 md:pt-20 pb-8 text-center">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-indigo-soft-600)] sparkle">
@@ -77,5 +93,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "faq" });
-  return { title: t("title"), description: t("subtitle") };
+  return {
+    title: t("title"),
+    description: t("subtitle"),
+    alternates: seoAlternates(locale, "/faq"),
+  };
 }

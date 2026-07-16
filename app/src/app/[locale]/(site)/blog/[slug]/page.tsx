@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { seoAlternates, absoluteUrl, SITE_URL } from "@/lib/seo";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -40,6 +42,19 @@ export default async function BlogArticlePage({ params }: Props) {
 
   return (
     <>
+      {/* Structured data: parenting article */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: article.title,
+          description: article.excerpt,
+          inLanguage: locale === "en" ? "en" : "fr",
+          url: absoluteUrl(locale, { pathname: "/blog/[slug]", params: { slug } }),
+          ...(article.publishedAt ? { datePublished: article.publishedAt } : {}),
+          publisher: { "@id": `${SITE_URL}/#organization` },
+        }}
+      />
       <article className="mx-auto max-w-5xl px-5 md:px-8 pt-8 md:pt-12 pb-16">
         <Link
           href="/blog"
@@ -169,10 +184,14 @@ export default async function BlogArticlePage({ params }: Props) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const article = findArticle(slug);
   if (!article) return {};
-  return { title: article.title, description: article.excerpt };
+  return {
+    title: article.title,
+    description: article.excerpt,
+    alternates: seoAlternates(locale, { pathname: "/blog/[slug]", params: { slug } }),
+  };
 }
 
 export function generateStaticParams() {

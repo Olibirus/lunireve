@@ -11,6 +11,7 @@ import { StoryFunnel } from "@/components/story/StoryFunnel";
 import { AGE_RANGES, ageLabel, type AgeRange } from "@/data/mock-stories";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
+import { seoAlternates } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ locale: string; range: string }>;
@@ -41,8 +42,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!AGE_RANGES.includes(range as AgeRange)) return {};
   const t = await getTranslations({ locale });
   return {
-    title: t("funnel.ageTitle", { age: ageLabel(range) }),
-    description: t("funnel.ageSubtitle"),
+    title: t("funnel.seoAgeTitle", { age: ageLabel(range) }),
+    description: t("funnel.seoAgeDescription", { age: ageLabel(range) }),
+    alternates: seoAlternates(locale, { pathname: "/histoires/age/[range]", params: { range } }),
   };
 }
 

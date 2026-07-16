@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion } from "@/components/ui/Accordion";
 import { SectionStars } from "@/components/marketing/SectionStars";
 import { GlowCard } from "@/components/marketing/GlowCard";
+import { seoAlternates } from "@/lib/seo";
 import { FAQ_FR, FAQ_EN } from "@/data/faq";
 import { Library, Sparkles, Wand2, BookHeart, ArrowRight } from "lucide-react";
 
@@ -263,5 +264,5 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "about" });
-  return { title: t("kicker"), description: t("lead") };
+  return { title: t("kicker"), description: t("lead"), alternates: seoAlternates(locale, "/a-propos") };
 }

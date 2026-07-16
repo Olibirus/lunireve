@@ -294,7 +294,9 @@
       "extras": "Autres filtres",
       "withAudio": "Avec version audio",
       "newThisWeek": "Nouveautés de la semaine"
-    }
+    },
+    "seoTitle": "Histoires pour enfants : histoires du soir à lire et à écouter",
+    "seoDescription": "Parcourez notre bibliothèque d'histoires pour enfants : histoires courtes pour dormir, contes, histoires audio et aventures interactives, classées par âge (1 à 12 ans) et par thème. Gratuit."
   },
   "story": {
     "backToLibrary": "Retour à la bibliothèque",
@@ -633,7 +635,9 @@
     "why3Desc": "Le partage, le courage, la patience, la gentillesse... transmettez en douceur la valeur qui compte pour vous, glissée au coeur du récit.",
     "ctaTitle": "Prêt à créer son histoire ?",
     "ctaBody": "Lancez-vous, c'est gratuit pour commencer. La première histoire est prête en quelques minutes.",
-    "ctaButton": "Créer une histoire"
+    "ctaButton": "Créer une histoire",
+    "seoTitle": "Histoire personnalisée pour enfant : il devient le héros de son histoire",
+    "seoDescription": "Créez une histoire personnalisée avec le prénom de votre enfant : il devient le héros d'un conte unique, écrit et illustré en quelques minutes, à lire et à écouter. Essai gratuit."
   },
   "promo": {
     "bannerText": "Offre d'été : -{percent}% sur tous les abonnements",
@@ -779,7 +783,7 @@
     "recapSequel": "Épisode suivant de",
     "privacyNote": "Votre histoire sera privée : accessible seulement par son lien personnel et depuis votre compte Lunireve.",
     "sequelBanner": "Nouvel épisode de « {title} » : tout est pré-rempli, ajustez ce que vous voulez.",
-        "working1": "On invente le titre parfait…",
+    "working1": "On invente le titre parfait…",
     "working2": "Le renard taille ses crayons…",
     "working3": "Écriture du premier chapitre…",
     "working4": "On dessine le héros…",
@@ -787,7 +791,7 @@
     "working6": "Relecture à voix basse…",
     "working7": "Un nuage de poussière d’étoiles…",
     "working8": "Derniers points de couture…",
-"loadingBrowse": "Continuer à explorer les histoires",
+    "loadingBrowse": "Continuer à explorer les histoires",
     "loadingBrowseHint": "Vous pouvez quitter cette page : l'histoire continue de s'écrire, et la cloche de notification vous préviendra dès qu'elle sera prête.",
     "nextEpisodeTitle": "Envie de retrouver {name} dans un nouvel épisode ?",
     "nextEpisodeBody": "Même héros, mêmes personnages : une toute nouvelle aventure. Créez la suite en un clic, ou personnalisez chaque détail.",
@@ -1020,7 +1024,12 @@
     "durationSubtitle": "Choisissez selon le temps qu'il vous reste avant l'extinction des feux.",
     "emptyTitle": "Aucune histoire ne correspond, pour l'instant.",
     "emptyBody": "Créez la vôtre en quelques minutes : nous partons de ce que vous cherchiez.",
-    "emptyCreateCta": "Créer cette histoire"
+    "emptyCreateCta": "Créer cette histoire",
+    "seoAgeTitle": "Histoire du soir pour enfant de {age} : à lire et à écouter",
+    "seoAgeDescription": "Des histoires pour dormir adaptées aux enfants de {age} : histoires courtes, contes et aventures à lire ou à écouter gratuitement, sélectionnées pour leur âge.",
+    "seoAudioTitle": "Histoires audio pour enfants : contes à écouter gratuitement",
+    "seoAudioDescription": "Des histoires du soir racontées à voix haute : lancez l'audio et laissez votre enfant s'endormir en écoutant un conte. Pour les 1 à 12 ans.",
+    "seoGenreTitle": "{genre} : histoires pour enfants à lire et à écouter"
   },
   "genres": {
     "conte": "Contes",
@@ -1084,5 +1093,10 @@
     "short": "Histoires courtes (moins de 5 min)",
     "medium": "Histoires moyennes (5 à 10 min)",
     "long": "Grandes histoires (plus de 10 min)"
+  },
+  "meta": {
+    "defaultTitle": "Lunireve : histoires du soir pour enfants, à lire et à écouter",
+    "defaultDescription": "Des histoires pour enfants de 1 à 12 ans : histoires du soir, histoires pour dormir, contes et aventures à lire, à écouter et à personnaliser avec le prénom de votre enfant.",
+    "ogDescription": "Des histoires du soir qui grandissent avec vos enfants."
   }
 }

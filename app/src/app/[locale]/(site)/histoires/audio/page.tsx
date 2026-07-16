@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { StoryFunnel } from "@/components/story/StoryFunnel";
 import type { Metadata } from "next";
+import { seoAlternates } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -35,7 +36,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale });
   return {
-    title: t("funnel.audioTitle"),
-    description: t("funnel.audioSubtitle"),
+    title: t("funnel.seoAudioTitle"),
+    description: t("funnel.seoAudioDescription"),
+    alternates: seoAlternates(locale, "/histoires/audio"),
   };
 }

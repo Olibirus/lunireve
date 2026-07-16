@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { LibraryBrowser } from "@/components/story/LibraryBrowser";
+import { seoAlternates } from "@/lib/seo";
 
 export default async function LibraryPage({
   params,
@@ -31,5 +32,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "library" });
-  return { title: t("kicker"), description: t("subtitle") };
+  return {
+    title: t("seoTitle"),
+    description: t("seoDescription"),
+    alternates: seoAlternates(locale, "/histoires"),
+  };
 }

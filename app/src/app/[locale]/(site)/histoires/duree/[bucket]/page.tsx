@@ -11,6 +11,7 @@ import { StoryFunnel } from "@/components/story/StoryFunnel";
 import { DURATION_BUCKETS, type DurationBucket } from "@/data/mock-stories";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
+import { seoAlternates } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ locale: string; bucket: string }>;
@@ -43,6 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t(`durations.${bucket}`),
     description: t("funnel.durationSubtitle"),
+    alternates: seoAlternates(locale, { pathname: "/histoires/duree/[bucket]", params: { bucket } }),
   };
 }
 

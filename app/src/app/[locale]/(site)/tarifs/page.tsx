@@ -8,6 +8,7 @@ import { PricingPlans } from "@/components/marketing/PricingPlans";
 import { PricingComparison } from "@/components/marketing/PricingComparison";
 import { PromoBanner } from "@/components/marketing/PromoBanner";
 import type { Metadata } from "next";
+import { seoAlternates } from "@/lib/seo";
 
 /**
  * Pricing page. Free tier live; Plus/Max "coming soon" until Stripe (V2).
@@ -62,5 +63,5 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pricing" });
-  return { title: t("kicker"), description: t("subtitle") };
+  return { title: t("kicker"), description: t("subtitle"), alternates: seoAlternates(locale, "/tarifs") };
 }

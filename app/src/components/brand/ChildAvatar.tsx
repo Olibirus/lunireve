@@ -8,6 +8,7 @@ import type { FoxColor } from "./FoxCloud";
  */
 
 export const AVATAR_COLORS = [
+  "red",
   "blue",
   "mint",
   "pink",
@@ -15,7 +16,6 @@ export const AVATAR_COLORS = [
   "grey",
   "kaki",
   "lavender",
-  "red",
   "sand",
 ] as const satisfies readonly FoxColor[];
 
@@ -32,16 +32,17 @@ export function ChildAvatar({
   className?: string;
   alt?: string;
 }) {
-  // Round card with generous inner padding: the source PNGs are edge-to-edge
-  // fox faces, so the image must fit fully INSIDE the circle (a square only
-  // fits a circle at ~70% of the diameter). Fixed light backdrop keeps the
-  // fox readable in dark mode too.
+  // Round card with the fox INSIDE the circle: the source PNGs are
+  // edge-to-edge faces, and a square only fits a circle at ~70% of the
+  // diameter. The inset is absolute (relative to the avatar itself): a
+  // percentage PADDING would resolve against the PARENT's width and crush
+  // the image to nothing in wide containers (the "empty avatars" bug).
   return (
     <span
       aria-hidden={alt === "" ? true : undefined}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full",
-        "border border-[var(--color-ink-100)] bg-[#fdf8ef] p-[14%]",
+        "relative inline-block shrink-0 overflow-hidden rounded-full",
+        "border border-[var(--color-ink-100)] bg-[#fdf8ef]",
         className
       )}
     >
@@ -49,7 +50,7 @@ export function ChildAvatar({
       <img
         src={`/children/${avatarFile(color)}.png`}
         alt={alt}
-        className="h-full w-full object-contain"
+        className="absolute inset-[14%] h-[72%] w-[72%] object-contain"
       />
     </span>
   );

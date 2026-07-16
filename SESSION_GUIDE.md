@@ -5,6 +5,7 @@ always: `github.com/Olibirus/lunireve`, code in `app/`. Run `pnpm build`
 after each batch (must stay green).
 
 ## Cross-session changes log
+2026-07-14 [Session B]: round-13. Touched lib/ai/stylePrompts.ts (new "vif" style) + app/actions/generateStory.ts (moral line + moral semantic gate). ChildAvatar fixed (absolute inset, %-padding bug), CustomStoryParams + moral/vif, in-profile upgrade links now /compte/abonnement.
 2026-07-16 [Session A]: i18n fix (NextIntlClientProvider locale prop + setRequestLocale in (site)/layout: EN pages were emitting FR hrefs) + SEO layer: lib/seo.ts (hreflang/canonical helpers), components/seo/JsonLd, Organization/WebSite/ShortStory/Breadcrumb/FAQPage/Article schemas, keyword-tuned titles (meta/library/funnel/personalizedPage seo* keys), root layout metadata now locale-aware
 2026-07-15 [Session A]: footer label (Comment créer une histoire), glow-card light-theme indigo/mint variant in globals.css, removable #tag chip in LibraryBrowser, signup free-perk banner in AuthPanel, HeroImageZoom true fullscreen + click-anywhere close
 2026-07-13 [Session B]: round-12. Touched app/actions/generateStory.ts (parallel cover generation + dialogue line), app/actions/customStories.ts + db/customStories.ts (deleteMyCustomStory, sequel image reference, heroDescription in character sheet), components/story/{HeroImageZoom (z-60 + html scroll lock), DownloadButtons (ePub removed)}. Dashboard favorites/persos grouped per reader; ChildAvatar padded round card.

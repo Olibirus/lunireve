@@ -57,8 +57,8 @@ export type CustomStoryParams = {
   friend: string;
   place: string;
   fear: string;
-  /** Illustration style (#15) — drives the future image generation. */
-  style: "automatique" | "aquarelle" | "bd" | "anime3d" | "crayons" | "kawaii";
+  /** Illustration style (#15) — drives the image generation. */
+  style: "automatique" | "aquarelle" | "bd" | "anime3d" | "crayons" | "kawaii" | "vif";
   /** Up to MAX_COMPANIONS secondary characters. */
   companions?: StoryCompanion[];
   /** Reading-level override; defaults to heroAge when absent. */
@@ -67,6 +67,8 @@ export type CustomStoryParams = {
   extraInfo?: string[];
   /** Optional illustration skin-tone preference (STORY_SKIN_TONES id). */
   skinTone?: string;
+  /** Optional moral the ending should carry (label text or free sentence). */
+  moral?: string;
   /** Title of the previous episode when this story is a sequel. */
   sequelOf?: string;
   /** Id of the previous episode: reused as image reference for consistency. */

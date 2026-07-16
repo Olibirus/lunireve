@@ -59,7 +59,10 @@ export default function EditProfilePage() {
   if (!profile) return null;
 
   function toggleTheme(slug: string) {
-    setThemes((prev) => (prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug]));
+    if (slug === "tout") return setThemes((prev) => (prev.includes("tout") ? [] : ["tout"]));
+    setThemes((prev) =>
+      prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev.filter((x) => x !== "tout"), slug]
+    );
   }
 
   function save() {
@@ -152,7 +155,7 @@ export default function EditProfilePage() {
         <div>
           <Label>{t("themes")}</Label>
           <div className="mt-2 flex flex-wrap gap-1.5">
-            {THEME_OPTIONS.map((slug) => (
+            {["tout", ...THEME_OPTIONS].map((slug) => (
               <button
                 key={slug}
                 type="button"

@@ -25,6 +25,7 @@ import {
   MAX_EXTRA_INFO,
   STORY_SKIN_TONES,
   STORY_SUBTHEMES,
+  STORY_MORALS,
   OCCASION_PRESETS,
   THEME_GENRES,
   THEME_UNIVERSES,
@@ -71,7 +72,7 @@ const THEME_OPTIONS = [
   "famille",
 ];
 const MOODS = ["drole", "mysterieux", "touchant", "palpitant", "doux"] as const;
-const STYLES = ["automatique", "aquarelle", "bd", "anime3d", "crayons", "kawaii"] as const;
+const STYLES = ["automatique", "vif", "aquarelle", "bd", "anime3d", "crayons", "kawaii"] as const;
 
 /** Reading-age ranges for the override select (first age of each range). */
 const READING_RANGES = [
@@ -198,6 +199,7 @@ export default function CreateStoryPage() {
     companions: [],
     extraInfo: [],
     skinTone: "",
+    moral: "",
   });
   const set = <K extends keyof CustomStoryParams>(k: K, v: CustomStoryParams[K]) =>
     setParams((p) => ({ ...p, [k]: v }));
@@ -341,7 +343,8 @@ export default function CreateStoryPage() {
       heroName: p.name,
       heroAge: Math.min(p.age, FREE_HERO_MAX_AGE),
       heroDescription: undefined,
-      theme: p.themes[0] ?? prev.theme,
+      // "tout" = no preferred theme, keep the current selection.
+      theme: p.themes[0] && p.themes[0] !== "tout" ? p.themes[0] : prev.theme,
     }));
   }
 
@@ -445,12 +448,16 @@ export default function CreateStoryPage() {
     }
     if (s === 1) {
       for (const c of p.companions ?? []) {
-        if (c.name.trim() && !isValidName(c.name)) return "invalidName";
+        // A companion slot without a name is meaningless for the story:
+        // the name is mandatory once the row exists.
+        if (!c.name.trim()) return "companionNameRequired";
+        if (!isValidName(c.name)) return "invalidName";
       }
     }
     if (s === 2) {
       if (p.place && !moderateText(p.place).ok) return "notAllowed";
       if (p.subTheme && !moderateText(p.subTheme).ok) return "notAllowed";
+      if (p.moral && !moderateText(p.moral).ok) return "notAllowed";
       for (const info of p.extraInfo ?? []) {
         if (info && !moderateText(info).ok) return "notAllowed";
       }
@@ -606,7 +613,7 @@ export default function CreateStoryPage() {
       ? 0
       : f === "companions" || f === "friend"
       ? 1
-      : f === "subTheme" || f === "place" || f === "fear" || f === "extraInfo"
+      : f === "subTheme" || f === "place" || f === "fear" || f === "extraInfo" || f === "moral"
       ? 2
       : 0;
 
@@ -806,7 +813,7 @@ export default function CreateStoryPage() {
         </p>
         <div className="mt-6 flex flex-col items-center gap-3">
           <Button asChild variant="mint" size="lg">
-            <Link href="/tarifs">
+            <Link href="/compte/abonnement">
               <Sparkles className="h-4 w-4" />
               {t("quotaUpgrade")}
             </Link>
@@ -988,10 +995,13 @@ export default function CreateStoryPage() {
                   })}
                 </div>
                 {isFree && !isKid && (
-                  <p className="mt-1.5 flex items-center gap-1.5 text-xs text-[var(--color-ink-400)]">
+                  <Link
+                    href="/compte/abonnement"
+                    className="mt-1.5 flex items-center gap-1.5 text-xs text-[var(--color-ink-400)] underline underline-offset-2 hover:text-[var(--color-ink-700)]"
+                  >
                     <Lock className="h-3 w-3" />
                     {t("heroAgeLockNote")}
-                  </p>
+                  </Link>
                 )}
               </div>
 
@@ -1016,9 +1026,12 @@ export default function CreateStoryPage() {
                   })}
                 </div>
                 {isFree && !isKid && (
-                  <p className="mt-1.5 text-xs text-[var(--color-ink-400)]">
+                  <Link
+                    href="/compte/abonnement"
+                    className="mt-1.5 inline-block text-xs text-[var(--color-ink-400)] underline underline-offset-2 hover:text-[var(--color-ink-700)]"
+                  >
                     {t("heroTypeLockNote")}
-                  </p>
+                  </Link>
                 )}
               </div>
 
@@ -1360,7 +1373,7 @@ export default function CreateStoryPage() {
               )}
 
               <div>
-                <Label htmlFor="place">{t("place")}</Label>
+                <Label htmlFor="place">{t("place", { gender: params.heroType ?? "autre" })}</Label>
                 <Input
                   id="place"
                   value={params.place}
@@ -1413,6 +1426,38 @@ export default function CreateStoryPage() {
                   </div>
                 </div>
               )}
+
+              {/* Optional moral: one tap for the classics, free text for a
+                  precise lesson (a fear to tame, a situation to work through). */}
+              {!isKid && (
+                <div>
+                  <Label htmlFor="moral">{t("moralTitle")}</Label>
+                  <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("moralHint")}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {STORY_MORALS.map((m) => {
+                      const label = storyOptLabel(m, locale);
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => set("moral", params.moral === label ? "" : label)}
+                          className={chip(params.moral === label)}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <Input
+                    id="moral"
+                    value={params.moral ?? ""}
+                    maxLength={100}
+                    placeholder={t("moralPlaceholder")}
+                    onChange={(e) => set("moral", e.target.value)}
+                    className={cn("mt-2 max-w-sm", blockedCls("moral"))}
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -1428,10 +1473,10 @@ export default function CreateStoryPage() {
                 <div>
                   <Label>{t("style")}</Label>
                   <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("styleHint")}</p>
-                  {/* Visual style cards: each carries an illustration slot
-                      (/public/illustrations/style-<id>.png swaps in later) so
+                  {/* Visual style cards: the IMAGE is the card (full-bleed,
+                      /public/illustrations/style-<id>.png swaps in later) so
                       families SEE what watercolor vs comic-book looks like. */}
-                  <div className="mt-2 grid grid-cols-3 gap-2.5 sm:grid-cols-3 md:grid-cols-6">
+                  <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {STYLES.map((s) => {
                       const locked = isFree && s !== "automatique";
                       const active = params.style === s;
@@ -1443,22 +1488,32 @@ export default function CreateStoryPage() {
                           onClick={() => set("style", s)}
                           aria-pressed={active}
                           className={cn(
-                            "flex flex-col items-center gap-1.5 rounded-2xl border-2 p-2 transition-colors",
+                            "group overflow-hidden rounded-2xl border-2 text-left transition-colors",
                             active
-                              ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]"
-                              : "border-[var(--color-ink-100)] bg-[var(--color-cream-50)] hover:border-[var(--color-ink-200)] hover:bg-[var(--color-cream-100)]",
-                            locked && "cursor-not-allowed opacity-45"
+                              ? "border-[var(--color-mint-500)]"
+                              : "border-[var(--color-ink-100)] hover:border-[var(--color-ink-300)]",
+                            locked && "cursor-not-allowed opacity-50"
                           )}
                         >
                           <span
                             data-image-slot={`style-${s}`}
                             title={`style-${s}`}
                             aria-hidden
-                            className="flex aspect-square w-full items-center justify-center rounded-xl border-2 border-dashed border-[var(--color-ink-200)] bg-[var(--color-cream-100)] text-[var(--color-ink-300)]"
+                            className="relative flex aspect-[4/3] w-full items-center justify-center bg-[var(--color-cream-100)] text-[var(--color-ink-300)]"
                           >
-                            {locked ? <Lock className="h-4 w-4" /> : <ImageIcon className="h-5 w-5" />}
+                            <ImageIcon className="h-8 w-8" />
+                            {locked && (
+                              <span className="absolute right-2 top-2 rounded-full bg-black/30 p-1.5 text-white">
+                                <Lock className="h-3.5 w-3.5" />
+                              </span>
+                            )}
                           </span>
-                          <span className="text-[11px] font-medium leading-tight text-[var(--color-ink-800)]">
+                          <span
+                            className={cn(
+                              "block px-3 py-2 text-sm font-medium text-[var(--color-ink-800)]",
+                              active ? "bg-[var(--color-mint-100)]" : "bg-[var(--color-cream-50)]"
+                            )}
+                          >
                             {t(`style_${s}`)}
                           </span>
                         </button>
@@ -1466,9 +1521,13 @@ export default function CreateStoryPage() {
                     })}
                   </div>
                   {isFree && (
-                    <p className="mt-1.5 text-xs text-[var(--color-ink-400)]">
-                      {t("styleLockedNote")}
-                    </p>
+                    <Link
+                      href="/compte/abonnement"
+                      className="mt-2 inline-flex items-center gap-1.5 text-xs text-[var(--color-indigo-soft-600)] underline underline-offset-2 hover:text-[var(--color-ink-800)]"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      {t("styleUnlockCta")}
+                    </Link>
                   )}
                 </div>
               )}
@@ -1497,7 +1556,8 @@ export default function CreateStoryPage() {
                     [t("mood"), t(`mood_${params.mood}`)],
                     [t("theme"), tThemes(params.theme)],
                     params.subTheme && [t("subTheme"), params.subTheme],
-                    params.place && [t("place"), params.place],
+                    params.place && [t("place", { gender: params.heroType ?? "autre" }), params.place],
+                    params.moral && [t("moralTitle"), params.moral],
                     !isKid && [
                       t("readingAge"),
                       params.readingAge

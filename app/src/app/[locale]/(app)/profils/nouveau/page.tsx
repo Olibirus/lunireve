@@ -44,9 +44,15 @@ export default function NewProfilePage() {
     step === 0 ? name.trim().length >= 2 : step === 2 ? themes.length > 0 : true;
 
   function toggleTheme(slug: string) {
-    setThemes((prev) =>
-      prev.includes(slug) ? prev.filter((x) => x !== slug) : [...prev, slug]
-    );
+    setThemes((prev) => {
+      // "tout" is exclusive: picking it clears the rest, picking any
+      // specific theme drops "tout".
+      if (slug === "tout") return prev.includes("tout") ? [] : ["tout"];
+      const next = prev.includes(slug)
+        ? prev.filter((x) => x !== slug)
+        : [...prev.filter((x) => x !== "tout"), slug];
+      return next;
+    });
   }
 
   function finish() {
@@ -179,7 +185,7 @@ export default function NewProfilePage() {
             <div>
               <Label>{t("themes")}</Label>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {THEME_OPTIONS.map((slug) => (
+                {["tout", ...THEME_OPTIONS].map((slug) => (
                   <button
                     key={slug}
                     type="button"

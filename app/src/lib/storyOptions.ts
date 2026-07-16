@@ -248,6 +248,22 @@ export const OCCASION_PRESETS: OccasionPreset[] = [
   },
 ];
 
+/**
+ * Optional moral for the story's ending: one tap for the classics, or free
+ * text for a precise lesson (the wizard also accepts a custom sentence).
+ */
+export const STORY_MORALS: StoryOpt[] = [
+  { id: "courage", fr: "Avoir du courage", en: "Being brave" },
+  { id: "partage", fr: "Partager", en: "Sharing" },
+  { id: "honnetete", fr: "Dire la vérité", en: "Telling the truth" },
+  { id: "perseverance", fr: "Ne jamais abandonner", en: "Never giving up" },
+  { id: "confiance", fr: "Croire en soi", en: "Believing in yourself" },
+  { id: "amitie", fr: "Prendre soin de ses amis", en: "Caring for your friends" },
+  { id: "difference", fr: "Accepter les différences", en: "Accepting differences" },
+  { id: "patience", fr: "Être patient", en: "Being patient" },
+  { id: "ecoute", fr: "Écouter les autres", en: "Listening to others" },
+];
+
 /** Optional skin-tone preference for the illustrations (ids match characterOptions). */
 export const STORY_SKIN_TONES: StoryOpt[] = [
   { id: "claire", fr: "Peau claire", en: "Light skin" },

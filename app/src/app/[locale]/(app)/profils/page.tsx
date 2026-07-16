@@ -77,7 +77,7 @@ export default function ProfileSelectorPage() {
         {/* Add a child — locked when free limit reached */}
         {limitReached ? (
           <Link
-            href="/tarifs"
+            href="/compte/abonnement"
             className="flex w-36 md:w-44 flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-[var(--color-indigo-soft-300)] bg-[var(--color-cream-100)] p-6 text-center transition-colors hover:border-[var(--color-indigo-soft-500)]"
           >
             <span className="rounded-full bg-[var(--color-indigo-soft-100)] p-4">

@@ -174,6 +174,7 @@ export function moderateStoryParams(params: CustomStoryParams): ParamsModeration
     ["place", params.place, 80],
     ["fear", params.fear, 80],
     ["subTheme", params.subTheme ?? "", 60],
+    ["moral", params.moral ?? "", 100],
   ];
   for (const info of params.extraInfo ?? []) freeText.push(["extraInfo", info, 140]);
 

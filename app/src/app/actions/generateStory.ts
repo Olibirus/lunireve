@@ -91,6 +91,7 @@ export async function generateStoryAction(
     { field: "trait", text: params.trait },
     { field: "heroDescription", text: params.heroDescription ?? "" },
     { field: "subTheme", text: params.subTheme ?? "" },
+    { field: "moral", text: params.moral ?? "" },
     { field: "place", text: params.place },
     { field: "fear", text: params.fear },
     { field: "friend", text: params.friend },
@@ -157,6 +158,8 @@ export async function generateStoryAction(
       (info) =>
         `CONSIGNE OBLIGATOIRE à intégrer naturellement dans l'intrigue : « ${info} ».`
     ),
+    params.moral &&
+      `MORALE DEMANDÉE : l'histoire doit se conclure naturellement sur cette leçon : « ${params.moral} ». Elle doit découler des événements, jamais être plaquée.`,
     "Inclus quelques dialogues courts entre les personnages, entre guillemets « », comme dans les histoires de la bibliothèque.",
     "Termine sur une note apaisante adaptée au coucher.",
     "N'utilise jamais de tiret cadratin dans le texte.",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import {
@@ -18,7 +18,7 @@ import { StoryCard } from "@/components/story/StoryCard";
 import { RecentlyRead } from "./RecentlyRead";
 import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Flame, Heart, Lock, Pencil, Plus, Trash2, User, Wand2 } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Flame, Heart, Lock, Pencil, Plus, Trash2, User, Wand2 } from "lucide-react";
 
 /** One dashboard row: who reads + their items. */
 type ReaderRow<T> = {
@@ -39,6 +39,83 @@ function ReaderLabel({ row }: { row: ReaderRow<unknown> }) {
       )}
       {row.name}
     </p>
+  );
+}
+
+/**
+ * One personalized-stories row: compact reader card pinned LEFT, that
+ * reader's stories as a horizontal carousel on the right (newest first,
+ * arrows page back toward the oldest).
+ */
+function StoryRowCarousel({ row }: { row: ReaderRow<CustomStory> }) {
+  const scroller = useRef<HTMLDivElement>(null);
+  const scrollBy = (dir: 1 | -1) => {
+    const el = scroller.current;
+    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
+  };
+
+  return (
+    <div className="flex items-stretch gap-3">
+      {/* Reader card, small and out of the way */}
+      <div className="flex w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-1 py-2">
+        {row.avatar ? (
+          <ChildAvatar color={row.avatar} className="h-9 w-9" />
+        ) : (
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-cream-200)]">
+            <User className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
+          </span>
+        )}
+        <span className="w-full truncate text-center text-[11px] font-medium text-[var(--color-ink-600)]">
+          {row.name}
+        </span>
+      </div>
+
+      {/* Carousel */}
+      <div className="relative min-w-0 flex-1">
+        <div
+          ref={scroller}
+          className="flex h-full gap-3 overflow-x-auto scroll-smooth snap-x pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {row.items.map((s) => (
+            <Link
+              key={s.id}
+              href={{ pathname: "/histoire-perso/[id]", params: { id: s.id } }}
+              className="group w-40 shrink-0 snap-start overflow-hidden rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] transition-shadow"
+            >
+              <span className="cover-night flex aspect-[16/9] items-center justify-center">
+                <Wand2 className="h-5 w-5 text-white/70 transition-transform group-hover:scale-110" />
+              </span>
+              <span className="block p-2.5">
+                <span className="block truncate font-serif text-sm tracking-tight">{s.title}</span>
+                <span className="mt-0.5 block text-[11px] text-[var(--color-ink-500)]">
+                  {new Date(s.createdAt).toLocaleDateString()}
+                </span>
+              </span>
+            </Link>
+          ))}
+        </div>
+        {row.items.length > 3 && (
+          <>
+            <button
+              type="button"
+              onClick={() => scrollBy(-1)}
+              aria-label="previous"
+              className="absolute -left-2 top-1/2 -translate-y-1/2 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-1.5 text-[var(--color-ink-600)] shadow-[var(--shadow-soft)] hover:bg-[var(--color-cream-100)]"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollBy(1)}
+              aria-label="next"
+              className="absolute -right-2 top-1/2 -translate-y-1/2 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-1.5 text-[var(--color-ink-600)] shadow-[var(--shadow-soft)] hover:bg-[var(--color-cream-100)]"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -86,13 +163,13 @@ export default function AccountDashboardPage() {
       readers
         .map((r) => ({
           ...r,
-          items: stories
-            .filter((s) =>
-              r.id === "parent"
-                ? !s.profileId || !childIds.has(s.profileId)
-                : s.profileId === r.id
-            )
-            .slice(0, 4),
+          // Full list, newest first: the row is a carousel (arrows page back
+          // to the oldest), not a truncated grid.
+          items: stories.filter((s) =>
+            r.id === "parent"
+              ? !s.profileId || !childIds.has(s.profileId)
+              : s.profileId === r.id
+          ),
         }))
         .filter((r) => r.items.length > 0)
     );
@@ -189,7 +266,7 @@ export default function AccountDashboardPage() {
 
           {limitReached ? (
             <Link
-              href="/tarifs"
+              href="/compte/abonnement"
               className="flex flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-[var(--color-indigo-soft-300)] bg-[var(--color-cream-100)] p-6 text-center hover:border-[var(--color-indigo-soft-500)] transition-colors"
             >
               <Lock className="h-6 w-6 text-[var(--color-indigo-soft-500)]" />
@@ -235,30 +312,9 @@ export default function AccountDashboardPage() {
             </Button>
           </div>
         ) : (
-          <div className="mt-4 space-y-6">
+          <div className="mt-4 space-y-4">
             {storyRows.map((row) => (
-              <div key={row.id}>
-                <ReaderLabel row={row} />
-                <div className="mt-2.5 grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  {row.items.map((s) => (
-                    <Link
-                      key={s.id}
-                      href={{ pathname: "/histoire-perso/[id]", params: { id: s.id } }}
-                      className="group overflow-hidden rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] transition-shadow"
-                    >
-                      <span className="cover-night flex aspect-[4/3] items-center justify-center">
-                        <Wand2 className="h-6 w-6 text-white/70 transition-transform group-hover:scale-110" />
-                      </span>
-                      <span className="block p-3.5">
-                        <span className="block truncate font-serif text-base tracking-tight">{s.title}</span>
-                        <span className="mt-0.5 block text-xs text-[var(--color-ink-500)]">
-                          {s.params.heroName} · {new Date(s.createdAt).toLocaleDateString()}
-                        </span>
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+              <StoryRowCarousel key={row.id} row={row} />
             ))}
           </div>
         )}

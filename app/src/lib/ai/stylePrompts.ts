@@ -20,6 +20,8 @@ export const STYLE_PROMPT: Record<CustomStoryParams["style"], string> = {
     "colored-pencil children's illustration, visible layered strokes, waxy texture, hand-drawn wobble in the lines, paper tooth showing through",
   kawaii:
     "kawaii chibi children's illustration, oversized sparkly eyes, tiny rounded bodies, soft pastel palette, gentle blush cheeks, simple clean background",
+  vif:
+    "bold vibrant children's illustration for toddlers, saturated primary colors, thick playful shapes, high contrast, joyful energy, candy-bright palette, simple friendly forms",
 };
 
 /**

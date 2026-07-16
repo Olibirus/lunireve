@@ -586,7 +586,7 @@ export default function NewCharacterWizard() {
                     {t(role === "main" ? "limitMain" : "limitSecondary", {
                       limit: characterLimits()[role],
                     })}{" "}
-                    <Link href="/tarifs" className="underline hover:text-[var(--color-ink-800)]">
+                    <Link href="/compte/abonnement" className="underline hover:text-[var(--color-ink-800)]">
                       {t("upgradeLink")}
                     </Link>
                   </span>

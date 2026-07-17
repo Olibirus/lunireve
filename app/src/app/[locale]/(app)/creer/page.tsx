@@ -41,6 +41,8 @@ import { moderateText, isValidName } from "@/lib/moderation";
 import { generateStoryAction } from "@/app/actions/generateStory";
 import { fetchCustomStory, ensureCustomStoryImage } from "@/app/actions/customStories";
 import { readCharacters, createCharacter, slotsLeft, type SavedCharacter } from "@/lib/characters";
+import { getRole } from "@/lib/clientAuth";
+import { saveLibraryStory } from "@/lib/adminStories";
 import { pushNotification } from "@/lib/notifications";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { ChildAvatar } from "@/components/brand/ChildAvatar";
@@ -180,6 +182,17 @@ export default function CreateStoryPage() {
   // the full 4-step flow. Sequels land in advanced (recap prefilled).
   const [mode, setMode] = useState<"quick" | "advanced">("quick");
   const [phase, setPhase] = useState<"form" | "loading" | "done" | "rejected">("form");
+  // Admin library mode (?bibliotheque=1): the SAME wizard, but the result is
+  // saved as a LIBRARY story (admin bank content), not a personalized one.
+  const [libraryMode, setLibraryMode] = useState(false);
+  useEffect(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      setLibraryMode(sp.get("bibliotheque") === "1" && getRole() === "admin");
+    } catch {
+      /* ignore */
+    }
+  }, []);
   // Form field that tripped the safety gates, when known: highlighted in red
   // on the form so the parent sees exactly what to rephrase.
   const [blockedFields, setBlockedFields] = useState<string[]>([]);
@@ -544,6 +557,19 @@ export default function CreateStoryPage() {
         const settled = res.ok
           ? { title: res.title, body: res.body, glossary: res.glossary, id: res.id }
           : { ...buildStubStory(finalParams), glossary: [], id: null };
+        // Admin library mode: bank story, not a personalized one — no quota,
+        // no family attribution; it lands in Admin > Histoires.
+        if (libraryMode) {
+          const lib = saveLibraryStory(settled.title, settled.body, {
+            theme: finalParams.theme,
+            heroAge: finalParams.heroAge,
+            readingAge: finalParams.readingAge,
+          });
+          savedIdRef.current = lib.slug;
+          savedTitleRef.current = lib.title;
+          pushNotification({ title: t("notifReady"), body: lib.title, href: "/admin/histoires" });
+          return;
+        }
         const story = saveCustomStory(
           settled.title,
           settled.body,
@@ -568,6 +594,17 @@ export default function CreateStoryPage() {
       })
       .catch(() => {
         const stub = buildStubStory(finalParams);
+        if (libraryMode) {
+          const lib = saveLibraryStory(stub.title, stub.body, {
+            theme: finalParams.theme,
+            heroAge: finalParams.heroAge,
+            readingAge: finalParams.readingAge,
+          });
+          savedIdRef.current = lib.slug;
+          savedTitleRef.current = lib.title;
+          pushNotification({ title: t("notifReady"), body: lib.title, href: "/admin/histoires" });
+          return;
+        }
         const story = saveCustomStory(stub.title, stub.body, finalParams, pid);
         savedIdRef.current = story.id;
         savedTitleRef.current = story.title;
@@ -719,7 +756,9 @@ export default function CreateStoryPage() {
           size="xl"
           className="mt-8"
           onClick={() => {
-            if (savedIdRef.current) {
+            if (libraryMode) {
+              router.push("/admin/histoires" as never);
+            } else if (savedIdRef.current) {
               router.push({ pathname: "/histoire-perso/[id]", params: { id: savedIdRef.current } });
             }
           }}

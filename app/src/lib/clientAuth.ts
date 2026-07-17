@@ -19,6 +19,31 @@ export function getRole(): "admin" | "user" | null {
 }
 
 /**
+ * Cross-tab logout sync. The session cookie is cleared server-side (so every
+ * tab IS logged out immediately); this broadcast makes other OPEN tabs update
+ * their UI right away instead of waiting for a reload. `storage` events only
+ * fire in other tabs, which is exactly what we want.
+ */
+const LOGOUT_BROADCAST_KEY = "lunireve:logoutAt";
+
+export function broadcastLogout(): void {
+  try {
+    localStorage.setItem(LOGOUT_BROADCAST_KEY, String(Date.now()));
+  } catch {
+    /* private mode — other tabs will catch up on navigation */
+  }
+}
+
+/** Subscribe to logouts from other tabs. Returns an unsubscribe function. */
+export function onLogoutBroadcast(cb: () => void): () => void {
+  const handler = (e: StorageEvent) => {
+    if (e.key === LOGOUT_BROADCAST_KEY) cb();
+  };
+  window.addEventListener("storage", handler);
+  return () => window.removeEventListener("storage", handler);
+}
+
+/**
  * Display name for the logged-in account, from the `lunireve_user` cookie.
  * Emails are shortened to their local part and capitalized ("marie.dupont@x"
  * -> "Marie.dupont") so the header shows a name, not an address.

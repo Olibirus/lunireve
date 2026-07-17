@@ -12,9 +12,13 @@ import {
   selectCustomStory,
   selectCustomStoriesByUser,
   selectCustomStoryImageInputs,
+  selectAllCustomStories,
+  updateCustomStoryTitle,
+  adminDeleteCustomStoryRow,
   deleteCustomStoryRow,
   appendStoryFeedback,
   selectRecentStoryFeedback,
+  type AdminCustomStoryRow,
 } from "@/db/customStories";
 import type { CustomStory, CustomStoryParams } from "@/lib/customStories";
 
@@ -115,6 +119,47 @@ export async function listStoryFeedback(): Promise<
   } catch (e) {
     console.error("[Lunireve] listStoryFeedback failed:", e);
     return [];
+  }
+}
+
+/** Admin: every personalized story with feedback counts, newest first. */
+export async function listAllCustomStoriesAdmin(): Promise<AdminCustomStoryRow[]> {
+  const session = await getSession();
+  if (session?.role !== "admin") return [];
+  try {
+    return await selectAllCustomStories();
+  } catch (e) {
+    console.error("[Lunireve] listAllCustomStoriesAdmin failed:", e);
+    return [];
+  }
+}
+
+/** Admin: rename a personalized story. */
+export async function adminUpdateCustomStoryTitle(
+  id: string,
+  title: string
+): Promise<{ ok: boolean }> {
+  const session = await getSession();
+  if (session?.role !== "admin") return { ok: false };
+  const clean = title.trim();
+  if (clean.length < 3) return { ok: false };
+  try {
+    return { ok: await updateCustomStoryTitle(id, clean.slice(0, 200)) };
+  } catch (e) {
+    console.error("[Lunireve] adminUpdateCustomStoryTitle failed:", e);
+    return { ok: false };
+  }
+}
+
+/** Admin: delete any personalized story (bypasses the owner guard). */
+export async function adminDeleteCustomStory(id: string): Promise<{ ok: boolean }> {
+  const session = await getSession();
+  if (session?.role !== "admin") return { ok: false };
+  try {
+    return { ok: await adminDeleteCustomStoryRow(id) };
+  } catch (e) {
+    console.error("[Lunireve] adminDeleteCustomStory failed:", e);
+    return { ok: false };
   }
 }
 

@@ -138,6 +138,78 @@ export async function selectCustomStoriesByUser(
   return rows.map(rowToCustomStory).filter((s): s is CustomStory => s !== null);
 }
 
+/** Flat admin row for the back-office personalized-stories table. */
+export type AdminCustomStoryRow = {
+  id: string;
+  title: string;
+  heroName: string;
+  heroAge: number;
+  ageRange: string;
+  theme: string;
+  language: string;
+  ownerUserId: string | null;
+  createdAt: string; // ISO
+  thumbsUp: number;
+  thumbsDown: number;
+  shares: number;
+  imageUrl: string | null;
+};
+
+/** Every personalized story, newest first, with feedback counts (admin). */
+export async function selectAllCustomStories(limit = 300): Promise<AdminCustomStoryRow[]> {
+  const rows = await db
+    .select()
+    .from(stories)
+    .where(and(eq(stories.type, "text_story"), eq(stories.genre, PERSONALIZED_GENRE)))
+    .orderBy(desc(stories.createdAt))
+    .limit(limit);
+  const out: AdminCustomStoryRow[] = [];
+  for (const row of rows) {
+    const meta = row.generationMetadata as
+      | (CustomStoryMetadata & { feedback?: StoryFeedbackEntry[]; shares?: number })
+      | null;
+    const p = meta?.params;
+    if (!p) continue;
+    const fb = meta?.feedback ?? [];
+    out.push({
+      id: row.id,
+      title: row.title,
+      heroName: p.heroName,
+      heroAge: p.heroAge,
+      ageRange: row.ageRange ?? "",
+      theme: p.theme,
+      language: row.language,
+      ownerUserId: row.ownerUserId ?? null,
+      createdAt: (row.createdAt ?? new Date()).toISOString(),
+      thumbsUp: fb.filter((f) => f.verdict === "up").length,
+      thumbsDown: fb.filter((f) => f.verdict === "down").length,
+      // Share counter lands with the events table; metadata slot until then.
+      shares: meta?.shares ?? 0,
+      imageUrl: row.heroImageUrl ?? null,
+    });
+  }
+  return out;
+}
+
+/** Rename a personalized story (admin edit). */
+export async function updateCustomStoryTitle(id: string, title: string): Promise<boolean> {
+  const res = await db
+    .update(stories)
+    .set({ title, updatedAt: new Date() })
+    .where(and(eq(stories.id, id), eq(stories.type, "text_story")))
+    .returning({ id: stories.id });
+  return res.length > 0;
+}
+
+/** Delete any personalized story row (admin — bypasses the owner guard). */
+export async function adminDeleteCustomStoryRow(id: string): Promise<boolean> {
+  const res = await db
+    .delete(stories)
+    .where(and(eq(stories.id, id), eq(stories.type, "text_story")))
+    .returning({ id: stories.id });
+  return res.length > 0;
+}
+
 /** What the lazy illustration path needs: cached URL + generation inputs. */
 export type StoryFeedbackEntry = {
   verdict: "up" | "down";

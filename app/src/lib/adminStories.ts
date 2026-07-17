@@ -1,6 +1,6 @@
 "use client";
 
-import { mockStories } from "@/data/mock-stories";
+import { mockStories, ageToRange } from "@/data/mock-stories";
 
 /**
  * Admin stories store (#7 admin CRUD) — a working CMS-lite over the library.
@@ -21,6 +21,9 @@ export type AdminStory = {
   readingMinutes: number;
   rating: number;
   status: "published" | "unpublished";
+  /** Full text for admin-created stories (mock library stories carry their
+   * own content in mock-stories; this is only set for locally created ones). */
+  body?: string[];
 };
 
 function fromMock(): AdminStory[] {
@@ -80,6 +83,32 @@ export function saveStory(story: AdminStory, originalSlug?: string) {
   if (idx >= 0) all[idx] = story;
   else all.unshift(story);
   write(all);
+}
+
+/**
+ * Save a story generated through the real creation flow (/creer) as a LIBRARY
+ * story: an admin using the wizard produces bank content, not a personalized
+ * story attributed to a family (feedback: "Nouvelle histoire" opens the real
+ * flow but counts as library). Phase 2 inserts a `stories` row (type=bank).
+ */
+export function saveLibraryStory(
+  title: string,
+  body: string[],
+  meta: { theme: string; heroAge: number; readingAge?: number }
+): AdminStory {
+  const words = body.join(" ").split(/\s+/).filter(Boolean).length;
+  const story: AdminStory = {
+    slug: slugify(title) || `histoire-${Date.now()}`,
+    title,
+    genre: meta.theme,
+    ageRange: ageToRange(meta.readingAge ?? meta.heroAge),
+    readingMinutes: Math.max(2, Math.round(words / 140)),
+    rating: 0,
+    status: "published",
+    body,
+  };
+  saveStory(story);
+  return story;
 }
 
 export function deleteStory(slug: string) {

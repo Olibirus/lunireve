@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { StatusPill } from "@/components/admin/AdminShell";
 import {
   readStories,
@@ -9,7 +11,7 @@ import {
   slugify,
   type AdminStory,
 } from "@/lib/adminStories";
-import { GENRES, AGE_RANGES } from "@/data/mock-stories";
+import { GENRES, AGE_RANGES, findStory, storyBody, ageLabel } from "@/data/mock-stories";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Pencil, Plus, Star, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { ExternalLink, Eye, Pencil, Plus, Star, Trash2 } from "lucide-react";
 
 /**
  * Stories CRUD over the library. Edits/deletes persist via the adminStories
@@ -40,6 +43,7 @@ const EMPTY: AdminStory = {
 export default function AdminStoriesPage() {
   const [stories, setStories] = useState<AdminStory[]>([]);
   const [editing, setEditing] = useState<{ story: AdminStory; isNew: boolean } | null>(null);
+  const [viewing, setViewing] = useState<AdminStory | null>(null);
 
   useEffect(() => {
     setStories(readStories());
@@ -70,32 +74,74 @@ export default function AdminStoriesPage() {
             {stories.length} histoires · publication automatique, retrait manuel
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setEditing({ story: EMPTY, isNew: true })}
-          className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-ink-800)] px-4 py-2.5 text-sm text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)]"
-        >
-          <Plus className="h-4 w-4" />
-          Nouvelle histoire
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Real creation flow (theme, hero...): an admin run lands in the
+              LIBRARY, not in the personalized stories (feedback). */}
+          <Link
+            href={{ pathname: "/creer", query: { bibliotheque: "1" } }}
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-ink-800)] px-4 py-2.5 text-sm text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)]"
+          >
+            <Plus className="h-4 w-4" />
+            Nouvelle histoire
+          </Link>
+          <button
+            type="button"
+            onClick={() => setEditing({ story: EMPTY, isNew: true })}
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-ink-100)] px-4 py-2.5 text-sm text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
+            title="Créer une fiche vide sans passer par la génération"
+          >
+            Fiche manuelle
+          </button>
+        </div>
       </div>
 
       <div className="mt-8 overflow-x-auto rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)]">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--color-ink-100)] text-left text-xs uppercase tracking-widest text-[var(--color-ink-400)]">
+              <th className="px-4 py-3 font-medium">Actions</th>
               <th className="px-4 py-3 font-medium">Titre</th>
               <th className="px-4 py-3 font-medium">Genre</th>
               <th className="px-4 py-3 font-medium">Âge</th>
               <th className="px-4 py-3 font-medium">Durée</th>
               <th className="px-4 py-3 font-medium">Note</th>
               <th className="px-4 py-3 font-medium">Statut</th>
-              <th className="px-4 py-3 font-medium text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-ink-100)]/60">
             {stories.map((s) => (
               <tr key={s.slug} className="hover:bg-[var(--color-cream-100)]/60">
+                <td className="px-4 py-3">
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setViewing(s)}
+                      aria-label={`Voir ${s.title}`}
+                      title="Voir l'histoire complète"
+                      className="rounded-lg p-2 text-[var(--color-ink-500)] hover:bg-[var(--color-cream-200)]"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditing({ story: s, isNew: false })}
+                      aria-label={`Modifier ${s.title}`}
+                      title="Modifier"
+                      className="rounded-lg p-2 text-[var(--color-ink-500)] hover:bg-[var(--color-cream-200)]"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => remove(s)}
+                      aria-label={`Supprimer ${s.title}`}
+                      title="Supprimer"
+                      className="rounded-lg p-2 text-[var(--color-ink-500)] hover:bg-red-50 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
                 <td className="px-4 py-3 max-w-64">
                   <span className="block truncate font-medium">{s.title}</span>
                   <span className="block truncate text-xs text-[var(--color-ink-400)]">/{s.slug}</span>
@@ -113,26 +159,6 @@ export default function AdminStoriesPage() {
                   <StatusPill tone={s.status === "published" ? "green" : "gray"}>
                     {s.status === "published" ? "Publiée" : "Retirée"}
                   </StatusPill>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-1">
-                    <button
-                      type="button"
-                      onClick={() => setEditing({ story: s, isNew: false })}
-                      aria-label={`Modifier ${s.title}`}
-                      className="rounded-lg p-2 text-[var(--color-ink-500)] hover:bg-[var(--color-cream-200)]"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => remove(s)}
-                      aria-label={`Supprimer ${s.title}`}
-                      className="rounded-lg p-2 text-[var(--color-ink-500)] hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
                 </td>
               </tr>
             ))}
@@ -155,7 +181,74 @@ export default function AdminStoriesPage() {
           onSave={onSaved}
         />
       )}
+      {viewing && <StoryViewDialog story={viewing} onClose={() => setViewing(null)} />}
     </>
+  );
+}
+
+/**
+ * Full story preview — the complete page content (cover, meta, text) in a
+ * modal so the admin can check a story without leaving the back-office.
+ * Library mock stories pull their text from mock-stories; admin-created ones
+ * carry their own body.
+ */
+function StoryViewDialog({ story, onClose }: { story: AdminStory; onClose: () => void }) {
+  const locale = useLocale();
+  const mock = findStory(story.slug);
+  const body = mock ? storyBody(story.slug, locale) : story.body ?? [];
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>{story.title}</DialogTitle>
+          <DialogDescription>
+            {ageLabel(story.ageRange)} · {story.genre} · {story.readingMinutes} min
+            {mock?.interactive ? " · interactive" : ""}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="max-h-[65vh] overflow-y-auto pr-1">
+          {/* Cover */}
+          <div aria-hidden className={cn(mock?.cover ?? "cover-indigo", "aspect-[21/9] w-full rounded-2xl")} />
+
+          {mock?.excerpt && (
+            <p className="mt-4 text-sm italic text-[var(--color-ink-600)]">{mock.excerpt}</p>
+          )}
+
+          {/* Full text */}
+          {body.length > 0 ? (
+            <div className="mt-5 space-y-4 text-[0.95rem] leading-relaxed text-[var(--color-ink-700)]">
+              {body.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-5 rounded-xl border border-dashed border-[var(--color-ink-200)] p-4 text-center text-sm text-[var(--color-ink-400)]">
+              Texte non disponible pour cette fiche.
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between border-t border-[var(--color-ink-100)] pt-4">
+          {mock ? (
+            <Link
+              href={{ pathname: "/histoires/[slug]", params: { slug: story.slug } }}
+              target="_blank"
+              className="inline-flex items-center gap-1.5 text-sm text-[var(--color-indigo-soft-600)] hover:underline"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Ouvrir la page publique
+            </Link>
+          ) : (
+            <span />
+          )}
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            Fermer
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

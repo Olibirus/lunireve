@@ -10,7 +10,7 @@ import { AuthModal } from "@/components/auth/AuthModal";
 import { NotificationBell } from "@/components/NotificationBell";
 import { NavSearch } from "@/components/layout/NavSearch";
 import { logout } from "@/app/actions/auth";
-import { isLoggedIn, getRole, getUsername } from "@/lib/clientAuth";
+import { isLoggedIn, getRole, getUsername, broadcastLogout, onLogoutBroadcast } from "@/lib/clientAuth";
 import { getActiveProfile } from "@/lib/profiles";
 import { scopedKey } from "@/lib/userScope";
 import { GENRES, AGE_RANGES, DURATION_BUCKETS, ageLabel } from "@/data/mock-stories";
@@ -219,9 +219,21 @@ export function Header() {
     setAccountName(getUsername());
   }, []);
 
+  // Cross-tab logout: when another tab logs out, drop the session UI here too.
+  useEffect(() => {
+    return onLogoutBroadcast(() => {
+      setLogged(false);
+      setIsAdmin(false);
+      setAccountName(null);
+      router.refresh();
+    });
+  }, [router]);
+
   async function onLogout() {
     await logout();
+    broadcastLogout();
     setLogged(false);
+    setIsAdmin(false);
     router.push("/");
   }
 
@@ -327,24 +339,37 @@ export function Header() {
           <ThemeToggle />
           <LanguageSwitcher />
 
-          {logged ? (
+          {logged && isAdmin ? (
+            /* Admin on the public site: ONE clickable pill straight to the
+               back-office — no user-profile dropdown (an admin account has no
+               family area; each user only ever reaches their own profile). */
+            <Link
+              href={"/admin" as never}
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--color-ink-800)] px-4 py-2 text-sm font-medium text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)] transition-colors"
+            >
+              <ShieldCheck className="h-4 w-4 text-[var(--color-mint-400)]" />
+              <span className="flex flex-col items-start leading-tight text-left">
+                <span className="text-[10px] uppercase tracking-wide text-[var(--color-indigo-soft-300)]">
+                  Admin
+                </span>
+                <span className="-mt-0.5 text-sm font-medium">Tableau de bord</span>
+              </span>
+            </Link>
+          ) : logged ? (
             <NavDropdown
               label={
                 <span className="flex flex-col items-start leading-tight text-left">
                   <span className="text-[10px] uppercase tracking-wide text-[var(--color-ink-400)]">
-                    {isAdmin ? "Admin" : t("nav.account")}
+                    {t("nav.account")}
                   </span>
                   <span className="-mt-0.5 max-w-[8rem] truncate text-sm font-medium">
-                    {accountName ?? (isAdmin ? "Administrateur" : t("nav.account"))}
+                    {accountName ?? t("nav.account")}
                   </span>
                 </span>
               }
               align="right"
-              href={isAdmin ? "/admin" : "/compte"}
+              href="/compte"
             >
-              {isAdmin && (
-                <MenuLink href={"/admin" as never} icon={ShieldCheck}>Espace admin</MenuLink>
-              )}
               <MenuLink href="/compte" icon={LayoutDashboard}>{t("nav.menuDashboard")}</MenuLink>
               <MenuLink href="/profils" icon={Users}>{t("nav.menuProfiles")}</MenuLink>
               <MenuLink href="/compte/histoires" icon={BookOpen}>{t("account.menu.customStories")}</MenuLink>
@@ -446,24 +471,25 @@ export function Header() {
             </Link>
             {logged ? (
               <>
-                {isAdmin && (
+                {isAdmin ? (
                   <Link
                     href={"/admin" as never}
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl border border-[var(--color-ink-100)] px-4 py-2.5 text-sm"
+                    className="flex items-center gap-2.5 rounded-xl bg-[var(--color-ink-800)] px-4 py-2.5 text-sm text-[var(--color-cream-50)]"
                   >
-                    <ShieldCheck className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
+                    <ShieldCheck className="h-4 w-4 text-[var(--color-mint-400)]" />
                     Espace admin
                   </Link>
+                ) : (
+                  <Link
+                    href="/profils"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl border border-[var(--color-ink-100)] px-4 py-2.5 text-sm"
+                  >
+                    <Users className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
+                    {t("nav.menuProfiles")}
+                  </Link>
                 )}
-                <Link
-                  href="/profils"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2.5 rounded-xl border border-[var(--color-ink-100)] px-4 py-2.5 text-sm"
-                >
-                  <Users className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
-                  {t("nav.menuProfiles")}
-                </Link>
                 <button
                   type="button"
                   onClick={() => {

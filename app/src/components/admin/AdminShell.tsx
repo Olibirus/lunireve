@@ -13,7 +13,9 @@ import {
   Newspaper,
   ShieldAlert,
   Users,
+  Wand2,
 } from "lucide-react";
+import { broadcastLogout } from "@/lib/clientAuth";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -24,6 +26,7 @@ import { cn } from "@/lib/utils/cn";
 const NAV = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { href: "/admin/histoires", label: "Histoires", icon: BookOpen },
+  { href: "/admin/histoires-perso", label: "Histoires perso", icon: Wand2 },
   { href: "/admin/moderation", label: "Modération", icon: ShieldAlert, badge: moderationPendingCount },
   { href: "/admin/utilisateurs", label: "Utilisateurs", icon: Users },
   { href: "/admin/blog", label: "Blog", icon: Newspaper },
@@ -36,6 +39,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   async function onLogout() {
     await logout();
+    broadcastLogout();
     router.push("/");
   }
 

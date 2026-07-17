@@ -674,7 +674,7 @@
     "hint": "Démo : user / 123456 (parent) · admin / 123456 (admin)",
     "modalTitle": "Bienvenue chez Lunireve",
     "modalSubtitle": "Un compte gratuit, des histoires pour toute la famille.",
-    "freePerkTitle": "100% gratuit, sans carte bancaire",
+    "freePerkTitle": "Formule gratuite disponible, sans carte bancaire",
     "freePerkBody": "Créez votre compte en 30 secondes et générez vos premières histoires personnalisées offertes, avec le prénom de votre enfant en héros.",
     "tabLogin": "Connexion",
     "tabSignup": "Inscription",
@@ -687,7 +687,8 @@
     "suggestPassword": "Suggérer un mot de passe fort",
     "rememberMe": "Se souvenir de moi",
     "orContinue": "ou continuer avec",
-    "oauthSoon": "Connexion Google et Facebook bientôt disponible."
+    "oauthError": "La connexion via ce service n'a pas abouti. Réessayez, ou utilisez votre email.",
+    "oauthWorking": "Connexion en cours..."
   },
   "profiles": {
     "whoTonight": "Qui lit ce soir ?",

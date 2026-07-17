@@ -131,6 +131,7 @@ export const routing = defineRouting({
       fr: "/connexion",
       en: "/login",
     },
+    "/auth/callback": "/auth/callback",
     "/inscription": {
       fr: "/inscription",
       en: "/signup",

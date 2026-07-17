@@ -674,7 +674,7 @@
     "hint": "Demo: user / 123456 (parent) · admin / 123456 (admin)",
     "modalTitle": "Welcome to Lunireve",
     "modalSubtitle": "One free account, stories for the whole family.",
-    "freePerkTitle": "100% free, no credit card",
+    "freePerkTitle": "Free plan available, no credit card required",
     "freePerkBody": "Create your account in 30 seconds and generate your first personalised stories for free, with your child as the hero.",
     "tabLogin": "Log in",
     "tabSignup": "Sign up",
@@ -687,7 +687,8 @@
     "suggestPassword": "Suggest a strong password",
     "rememberMe": "Remember me",
     "orContinue": "or continue with",
-    "oauthSoon": "Google and Facebook sign-in coming soon."
+    "oauthError": "Sign-in with this service did not complete. Try again, or use your email.",
+    "oauthWorking": "Signing you in..."
   },
   "profiles": {
     "whoTonight": "Who's reading tonight?",

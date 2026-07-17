@@ -187,6 +187,39 @@ export async function signup(
   }
 }
 
+/**
+ * OAuth bridge: the /auth/callback page exchanged the Google/Facebook PKCE
+ * code client-side and hands us the Supabase access token. We verify it
+ * server-side (never trust the client's word), ensure the shadow user row,
+ * and mint our own HMAC cookie session, same as an email login.
+ */
+export async function loginWithOAuthToken(accessToken: string): Promise<LoginState> {
+  try {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase.auth.getUser(accessToken);
+    if (error || !data.user) return { ok: false, error: true };
+    const email = data.user.email ?? "";
+    const meta = data.user.user_metadata ?? {};
+    const displayName =
+      (typeof meta.full_name === "string" && meta.full_name) ||
+      (typeof meta.name === "string" && meta.name) ||
+      null;
+    await ensureUserRow({
+      id: data.user.id,
+      email: email || data.user.id,
+      firstName: displayName ? displayName.split(" ")[0] : null,
+    });
+    await setSession(
+      { role: "user", username: email || data.user.id, userId: data.user.id },
+      true
+    );
+    return { ok: true, role: "user" };
+  } catch (e) {
+    console.error("[Lunireve] OAuth login failed:", e);
+    return { ok: false, error: true };
+  }
+}
+
 export async function logout(): Promise<void> {
   await clearSession();
 }

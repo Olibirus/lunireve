@@ -182,7 +182,7 @@ export default function CreateStoryPage() {
   const [phase, setPhase] = useState<"form" | "loading" | "done" | "rejected">("form");
   // Form field that tripped the safety gates, when known: highlighted in red
   // on the form so the parent sees exactly what to rephrase.
-  const [blockedField, setBlockedField] = useState<string | null>(null);
+  const [blockedFields, setBlockedFields] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [selectedHeroId, setSelectedHeroId] = useState<string | null>(null);
   const [presetId, setPresetId] = useState<string | null>(null);
@@ -524,7 +524,7 @@ export default function CreateStoryPage() {
 
     setPhase("loading");
     setProgress(0);
-    setBlockedField(null);
+    setBlockedFields([]);
     savedIdRef.current = null;
 
     // The story is SAVED and the in-app notification pushed as soon as the
@@ -537,7 +537,7 @@ export default function CreateStoryPage() {
           if (interval.current) clearInterval(interval.current);
           // Dedicated rejection screen: explains, offers to fix (form stays
           // prefilled, offending field highlighted), browse, or read the FAQ.
-          setBlockedField(res.field ?? null);
+          setBlockedFields(res.fields ?? []);
           setPhase("rejected");
           return;
         }
@@ -626,7 +626,7 @@ export default function CreateStoryPage() {
 
   /** Red outline for the field the safety gate pointed at. */
   const blockedCls = (f: string) =>
-    blockedField === f
+    blockedFields.includes(f)
       ? "border-[var(--color-fox-500)] ring-2 ring-[var(--color-fox-500)]/40"
       : "";
 
@@ -664,7 +664,7 @@ export default function CreateStoryPage() {
         <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[var(--color-ink-500)]">
           {t("rejectedBody")}
         </p>
-        {blockedField && (
+        {blockedFields.length > 0 && (
           <p className="mx-auto mt-2 max-w-md text-sm font-medium text-[var(--color-fox-700)]">
             {t("rejectedFieldHint")}
           </p>
@@ -674,7 +674,7 @@ export default function CreateStoryPage() {
             variant="primary"
             size="lg"
             onClick={() => {
-              setStep(stepOfField(blockedField));
+              setStep(stepOfField(blockedFields[0] ?? null));
               setPhase("form");
             }}
           >
@@ -738,7 +738,8 @@ export default function CreateStoryPage() {
     ];
     content = (
       <section className="mx-auto max-w-xl px-5 py-12 md:py-16 text-center">
-        <FoxMark className="mx-auto h-14 w-14" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-s.png" alt="Lunireve" className="mx-auto h-12 w-auto" />
         <h1 className="mt-6 font-serif text-2xl md:text-3xl tracking-tight">
           {t("loadingTitle")}
         </h1>
@@ -960,10 +961,12 @@ export default function CreateStoryPage() {
               </div>
             </div>
 
+            {/* One merged group: occasions AND situations, one tap either way */}
             <div className="mt-5">
-              <Label>{t("occasionTitle")}</Label>
+              <Label>{t("quickPresetTitle")}</Label>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("situationHint")}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {OCCASION_PRESETS.map((preset) => (
+                {[...OCCASION_PRESETS, ...SITUATION_PRESETS].map((preset) => (
                   <button
                     key={preset.id}
                     type="button"
@@ -977,23 +980,53 @@ export default function CreateStoryPage() {
               </div>
             </div>
 
+            {/* Optional free-text details (max 3, shared with advanced mode) */}
             <div className="mt-4">
-              <Label>{t("situationTitle")}</Label>
-              <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("situationHint")}</p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {SITUATION_PRESETS.map((preset) => (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    onClick={() => applyPreset(preset)}
-                    className={chip(presetId === preset.id)}
-                  >
-                    <span className="mr-1">{preset.emoji}</span>
-                    {locale === "en" ? preset.en : preset.fr}
-                  </button>
+              <Label>{t("extraInfoTitle")}</Label>
+              <div className="mt-2 space-y-2">
+                {extraInfo.map((info, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input
+                      value={info}
+                      maxLength={140}
+                      placeholder={t("extraInfoPlaceholder")}
+                      aria-label={`${t("extraInfoTitle")} #${i + 1}`}
+                      onChange={(e) => setExtraInfo(i, e.target.value)}
+                      className={cn("flex-1", blockedCls("extraInfo"))}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => set("extraInfo", extraInfo.filter((_, x) => x !== i))}
+                      aria-label={t("companionRemove")}
+                      className="rounded-lg p-2 text-[var(--color-ink-400)] hover:text-[var(--color-fox-700)]"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 ))}
+                {extraInfo.length < MAX_EXTRA_INFO && (
+                  <button
+                    type="button"
+                    onClick={() => set("extraInfo", [...extraInfo, ""])}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3.5 py-1.5 text-sm text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    {t("extraInfoAdd", { count: extraInfo.length, max: MAX_EXTRA_INFO })}
+                  </button>
+                )}
               </div>
             </div>
+
+            {/* New character straight from quick mode */}
+            {!isKid && (
+              <Link
+                href="/compte/personnages/nouveau"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-ink-200)] px-3.5 py-1.5 text-sm text-[var(--color-ink-500)] hover:text-[var(--color-ink-800)]"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {tCharsPage("createInline")}
+              </Link>
+            )}
 
             <div className="mt-7 flex flex-wrap items-center gap-4">
               <Button variant="mint" size="lg" onClick={() => startGeneration()}>
@@ -1461,10 +1494,7 @@ export default function CreateStoryPage() {
                     <button
                       key={m}
                       type="button"
-                      onClick={() => {
-                        set("mood", m);
-                        setPresetId(null);
-                      }}
+                      onClick={() => set("mood", m)}
                       className={chip(params.mood === m)}
                     >
                       {t(`mood_${m}`)}
@@ -1488,7 +1518,6 @@ export default function CreateStoryPage() {
                       onClick={() => {
                         set("theme", slug);
                         set("subTheme", undefined);
-                        setPresetId(null);
                       }}
                       className={chip(params.theme === slug)}
                     >
@@ -1507,7 +1536,6 @@ export default function CreateStoryPage() {
                       onClick={() => {
                         set("theme", slug);
                         set("subTheme", undefined);
-                        setPresetId(null);
                       }}
                       className={chip(params.theme === slug)}
                     >

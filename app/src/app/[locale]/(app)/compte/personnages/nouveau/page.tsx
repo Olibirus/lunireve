@@ -62,7 +62,7 @@ export default function NewCharacterWizard() {
 
   const [step, setStep] = useState(0);
   const [type, setType] = useState<CharacterType | null>(null);
-  const [role, setRole] = useState<CharacterRole>("secondary");
+  const [role, setRole] = useState<CharacterRole>("main");
   const [name, setName] = useState("");
   const [age, setAge] = useState(6);
   const [gender, setGender] = useState<CharacterGender>("neutre");

@@ -5,6 +5,7 @@ always: `github.com/Olibirus/lunireve`, code in `app/`. Run `pnpm build`
 after each batch (must stay green).
 
 ## Cross-session changes log
+2026-07-16 [Session B]: round-15. Touched lib/ai/safetyGate.ts (batched GateBatchResult), lib/moderation.ts (batched ParamsModeration), app/actions/generateStory.ts (fields[] in moderation result), db/customStories.ts + app/actions/customStories.ts (feedback upsert per voter). Creer: merged quick presets, sticky presets, real logo on loading; perso toolbar = library card; wizard default role main.
 2026-07-15 [Session B]: round-14. Touched db/customStories.ts + app/actions/customStories.ts (story feedback recording, admin list) and (admin)/admin/moderation + new components/admin/StoryFeedbackPanel.tsx (feedback section). Creer: quick/advanced modes, SITUATION_PRESETS in lib/storyOptions.ts.
 2026-07-14 [Session B]: round-13. Touched lib/ai/stylePrompts.ts (new "vif" style) + app/actions/generateStory.ts (moral line + moral semantic gate). ChildAvatar fixed (absolute inset, %-padding bug), CustomStoryParams + moral/vif, in-profile upgrade links now /compte/abonnement.
 2026-07-16 [Session A]: i18n fix (NextIntlClientProvider locale prop + setRequestLocale in (site)/layout: EN pages were emitting FR hrefs) + SEO layer: lib/seo.ts (hreflang/canonical helpers), components/seo/JsonLd, Organization/WebSite/ShortStory/Breadcrumb/FAQPage/Article schemas, keyword-tuned titles (meta/library/funnel/personalizedPage seo* keys), root layout metadata now locale-aware

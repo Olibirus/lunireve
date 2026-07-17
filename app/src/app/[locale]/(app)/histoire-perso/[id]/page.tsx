@@ -404,32 +404,39 @@ export default function CustomStoryPage() {
 
       {/* Toolbar — audio, downloads, then the same controls as any story */}
       <section className="mx-auto max-w-4xl px-5 md:px-8 -mt-7 relative z-30" data-no-print>
-        <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 shadow-[var(--shadow-card)]">
-          <div className="flex flex-wrap items-center gap-2">
-            <AudioPlayer
-              title={story.title}
-              audioUrl={null}
-              chapterCount={1}
-              storyId={story.id.startsWith("PS-") ? story.id : undefined}
-              tier="personalized"
-              language={story.params.language}
-            />
-            <DownloadButtons
-              stacked
-              locale={story.params.language}
-              pdf={{
-                title: story.title,
-                meta: `${t(`themes.${story.params.theme}`)} · ${story.params.heroName}`,
-                paragraphs: story.body,
-                quiz: buildQuiz(story),
-                glossary: story.glossary,
-                locale: story.params.language,
-                // Generated illustration on the PDF cover (same as on page).
-                coverImage: imageUrl ?? undefined,
-              }}
-            />
+        {/* EXACT same card as the library story page: round play button left,
+            stacked downloads right, comfort controls under a divider. */}
+        <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 md:p-5 shadow-[var(--shadow-card)]">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:items-center">
+            <div className="flex justify-center">
+              <AudioPlayer
+                round
+                title={story.title}
+                audioUrl={null}
+                chapterCount={1}
+                storyId={story.id.startsWith("PS-") ? story.id : undefined}
+                tier="personalized"
+                language={story.params.language}
+              />
+            </div>
+            <div className="flex justify-center">
+              <DownloadButtons
+                stacked
+                locale={story.params.language}
+                pdf={{
+                  title: story.title,
+                  meta: `${t(`themes.${story.params.theme}`)} · ${story.params.heroName}`,
+                  paragraphs: story.body,
+                  quiz: buildQuiz(story),
+                  glossary: story.glossary,
+                  locale: story.params.language,
+                  // Generated illustration on the PDF cover (same as on page).
+                  coverImage: imageUrl ?? undefined,
+                }}
+              />
+            </div>
           </div>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 border-t border-[var(--color-ink-100)] pt-4">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 border-t border-[var(--color-ink-100)] pt-4">
             <FavoriteButton slug={story.id} />
             <ShareButton />
             <ReportDialog slug={story.id} />
@@ -521,7 +528,7 @@ export default function CustomStoryPage() {
             </button>
           </div>
           {/* Optional reason, one tap (already recorded without it) */}
-          {feedback && !reasonSent && (
+          {feedback === "down" && !reasonSent && (
             <div className="mt-3 flex flex-wrap justify-center gap-1.5">
               {["reasonLength", "reasonOffTopic", "reasonLevel", "reasonOther"].map((k) => (
                 <button
@@ -535,7 +542,7 @@ export default function CustomStoryPage() {
               ))}
             </div>
           )}
-          {feedback && reasonSent && (
+          {feedback === "down" && reasonSent && (
             <p className="mt-3 text-center text-xs text-[var(--color-mint-700)]">
               {t("customStory.reasonThanks")}
             </p>

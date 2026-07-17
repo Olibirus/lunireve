@@ -59,6 +59,11 @@ export type GateResult =
   | { ok: true }
   | { ok: false; field: string; category: string };
 
+/** Batched variant: EVERY offending field at once, so the user fixes all in one pass. */
+export type GateBatchResult =
+  | { ok: true }
+  | { ok: false; fields: { field: string; category: string }[] };
+
 function violatedCategory(
   scores: Record<string, number>,
   limits: Record<string, number>
@@ -81,7 +86,7 @@ function getClient(): OpenAI | null {
  */
 export async function moderateStoryFields(
   fields: Array<{ field: string; text: string }>
-): Promise<GateResult> {
+): Promise<GateBatchResult> {
   const nonEmpty = fields.filter((f) => f.text && f.text.trim().length > 0);
   if (nonEmpty.length === 0) return { ok: true };
 
@@ -96,14 +101,15 @@ export async function moderateStoryFields(
       model: "omni-moderation-latest",
       input: nonEmpty.map((f) => f.text),
     });
+    // Collect EVERY offending field (not just the first): the user fixes
+    // everything in one pass instead of a frustrating fix-retry loop.
+    const flagged: { field: string; category: string }[] = [];
     for (let i = 0; i < res.results.length; i++) {
       const scores = res.results[i].category_scores as unknown as Record<string, number>;
       const category = violatedCategory(scores, INPUT_LIMITS);
-      if (category) {
-        return { ok: false, field: nonEmpty[i].field, category };
-      }
+      if (category) flagged.push({ field: nonEmpty[i].field, category });
     }
-    return { ok: true };
+    return flagged.length ? { ok: false, fields: flagged } : { ok: true };
   } catch (e) {
     console.error("[Lunireve] safety gate (inputs) unavailable, failing open:", e);
     return { ok: true };

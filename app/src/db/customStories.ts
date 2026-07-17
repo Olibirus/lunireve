@@ -143,11 +143,15 @@ export type StoryFeedbackEntry = {
   verdict: "up" | "down";
   reason?: string;
   at: string;
+  /** Who voted (account username): ONE entry per voter per story. */
+  by?: string;
 };
 
 /**
- * Append a thumbs feedback entry to a personalized story row (stored in
- * generationMetadata.feedback). Recorded even without a reason.
+ * Record a thumbs feedback entry on a personalized story row (stored in
+ * generationMetadata.feedback). Recorded even without a reason. UPSERT per
+ * voter: re-clicking or adding a reason UPDATES that voter's single entry
+ * instead of stacking duplicates in the admin list.
  */
 export async function appendStoryFeedback(
   id: string,
@@ -162,7 +166,13 @@ export async function appendStoryFeedback(
   const meta = (row.generationMetadata ?? {}) as CustomStoryMetadata & {
     feedback?: StoryFeedbackEntry[];
   };
-  meta.feedback = [...(meta.feedback ?? []), entry].slice(-50);
+  const others = (meta.feedback ?? []).filter((f) => !entry.by || f.by !== entry.by);
+  const previous = (meta.feedback ?? []).find((f) => entry.by && f.by === entry.by);
+  meta.feedback = [
+    ...others,
+    // Keep an already-given reason when the follow-up call doesn't carry one.
+    { ...entry, reason: entry.reason ?? previous?.reason },
+  ].slice(-50);
   await db
     .update(stories)
     .set({ generationMetadata: meta, updatedAt: new Date() })

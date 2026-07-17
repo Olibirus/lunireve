@@ -841,6 +841,7 @@
     "quickTitle": "A story in 30 seconds",
     "quickHint": "Pick the hero, an occasion or a situation if you like, and off you go. Advanced mode opens every setting.",
     "advancedSwitch": "More options? Switch to advanced mode",
+    "quickPresetTitle": "An occasion or a situation? (optional)",
     "situationTitle": "A situation to work through? (optional)",
     "situationHint": "The story will handle this topic gently, never in a scary way.",
     "occasionTitle": "A special occasion? (optional)",

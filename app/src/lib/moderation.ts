@@ -153,18 +153,23 @@ export function isValidName(name: string): boolean {
   return moderateText(trimmed).ok;
 }
 
+export type ModerationReason = "banned" | "url" | "invalid-name" | "too-long";
+
 export type ParamsModeration =
   | { ok: true }
-  | { ok: false; field: string; reason: "banned" | "url" | "invalid-name" | "too-long" };
+  | { ok: false; fields: { field: string; reason: ModerationReason }[] };
 
 /**
  * Full server-side validation of story params: every free-text field is
  * screened, names must look like names, and lengths are capped (the client
- * caps via maxLength, the server re-checks).
+ * caps via maxLength, the server re-checks). ALL offending fields are
+ * returned at once so the user fixes everything in a single pass.
  */
 export function moderateStoryParams(params: CustomStoryParams): ParamsModeration {
+  const flagged: { field: string; reason: ModerationReason }[] = [];
+
   if (!isValidName(params.heroName)) {
-    return { ok: false, field: "heroName", reason: "invalid-name" };
+    flagged.push({ field: "heroName", reason: "invalid-name" });
   }
 
   const freeText: [string, string, number][] = [
@@ -180,16 +185,20 @@ export function moderateStoryParams(params: CustomStoryParams): ParamsModeration
 
   for (const [field, value, max] of freeText) {
     if (!value) continue;
-    if (value.length > max) return { ok: false, field, reason: "too-long" };
+    if (value.length > max) {
+      flagged.push({ field, reason: "too-long" });
+      continue;
+    }
     const res = moderateText(value);
-    if (!res.ok) return { ok: false, field, reason: res.reason };
+    if (!res.ok) flagged.push({ field, reason: res.reason });
   }
 
   for (const companion of (params.companions ?? []).slice(0, 8)) {
     if (companion.name && !isValidName(companion.name)) {
-      return { ok: false, field: "companions", reason: "invalid-name" };
+      flagged.push({ field: "companions", reason: "invalid-name" });
+      break;
     }
   }
 
-  return { ok: true };
+  return flagged.length ? { ok: false, fields: flagged } : { ok: true };
 }

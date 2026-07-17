@@ -33,10 +33,11 @@ export type GenerateResult =
   | {
       ok: false;
       reason?: "moderation" | "error";
-      /** Offending form field when moderation blocked (heroName, trait,
-          subTheme, place, fear, companions, extraInfo). Absent when the
-          rejection came from the generated output. */
-      field?: string;
+      /** ALL offending form fields when moderation blocked (heroName, trait,
+          subTheme, moral, place, fear, companions, extraInfo), so the user
+          fixes everything in one pass. Absent when the rejection came from
+          the generated output. */
+      fields?: string[];
     };
 
 const MOOD_FR: Record<CustomStoryParams["mood"], string> = {
@@ -75,12 +76,16 @@ export async function generateStoryAction(
     f.startsWith("companion") ? "companions" : f.startsWith("extraInfo") ? "extraInfo" : f;
 
   // 2a — blocklist wall (free, instant). No fallback story for this one.
+  // Every offending field is collected so ONE round-trip reports them all.
+  const flaggedFields = new Set<string>();
   const check = moderateStoryParams(params);
   if (!check.ok) {
+    for (const f of check.fields) flaggedFields.add(uiField(f.field));
     console.warn(
-      `[Lunireve] story input blocked (${check.field}: ${check.reason}) for ${session.username}`
+      `[Lunireve] story input blocked (${check.fields
+        .map((f) => `${f.field}: ${f.reason}`)
+        .join(", ")}) for ${session.username}`
     );
-    return { ok: false, reason: "moderation", field: uiField(check.field) };
   }
 
   // 2b — semantic wall: multilingual, intent-aware classification of every
@@ -105,10 +110,17 @@ export async function generateStoryAction(
     })),
   ]);
   if (!semantic.ok) {
+    for (const f of semantic.fields) flaggedFields.add(uiField(f.field));
     console.warn(
-      `[Lunireve] story input blocked by safety gate (${semantic.field}: ${semantic.category}) for ${session.username}`
+      `[Lunireve] story input blocked by safety gate (${semantic.fields
+        .map((f) => `${f.field}: ${f.category}`)
+        .join(", ")}) for ${session.username}`
     );
-    return { ok: false, reason: "moderation", field: uiField(semantic.field) };
+  }
+
+  // One combined verdict: the user sees EVERY field to fix, in red, at once.
+  if (flaggedFields.size > 0) {
+    return { ok: false, reason: "moderation", fields: [...flaggedFields] };
   }
 
   // 3 — tier clamps (quietly cap instead of failing: the UI already prevents

@@ -94,6 +94,8 @@ export async function recordStoryFeedback(
         verdict,
         reason: reason?.slice(0, 120) || undefined,
         at: new Date().toISOString(),
+        // One entry per voter: repeat clicks / added reasons update it.
+        by: session.username,
       }),
     };
   } catch (e) {

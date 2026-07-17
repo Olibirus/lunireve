@@ -6,7 +6,11 @@ import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { findCustomStory, type CustomStory } from "@/lib/customStories";
 import { getActiveProfileId } from "@/lib/profiles";
-import { fetchCustomStory, ensureCustomStoryImage } from "@/app/actions/customStories";
+import {
+  fetchCustomStory,
+  ensureCustomStoryImage,
+  recordStoryFeedback,
+} from "@/app/actions/customStories";
 import { AudioPlayer } from "@/components/story/AudioPlayer";
 import { DownloadButtons } from "@/components/story/DownloadButtons";
 import { StoryQuiz } from "@/components/story/StoryQuiz";
@@ -265,6 +269,9 @@ export default function CustomStoryPage() {
       /* ignore */
     }
   }, [story]);
+  // Optional follow-up reason (one shot); the verdict itself is recorded to
+  // the admin on the FIRST click, reason or not.
+  const [reasonSent, setReasonSent] = useState(false);
   function giveFeedback(v: "up" | "down") {
     if (!story) return;
     setFeedback(v);
@@ -272,6 +279,16 @@ export default function CustomStoryPage() {
       localStorage.setItem(profileScopedKey(`lunireve:feedback:${story.id}`), v);
     } catch {
       /* ignore */
+    }
+    if (story.id.startsWith("PS-")) {
+      recordStoryFeedback(story.id, v).catch(() => {});
+    }
+  }
+  function sendReason(reason: string) {
+    if (!story || reasonSent) return;
+    setReasonSent(true);
+    if (story.id.startsWith("PS-") && feedback) {
+      recordStoryFeedback(story.id, feedback, reason).catch(() => {});
     }
   }
 
@@ -503,6 +520,26 @@ export default function CustomStoryPage() {
               <ThumbsDown className="h-4 w-4" />
             </button>
           </div>
+          {/* Optional reason, one tap (already recorded without it) */}
+          {feedback && !reasonSent && (
+            <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+              {["reasonLength", "reasonOffTopic", "reasonLevel", "reasonOther"].map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => sendReason(t(`customStory.${k}`))}
+                  className="rounded-full border border-[var(--color-ink-100)] px-3 py-1 text-xs text-[var(--color-ink-500)] hover:bg-[var(--color-cream-100)] hover:text-[var(--color-ink-800)]"
+                >
+                  {t(`customStory.${k}`)}
+                </button>
+              ))}
+            </div>
+          )}
+          {feedback && reasonSent && (
+            <p className="mt-3 text-center text-xs text-[var(--color-mint-700)]">
+              {t("customStory.reasonThanks")}
+            </p>
+          )}
         </div>
 
         <StoryQuiz questions={buildQuiz(story)} slug={story.id} />

@@ -27,6 +27,7 @@ import {
   STORY_SUBTHEMES,
   STORY_MORALS,
   OCCASION_PRESETS,
+  SITUATION_PRESETS,
   THEME_GENRES,
   THEME_UNIVERSES,
   storyOptLabel,
@@ -175,6 +176,9 @@ export default function CreateStoryPage() {
   const [used, setUsed] = useState(0);
   const [tier, setTier] = useState<CustomTier>("free");
   const [step, setStep] = useState(0);
+  // Quick by default: hero + optional occasion, one button. Advanced opens
+  // the full 4-step flow. Sequels land in advanced (recap prefilled).
+  const [mode, setMode] = useState<"quick" | "advanced">("quick");
   const [phase, setPhase] = useState<"form" | "loading" | "done" | "rejected">("form");
   // Form field that tripped the safety gates, when known: highlighted in red
   // on the form so the parent sees exactly what to rephrase.
@@ -220,7 +224,9 @@ export default function CreateStoryPage() {
     setParams((p) => {
       // Drop any note previously seeded by a preset, keep the parent's own.
       const seeded = new Set(
-        OCCASION_PRESETS.flatMap((x) => [x.extraFr, x.extraEn]).filter(Boolean) as string[]
+        [...OCCASION_PRESETS, ...SITUATION_PRESETS]
+          .flatMap((x) => [x.extraFr, x.extraEn])
+          .filter(Boolean) as string[]
       );
       const kept = (p.extraInfo ?? []).filter((s) => !seeded.has(s));
       const extraInfo = extra ? [extra, ...kept].slice(0, MAX_EXTRA_INFO) : kept;
@@ -262,6 +268,7 @@ export default function CreateStoryPage() {
           };
           setParams(sequelParams);
           if (prev.profileId) setProfileId(prev.profileId);
+          setMode("advanced");
           setStep(3);
           setReady(true);
         };
@@ -855,6 +862,158 @@ export default function CreateStoryPage() {
           </p>
         )}
 
+        {/* Quick / advanced switch — quick is the default bedtime path */}
+        <div className="mt-5 inline-flex rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-1">
+          {(["quick", "advanced"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={cn(
+                "rounded-full px-4 py-1.5 text-sm transition-colors",
+                mode === m
+                  ? "bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
+                  : "text-[var(--color-ink-600)] hover:text-[var(--color-ink-800)]"
+              )}
+            >
+              {t(m === "quick" ? "quickMode" : "advancedMode")}
+            </button>
+          ))}
+        </div>
+
+        {/* ---------- QUICK MODE: hero + optional occasion, one button ---------- */}
+        {mode === "quick" && (
+          <div className="mt-6 rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-6 md:p-8 shadow-[var(--shadow-soft)]">
+            {formError && (
+              <p className="mb-5 flex items-start gap-2 rounded-xl border border-[var(--color-fox-300)] bg-[var(--color-fox-300)]/10 px-4 py-3 text-sm text-[var(--color-fox-700)]">
+                <X className="mt-0.5 h-4 w-4 shrink-0" />
+                {t(formError)}
+              </p>
+            )}
+            <h2 className="font-serif text-xl tracking-tight">{t("quickTitle")}</h2>
+            <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("quickHint")}</p>
+
+            {!isKid && profiles.length > 0 && (
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                {profiles.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => applyProfile(p)}
+                    className={cn(
+                      "flex flex-col items-center gap-1.5 rounded-2xl border-2 px-4 py-3 transition-colors",
+                      profileId === p.id && params.heroName === p.name
+                        ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]"
+                        : "border-[var(--color-ink-100)] hover:border-[var(--color-ink-200)] hover:bg-[var(--color-cream-100)]"
+                    )}
+                  >
+                    <ChildAvatar color={p.avatar} className="h-12 w-12" />
+                    <span className="text-sm font-medium text-[var(--color-ink-800)]">{p.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {savedHeroes.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {savedHeroes.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => applySavedHero(c)}
+                    className={chip(selectedHeroId === c.id)}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-5 flex flex-wrap items-end gap-3">
+              <div className="min-w-[12rem] flex-1">
+                <Label htmlFor="quick-name">{t("heroName")} *</Label>
+                <Input
+                  id="quick-name"
+                  value={params.heroName}
+                  maxLength={30}
+                  onChange={(e) => {
+                    setParams((p) => ({ ...p, heroName: e.target.value, heroDescription: undefined }));
+                    setSelectedHeroId(null);
+                  }}
+                  className={cn("mt-1.5", blockedCls("heroName"))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="quick-age">{t("heroAge")}</Label>
+                <select
+                  id="quick-age"
+                  value={params.heroAge}
+                  onChange={(e) => set("heroAge", parseInt(e.target.value, 10))}
+                  className="mt-1.5 h-10 rounded-xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-2.5 text-sm text-[var(--color-ink-800)]"
+                >
+                  {Array.from({ length: isFree ? 12 : 16 }, (_, i) => i + 1).map((a) => (
+                    <option key={a} value={a}>
+                      {a}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <Label>{t("occasionTitle")}</Label>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {OCCASION_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => applyPreset(preset)}
+                    className={chip(presetId === preset.id)}
+                  >
+                    <span className="mr-1">{preset.emoji}</span>
+                    {locale === "en" ? preset.en : preset.fr}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <Label>{t("situationTitle")}</Label>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("situationHint")}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {SITUATION_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => applyPreset(preset)}
+                    className={chip(presetId === preset.id)}
+                  >
+                    <span className="mr-1">{preset.emoji}</span>
+                    {locale === "en" ? preset.en : preset.fr}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-7 flex flex-wrap items-center gap-4">
+              <Button variant="mint" size="lg" onClick={() => startGeneration()}>
+                <Wand2 className="h-4 w-4" />
+                {t("generate")}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setMode("advanced")}
+                className="text-sm text-[var(--color-indigo-soft-600)] underline underline-offset-2 hover:text-[var(--color-ink-800)]"
+              >
+                {t("advancedSwitch")}
+              </button>
+            </div>
+            <p className="mt-4 text-xs text-[var(--color-ink-400)]">{t("privacyNote")}</p>
+          </div>
+        )}
+
+        {mode === "advanced" && (
+          <>
         <ol className="mt-6 flex flex-wrap items-center gap-2 text-xs">
           {steps.map((label, i) => (
             <li
@@ -1255,6 +1414,25 @@ export default function CreateStoryPage() {
                 </div>
               </div>
 
+              {/* Situations to work through (#c): fears, quarrels, big feelings */}
+              <div>
+                <Label>{t("situationTitle")}</Label>
+                <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("situationHint")}</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {SITUATION_PRESETS.map((preset) => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => applyPreset(preset)}
+                      className={chip(presetId === preset.id)}
+                    >
+                      <span className="mr-1">{preset.emoji}</span>
+                      {locale === "en" ? preset.en : preset.fr}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {!isKid && (
                 <div>
                   <Label htmlFor="reading-age">{t("readingAge")}</Label>
@@ -1625,6 +1803,8 @@ export default function CreateStoryPage() {
               }))}
             />
           </div>
+        )}
+          </>
         )}
       </section>
     );

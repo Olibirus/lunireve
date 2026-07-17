@@ -56,7 +56,12 @@
     "feedbackTitle": "What did you think of this story?",
     "feedbackThanks": "Thanks for your feedback!",
     "feedbackUp": "I liked this story",
-    "feedbackDown": "I didn't like this story"
+    "feedbackDown": "I didn't like this story",
+    "reasonLength": "Too short or too long",
+    "reasonOffTopic": "Not what I asked for",
+    "reasonLevel": "Not right for the age",
+    "reasonOther": "Something else",
+    "reasonThanks": "Thanks, noted!"
   },
   "characters_page": {
     "title": "My characters",
@@ -831,6 +836,13 @@
     "manageCharacters": "+ Manage my characters",
     "orPick": "Or pick a saved character:",
     "notifReady": "Your story is ready!",
+    "quickMode": "Quick mode",
+    "advancedMode": "Advanced mode",
+    "quickTitle": "A story in 30 seconds",
+    "quickHint": "Pick the hero, an occasion or a situation if you like, and off you go. Advanced mode opens every setting.",
+    "advancedSwitch": "More options? Switch to advanced mode",
+    "situationTitle": "A situation to work through? (optional)",
+    "situationHint": "The story will handle this topic gently, never in a scary way.",
     "occasionTitle": "A special occasion? (optional)",
     "occasionHint": "Tap an occasion to prefill the theme and mood in one click.",
     "subTheme": "Story angle (optional)",

@@ -249,6 +249,74 @@ export const OCCASION_PRESETS: OccasionPreset[] = [
 ];
 
 /**
+ * Real-life situations to work through (#c): one tap fills theme + mood + a
+ * plot note, so parents never have to word the hard stuff themselves. Same
+ * shape as OCCASION_PRESETS, rendered as a second preset group.
+ */
+export const SITUATION_PRESETS: OccasionPreset[] = [
+  {
+    id: "dispute-fratrie",
+    emoji: "🤝",
+    fr: "Dispute entre frères et sœurs",
+    en: "Sibling quarrel",
+    theme: "famille",
+    mood: "touchant",
+    extraFr: "Le héros s'est disputé avec son frère ou sa sœur et découvre comment se réconcilier.",
+    extraEn: "The hero quarrelled with their sibling and finds out how to make up.",
+  },
+  {
+    id: "peur-docteur",
+    emoji: "🩺",
+    fr: "Peur du docteur",
+    en: "Fear of the doctor",
+    theme: "emotions",
+    mood: "doux",
+    extraFr: "Le héros doit aller chez le docteur, il a un peu peur, et découvre que tout se passe bien.",
+    extraEn: "The hero has to visit the doctor, feels a little scared, and finds out it all goes fine.",
+  },
+  {
+    id: "moqueries",
+    emoji: "🛡️",
+    fr: "Moqueries à l'école",
+    en: "Teasing at school",
+    theme: "courage",
+    mood: "touchant",
+    extraFr: "Un enfant se moque du héros à l'école ; le héros apprend à se protéger, à en parler et à trouver du soutien.",
+    extraEn: "Someone teases the hero at school; the hero learns to stand up, speak up and find support.",
+  },
+  {
+    id: "grosses-coleres",
+    emoji: "🌋",
+    fr: "Grosses colères",
+    en: "Big tantrums",
+    theme: "emotions",
+    mood: "doux",
+    extraFr: "Le héros sent parfois une grosse colère monter comme un volcan et apprend à la faire redescendre.",
+    extraEn: "The hero sometimes feels a big anger rise like a volcano and learns how to let it settle.",
+  },
+  {
+    id: "deuil-animal",
+    emoji: "🕊️",
+    fr: "Perte d'un animal",
+    en: "Loss of a pet",
+    theme: "emotions",
+    mood: "touchant",
+    extraFr: "L'animal adoré du héros est parti ; l'histoire aborde ce départ avec beaucoup de douceur et de beaux souvenirs.",
+    extraEn: "The hero's beloved pet is gone; the story handles the goodbye with great gentleness and lovely memories.",
+  },
+  {
+    id: "parents-separes",
+    emoji: "🏡",
+    fr: "Parents séparés",
+    en: "Separated parents",
+    theme: "famille",
+    mood: "touchant",
+    extraFr: "Les parents du héros vivent maintenant dans deux maisons ; le héros découvre qu'il est aimé pareil dans les deux.",
+    extraEn: "The hero's parents now live in two homes; the hero finds out they are loved just the same in both.",
+  },
+];
+
+/**
  * Optional moral for the story's ending: one tap for the classics, or free
  * text for a precise lesson (the wizard also accepts a custom sentence).
  */

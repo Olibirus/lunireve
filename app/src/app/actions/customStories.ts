@@ -13,6 +13,8 @@ import {
   selectCustomStoriesByUser,
   selectCustomStoryImageInputs,
   deleteCustomStoryRow,
+  appendStoryFeedback,
+  selectRecentStoryFeedback,
 } from "@/db/customStories";
 import type { CustomStory, CustomStoryParams } from "@/lib/customStories";
 
@@ -71,6 +73,45 @@ export async function listMyCustomStories(): Promise<CustomStory[]> {
     return await selectCustomStoriesByUser(userId);
   } catch (e) {
     console.error("[Lunireve] listMyCustomStories failed:", e);
+    return [];
+  }
+}
+
+/**
+ * Record a thumbs up/down on a personalized story. Fired on the FIRST click
+ * (no reason needed); an optional follow-up call carries the reason.
+ */
+export async function recordStoryFeedback(
+  id: string,
+  verdict: "up" | "down",
+  reason?: string
+): Promise<{ ok: boolean }> {
+  const session = await getSession();
+  if (!session) return { ok: false };
+  try {
+    return {
+      ok: await appendStoryFeedback(id, {
+        verdict,
+        reason: reason?.slice(0, 120) || undefined,
+        at: new Date().toISOString(),
+      }),
+    };
+  } catch (e) {
+    console.error("[Lunireve] recordStoryFeedback failed:", e);
+    return { ok: false };
+  }
+}
+
+/** Admin: all recorded story feedback, newest first. */
+export async function listStoryFeedback(): Promise<
+  { storyId: string; title: string; verdict: "up" | "down"; reason?: string; at: string }[]
+> {
+  const session = await getSession();
+  if (session?.role !== "admin") return [];
+  try {
+    return await selectRecentStoryFeedback();
+  } catch (e) {
+    console.error("[Lunireve] listStoryFeedback failed:", e);
     return [];
   }
 }

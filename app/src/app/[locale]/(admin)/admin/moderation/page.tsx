@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { StatusPill } from "@/components/admin/AdminShell";
+import { StoryFeedbackPanel } from "@/components/admin/StoryFeedbackPanel";
 import {
   mockReports,
   mockSubmissions,
@@ -65,6 +66,9 @@ export default function AdminModerationPage() {
       <p className="mt-1 text-sm text-[var(--color-ink-500)]">
         Cliquez une ligne pour lire l&apos;histoire, puis approuver, modifier ou supprimer.
       </p>
+
+      {/* Parents’ thumbs on personalized stories (real data) */}
+      <StoryFeedbackPanel />
 
       {/* Submissions */}
       <section className="mt-8">

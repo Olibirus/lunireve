@@ -56,7 +56,12 @@
     "feedbackTitle": "Qu'avez-vous pensé de cette histoire ?",
     "feedbackThanks": "Merci pour votre avis !",
     "feedbackUp": "J'ai aimé cette histoire",
-    "feedbackDown": "Je n'ai pas aimé cette histoire"
+    "feedbackDown": "Je n'ai pas aimé cette histoire",
+    "reasonLength": "Trop courte ou trop longue",
+    "reasonOffTopic": "Ne correspond pas à ma demande",
+    "reasonLevel": "Pas adaptée à l’âge",
+    "reasonOther": "Autre chose",
+    "reasonThanks": "Merci, c’est noté !"
   },
   "characters_page": {
     "title": "Mes personnages",
@@ -831,6 +836,13 @@
     "manageCharacters": "+ Gérer mes personnages",
     "orPick": "Ou choisis un personnage enregistré :",
     "notifReady": "Ton histoire est prête !",
+    "quickMode": "Mode rapide",
+    "advancedMode": "Mode avancé",
+    "quickTitle": "Une histoire en 30 secondes",
+    "quickHint": "Choisissez le héros, une occasion ou une situation si vous le souhaitez, et c’est parti. Le mode avancé ouvre tous les réglages.",
+    "advancedSwitch": "Plus d’options ? Passer en mode avancé",
+    "situationTitle": "Une situation à accompagner ? (facultatif)",
+    "situationHint": "L’histoire abordera ce sujet en douceur, sans jamais le rendre inquiétant.",
     "occasionTitle": "Une occasion spéciale ? (facultatif)",
     "occasionHint": "Touchez une occasion pour préremplir le thème et l'ambiance en un clic.",
     "subTheme": "Angle de l'histoire (facultatif)",

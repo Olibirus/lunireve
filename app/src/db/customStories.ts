@@ -139,6 +139,55 @@ export async function selectCustomStoriesByUser(
 }
 
 /** What the lazy illustration path needs: cached URL + generation inputs. */
+export type StoryFeedbackEntry = {
+  verdict: "up" | "down";
+  reason?: string;
+  at: string;
+};
+
+/**
+ * Append a thumbs feedback entry to a personalized story row (stored in
+ * generationMetadata.feedback). Recorded even without a reason.
+ */
+export async function appendStoryFeedback(
+  id: string,
+  entry: StoryFeedbackEntry
+): Promise<boolean> {
+  const [row] = await db
+    .select({ generationMetadata: stories.generationMetadata })
+    .from(stories)
+    .where(and(eq(stories.id, id), eq(stories.type, "text_story")))
+    .limit(1);
+  if (!row) return false;
+  const meta = (row.generationMetadata ?? {}) as CustomStoryMetadata & {
+    feedback?: StoryFeedbackEntry[];
+  };
+  meta.feedback = [...(meta.feedback ?? []), entry].slice(-50);
+  await db
+    .update(stories)
+    .set({ generationMetadata: meta, updatedAt: new Date() })
+    .where(eq(stories.id, id));
+  return true;
+}
+
+/** All feedback entries across personalized stories, newest first (admin). */
+export async function selectRecentStoryFeedback(limit = 100): Promise<
+  { storyId: string; title: string; verdict: "up" | "down"; reason?: string; at: string }[]
+> {
+  const rows = await db
+    .select({ id: stories.id, title: stories.title, generationMetadata: stories.generationMetadata })
+    .from(stories)
+    .where(and(eq(stories.type, "text_story"), eq(stories.genre, PERSONALIZED_GENRE)));
+  const out: { storyId: string; title: string; verdict: "up" | "down"; reason?: string; at: string }[] = [];
+  for (const row of rows) {
+    const meta = row.generationMetadata as (CustomStoryMetadata & { feedback?: StoryFeedbackEntry[] }) | null;
+    for (const f of meta?.feedback ?? []) {
+      out.push({ storyId: row.id, title: row.title, ...f });
+    }
+  }
+  return out.sort((a, b) => b.at.localeCompare(a.at)).slice(0, limit);
+}
+
 /**
  * Delete a personalized story row. Owner-guarded: rows owned by a real user
  * only fall to that user; unattributed rows (temp accounts) can be removed by

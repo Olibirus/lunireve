@@ -335,6 +335,16 @@ export default function CreateStoryPage() {
         if (c) applySavedHero(c);
       }
 
+      // Theme card on the homepage: apply the matching preset (fills theme +
+      // angle + mood + plot note), same as tapping it in the wizard.
+      const occasion = sp.get("occasion");
+      if (occasion) {
+        const preset = [...OCCASION_PRESETS, ...SITUATION_PRESETS].find(
+          (x) => x.id === occasion
+        );
+        if (preset) applyPreset(preset);
+      }
+
       // Pre-fill from filter params when arriving from an empty library result.
       setParams((prev) => {
         const nextP = { ...prev };

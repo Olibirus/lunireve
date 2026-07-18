@@ -11,7 +11,8 @@ import {
   profileLimit,
   type ChildProfile,
 } from "@/lib/profiles";
-import { readCustomStories, type CustomStory } from "@/lib/customStories";
+import { readCustomStories, setCustomStoryImage, type CustomStory } from "@/lib/customStories";
+import { fetchCustomStory } from "@/app/actions/customStories";
 import { readFavoritesFor } from "@/lib/favorites";
 import { mockStories, type MockStory } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
@@ -55,17 +56,17 @@ function StoryRowCarousel({ row }: { row: ReaderRow<CustomStory> }) {
   };
 
   return (
-    <div className="flex items-stretch gap-3">
-      {/* Reader card, small and out of the way */}
-      <div className="flex w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-1 py-2">
+    <div className="flex items-center gap-4">
+      {/* Reader: bare round avatar + name, no card chrome */}
+      <div className="flex w-24 shrink-0 flex-col items-center gap-1.5">
         {row.avatar ? (
-          <ChildAvatar color={row.avatar} className="h-9 w-9" />
+          <ChildAvatar color={row.avatar} className="h-18 w-18" />
         ) : (
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-cream-200)]">
-            <User className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
+          <span className="flex h-18 w-18 items-center justify-center rounded-full bg-[var(--color-cream-200)]">
+            <User className="h-8 w-8 text-[var(--color-indigo-soft-500)]" />
           </span>
         )}
-        <span className="w-full truncate text-center text-[11px] font-medium text-[var(--color-ink-600)]">
+        <span className="w-full truncate text-center text-xs font-medium text-[var(--color-ink-600)]">
           {row.name}
         </span>
       </div>
@@ -74,19 +75,31 @@ function StoryRowCarousel({ row }: { row: ReaderRow<CustomStory> }) {
       <div className="relative min-w-0 flex-1">
         <div
           ref={scroller}
-          className="flex h-full gap-3 overflow-x-auto scroll-smooth snap-x pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex h-full gap-4 overflow-x-auto scroll-smooth snap-x pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {row.items.map((s) => (
             <Link
               key={s.id}
               href={{ pathname: "/histoire-perso/[id]", params: { id: s.id } }}
-              className="group w-40 shrink-0 snap-start overflow-hidden rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] transition-shadow"
+              className="group w-56 shrink-0 snap-start overflow-hidden rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-card)] transition-shadow"
             >
-              <span className="cover-night flex aspect-[16/9] items-center justify-center">
-                <Wand2 className="h-5 w-5 text-white/70 transition-transform group-hover:scale-110" />
-              </span>
-              <span className="block p-2.5">
-                <span className="block truncate font-serif text-sm tracking-tight">{s.title}</span>
+              {/* Real story cover when the illustration exists; night sky as
+                  the pre-generation placeholder */}
+              {s.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={s.imageUrl}
+                  alt=""
+                  loading="lazy"
+                  className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                />
+              ) : (
+                <span className="cover-night flex aspect-[4/3] items-center justify-center">
+                  <Wand2 className="h-6 w-6 text-white/70 transition-transform group-hover:scale-110" />
+                </span>
+              )}
+              <span className="block p-3">
+                <span className="block truncate font-serif text-[15px] tracking-tight">{s.title}</span>
                 <span className="mt-0.5 block text-[11px] text-[var(--color-ink-500)]">
                   {new Date(s.createdAt).toLocaleDateString()}
                 </span>
@@ -173,6 +186,28 @@ export default function AccountDashboardPage() {
         }))
         .filter((r) => r.items.length > 0)
     );
+
+    // Real covers on the cards: DB-backed stories whose illustration exists
+    // but was never cached on this device get it hydrated here (read-only
+    // lookup, never triggers a paid generation).
+    stories
+      .filter((s) => s.id.startsWith("PS-") && !s.imageUrl)
+      .forEach((s) => {
+        fetchCustomStory(s.id)
+          .then((remote) => {
+            if (!remote?.imageUrl) return;
+            setCustomStoryImage(s.id, remote.imageUrl);
+            setStoryRows((rows) =>
+              rows.map((r) => ({
+                ...r,
+                items: r.items.map((it) =>
+                  it.id === s.id ? { ...it, imageUrl: remote.imageUrl } : it
+                ),
+              }))
+            );
+          })
+          .catch(() => {});
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

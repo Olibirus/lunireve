@@ -32,14 +32,67 @@ export type ChildProfile = {
   streak: number;
   lastReadDate: string | null; // ISO date (day precision) of last completed read
   createdAt: string;
+  /**
+   * ISO date the age was last SET (profile creation, or a manual edit by the
+   * parent). Anniversary reference for the yearly auto-bump below; absent on
+   * old profiles, where createdAt takes over. DB mirror: child_profiles
+   * carries the same intent via birth_year.
+   */
+  ageSetAt?: string;
 };
 
 const KEY = "lunireve:profiles";
 const ACTIVE_KEY = "lunireve:activeProfile";
 
+/** Auto-bump ceiling: profiles stay inside the site's 1-12 age taxonomy. */
+const MAX_PROFILE_AGE = 12;
+
+/** Full calendar years elapsed since `iso` (anniversary-exact, not /365). */
+function fullYearsSince(iso: string): number {
+  const from = new Date(iso);
+  if (Number.isNaN(from.getTime())) return 0;
+  const now = new Date();
+  let years = now.getFullYear() - from.getFullYear();
+  const anniversary = new Date(from);
+  anniversary.setFullYear(from.getFullYear() + years);
+  if (anniversary.getTime() > now.getTime()) years -= 1;
+  return Math.max(0, years);
+}
+
+/**
+ * Children grow up on their own: the age advances by one every year on the
+ * anniversary of the date it was last set. A manual edit by the parent always
+ * wins and restarts the clock (see updateProfile). Applied on read and
+ * persisted, so every consumer (dashboard, child bubble, story creation
+ * defaults, preferences) sees the current age with no scheduler.
+ */
+function withCurrentAges(profiles: ChildProfile[]): {
+  profiles: ChildProfile[];
+  changed: boolean;
+} {
+  let changed = false;
+  const next = profiles.map((p) => {
+    const base = p.ageSetAt ?? p.createdAt;
+    const years = fullYearsSince(base);
+    if (years < 1 || p.age >= MAX_PROFILE_AGE) return p;
+    changed = true;
+    const anniversary = new Date(base);
+    anniversary.setFullYear(anniversary.getFullYear() + years);
+    return {
+      ...p,
+      age: Math.min(p.age + years, MAX_PROFILE_AGE),
+      ageSetAt: anniversary.toISOString(),
+    };
+  });
+  return { profiles: next, changed };
+}
+
 export function readProfiles(): ChildProfile[] {
   try {
-    return JSON.parse(localStorage.getItem(scopedKey(KEY)) ?? "[]") as ChildProfile[];
+    const raw = JSON.parse(localStorage.getItem(scopedKey(KEY)) ?? "[]") as ChildProfile[];
+    const { profiles, changed } = withCurrentAges(raw);
+    if (changed) write(profiles);
+    return profiles;
   } catch {
     return [];
   }
@@ -58,19 +111,29 @@ export function createProfile(
 ): ChildProfile | null {
   const profiles = readProfiles();
   if (profiles.length >= profileLimit()) return null;
+  const now = new Date().toISOString();
   const profile: ChildProfile = {
     ...data,
     id: crypto.randomUUID(),
     streak: 0,
     lastReadDate: null,
-    createdAt: new Date().toISOString(),
+    createdAt: now,
+    ageSetAt: now,
   };
   write([...profiles, profile]);
   return profile;
 }
 
 export function updateProfile(id: string, patch: Partial<ChildProfile>) {
-  write(readProfiles().map((p) => (p.id === id ? { ...p, ...patch } : p)));
+  write(
+    readProfiles().map((p) => {
+      if (p.id !== id) return p;
+      // A manual age edit is the parent's word: it overrides the auto-bump
+      // and restarts the yearly clock from today.
+      const ageChanged = typeof patch.age === "number" && patch.age !== p.age;
+      return { ...p, ...patch, ...(ageChanged ? { ageSetAt: new Date().toISOString() } : {}) };
+    })
+  );
 }
 
 export function deleteProfile(id: string) {

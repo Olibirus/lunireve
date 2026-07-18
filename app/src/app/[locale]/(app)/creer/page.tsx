@@ -200,6 +200,13 @@ export default function CreateStoryPage() {
   const [selectedHeroId, setSelectedHeroId] = useState<string | null>(null);
   const [presetId, setPresetId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  // Two light waves ripple off the "Advanced mode" pill on every visit: a
+  // gentle nudge that a fuller mode exists, then gone (never loops).
+  const [advancedWave, setAdvancedWave] = useState(true);
+  useEffect(() => {
+    const id = setTimeout(() => setAdvancedWave(false), 2600);
+    return () => clearTimeout(id);
+  }, []);
 
   const [params, setParams] = useState<CustomStoryParams>({
     heroName: "",
@@ -904,18 +911,31 @@ export default function CreateStoryPage() {
 
         {/* Quick / advanced switch — quick is the default bedtime path */}
         <div className="mt-5 inline-flex rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-1">
+          <style>{`@keyframes lunireve-wave { 0% { transform: scale(1); opacity: 0.5 } 100% { transform: scale(1.22); opacity: 0 } }`}</style>
           {(["quick", "advanced"] as const).map((m) => (
             <button
               key={m}
               type="button"
               onClick={() => setMode(m)}
               className={cn(
-                "rounded-full px-4 py-1.5 text-sm transition-colors",
+                "relative rounded-full px-4 py-1.5 text-sm transition-colors",
                 mode === m
                   ? "bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
                   : "text-[var(--color-ink-600)] hover:text-[var(--color-ink-800)]"
               )}
             >
+              {/* The waves hug the pill only — the label never moves or scales */}
+              {m === "advanced" && advancedWave && mode !== "advanced" && (
+                <span className="pointer-events-none absolute inset-0" aria-hidden>
+                  {[0, 1].map((w) => (
+                    <span
+                      key={w}
+                      className="absolute inset-0 rounded-full border border-[var(--color-mint-500)]"
+                      style={{ animation: `lunireve-wave 1.4s ease-out ${w * 0.55}s 1 both` }}
+                    />
+                  ))}
+                </span>
+              )}
               {t(m === "quick" ? "quickMode" : "advancedMode")}
             </button>
           ))}
@@ -984,12 +1004,16 @@ export default function CreateStoryPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="quick-age">{t("heroAge")}</Label>
+                {/* Block label + breathing room below: the focus ring around
+                    the select must never touch the label text */}
+                <Label htmlFor="quick-age" className="block">
+                  {t("heroAge")}
+                </Label>
                 <select
                   id="quick-age"
                   value={params.heroAge}
                   onChange={(e) => set("heroAge", parseInt(e.target.value, 10))}
-                  className="mt-1.5 h-10 rounded-xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-2.5 text-sm text-[var(--color-ink-800)]"
+                  className="mt-2.5 h-10 rounded-xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-3 text-sm text-[var(--color-ink-800)]"
                 >
                   {Array.from({ length: isFree ? 12 : 16 }, (_, i) => i + 1).map((a) => (
                     <option key={a} value={a}>
@@ -1017,6 +1041,22 @@ export default function CreateStoryPage() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Theme not in our list? Free text, same field as advanced mode */}
+            <div className="mt-4">
+              <Label htmlFor="quick-theme-free" className="block">
+                {t("themeFree")}
+              </Label>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("themeFreeHint")}</p>
+              <Input
+                id="quick-theme-free"
+                value={params.subTheme ?? ""}
+                maxLength={60}
+                placeholder={t("themeFreePlaceholder")}
+                onChange={(e) => set("subTheme", e.target.value || undefined)}
+                className={cn("mt-2 max-w-sm", blockedCls("subTheme"))}
+              />
             </div>
 
             {/* Optional free-text details (max 3, shared with advanced mode) */}
@@ -1467,31 +1507,13 @@ export default function CreateStoryPage() {
                 <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("adventureHint")}</p>
               </div>
 
-              {/* Occasion presets (#5): one-tap milestone starters */}
+              {/* ONE merged preset group (occasions AND situations), exactly
+                  like quick mode: one tap fills theme + mood + a plot note */}
               <div>
-                <Label>{t("occasionTitle")}</Label>
-                <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("occasionHint")}</p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {OCCASION_PRESETS.map((preset) => (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => applyPreset(preset)}
-                      className={chip(presetId === preset.id)}
-                    >
-                      <span className="mr-1">{preset.emoji}</span>
-                      {locale === "en" ? preset.en : preset.fr}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Situations to work through (#c): fears, quarrels, big feelings */}
-              <div>
-                <Label>{t("situationTitle")}</Label>
+                <Label>{t("quickPresetTitle")}</Label>
                 <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("situationHint")}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                  {SITUATION_PRESETS.map((preset) => (
+                  {[...OCCASION_PRESETS, ...SITUATION_PRESETS].map((preset) => (
                     <button
                       key={preset.id}
                       type="button"
@@ -1582,40 +1604,44 @@ export default function CreateStoryPage() {
                     </button>
                   ))}
                 </div>
-              </div>
 
-              {/* Optional finer angle inside the theme + free custom input */}
-              {(STORY_SUBTHEMES[params.theme] ?? []).length > 0 && (
-                <div>
-                  <Label htmlFor="sub-theme">{t("subTheme")}</Label>
-                  <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("subThemeHint")}</p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {(STORY_SUBTHEMES[params.theme] ?? []).map((s) => {
-                      const label = storyOptLabel(s, locale);
-                      return (
-                        <button
-                          key={s.id}
-                          type="button"
-                          onClick={() =>
-                            set("subTheme", params.subTheme === label ? undefined : label)
-                          }
-                          className={chip(params.subTheme === label)}
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
-                  </div>
+                {/* Same section, one concept: refine the picked theme with a
+                    suggested angle, or write a theme we don't list. No more
+                    separate "story angle" block. */}
+                <div className="mt-4">
+                  <Label htmlFor="theme-free" className="block">
+                    {t("themeFree")}
+                  </Label>
+                  <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("themeFreeHint")}</p>
+                  {(STORY_SUBTHEMES[params.theme] ?? []).length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {(STORY_SUBTHEMES[params.theme] ?? []).map((s) => {
+                        const label = storyOptLabel(s, locale);
+                        return (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() =>
+                              set("subTheme", params.subTheme === label ? undefined : label)
+                            }
+                            className={chip(params.subTheme === label)}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                   <Input
-                    id="sub-theme"
+                    id="theme-free"
                     value={params.subTheme ?? ""}
                     maxLength={60}
-                    placeholder={t("subThemePlaceholder")}
+                    placeholder={t("themeFreePlaceholder")}
                     onChange={(e) => set("subTheme", e.target.value || undefined)}
                     className={cn("mt-2 max-w-sm", blockedCls("subTheme"))}
                   />
                 </div>
-              )}
+              </div>
 
               <div>
                 <Label htmlFor="place">{t("place", { gender: params.heroType ?? "autre" })}</Label>
@@ -1858,11 +1884,20 @@ export default function CreateStoryPage() {
           </div>
         </div>
 
+          </>
+        )}
+
         {/* Contextual help: creation-specific FAQ (parents only, kids keep
-            the bubble distraction-free) */}
+            the bubble distraction-free). Pushed well below the form with a
+            divider + quiet kicker, so the creation card stays the only focus. */}
         {!isKid && (
-          <div className="mt-10">
-            <h2 className="mb-4 font-serif text-xl tracking-tight">{t("faqTitle")}</h2>
+          <div className="mt-24 border-t border-[var(--color-ink-100)] pt-10">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-[var(--color-ink-400)]">
+              {t("faqKicker")}
+            </p>
+            <h2 className="mt-1.5 mb-4 font-serif text-xl tracking-tight text-[var(--color-ink-600)]">
+              {t("faqTitle")}
+            </h2>
             <Accordion
               items={[1, 2, 3, 4, 5].map((n) => ({
                 question: t(`faqQ${n}`),
@@ -1870,8 +1905,6 @@ export default function CreateStoryPage() {
               }))}
             />
           </div>
-        )}
-          </>
         )}
       </section>
     );

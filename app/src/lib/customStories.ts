@@ -75,6 +75,21 @@ export type CustomStoryParams = {
   sequelOfId?: string;
 };
 
+/**
+ * Cache the story's illustration URL on the local copy, so the dashboard and
+ * the story page can show the real cover without re-asking the server.
+ */
+export function setCustomStoryImage(id: string, imageUrl: string): void {
+  try {
+    localStorage.setItem(
+      scopedKey(KEY),
+      JSON.stringify(readCustomStories().map((s) => (s.id === id ? { ...s, imageUrl } : s)))
+    );
+  } catch {
+    /* non-fatal */
+  }
+}
+
 /** Remove a personalized story from the local cache (DB removal is separate). */
 export function deleteCustomStory(id: string): void {
   try {

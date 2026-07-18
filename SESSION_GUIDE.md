@@ -5,6 +5,7 @@ always: `github.com/Olibirus/lunireve`, code in `app/`. Run `pnpm build`
 after each batch (must stay green).
 
 ## Cross-session changes log
+2026-07-18 [Session B]: touched lib/userScope.ts + lib/auth/session.ts (D) — storage now namespaced by Supabase user id (new lunireve_uid cookie) instead of email, so a deleted-then-reregistered email starts fresh and OAuth linking keeps one bucket; legacy per-email localStorage auto-migrated once.
 2026-07-17 [Session A]: proxy.ts (first-visit browser-language detection: non-fr -> /en + NEXT_LOCALE cookie), real OAuth (OAuthButtons signInWithOAuth PKCE, new (site)/auth/callback page, loginWithOAuthToken bridge action in actions/auth.ts, /auth/callback pathname), signup perk wording; Google/Facebook still need enabling in the Supabase dashboard
 2026-07-16 [Session B]: round-15. Touched lib/ai/safetyGate.ts (batched GateBatchResult), lib/moderation.ts (batched ParamsModeration), app/actions/generateStory.ts (fields[] in moderation result), db/customStories.ts + app/actions/customStories.ts (feedback upsert per voter). Creer: merged quick presets, sticky presets, real logo on loading; perso toolbar = library card; wizard default role main.
 2026-07-15 [Session B]: round-14. Touched db/customStories.ts + app/actions/customStories.ts (story feedback recording, admin list) and (admin)/admin/moderation + new components/admin/StoryFeedbackPanel.tsx (feedback section). Creer: quick/advanced modes, SITUATION_PRESETS in lib/storyOptions.ts.

@@ -129,6 +129,20 @@ export async function setSession(session: Session, remember = true) {
     path: "/",
     maxAge,
   });
+  // Stable per-account storage namespace: the Supabase user id when present.
+  // lib/userScope prefers it over the email, so local data follows the account
+  // through OAuth identity linking but never survives a deletion followed by a
+  // re-registration of the same email (new signup = new id = fresh bucket).
+  if (session.userId) {
+    store.set("lunireve_uid", session.userId, {
+      httpOnly: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge,
+    });
+  } else {
+    store.delete("lunireve_uid");
+  }
 }
 
 export async function clearSession() {
@@ -137,4 +151,5 @@ export async function clearSession() {
   store.delete("lunireve_role");
   store.delete("lunireve_tier");
   store.delete("lunireve_user");
+  store.delete("lunireve_uid");
 }

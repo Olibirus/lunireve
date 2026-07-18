@@ -13,15 +13,64 @@
  * Supabase user id server-side and scoping is enforced by RLS.
  */
 
+function readCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`));
+  return m?.[1] ? decodeURIComponent(m[1]) : null;
+}
+
+/** Login identifier (email or temp username) — display / identity purposes. */
 export function currentUser(): string {
-  if (typeof document === "undefined") return "anon";
-  const m = document.cookie.match(/(?:^|;\s*)lunireve_user=([^;]+)/);
-  return m?.[1] ? decodeURIComponent(m[1]) : "anon";
+  return readCookie("lunireve_user") ?? "anon";
+}
+
+/**
+ * Stable storage namespace for the logged-in account: the Supabase user id
+ * when there is one (real accounts, `lunireve_uid` cookie), else the login
+ * name (temp accounts, anonymous). Keying by id instead of email is the
+ * safety net for two real-world cases: an email re-registered after an
+ * account deletion must NOT resurrect the previous owner's local data (new
+ * signup = new id = fresh bucket), and a Google sign-in that links onto an
+ * existing email account keeps the SAME Supabase user, so it lands in the
+ * same bucket no matter which method was used.
+ */
+function accountKey(): string {
+  const uid = readCookie("lunireve_uid");
+  if (uid) {
+    migrateLegacyScope(uid);
+    return uid;
+  }
+  return currentUser();
+}
+
+/**
+ * One-time per device+account: real accounts used to be namespaced by email.
+ * Copy that bucket onto the user id so nothing is lost by the switch (only
+ * keys the id bucket does not already have).
+ */
+function migrateLegacyScope(uid: string) {
+  try {
+    const flag = `lunireve:scopeMigrated::${uid}`;
+    if (localStorage.getItem(flag)) return;
+    const legacy = `::u:${currentUser()}`;
+    const target = `::u:${uid}`;
+    for (const key of Object.keys(localStorage)) {
+      if (!key.includes(legacy)) continue;
+      const migrated = key.replaceAll(legacy, target);
+      if (migrated !== key && localStorage.getItem(migrated) === null) {
+        const value = localStorage.getItem(key);
+        if (value !== null) localStorage.setItem(migrated, value);
+      }
+    }
+    localStorage.setItem(flag, "1");
+  } catch {
+    /* non-fatal */
+  }
 }
 
 /** Namespace a base localStorage key to the current account. */
 export function scopedKey(base: string): string {
-  return `${base}::u:${currentUser()}`;
+  return `${base}::u:${accountKey()}`;
 }
 
 /**
@@ -46,7 +95,7 @@ export function currentProfile(): string {
  * history, where the active profile is not the reader being read.
  */
 export function profileScopedKeyFor(base: string, profileId: string): string {
-  return `${base}::u:${currentUser()}::p:${profileId}`;
+  return `${base}::u:${accountKey()}::p:${profileId}`;
 }
 
 /**

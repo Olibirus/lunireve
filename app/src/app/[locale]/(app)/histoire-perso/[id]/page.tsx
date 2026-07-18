@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
-import { findCustomStory, type CustomStory } from "@/lib/customStories";
+import { findCustomStory, setCustomStoryImage, type CustomStory } from "@/lib/customStories";
 import { getActiveProfileId } from "@/lib/profiles";
 import {
   fetchCustomStory,
@@ -247,7 +247,11 @@ export default function CustomStoryPage() {
     setImageLoading(true);
     ensureCustomStoryImage(story.id)
       .then((res) => {
-        if (!cancelled && res.ok) setImageUrl(res.url);
+        if (!cancelled && res.ok) {
+          setImageUrl(res.url);
+          // Local copy remembers the cover, so the dashboard cards show it.
+          setCustomStoryImage(story.id, res.url);
+        }
       })
       .finally(() => {
         if (!cancelled) setImageLoading(false);

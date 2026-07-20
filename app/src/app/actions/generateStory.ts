@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { stories } from "@/db/schema";
 import { generateStoryText, generateImage } from "@/lib/ai";
-import { personalizedImagePrompt } from "@/lib/ai/stylePrompts";
+import { personalizedImagePrompt, imageCast } from "@/lib/ai/stylePrompts";
 import { STORAGE_BUCKETS, fetchToBuffer, uploadAsset } from "@/lib/supabase/storage";
 import { moderateStoryFields, moderateGeneratedStory } from "@/lib/ai/safetyGate";
 import { getSession } from "@/lib/auth/session";
@@ -196,7 +196,8 @@ export async function generateStoryAction(
       prompt: personalizedImagePrompt(
         params.style,
         `hero ${params.heroName}, theme ${params.theme}${params.subTheme ? ` (${params.subTheme})` : ""}${params.place ? `, set in ${params.place}` : ""}, night-time bedtime cover illustration`,
-        characterSheet
+        characterSheet,
+        imageCast(params)
       ),
       referenceImageUrl,
       size: "1024x1024",

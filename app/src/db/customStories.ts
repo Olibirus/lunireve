@@ -4,6 +4,7 @@ import { db } from "./index";
 import { stories } from "./schema";
 import { ageToRange } from "@/data/mock-stories";
 import type { CustomStory, CustomStoryParams } from "@/lib/customStories";
+import { imageCast } from "@/lib/ai/stylePrompts";
 
 /**
  * DB-backed personalized stories — the localStorage -> Supabase swap.
@@ -296,6 +297,8 @@ export async function selectCustomStoryImageInputs(id: string): Promise<{
   imagePrompt: string;
   /** Hero visual identity string, repeated at render for consistency. */
   character: string;
+  /** Secondary characters to show, with species consistency for animal heroes. */
+  cast: string;
   /** Previous episode id, when this story is a sequel (image reference). */
   sequelOfId: string | null;
 } | null> {
@@ -322,6 +325,7 @@ export async function selectCustomStoryImageInputs(id: string): Promise<{
     character: `${p.heroName}, a ${p.heroAge}-year-old ${kind}${tone ? `, ${tone}` : ""}${
       p.heroDescription || p.trait ? `, ${p.heroDescription || p.trait}` : ""
     }`,
+    cast: imageCast(p),
     sequelOfId: p.sequelOfId ?? null,
     // Older rows predate stored imagePrompt — rebuild a scene from the params.
     imagePrompt:

@@ -1046,7 +1046,6 @@ export default function CreateStoryPage() {
                     onClick={() => applyPreset(preset)}
                     className={chip(presetId === preset.id)}
                   >
-                    <span className="mr-1">{preset.emoji}</span>
                     {locale === "en" ? preset.en : preset.fr}
                   </button>
                 ))}
@@ -1530,7 +1529,6 @@ export default function CreateStoryPage() {
                       onClick={() => applyPreset(preset)}
                       className={chip(presetId === preset.id)}
                     >
-                      <span className="mr-1">{preset.emoji}</span>
                       {locale === "en" ? preset.en : preset.fr}
                     </button>
                   ))}

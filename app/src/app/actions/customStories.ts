@@ -209,7 +209,7 @@ export async function ensureCustomStoryImage(id: string): Promise<StoryImageStat
     }
 
     const out = await generateImage("personalized", {
-      prompt: personalizedImagePrompt(inputs.style, inputs.imagePrompt, inputs.character),
+      prompt: personalizedImagePrompt(inputs.style, inputs.imagePrompt, inputs.character, inputs.cast),
       referenceImageUrl,
       size: "1024x1024",
     });

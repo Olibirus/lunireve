@@ -12,6 +12,7 @@ import {
 } from "@/lib/profiles";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { ChildAvatar } from "@/components/brand/ChildAvatar";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Flame, Lock, Plus, User } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -37,7 +38,11 @@ export default function ProfileSelectorPage() {
   const limitReached = (profiles?.length ?? 0) >= profileLimit();
 
   return (
-    <section className="flex min-h-[80vh] flex-col items-center justify-center px-5 py-16">
+    <section className="relative flex min-h-[80vh] flex-col items-center justify-center px-5 py-16">
+      {/* Language toggle: this screen has no navbar of its own */}
+      <div className="absolute right-5 top-5 md:right-8 md:top-8">
+        <LanguageSwitcher />
+      </div>
       <FoxMark className="h-12 w-12" />
       <h1
         className="mt-6 text-center font-serif text-3xl md:text-5xl tracking-tight"

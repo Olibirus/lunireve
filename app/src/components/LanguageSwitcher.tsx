@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -39,9 +38,7 @@ function translatePath(externalPath: string, fromLoc: string, toLoc: string): st
  */
 export function LanguageSwitcher({ className }: { className?: string }) {
   const locale = useLocale();
-  const router = useRouter();
   const t = useTranslations("lang");
-  const [, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -66,9 +63,17 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     const translated = translatePath(ext, locale, nextLocale);
     const base = nextLocale === routing.defaultLocale ? "" : `/${nextLocale}`;
     const target = `${base}${translated === "/" ? "" : translated}` || "/";
-    startTransition(() => {
-      router.replace(`${target}${search}${hash}`);
-    });
+
+    // CRITICAL: update the locale cookie BEFORE navigating. Switching to the
+    // default locale (FR) lands on an un-prefixed path (e.g. /histoires/x); if
+    // the cookie still said "en", next-intl's middleware would re-detect "en"
+    // and redirect right back to /en/stories/x, so the toggle appeared dead.
+    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
+
+    // Full navigation (not client push): guarantees the whole tree re-renders
+    // in the new locale on every page type (site, account, story, wizards),
+    // with no stale provider/RSC cache from the previous language.
+    window.location.assign(`${target}${search}${hash}`);
   }
 
   return (

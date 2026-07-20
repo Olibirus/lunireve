@@ -5,6 +5,7 @@ always: `github.com/Olibirus/lunireve`, code in `app/`. Run `pnpm build`
 after each batch (must stay green).
 
 ## Cross-session changes log
+2026-07-19 [Session A]: FIXED language toggle (was dead switching to FR): LanguageSwitcher now sets NEXT_LOCALE cookie + hard-navigates, so next-intl middleware no longer bounces unprefixed FR paths back to /en. Added switcher to /profils selector + kid-mode /creer header (were missing it).
 2026-07-18 [Session B]: touched lib/ai/stylePrompts.ts + app/actions/generateStory.ts + db/customStories.ts + app/actions/customStories.ts (D) — new imageCast() puts secondary characters in the cover, family of an animal hero is the same species, reinforced no-text-in-image rule. Also dropped emojis from creer occasion/situation preset chips (text-only, on-brand).
 2026-07-18 [Session A]: homepage: new ThemeCarousel (main life-themes -> /creer?occasion=<presetId>, placeholder art /img/themes/<id>.png) + LatestStories (latest 1-6yo stories carousel, auto from mockStories); creer reads ?occasion= to apply a preset; homeV2 byTheme*/latest* keys
 2026-07-18 [Session B]: touched lib/userScope.ts + lib/auth/session.ts (D) — storage now namespaced by Supabase user id (new lunireve_uid cookie) instead of email, so a deleted-then-reregistered email starts fresh and OAuth linking keeps one bucket; legacy per-email localStorage auto-migrated once.

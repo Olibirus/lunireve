@@ -47,6 +47,7 @@ import { pushNotification } from "@/lib/notifications";
 import { FoxMark } from "@/components/brand/FoxCloud";
 import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import { AccountShell } from "@/components/account/AccountShell";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Accordion } from "@/components/ui/Accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1931,10 +1932,13 @@ export default function CreateStoryPage() {
               <ArrowLeft className="h-4 w-4" />
               {t("backToBubble")}
             </Link>
-            <span className="flex items-center gap-2 font-serif text-lg tracking-tight">
-              {kidProfile && <ChildAvatar color={kidProfile.avatar} className="h-9 w-9" />}
-              {kidProfile?.name}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-2 font-serif text-lg tracking-tight">
+                {kidProfile && <ChildAvatar color={kidProfile.avatar} className="h-9 w-9" />}
+                {kidProfile?.name}
+              </span>
+              <LanguageSwitcher />
+            </div>
           </div>
         </header>
         {content}

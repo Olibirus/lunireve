@@ -253,7 +253,7 @@ export function Header() {
           className="flex shrink-0 items-center gap-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-mint-500)]"
         >
           <Image
-            src="/logo-s.png"
+            src="/logo-s.webp"
             alt="Lunireve"
             width={180}
             height={52}

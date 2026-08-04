@@ -48,7 +48,7 @@ export function ChildAvatar({
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={`/children/${avatarFile(color)}.png`}
+        src={`/children/${avatarFile(color)}.webp`}
         alt={alt}
         className="absolute inset-[14%] h-[72%] w-[72%] object-contain"
       />

@@ -49,7 +49,7 @@ export function ParallaxBand() {
         aria-hidden
         className="absolute inset-x-0 -top-[15%] h-[130%] bg-cover bg-center will-change-transform"
         style={{
-          backgroundImage: "url(/img/website/homepage-parallax.jpg)",
+          backgroundImage: "url(/img/website/homepage-parallax.webp)",
           transform: `translateY(${shift}%)`,
         }}
       />

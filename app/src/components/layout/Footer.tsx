@@ -41,7 +41,7 @@ export function Footer() {
           <div>
             {/* Real brand logo (transparent PNG) instead of the fox mark */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-s.png" alt="Lunireve" className="h-14 w-auto" />
+            <img src="/logo-s.webp" alt="Lunireve" className="h-14 w-auto" />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-[var(--color-indigo-soft-200)]">
               {t("footer.tagline")}
             </p>

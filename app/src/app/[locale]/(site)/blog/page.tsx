@@ -6,7 +6,7 @@ export const revalidate = 3600;
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { articlesForLocale } from "@/data/mock-blog";
-import { blogImageSrc } from "@/lib/storyImage";
+import { blogImageSrc, blogCardImageSrc } from "@/lib/storyImage";
 import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
@@ -102,7 +102,7 @@ export default async function BlogIndexPage({
             >
               {blogImageSrc(a.slug) ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={blogImageSrc(a.slug)!} alt="" aria-hidden className="aspect-[16/9] w-full object-cover" />
+                <img src={blogCardImageSrc(a.slug)!} alt="" aria-hidden loading="lazy" decoding="async" className="aspect-[16/9] w-full object-cover" />
               ) : (
                 <div aria-hidden className={cn(a.cover, "aspect-[16/9]")} />
               )}

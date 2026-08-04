@@ -13,7 +13,8 @@
     "storage:setup": "dotenv -e .env.local -- tsx scripts/setup-storage.ts",
     "test:generate": "dotenv -e .env.local -- tsx scripts/test-generate.ts",
     "voice:samples": "dotenv -e .env.local -- tsx scripts/voice-samples.ts",
-    "img:generate": "dotenv -e .env.local -- tsx scripts/generate-images.ts"
+    "img:generate": "dotenv -e .env.local -- tsx scripts/generate-images.ts && pnpm img:optimize",
+    "img:optimize": "tsx scripts/optimize-images.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",
@@ -53,6 +54,7 @@
     "@types/react-dom": "^19",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.10",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"

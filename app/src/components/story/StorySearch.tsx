@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { searchStories, type MockStory } from "@/data/mock-stories";
-import { storyImageSrc } from "@/lib/storyImage";
+import { storyCardImageSrc } from "@/lib/storyImage";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -121,7 +121,7 @@ function SearchResult({
   onSelect: () => void;
 }) {
   const age = story.ageRange.replace("-", "–");
-  const img = storyImageSrc(story.slug);
+  const img = storyCardImageSrc(story.slug);
   return (
     <li role="option" aria-selected={false}>
       <Link

@@ -100,7 +100,7 @@ export default async function AboutPage({
                   no frame, no border, no shadow */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/img/website/about-us.png"
+                src="/img/website/about-us.webp"
                 alt="Lunireve"
                 className="float-soft relative mx-auto w-full max-w-md"
               />

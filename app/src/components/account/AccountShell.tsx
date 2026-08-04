@@ -30,7 +30,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-[var(--color-ink-100)] bg-[var(--color-cream-50)]/90 backdrop-blur-md">
         <div className="flex h-16 w-full items-center justify-between px-5 md:px-8">
           <Link href="/" className="flex items-center">
-            <Image src="/logo-s.png" alt="Lunireve" width={170} height={49} className="h-11 w-auto" priority />
+            <Image src="/logo-s.webp" alt="Lunireve" width={170} height={49} className="h-11 w-auto" priority />
           </Link>
           <div className="flex items-center gap-2">
             {/* Straight back to reading (#feedback): land on the full library */}

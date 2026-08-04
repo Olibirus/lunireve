@@ -796,7 +796,7 @@ export default function CreateStoryPage() {
     content = (
       <section className="mx-auto max-w-xl px-5 py-12 md:py-16 text-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-s.png" alt="Lunireve" className="mx-auto h-12 w-auto" />
+        <img src="/logo-s.webp" alt="Lunireve" className="mx-auto h-12 w-auto" />
         <h1 className="mt-6 font-serif text-2xl md:text-3xl tracking-tight">
           {t("loadingTitle")}
         </h1>

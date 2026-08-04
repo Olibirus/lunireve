@@ -6,7 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { mockStories, type MockStory } from "@/data/mock-stories";
 import { readProfiles } from "@/lib/profiles";
 import { readHistoryFor, type ReadingRecord } from "@/lib/readingHistory";
-import { storyImageSrc } from "@/lib/storyImage";
+import { storyCardImageSrc } from "@/lib/storyImage";
 import { type FoxColor } from "@/components/brand/FoxCloud";
 import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import { ChevronLeft, ChevronRight, Star, User } from "lucide-react";
@@ -87,7 +87,7 @@ export function RecentlyRead() {
         className="mt-4 flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map(({ key, story, record, reader }) => {
-          const img = storyImageSrc(story.slug);
+          const img = storyCardImageSrc(story.slug);
           const date = new Date(record.lastReadAt).toLocaleDateString(locale, {
             day: "numeric",
             month: "short",

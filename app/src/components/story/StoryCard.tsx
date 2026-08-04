@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Sparkles, Star } from "lucide-react";
 import { ageLabel, type MockStory } from "@/data/mock-stories";
 import { FavoriteHeart } from "@/components/story/FavoriteHeart";
-import { storyImageSrc } from "@/lib/storyImage";
+import { storyCardImageSrc } from "@/lib/storyImage";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils/cn";
  */
 export function StoryCard({ story, size = "md" }: { story: MockStory; size?: "sm" | "md" | "lg" }) {
   const age = ageLabel(story.ageRange);
-  const img = storyImageSrc(story.slug);
+  const img = storyCardImageSrc(story.slug);
 
   return (
     <Link
@@ -39,7 +39,17 @@ export function StoryCard({ story, size = "md" }: { story: MockStory; size?: "sm
         {img && (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover" />
+            {/* lazy: a grid renders ~20 cards — only visible covers download */}
+            <img
+              src={img}
+              alt=""
+              aria-hidden
+              loading="lazy"
+              decoding="async"
+              width={640}
+              height={800}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
             <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
           </>
         )}

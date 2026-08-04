@@ -17,7 +17,7 @@ export default function LoginPage() {
       <div className="text-center">
         {/* Real brand logo (not the fox mark) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-s.png" alt="Lunireve" className="mx-auto h-20 w-auto" />
+        <img src="/logo-s.webp" alt="Lunireve" className="mx-auto h-20 w-auto" />
         <h1
           className="mt-6 font-serif text-3xl md:text-4xl tracking-tight"
           style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 50, 'wght' 500" }}

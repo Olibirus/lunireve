@@ -5,8 +5,17 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { readTier, type Tier } from "@/lib/tier";
-import { CheckCircle2, Sparkles, X } from "lucide-react";
+import { currentPeriodStart, ensureBillingAnchor } from "@/lib/customStories";
+import { CheckCircle2, RefreshCw, Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+
+/** Next renewal = one month after the current period started. */
+function nextRenewal(): Date {
+  const start = new Date(currentPeriodStart());
+  const next = new Date(start);
+  next.setMonth(next.getMonth() + 1);
+  return next;
+}
 
 /**
  * "Current plan" band at the top of /compte/abonnement. Shows the tier the
@@ -22,8 +31,18 @@ export function CurrentPlanCard() {
   const [confirming, setConfirming] = useState(false);
   const [cancelled, setCancelled] = useState(false);
 
+  const [renewsOn, setRenewsOn] = useState<string | null>(null);
+
   useEffect(() => {
-    setTier(readTier());
+    const current = readTier();
+    setTier(current);
+    // A paid plan means a payment was accepted: anchor the benefit cycle to
+    // that day so quotas reset on each renewal, not on the 1st of the month.
+    // V2: the Stripe webhook calls setBillingAnchor with the invoice date.
+    if (current !== "free") {
+      ensureBillingAnchor();
+      setRenewsOn(nextRenewal().toLocaleDateString());
+    }
   }, []);
 
   if (tier === null) return null;
@@ -74,6 +93,17 @@ export function CurrentPlanCard() {
           >
             {tp(`${tier}Tagline`)}
           </p>
+          {renewsOn && !cancelled && (
+            <p
+              className={cn(
+                "mt-3 inline-flex items-center gap-1.5 text-xs",
+                isMax ? "text-[var(--color-indigo-soft-200)]" : "text-[var(--color-ink-500)]"
+              )}
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              {t("renewsOn", { date: renewsOn })}
+            </p>
+          )}
           {cancelled && (
             <p className="mt-3 rounded-xl bg-[var(--color-mint-100)] px-3.5 py-2 text-xs text-[var(--color-ink-700)]">
               {t("cancelledConfirmation")}

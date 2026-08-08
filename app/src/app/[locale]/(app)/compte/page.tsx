@@ -14,6 +14,7 @@ import {
 import { readCustomStories, setCustomStoryImage, type CustomStory } from "@/lib/customStories";
 import { fetchCustomStory } from "@/app/actions/customStories";
 import { readFavoritesFor } from "@/lib/favorites";
+import { readHistoryFor } from "@/lib/readingHistory";
 import { mockStories, type MockStory } from "@/data/mock-stories";
 import { StoryCard } from "@/components/story/StoryCard";
 import { RecentlyRead } from "./RecentlyRead";
@@ -50,6 +51,31 @@ function ReaderLabel({ row }: { row: ReaderRow<unknown> }) {
  */
 function StoryRowCarousel({ row }: { row: ReaderRow<CustomStory> }) {
   const scroller = useRef<HTMLDivElement>(null);
+  // Arrows appear only when the row actually overflows, and each side only
+  // when there is somewhere to go: no left arrow on the newest story, no
+  // right arrow once the oldest is reached.
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(false);
+
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const sync = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      // 1px tolerance: fractional widths never leave a dead arrow behind.
+      setCanLeft(el.scrollLeft > 1);
+      setCanRight(el.scrollLeft < max - 1);
+    };
+    sync();
+    el.addEventListener("scroll", sync, { passive: true });
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", sync);
+      ro.disconnect();
+    };
+  }, [row.items.length]);
+
   const scrollBy = (dir: 1 | -1) => {
     const el = scroller.current;
     if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
@@ -107,25 +133,25 @@ function StoryRowCarousel({ row }: { row: ReaderRow<CustomStory> }) {
             </Link>
           ))}
         </div>
-        {row.items.length > 3 && (
-          <>
-            <button
-              type="button"
-              onClick={() => scrollBy(-1)}
-              aria-label="previous"
-              className="absolute -left-2 top-1/2 -translate-y-1/2 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-1.5 text-[var(--color-ink-600)] shadow-[var(--shadow-soft)] hover:bg-[var(--color-cream-100)]"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollBy(1)}
-              aria-label="next"
-              className="absolute -right-2 top-1/2 -translate-y-1/2 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-1.5 text-[var(--color-ink-600)] shadow-[var(--shadow-soft)] hover:bg-[var(--color-cream-100)]"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </>
+        {canLeft && (
+          <button
+            type="button"
+            onClick={() => scrollBy(-1)}
+            aria-label="previous"
+            className="absolute -left-2 top-1/2 -translate-y-1/2 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-1.5 text-[var(--color-ink-600)] shadow-[var(--shadow-soft)] hover:bg-[var(--color-cream-100)]"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        )}
+        {canRight && (
+          <button
+            type="button"
+            onClick={() => scrollBy(1)}
+            aria-label="next"
+            className="absolute -right-2 top-1/2 -translate-y-1/2 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-1.5 text-[var(--color-ink-600)] shadow-[var(--shadow-soft)] hover:bg-[var(--color-cream-100)]"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         )}
       </div>
     </div>
@@ -147,6 +173,8 @@ export default function AccountDashboardPage() {
 
   const [profiles, setProfiles] = useState<ChildProfile[] | null>(null);
   const [customStories, setCustomStories] = useState<CustomStory[]>([]);
+  /** Per-child mini stats for the family cards: stories read + created. */
+  const [childStats, setChildStats] = useState<Record<string, { read: number; created: number }>>({});
   // Favorites + personalized stories organized per reader: the parent's row
   // first, then one row per child.
   const [favoriteRows, setFavoriteRows] = useState<ReaderRow<MockStory>[]>([]);
@@ -157,6 +185,20 @@ export default function AccountDashboardPage() {
     setProfiles(all);
     const stories = [...readCustomStories()].reverse();
     setCustomStories(stories);
+
+    // Mini stats per child: stories actually read (history entries) and
+    // personalized stories created for them.
+    setChildStats(
+      Object.fromEntries(
+        all.map((p) => [
+          p.id,
+          {
+            read: readHistoryFor(p.id).length,
+            created: stories.filter((s) => s.profileId === p.id).length,
+          },
+        ])
+      )
+    );
 
     const readers = [
       { id: "parent", name: t("readerParent"), avatar: null as ChildProfile["avatar"] | null },
@@ -267,10 +309,37 @@ export default function AccountDashboardPage() {
                     {t("childMeta", { age: p.age })}
                   </p>
                 </div>
-                <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-[var(--color-fox-300)]/25 px-2 py-0.5 text-xs text-[var(--color-fox-700)]">
-                  <Flame className="h-3 w-3" />
-                  {p.streak}
-                </span>
+              </div>
+
+              {/* Mini stats: read / created / streak, at a glance */}
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                {[
+                  {
+                    icon: <BookOpen className="h-3.5 w-3.5" />,
+                    value: childStats[p.id]?.read ?? 0,
+                    label: t("statRead"),
+                  },
+                  {
+                    icon: <Wand2 className="h-3.5 w-3.5" />,
+                    value: childStats[p.id]?.created ?? 0,
+                    label: t("statCreated"),
+                  },
+                  {
+                    icon: <Flame className="h-3.5 w-3.5 text-[var(--color-fox-700)]" />,
+                    value: p.streak,
+                    label: t("statStreak"),
+                  },
+                ].map((s, i) => (
+                  <div key={i} className="rounded-xl bg-[var(--color-cream-100)] px-2 py-2">
+                    <span className="flex items-center justify-center gap-1 text-sm font-semibold text-[var(--color-ink-800)]">
+                      {s.icon}
+                      {s.value}
+                    </span>
+                    <span className="mt-0.5 block text-[10px] uppercase tracking-wider text-[var(--color-ink-500)]">
+                      {s.label}
+                    </span>
+                  </div>
+                ))}
               </div>
               <div className="mt-4 flex gap-2">
                 <button

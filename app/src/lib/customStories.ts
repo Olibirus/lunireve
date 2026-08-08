@@ -130,25 +130,96 @@ export function readCustomStories(): CustomStory[] {
   }
 }
 
+/**
+ * Start of the CURRENT billing period, as a YYYY-MM-DD stamp.
+ *
+ * Benefits reset on the renewal day, not on the 1st of the calendar month: a
+ * subscriber who paid on the 12th gets a fresh allowance every 12th. The
+ * anchor is the billing day stored by the subscription (see setBillingAnchor);
+ * without one (free accounts, pre-Stripe) it falls back to the calendar month.
+ */
+export function currentPeriodStart(now = new Date()): string {
+  const anchorDay = readBillingAnchorDay();
+  if (!anchorDay) return `${now.toISOString().slice(0, 7)}-01`;
+  // Clamp to the last day of the month so the 31st still renews in February.
+  const daysInMonth = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
+  let year = now.getFullYear();
+  let month = now.getMonth();
+  if (now.getDate() < Math.min(anchorDay, daysInMonth(year, month))) {
+    month -= 1;
+    if (month < 0) {
+      month = 11;
+      year -= 1;
+    }
+  }
+  const day = Math.min(anchorDay, daysInMonth(year, month));
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+const BILLING_KEY = "lunireve:billingAnchor";
+
+/** Day of the month the subscription renews on (1-31), or null if unknown. */
+function readBillingAnchorDay(): number | null {
+  try {
+    const raw = localStorage.getItem(scopedKey(BILLING_KEY));
+    if (!raw) return null;
+    const day = new Date(raw).getDate();
+    return Number.isFinite(day) && day >= 1 && day <= 31 ? day : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Record the date a payment/renewal was accepted. Quotas reset from this day
+ * on, every month. Called when a subscription starts or renews (Stripe webhook
+ * in V2; the subscription page calls it today).
+ */
+export function setBillingAnchor(paidAt: Date | string = new Date()): void {
+  try {
+    const iso = typeof paidAt === "string" ? paidAt : paidAt.toISOString();
+    localStorage.setItem(scopedKey(BILLING_KEY), iso);
+  } catch {
+    /* non-fatal */
+  }
+}
+
+/**
+ * Anchor the cycle on first sight of a paid plan, WITHOUT moving it afterwards
+ * (re-anchoring on every page view would hand out a fresh allowance each time).
+ */
+export function ensureBillingAnchor(paidAt: Date | string = new Date()): void {
+  try {
+    if (localStorage.getItem(scopedKey(BILLING_KEY))) return;
+  } catch {
+    return;
+  }
+  setBillingAnchor(paidAt);
+}
+
 export function quotaUsed(): number {
-  const month = new Date().toISOString().slice(0, 7);
+  const period = currentPeriodStart();
   try {
     const q = JSON.parse(localStorage.getItem(scopedKey(QUOTA_KEY)) ?? "{}") as {
       month?: string;
+      period?: string;
       used?: number;
     };
-    return q.month === month ? (q.used ?? 0) : 0;
+    // `month` is the legacy calendar-month field: honored until the first
+    // reset so nobody's counter jumps when this ships.
+    const stamp = q.period ?? q.month;
+    return stamp === period ? (q.used ?? 0) : 0;
   } catch {
     return 0;
   }
 }
 
 function bumpQuota() {
-  const month = new Date().toISOString().slice(0, 7);
+  const period = currentPeriodStart();
   try {
     localStorage.setItem(
       scopedKey(QUOTA_KEY),
-      JSON.stringify({ month, used: quotaUsed() + 1 })
+      JSON.stringify({ period, used: quotaUsed() + 1 })
     );
   } catch {
     /* non-fatal */

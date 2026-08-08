@@ -179,7 +179,10 @@ export function ThemeCarousel() {
                   className="group block w-full text-left"
                   onClick={() => {
                     if (moved.current) return;
-                    router.push({ pathname: "/creer", query: { occasion: theme.id } });
+                    // Public library filtered on this theme: no login wall.
+                    // (Creating a personalized story on this theme stays one
+                    // tap away from the library's "create" CTA.)
+                    router.push({ pathname: "/histoires", query: { theme: theme.theme } });
                   }}
                 >
                   {/* Square theme illustration (/img/themes/<id>.webp) */}

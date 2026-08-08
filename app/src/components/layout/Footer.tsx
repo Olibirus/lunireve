@@ -125,7 +125,7 @@ export function Footer() {
               <li><Link href="/tarifs" className={linkClass}>{t("nav.pricing")}</Link></li>
               <li><Link href="/faq" className={linkClass}>{t("footer.faq")}</Link></li>
               <li><Link href="/blog" className={linkClass}>{t("footer.blog")}</Link></li>
-              <li><Link href="/compte/proposer" className={linkClass}>{t("footer.writeWithUs")}</Link></li>
+              {/* "Écrire avec nous" is parked until V2 (app/_archive/write-with-us/). */}
               <li><Link href="/compte" className={linkClass}>{t("nav.account")}</Link></li>
               <li><Link href="/connexion" className={linkClass}>{t("nav.login")}</Link></li>
               <li><a href="mailto:hello@lunireve.com" className={linkClass}>{t("footer.contactUs")}</a></li>

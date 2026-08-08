@@ -5,6 +5,7 @@ always: `github.com/Olibirus/lunireve`, code in `app/`. Run `pnpm build`
 after each batch (must stay green).
 
 ## Cross-session changes log
+2026-07-18 [Session B]: touched components/layout/Footer.tsx (A), (admin)/admin/moderation (C), i18n/routing.ts + tsconfig — "Écrire avec nous" (story submission) pulled from the live app until V2. Whole feature preserved in app/_archive/write-with-us/ (page, db, actions, old moderation page, restore README); messages kept and key-synced.
 2026-07-18 [Session B]: new db/submissions.ts + app/actions/submissions.ts (D) and (admin)/admin/moderation (C) — user story submissions are now REAL DB rows (stories table, genre "soumission", draft until approved; approve = publish to library), moderation lists them plus real generated personalized stories; mockSubmissions no longer used. Consent snapshot (terms version + timestamp) stored per submission.
 2026-08-08 [Session A]: homepage age + genre artwork: 15 PNGs converted to webp (17MB -> 860KB) into public/img/ages/<range>.webp and public/img/genres/<genre>.webp; AgeGrid + GenreCarousel now point at .webp
 2026-07-19 [Session A]: FIXED language toggle (was dead switching to FR): LanguageSwitcher now sets NEXT_LOCALE cookie + hard-navigates, so next-intl middleware no longer bounces unprefixed FR paths back to /en. Added switcher to /profils selector + kid-mode /creer header (were missing it).

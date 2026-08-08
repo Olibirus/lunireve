@@ -116,10 +116,7 @@ export const routing = defineRouting({
       fr: "/compte/parametres",
       en: "/account/settings",
     },
-    "/compte/proposer": {
-      fr: "/compte/proposer",
-      en: "/account/submit",
-    },
+    // "Write with us" is parked until V2 — see app/_archive/write-with-us/.
     "/admin": "/admin",
     "/admin/histoires": "/admin/histoires",
     "/admin/moderation": "/admin/moderation",

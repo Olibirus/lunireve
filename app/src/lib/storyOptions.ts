@@ -295,6 +295,18 @@ export const SITUATION_PRESETS: OccasionPreset[] = [
     extraEn: "The hero sometimes feels a big anger rise like a volcano and learns how to let it settle.",
   },
   {
+    id: "velo",
+    emoji: "🚲",
+    fr: "Apprendre à faire du vélo",
+    en: "Learning to ride a bike",
+    theme: "courage",
+    mood: "touchant",
+    subThemeFr: "Le premier tour de vélo sans roulettes",
+    subThemeEn: "The first ride without training wheels",
+    extraFr: "Le héros apprend à faire du vélo sans les petites roues : il tombe, recommence, et finit par y arriver.",
+    extraEn: "The hero learns to ride a bike without training wheels: falling, trying again, and finally getting it.",
+  },
+  {
     id: "deuil-animal",
     emoji: "🕊️",
     fr: "Perte d'un animal",

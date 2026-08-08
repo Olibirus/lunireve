@@ -29,6 +29,7 @@ const THEME_IDS = [
   "dispute-fratrie",
   "peur-docteur",
   "demenagement",
+  "velo",
 ] as const;
 
 const THEME_COVER: Record<string, string> = {
@@ -40,6 +41,7 @@ const THEME_COVER: Record<string, string> = {
   "dispute-fratrie": "cover-meadow",
   "peur-docteur": "cover-sea",
   demenagement: "cover-dusk",
+  velo: "cover-sand",
 };
 
 const ALL = [...OCCASION_PRESETS, ...SITUATION_PRESETS];
@@ -180,16 +182,16 @@ export function ThemeCarousel() {
                     router.push({ pathname: "/creer", query: { occasion: theme.id } });
                   }}
                 >
-                  {/* Square image placeholder — real asset: /img/themes/<id>.png */}
+                  {/* Square theme illustration (/img/themes/<id>.webp) */}
                   <div
                     className={cn(
                       THEME_COVER[theme.id] ?? "cover-indigo",
-                      "relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-3xl border border-[var(--color-ink-100)] shadow-[var(--shadow-card)] transition-transform duration-300 group-hover:scale-[1.04]"
+                      "relative aspect-square w-full overflow-hidden rounded-3xl border border-[var(--color-ink-100)] shadow-[var(--shadow-card)] transition-transform duration-300 group-hover:scale-[1.04]"
                     )}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={`/img/themes/${theme.id}.png`}
+                      src={`/img/themes/${theme.id}.webp`}
                       alt=""
                       aria-hidden
                       draggable={false}
@@ -198,18 +200,14 @@ export function ThemeCarousel() {
                         (e.target as HTMLImageElement).style.display = "none";
                       }}
                     />
-                    {/* Placeholder emoji, hidden once real art loads underneath text */}
-                    <span aria-hidden className="relative text-5xl md:text-6xl opacity-90 drop-shadow">
-                      {theme.emoji}
-                    </span>
-                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
-                    <span
-                      className="absolute inset-x-0 bottom-0 p-4 md:p-5 font-serif text-xl md:text-2xl leading-tight text-white"
-                      style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500", textShadow: "0 1px 10px rgba(0,0,0,0.6)" }}
-                    >
-                      {locale === "en" ? theme.en : theme.fr}
-                    </span>
                   </div>
+                  {/* Title below the card */}
+                  <span
+                    className="mt-3 block text-center font-serif text-lg md:text-xl leading-tight tracking-tight text-[var(--color-ink-800)] transition-colors group-hover:text-[var(--color-indigo-soft-600)]"
+                    style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
+                  >
+                    {locale === "en" ? theme.en : theme.fr}
+                  </span>
                 </button>
               </div>
             ))}

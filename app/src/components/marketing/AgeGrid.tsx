@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils/cn";
 /**
  * Age cards (homepage): 6 ROUND cards on 2 rows of 3, one per age range,
  * linking to that age's filtered library. All visible at once, so no arrows
- * or dragging. Assets drop in at /img/ages/<range>.png and appear
+ * or dragging. Assets live at /img/ages/<range>.webp and appear
  * automatically over the gradient placeholder.
  */
 const AGE_COVER: Record<string, string> = {
@@ -47,7 +47,7 @@ export function AgeGrid() {
               href={{ pathname: "/histoires/age/[range]", params: { range: r } }}
               className="group flex flex-col items-center gap-3"
             >
-              {/* Round image placeholder — real asset: /img/ages/<range>.png */}
+              {/* Round age illustration (/img/ages/<range>.webp) over the gradient */}
               <div
                 className={cn(
                   AGE_COVER[r],
@@ -56,7 +56,7 @@ export function AgeGrid() {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={`/img/ages/${r}.png`}
+                  src={`/img/ages/${r}.webp`}
                   alt=""
                   aria-hidden
                   draggable={false}

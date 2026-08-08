@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils/cn";
  * genre, linking to that genre's filtered library. Infinite (wraps around
  * seamlessly via a tripled track), draggable, with prev/next arrows that
  * slide one card at a time. 4 cards visible on desktop, 3 on tablet, 2 on
- * mobile. Assets drop in at /img/genres/<genre>.png and appear automatically.
+ * mobile. Assets live at /img/genres/<genre>.webp.
  */
 const N = GENRES.length;
 
@@ -167,7 +167,7 @@ export function GenreCarousel() {
                     router.push({ pathname: "/histoires/genre/[genre]", params: { genre: g } });
                   }}
                 >
-                  {/* Square image placeholder — real asset: /img/genres/<g>.png */}
+                  {/* Square genre illustration (/img/genres/<g>.webp) over the gradient */}
                   <div
                     className={cn(
                       GENRE_COVER[g] ?? "cover-indigo",
@@ -176,7 +176,7 @@ export function GenreCarousel() {
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={`/img/genres/${g}.png`}
+                      src={`/img/genres/${g}.webp`}
                       alt=""
                       aria-hidden
                       draggable={false}

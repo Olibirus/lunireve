@@ -134,20 +134,27 @@ export default async function AboutPage({
         <div className="dot-rule mx-auto max-w-7xl" aria-hidden />
       </section>
 
-      {/* Why Lunireve / story */}
-      <section className="relative isolate overflow-hidden mx-auto max-w-4xl px-5 md:px-8 py-16 md:py-24">
+      {/* Why Lunireve / story — illustration left, text right */}
+      <section className="relative isolate overflow-hidden mx-auto max-w-6xl px-5 md:px-8 py-16 md:py-24">
         <SectionStars offset={7} />
-        <div className="grid md:grid-cols-[160px_1fr] gap-8 md:gap-14">
+        <div className="grid items-center gap-10 md:grid-cols-[0.85fr_1fr] md:gap-14">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/img/website/why-lunireve.webp"
+            alt=""
+            aria-hidden
+            className="w-full rounded-[2rem] shadow-[var(--shadow-card)]"
+          />
           <div>
             <p className="text-xs uppercase tracking-widest text-[var(--color-ink-500)]">
               {t("storyKicker")}
             </p>
+            <article className="prose-reading mt-4 max-w-[58ch]">
+              <p>{t("storyP1")}</p>
+              <p>{t("storyP2")}</p>
+              <p>{t("storyP3")}</p>
+            </article>
           </div>
-          <article className="prose-reading max-w-[62ch]">
-            <p>{t("storyP1")}</p>
-            <p>{t("storyP2")}</p>
-            <p>{t("storyP3")}</p>
-          </article>
         </div>
       </section>
 

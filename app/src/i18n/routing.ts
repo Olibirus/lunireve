@@ -84,10 +84,6 @@ export const routing = defineRouting({
       fr: "/compte/abonnement",
       en: "/account/subscription",
     },
-    "/compte/newsletter": {
-      fr: "/compte/newsletter",
-      en: "/account/newsletter",
-    },
     "/enfant": {
       fr: "/enfant",
       en: "/child",

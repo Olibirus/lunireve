@@ -7,7 +7,6 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { cn } from "@/lib/utils/cn";
 import { seoAlternates } from "@/lib/seo";
 import {
@@ -295,8 +294,6 @@ export default async function PersonalizedStoryPage({
           </Button>
         </div>
       </section>
-
-      <NewsletterBand />
     </>
   );
 }

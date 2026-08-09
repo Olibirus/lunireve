@@ -1,15 +1,13 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { GENRES, AGE_RANGES, ageLabel } from "@/data/mock-stories";
 import { Sparkles, Wand2 } from "lucide-react";
 
 /**
  * Footer — ink-800 band with mint accents. Four full-width columns: brand +
- * newsletter, Par âge, Par genre (interactive button first), Notre univers
- * (create button first). Newsletter capture is decorative for now; Phase 1
- * wires Brevo.
+ * tagline, Par âge, Par genre (interactive button first), Notre univers
+ * (create button first). Newsletter capture is parked until V2
+ * (see app/_archive/newsletter/).
  */
 export function Footer() {
   const t = useTranslations();
@@ -37,7 +35,7 @@ export function Footer() {
 
       <div className="mx-auto max-w-7xl px-5 md:px-8 pt-20 pb-10">
         <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-[1.7fr_0.8fr_1fr_1.2fr] lg:gap-12">
-          {/* Col 1 — brand + description + newsletter */}
+          {/* Col 1 — brand + description */}
           <div>
             {/* Real brand logo (transparent PNG) instead of the fox mark */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -46,25 +44,6 @@ export function Footer() {
               {t("footer.tagline")}
             </p>
 
-            <form className="mt-6 max-w-sm" aria-label={t("footer.newsletterLabel")}>
-              <label htmlFor="newsletter-email" className="text-xs uppercase tracking-widest text-[var(--color-mint-400)]">
-                {t("footer.newsletterHeading")}
-              </label>
-              <div className="mt-2 flex gap-2">
-                <Input
-                  id="newsletter-email"
-                  type="email"
-                  placeholder={t("footer.newsletterPlaceholder")}
-                  className="bg-[var(--color-ink-700)] border-[var(--color-ink-600)] text-[var(--color-cream-50)] placeholder:text-[var(--color-indigo-soft-300)] focus:border-[var(--color-mint-400)]"
-                />
-                <Button variant="mint" size="md" type="submit">
-                  {t("footer.newsletterSubmit")}
-                </Button>
-              </div>
-              <p className="mt-3 text-xs text-[var(--color-indigo-soft-300)]">
-                {t("footer.newsletterNote")}
-              </p>
-            </form>
           </div>
 
           {/* Col 2 — Par âge */}

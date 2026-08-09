@@ -8,7 +8,6 @@ import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import {
   Heart,
   LayoutDashboard,
-  Mail,
   Rocket,
   Settings,
   Users,
@@ -51,7 +50,6 @@ export function AccountSidebar() {
         { href: "/compte", label: t("dashboard"), icon: LayoutDashboard },
         { href: "/compte/favoris", label: t("favorites"), icon: Heart },
         // "Proposer une histoire" is parked until V2 (app/_archive/write-with-us/).
-        { href: "/compte/newsletter", label: t("newsletter"), icon: Mail },
         { href: "/compte/abonnement", label: t("plan"), icon: Rocket },
         { href: "/compte/parametres", label: t("settings"), icon: Settings },
       ],

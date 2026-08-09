@@ -16,12 +16,11 @@ import { ThemeCarousel } from "@/components/marketing/ThemeCarousel";
 import { LatestStories } from "@/components/marketing/LatestStories";
 import { InteractiveBand } from "@/components/marketing/InteractiveBand";
 import { AboutTeaser } from "@/components/marketing/AboutTeaser";
-import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 
 /**
  * Homepage (v2 promoted to default): hero (search + read/personalize CTAs)
  * -> parallax band -> genre cards carousel -> round age cards -> personalized
- * CTA -> about teaser -> newsletter.
+ * CTA -> themes -> latest -> interactive -> about teaser.
  */
 export async function generateMetadata({
   params,
@@ -52,7 +51,6 @@ export default async function HomePage({
       <LatestStories />
       <InteractiveBand />
       <AboutTeaser />
-      <NewsletterBand />
     </>
   );
 }

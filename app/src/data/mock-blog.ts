@@ -238,6 +238,300 @@ export const blogArticles: BlogArticle[] = [
       },
     ],
   },
+  {
+    slug: "combien-de-temps-dort-un-enfant",
+    language: "fr",
+    title: "Combien d'heures de sommeil pour votre enfant ? Le tableau par âge",
+    excerpt:
+      "Votre enfant de 4 ans se couche à 21h et se lève à 7h : est-ce assez ? Voici les repères par âge, les signes d'un manque de sommeil que les parents confondent souvent avec du caractère, et comment recaler l'heure du coucher sans conflit.",
+    tldr: [
+      "Repères par âge : 11 à 14 heures pour un enfant de 1 à 2 ans, 10 à 13 heures de 3 à 5 ans, 9 à 12 heures de 6 à 12 ans (siestes comprises pour les plus petits).",
+      "Le manque de sommeil chez l'enfant ne ressemble pas à de la fatigue : il ressemble à de l'agitation, de l'opposition et des larmes faciles en fin de journée.",
+      "Une revue de 2025 montre que les enfants de 6 à 12 ans qui dorment davantage obtiennent de meilleurs résultats aux tests cognitifs : le sommeil profond est le moment où le cerveau consolide ce qu'il a appris.",
+      "Pour avancer un coucher trop tardif : reculez de 10 à 15 minutes tous les deux ou trois soirs, jamais d'une heure d'un coup, et gardez le même rituel du soir.",
+    ],
+    publishedAt: "2026-08-09",
+    readingMinutes: 7,
+    tag: "Sommeil",
+    cover: "cover-night",
+    sections: [
+      {
+        heading: "Les repères par âge, sans culpabiliser",
+        paragraphs: [
+          "Commençons par les chiffres, car c'est souvent la première question. Entre 1 et 2 ans, un enfant a besoin de 11 à 14 heures de sommeil sur 24 heures, siestes comprises. Entre 3 et 5 ans, de 10 à 13 heures. Entre 6 et 12 ans, de 9 à 12 heures. Ces fourchettes sont larges, et c'est volontaire : un enfant de 4 ans qui dort 10 heures et se réveille en forme n'a pas de problème, même si son cousin du même âge en dort 12.",
+          "Le bon indicateur n'est donc pas le chiffre exact, c'est la forme du matin. Un enfant suffisamment reposé se réveille de lui-même, ou se laisse réveiller sans drame, et n'a pas besoin de vingt minutes de câlin pour émerger. Si chaque matin ressemble à une négociation difficile, il manque probablement du sommeil, quel que soit le total affiché.",
+          "Attention aussi au week-end : dormir deux heures de plus le samedi n'est pas un bonus, c'est le signe d'une dette accumulée pendant la semaine. Le sommeil ne se rattrape que partiellement.",
+        ],
+      },
+      {
+        heading: "Le manque de sommeil ne ressemble pas à de la fatigue",
+        paragraphs: [
+          "C'est le point que les parents découvrent avec le plus de soulagement. Chez l'adulte, la fatigue ralentit. Chez l'enfant, elle accélère. Un enfant en manque de sommeil devient agité, se disperse, rit trop fort, se met en colère pour un rien et fond en larmes à la moindre contrariété en fin d'après-midi.",
+          "Résultat : ces comportements sont souvent interprétés comme un trait de caractère, une phase difficile ou un problème d'éducation, alors qu'ils s'améliorent parfois en une semaine avec 45 minutes de sommeil supplémentaires. Avant de vous demander comment corriger un comportement, il vaut la peine de vérifier l'heure du coucher.",
+          "Autres signaux discrets : s'endormir systématiquement en voiture sur de courts trajets, avoir du mal à rester attentif en fin de journée, ou réclamer beaucoup plus de contact physique que d'habitude.",
+        ],
+      },
+      {
+        heading: "Ce que le sommeil fabrique pendant la nuit",
+        paragraphs: [
+          "Dormir n'est pas une pause : c'est un travail. Pendant le sommeil profond, dont les enfants ont bien plus que les adultes, le cerveau rejoue et consolide ce qu'il a appris dans la journée, y compris les correspondances entre les lettres et les sons pour un enfant qui apprend à lire. Une revue de 2025 a mesuré que les enfants de 6 à 12 ans qui dorment davantage obtiennent des scores cognitifs significativement meilleurs.",
+          "Autrement dit, l'heure du coucher est un levier scolaire au moins aussi puissant que les devoirs du soir. Une demi-heure de sommeil en plus vaut souvent mieux qu'une demi-heure d'exercices supplémentaires sur un enfant déjà fatigué.",
+        ],
+      },
+      {
+        heading: "Recaler un coucher trop tardif, sans conflit",
+        paragraphs: [
+          "La méthode qui fonctionne tient en une phrase : par petits pas. Si votre enfant s'endort à 22h et que la cible est 20h30, n'annoncez surtout pas le nouvel horaire d'un coup. Le corps ne suit pas, l'enfant tourne dans son lit pendant une heure, et l'expérience se solde par un échec qui rend la suite plus difficile.",
+          "Avancez plutôt le coucher de 10 à 15 minutes tous les deux ou trois soirs. Ce décalage est trop petit pour être ressenti, et il devient une nouvelle habitude avant que l'enfant ait eu le temps de protester. Comptez deux à trois semaines pour un décalage d'une heure et demie : c'est long, mais c'est la seule approche qui tienne dans la durée.",
+          "Deuxième ingrédient : la régularité du rituel. Le cerveau apprend à reconnaître une séquence. Même ordre, mêmes gestes, même histoire du soir : bain, pyjama, dents, une histoire, câlin, lumière. Cette prévisibilité agit comme un signal biologique bien plus efficace que l'injonction de dormir.",
+          "Troisième ingrédient : la lumière. Baissez l'éclairage de la maison une heure avant le coucher et sortez les écrans du dernier moment de la journée. La lumière du soir dit au cerveau qu'il fait encore jour, et retarde d'autant l'endormissement.",
+        ],
+      },
+      {
+        heading: "Quand consulter",
+        paragraphs: [
+          "Certains signes méritent l'avis de votre médecin plutôt qu'un ajustement de routine : un ronflement bruyant presque toutes les nuits, des pauses respiratoires pendant le sommeil, une somnolence importante en journée malgré des nuits qui semblent suffisantes, ou des réveils nocturnes multiples qui persistent pendant des mois.",
+          "Ce sont des situations qui ont des explications médicales identifiables et qui se traitent bien. Le reste du temps, l'immense majorité des difficultés de sommeil des enfants se règle avec de la régularité, un rituel apaisant et un peu de patience.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "vocabulaire-lecture-a-voix-haute",
+    language: "fr",
+    title: "Pourquoi 10 minutes de lecture par soir changent le vocabulaire de votre enfant",
+    excerpt:
+      "Les livres pour enfants contiennent des mots que la conversation quotidienne n'utilise presque jamais. C'est précisément là que se joue l'écart de vocabulaire, et dix minutes par soir suffisent à le combler.",
+    tldr: [
+      "Les bébés à qui l'on fait la lecture dès six mois montrent une progression du vocabulaire compris nettement supérieure à ceux à qui l'on ne lit pas.",
+      "Les livres utilisent un vocabulaire bien plus riche que la conversation ordinaire : c'est la source principale de mots nouveaux avant l'école.",
+      "Les enfants avec un rituel du soir centré sur le langage à trois ans ont de meilleures compétences langagières à cinq ans.",
+      "Ce qui compte n'est pas la performance de lecture mais l'échange : commenter, questionner, laisser l'enfant finir les phrases.",
+    ],
+    publishedAt: "2026-08-05",
+    readingMinutes: 6,
+    tag: "Apprentissage",
+    cover: "cover-meadow",
+    sections: [
+      {
+        heading: "Les livres parlent une autre langue que nous",
+        paragraphs: [
+          "Dans une journée ordinaire, un enfant entend beaucoup de mots, mais presque toujours les mêmes : les mots du quotidien, de la table, de l'habillage, du trajet. La conversation familiale, aussi riche soit-elle, tourne naturellement autour d'un vocabulaire restreint et concret.",
+          "Les livres, eux, font entrer d'autres mots : un vaisseau, une clairière, hésiter, murmurer, apercevoir. Ce sont exactement les mots que l'enfant retrouvera plus tard dans les consignes scolaires et les textes qu'on lui demandera de comprendre. Lire à voix haute est le moyen le plus simple et le plus naturel de les lui donner, longtemps avant qu'il sache lire lui-même.",
+        ],
+      },
+      {
+        heading: "Ce que montrent les études",
+        paragraphs: [
+          "Les recherches convergent depuis vingt ans. Les bébés à qui l'on fait la lecture régulièrement à partir de six mois montrent une progression très supérieure du vocabulaire compris vers dix-huit mois, comparés à ceux à qui l'on ne lit pas. L'effet ne s'arrête pas là : des travaux présentés aux Pediatric Academic Societies ont montré que la lecture précoce influence encore les compétences en lecture et en vocabulaire quatre ans plus tard, au moment de l'entrée à l'école.",
+          "Une revue publiée dans Sleep Medicine Reviews ajoute un élément intéressant pour les parents pressés : les enfants dont le rituel du soir est centré sur le langage à trois ans ont de meilleures compétences langagières à cinq ans. Le moment du coucher n'est donc pas seulement pratique, il est particulièrement efficace, sans doute parce qu'il est calme, répété et associé à un plaisir.",
+        ],
+      },
+      {
+        heading: "Dix minutes suffisent, à une condition",
+        paragraphs: [
+          "La bonne nouvelle : il ne s'agit pas d'y passer une heure. Dix minutes par soir, tous les soirs, produisent plus d'effet qu'une heure le dimanche. La régularité prime largement sur la durée.",
+          "La condition, en revanche, est que la lecture soit un échange et non une récitation. Un adulte qui lit vite, d'une traite, pour finir, transmet beaucoup moins qu'un adulte qui s'arrête, montre une image, demande ce qui va se passer, ou reformule un mot difficile en une phrase simple. C'est dans ces micro-pauses que le vocabulaire s'installe.",
+          "Trois réflexes suffisent. Un : nommez le mot difficile au lieu de le contourner (« il était perplexe, ça veut dire qu'il ne comprenait pas et que ça l'embêtait un peu »). Deux : posez une question ouverte par page, pas trois (« pourquoi il a fait ça, à ton avis ? »). Trois : laissez l'enfant finir les phrases qu'il connaît par cœur, même si cela ralentit.",
+        ],
+      },
+      {
+        heading: "Relire le même livre n'est pas une perte de temps",
+        paragraphs: [
+          "Tous les parents connaissent la demande : encore celle-là, la même que hier, et qu'avant-hier. C'est fastidieux pour l'adulte, mais c'est précieux pour l'enfant. La première lecture sert à suivre l'histoire. Ce n'est qu'aux lectures suivantes, quand l'intrigue n'occupe plus toute l'attention, que l'enfant se met à remarquer les mots eux-mêmes, leur ordre, leur sonorité.",
+          "C'est aussi pour cela qu'un enfant qui réclame la même histoire dix soirs de suite en retient parfois des phrases entières : il ne mémorise pas par hasard, il est en train d'apprendre la langue de l'écrit.",
+        ],
+      },
+      {
+        heading: "Et quand l'enfant sait lire ?",
+        paragraphs: [
+          "Beaucoup de parents arrêtent la lecture du soir dès que l'enfant déchiffre seul. C'est dommage, et un peu tôt. Un enfant de sept ans comprend à l'oral des textes bien plus complexes que ceux qu'il peut lire lui-même sans effort. Continuer à lui lire des histoires plus longues, avec un vocabulaire plus riche, lui donne accès à des mots et à des structures qu'il ne rencontrerait pas seul avant plusieurs années.",
+          "Le compromis qui fonctionne bien : l'enfant lit une page, vous lisez le reste. Il garde la fierté de lire, vous gardez la richesse du texte, et le rituel du soir survit à l'apprentissage de la lecture.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "coleres-enfant-histoires",
+    language: "fr",
+    title: "Grosses colères : ce qui se passe dans sa tête, et comment les histoires aident",
+    excerpt:
+      "Une colère d'enfant n'est pas un caprice à mater, c'est un cerveau débordé par une émotion trop grande pour lui. Voici ce qui se joue vraiment, ce qui aide sur le moment, et pourquoi les histoires travaillent pendant les moments calmes.",
+    tldr: [
+      "Pendant la crise, la partie du cerveau qui raisonne est hors service : expliquer, argumenter ou punir n'a aucun effet tant que la tempête n'est pas retombée.",
+      "Sur le moment, trois choses aident : la sécurité, le calme de l'adulte et très peu de mots. Les explications viennent après.",
+      "Le vrai travail se fait à froid, quand l'enfant est apaisé : c'est là qu'il peut mettre des mots sur ce qui s'est passé.",
+      "Les histoires sont un outil idéal pour ce moment à froid : le personnage vit la colère à la place de l'enfant, ce qui lui permet d'en parler sans se sentir jugé.",
+    ],
+    publishedAt: "2026-08-02",
+    readingMinutes: 7,
+    tag: "Émotions",
+    cover: "cover-peach",
+    sections: [
+      {
+        heading: "Ce qui se passe vraiment pendant une colère",
+        paragraphs: [
+          "Vu de l'extérieur, une grosse colère ressemble à une provocation : l'enfant crie, se jette au sol, refuse tout. Vu de l'intérieur, c'est autre chose. Le cerveau d'un enfant de deux à six ans dispose d'un système d'alerte émotionnel déjà pleinement fonctionnel, et d'un système de régulation encore en construction, qui ne finira pas de mûrir avant l'adolescence, et même au-delà.",
+          "Concrètement, l'émotion monte à pleine puissance, et le frein n'est pas encore installé. L'enfant ne choisit pas de perdre le contrôle : il le perd réellement. C'est pour cela que raisonner pendant la crise ne marche jamais. Vous vous adressez à une partie du cerveau momentanément indisponible.",
+          "Cela ne signifie pas qu'il faut tout accepter. Cela signifie que le moment de la crise n'est pas le moment de l'apprentissage.",
+        ],
+      },
+      {
+        heading: "Sur le moment : sécurité, calme, peu de mots",
+        paragraphs: [
+          "Trois principes suffisent pendant la crise. D'abord la sécurité : écarter ce qui peut blesser, rester à proximité, éventuellement proposer un contact physique que l'enfant peut refuser. Ensuite votre propre calme, qui n'est pas un détail de posture : un adulte qui hausse le ton fait monter l'intensité, un adulte qui reste posé fait redescendre la courbe plus vite.",
+          "Enfin, peu de mots. Une phrase courte, répétée sans énervement : « je vois que tu es très en colère, je reste là ». Ni négociation, ni menace, ni discours. Nommer l'émotion, sans la juger, aide l'enfant à comprendre ce qui lui arrive et lui montre que vous ne partez pas.",
+          "Et si la colère survient en public, avec le regard des autres sur vous ? La règle ne change pas, seule votre gêne change. Écartez-vous si vous pouvez, et tenez la même ligne : c'est le comportement le plus efficace, quel que soit le public.",
+        ],
+      },
+      {
+        heading: "Le vrai travail se fait à froid",
+        paragraphs: [
+          "Une fois la tempête passée, souvent une demi-heure plus tard ou même le lendemain, l'enfant redevient capable de réfléchir à ce qui s'est produit. C'est à ce moment, et seulement à ce moment, que la conversation devient utile.",
+          "L'objectif de cette conversation n'est pas d'obtenir des excuses. Il est de construire deux compétences : reconnaître les signes annonciateurs (« ça chauffe dans le ventre »), et disposer d'une ou deux stratégies concrètes à utiliser la prochaine fois (partir dans sa chambre, serrer un coussin, souffler fort trois fois).",
+          "C'est un apprentissage lent. Il se compte en mois, pas en soirées, et il progresse par paliers, avec des rechutes. Un enfant qui met des mots sur sa colère au lieu de taper a déjà accompli quelque chose d'énorme, même si l'épisode reste bruyant.",
+        ],
+      },
+      {
+        heading: "Pourquoi les histoires marchent si bien à froid",
+        paragraphs: [
+          "Parler directement de la crise de la veille met beaucoup d'enfants sur la défensive : ils entendent un reproche, se referment, ou répondent qu'ils ne savent plus. Une histoire contourne cet obstacle avec élégance.",
+          "Quand c'est un petit ours qui explose parce que sa tour s'écroule, l'enfant peut observer la scène de l'extérieur, sans être celui qu'on accuse. Il reconnaît pourtant très bien ce qu'il voit. Et comme le personnage est en sécurité dans le livre, l'enfant peut penser à sa propre colère sans la revivre.",
+          "Ce déplacement offre aussi un vocabulaire prêt à l'emploi. Un enfant qui a entendu « la colère montait comme un volcan » dispose soudain d'une image pour décrire ce qu'il ressent. Or une émotion qu'on sait nommer est déjà, en partie, une émotion qu'on peut contenir.",
+          "Le moment du coucher est particulièrement propice : l'enfant est calme, dans vos bras, sans enjeu. C'est le contexte idéal pour aborder des émotions difficiles par personnage interposé.",
+        ],
+      },
+      {
+        heading: "Personnaliser l'histoire, avec précaution",
+        paragraphs: [
+          "Une histoire où le héros porte le prénom de votre enfant et vit exactement sa situation peut être très puissante : la reconnaissance est immédiate. C'est d'ailleurs l'usage que beaucoup de familles font des histoires personnalisées.",
+          "Une précaution toutefois : la veille d'une crise, un héros trop identique peut être vécu comme une leçon déguisée. Le bon dosage consiste à garder la situation reconnaissable, mais à laisser un peu d'écart : un autre âge, un animal, un décor différent. Assez proche pour qu'il se reconnaisse, assez loin pour qu'il ne se sente pas visé.",
+          "Enfin, un repère utile : les colères qui restent très intenses et très fréquentes après six ou sept ans, celles qui s'accompagnent d'une réelle dangerosité pour l'enfant ou pour les autres, ou celles qui envahissent tous les moments de la journée méritent d'en parler à votre médecin. Le reste du temps, ce sont simplement les orages normaux d'un cerveau qui apprend.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "rentree-maternelle-preparer",
+    language: "fr",
+    title: "Première rentrée : préparer la séparation deux semaines à l'avance",
+    excerpt:
+      "Les larmes du premier matin d'école se préparent bien avant le jour J. Ce qui aide vraiment n'est pas de rassurer davantage, mais de rendre l'inconnu prévisible. Voici un plan simple sur deux semaines.",
+    tldr: [
+      "L'anxiété de séparation vient de l'imprévisible : votre travail consiste à transformer l'école en scénario connu, pas à promettre que tout ira bien.",
+      "Deux semaines avant : recaler les horaires de sommeil décalés par l'été, par tranches de 15 minutes.",
+      "Raconter la journée d'école dans l'ordre, plusieurs fois, jusqu'à ce que l'enfant la connaisse par cœur : c'est le meilleur anxiolytique.",
+      "Le matin J : un au revoir court, chaleureux et sans hésitation. Les au revoir qui s'éternisent prolongent les pleurs au lieu de les apaiser.",
+    ],
+    publishedAt: "2026-07-29",
+    readingMinutes: 6,
+    tag: "École",
+    cover: "cover-sea",
+    sections: [
+      {
+        heading: "Ce que craint vraiment l'enfant",
+        paragraphs: [
+          "Un enfant qui pleure le matin de la rentrée n'a en général pas peur de l'école : il a peur de ne pas savoir ce qui va se passer, et de ne pas savoir si vous allez revenir. Ce sont deux angoisses très concrètes, et toutes les deux ont une réponse concrète.",
+          "C'est pourquoi les phrases générales rassurent assez peu. « Tout va bien se passer, tu vas voir » ne donne aucune information exploitable. « Tu vas accrocher ton manteau, puis tu iras t'asseoir sur le tapis avec la maîtresse, et je viendrai te chercher juste après le goûter » en donne beaucoup. Le second type de phrase apaise nettement mieux, parce qu'il remplace l'inconnu par un scénario.",
+        ],
+      },
+      {
+        heading: "Deux semaines avant : le sommeil d'abord",
+        paragraphs: [
+          "L'été décale les horaires, parfois de plus d'une heure. Une rentrée abordée en dette de sommeil transforme la moindre contrariété en drame, et les premiers jours d'école en sont pleins.",
+          "Reprenez donc les horaires deux semaines avant, par petits pas : coucher et lever avancés de 15 minutes tous les deux ou trois jours. C'est indolore à cette vitesse, et cela évite l'erreur classique du dimanche soir de rentrée où l'on demande soudain à un enfant couché à 22h tout l'été de dormir à 20h30.",
+          "Profitez-en pour réinstaller le rituel du soir dans son format d'école : bain, pyjama, une histoire, dodo, à heure fixe. Le rituel lui-même est un signal de sécurité, et il sera précieux les soirs de rentrée où la journée aura été chargée en émotions.",
+        ],
+      },
+      {
+        heading: "Raconter la journée, encore et encore",
+        paragraphs: [
+          "C'est l'outil le plus efficace, et le plus sous-utilisé. Racontez la journée d'école dans l'ordre chronologique, comme une histoire : l'arrivée, le portemanteau, les copains, le tapis, la récréation, le repas, la sieste pour les plus petits, le goûter, et surtout le moment où vous revenez. Répétez ce récit plusieurs fois par semaine.",
+          "L'objectif n'est pas d'informer une fois, mais de rendre le récit familier au point que l'enfant puisse le raconter lui-même. Un scénario qu'on connaît par cœur cesse d'être menaçant.",
+          "Allez voir l'école de l'extérieur si c'est possible, montrez la porte par laquelle il entrera et celle par laquelle vous reviendrez. Nommez l'adulte référent si vous le connaissez. Chaque détail concret ajouté au scénario retire un peu d'inconnu.",
+          "Les histoires sur ce thème jouent le même rôle : un personnage qui vit sa première rentrée, qui a un peu peur, et dont la journée se termine bien, offre à votre enfant une répétition générale émotionnelle, en sécurité, dans vos bras.",
+        ],
+      },
+      {
+        heading: "Le matin J : court, chaleureux, sans hésitation",
+        paragraphs: [
+          "Le paradoxe du premier matin est bien documenté par les enseignants : plus l'au revoir s'étire, plus les pleurs durent. Un parent qui revient sur ses pas, qui hésite à la porte, qui repart puis se retourne, communique involontairement le message inverse de celui qu'il veut donner : cet endroit est peut-être dangereux, puisque j'ai du mal à t'y laisser.",
+          "Le format qui fonctionne : un câlin franc, une phrase rituelle toujours identique (« je t'aime, je reviens après le goûter »), et vous partez. Court ne veut pas dire froid : c'est chaleureux et net à la fois.",
+          "Les enseignants racontent presque tous la même chose : les pleurs cessent en général très peu de temps après le départ du parent. Vous pouvez demander à être rassuré en fin de matinée, la plupart des écoles le font volontiers.",
+          "Surveillez aussi vos propres signaux. Les enfants lisent l'inquiétude sur nos visages avec une précision redoutable. Montrer que vous faites confiance à cet endroit et à ces adultes autorise l'enfant à s'y attacher à son tour.",
+        ],
+      },
+      {
+        heading: "Les premières semaines, et quand s'inquiéter",
+        paragraphs: [
+          "Attendez-vous à des retours en arrière : un enfant qui entre en pleurant le lundi après un week-end tranquille, ou une régression passagère à la maison (pipi au lit, demandes de bébé, sommeil agité). C'est fréquent et cela s'estompe généralement en quelques semaines.",
+          "Gardez le soir comme sas de décompression plutôt que comme interrogatoire. « Raconte-moi ta journée » produit souvent un « rien ». « Tu as joué avec qui ? » ou « c'était quoi le plus rigolo ? » ouvre davantage.",
+          "Si, après six à huit semaines, la détresse reste intense chaque matin, si elle s'accompagne de maux de ventre quotidiens ou d'un refus scolaire net, parlez-en à l'enseignant puis à votre médecin. Cela se travaille très bien, et plus tôt on en parle, plus vite cela se dénoue.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "enfant-bilingue-deux-langues",
+    language: "fr",
+    title: "Élever un enfant bilingue : ce que la recherche dit vraiment",
+    excerpt:
+      "Deux langues, est-ce trop pour un petit ? Est-ce que ça retarde la parole ? Faut-il commencer tôt ? Voici ce que montrent les études, et comment les histoires du soir dans les deux langues font une grande partie du travail.",
+    tldr: [
+      "Le bilinguisme ne retarde pas le langage : les enfants bilingues atteignent les grandes étapes au même rythme, à condition d'être exposés régulièrement aux deux langues.",
+      "L'exposition précoce compte : les enfants exposés entre 0 et 3 ans obtiennent de meilleurs résultats que ceux exposés plus tard, en lecture comme en conscience phonologique.",
+      "Français et anglais partagent le même alphabet : apprendre à lire dans les deux s'entraide au lieu de se concurrencer.",
+      "Ce qui fait la différence n'est pas le nombre d'heures de cours, mais la quantité de langue entendue dans des moments qui ont du sens : la lecture du soir en fait partie.",
+    ],
+    publishedAt: "2026-07-25",
+    readingMinutes: 7,
+    tag: "Apprentissage",
+    cover: "cover-indigo",
+    sections: [
+      {
+        heading: "Non, deux langues ne sont pas de trop",
+        paragraphs: [
+          "C'est l'inquiétude numéro un des parents, souvent alimentée par un proche bien intentionné : et s'il mélangeait tout, s'il parlait plus tard, s'il ne maîtrisait aucune des deux ? La recherche est claire et rassurante sur ce point. Les enfants bilingues atteignent les grandes étapes du langage au même rythme que les autres, dès lors qu'ils sont exposés de façon régulière et dans des situations qui ont du sens pour eux.",
+          "Le mélange de mots entre deux langues, que les parents remarquent souvent vers deux ou trois ans, n'est pas un signe de confusion. C'est un comportement normal et observé partout : l'enfant utilise le mot qu'il a sous la main, exactement comme un adulte bilingue le fait encore à l'âge adulte. Cela se réorganise tout seul.",
+          "Un point mérite tout de même d'être dit franchement : à un âge donné, un enfant bilingue peut connaître un peu moins de mots dans chaque langue prise séparément, tout en en connaissant davantage au total. Si l'on ne compte que dans une seule langue, on peut donc s'alarmer à tort.",
+        ],
+      },
+      {
+        heading: "L'âge d'exposition compte plus que les cours",
+        paragraphs: [
+          "Les travaux qui comparent les âges d'exposition vont tous dans le même sens : une exposition précoce, entre 0 et 3 ans, donne de meilleurs résultats qu'une exposition démarrée entre 3 et 6 ans, en lecture, en conscience phonologique et en compétence globale dans les deux langues.",
+          "Cela ne veut pas dire qu'il est trop tard à cinq ou huit ans, loin de là. Cela veut dire que les toutes premières années sont une fenêtre particulièrement favorable, notamment pour l'accent et pour la perception fine des sons.",
+          "Et surtout, ce qui prédit le mieux le niveau dans une langue, c'est la quantité de cette langue effectivement entendue. Pas le nombre d'heures de cours : le volume d'exposition réelle, dans des échanges qui ont du sens.",
+        ],
+      },
+      {
+        heading: "Lire dans deux langues qui partagent l'alphabet",
+        paragraphs: [
+          "Le français et l'anglais utilisent le même système d'écriture, et cela change tout au moment de l'apprentissage de la lecture. Les enfants qui apprennent à lire dans deux langues partageant un alphabet progressent souvent plus vite : ce qu'ils comprennent d'un côté (qu'une lettre code un son, que l'on lit de gauche à droite, que les mots se découpent en syllabes) se transfère de l'autre.",
+          "Certains travaux vont plus loin et observent chez ces enfants un avantage de conscience phonologique par rapport à leurs camarades monolingues, c'est-à-dire une meilleure capacité à percevoir et manipuler les sons de la langue. C'est une compétence-clé pour apprendre à lire.",
+          "Les bénéfices ne s'arrêtent pas à la lecture. Les enfants bilingues montrent en moyenne de meilleures performances en mémoire de travail et en fonctions exécutives : la souplesse mentale, la capacité à se concentrer et à ignorer les distractions.",
+        ],
+      },
+      {
+        heading: "Ce qui fonctionne à la maison",
+        paragraphs: [
+          "La stratégie la plus répandue reste la plus simple : une personne, une langue. Chaque parent parle systématiquement sa langue, ce qui donne à l'enfant un repère stable. Elle n'est pas obligatoire, mais elle a le mérite de la clarté.",
+          "Autre approche courante et efficace dans les familles où les deux parents partagent la même langue : la langue de la maison. On parle la langue minoritaire à l'intérieur, l'école se charge de l'autre.",
+          "Dans les deux cas, le vrai enjeu est le volume et la qualité de l'exposition à la langue la plus fragile, celle qui n'est pas celle de l'école. C'est elle qui a besoin de moments dédiés, réguliers et agréables.",
+          "Un dernier conseil, très concret : ne corrigez pas la langue employée. Un enfant qui répond en français à une question posée en anglais comprend parfaitement l'anglais. Reformulez naturellement dans la langue cible et poursuivez. La correction insistante donne envie d'éviter la langue, ce qui est exactement l'inverse du but.",
+        ],
+      },
+      {
+        heading: "L'histoire du soir, l'outil le plus sous-estimé",
+        paragraphs: [
+          "Dix minutes de lecture par soir dans la langue fragile représentent, sur une année, plus de soixante heures d'exposition à un vocabulaire riche, dans un contexte calme, affectif et répété. Peu de dispositifs font mieux pour ce niveau d'effort.",
+          "Un format qui fonctionne bien : alterner les soirs, une langue chaque soir, plutôt que de traduire la même histoire ligne à ligne. La traduction simultanée pousse l'enfant à n'écouter que la langue qu'il maîtrise le mieux.",
+          "L'audio est un renfort précieux, particulièrement quand aucun parent ne parle la langue en question comme langue maternelle : l'enfant entend une prononciation naturelle, et il l'entend dans un moment qu'il aime.",
+          "C'est d'ailleurs pour cette raison que Lunireve existe en français et en anglais, avec la même histoire disponible dans les deux langues : un soir dans l'une, un soir dans l'autre, sans rien changer au rituel.",
+        ],
+      },
+    ],
+  },
 ];
 
 export function findArticle(slug: string): BlogArticle | undefined {

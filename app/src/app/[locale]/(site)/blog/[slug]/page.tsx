@@ -8,7 +8,6 @@ import { notFound } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { blogArticles, findArticle, relatedArticles } from "@/data/mock-blog";
 import { blogImageSrc, blogCardImageSrc } from "@/lib/storyImage";
-import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -177,8 +176,6 @@ export default async function BlogArticlePage({ params }: Props) {
           </div>
         </section>
       )}
-
-      <NewsletterBand />
     </>
   );
 }

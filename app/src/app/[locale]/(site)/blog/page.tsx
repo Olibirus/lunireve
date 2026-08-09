@@ -7,7 +7,6 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { articlesForLocale } from "@/data/mock-blog";
 import { blogImageSrc, blogCardImageSrc } from "@/lib/storyImage";
-import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -125,8 +124,6 @@ export default async function BlogIndexPage({
           ))}
         </div>
       </section>
-
-      <NewsletterBand />
     </>
   );
 }

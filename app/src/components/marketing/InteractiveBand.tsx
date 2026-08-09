@@ -40,18 +40,18 @@ export function InteractiveBand() {
 
         {/* Decorative choice card: what an interactive story looks like */}
         <div aria-hidden className="relative mx-auto w-full max-w-md">
-          <div className="rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-6 shadow-[var(--shadow-card)] rotate-[0.6deg]">
+          <div className="choice-card-drift rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-6 shadow-[var(--shadow-card)]">
             <p className="font-serif text-lg leading-relaxed text-[var(--color-ink-700)] italic">
               {t("demoText")}
             </p>
             {/* Branch connector */}
             <div className="mx-auto mt-4 h-6 w-px border-l-2 border-dashed border-[var(--color-indigo-soft-300)]" />
-            <div className="mt-1 grid grid-cols-2 gap-3">
-              <span className="rounded-2xl border-2 border-[var(--color-mint-400)] bg-[var(--color-mint-50)] px-4 py-3 text-center text-sm font-medium text-[var(--color-ink-800)]">
+            <div className="mt-1 grid grid-cols-2 items-stretch gap-3">
+              <span className="choice-pulse-a flex min-h-[4.25rem] items-center justify-center rounded-2xl border-2 border-[var(--color-mint-400)] bg-[var(--color-mint-50)] px-4 py-3 text-center text-sm font-medium text-[var(--color-ink-800)]">
                 {t("choiceA")}
               </span>
               {/* Fixed dark text: this pastel bg is NOT flipped by dark mode */}
-              <span className="rounded-2xl border-2 border-[var(--color-indigo-soft-300)] bg-[var(--color-indigo-soft-50)] px-4 py-3 text-center text-sm font-medium text-[#17224a]">
+              <span className="choice-pulse-b flex min-h-[4.25rem] items-center justify-center rounded-2xl border-2 border-[var(--color-indigo-soft-300)] bg-[var(--color-indigo-soft-50)] px-4 py-3 text-center text-sm font-medium text-[#17224a]">
                 {t("choiceB")}
               </span>
             </div>

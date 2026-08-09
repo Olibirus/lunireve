@@ -214,12 +214,6 @@ export default function SettingsPage() {
           <ThemeToggle />
         </div>
         <div className="flex items-center justify-between px-5 py-4">
-          <span className="text-sm">{t("newsletter")}</span>
-          <span className="rounded-full bg-[var(--color-cream-200)] px-2.5 py-0.5 text-xs text-[var(--color-ink-500)]">
-            {t("soon")}
-          </span>
-        </div>
-        <div className="flex items-center justify-between px-5 py-4">
           <span className="text-sm text-[var(--color-fox-700)]">{t("deleteAccount")}</span>
           <span className="rounded-full bg-[var(--color-cream-200)] px-2.5 py-0.5 text-xs text-[var(--color-ink-500)]">
             {t("soon")}

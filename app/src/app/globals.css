@@ -590,14 +590,14 @@ html.dark .skeleton::after {
   /* Light theme: soft indigo-to-mint duo-tone (silver is invisible on cream).
      Ring = indigo accent, outer haze fades toward mint = gentle gradient. */
   box-shadow:
-    inset 0 0 0 1px hsl(231 38% 58% / 75%),
-    inset 0 0 4px 0 hsl(231 40% 60% / 35%),
-    inset 0 0 12px 0 hsl(200 40% 60% / 18%),
-    0 0 1px 0 hsl(231 38% 58% / 60%),
-    0 0 4px 0 hsl(220 42% 60% / 40%),
-    0 0 10px 0 hsl(190 45% 55% / 28%),
-    0 0 22px 1px hsl(160 45% 55% / 18%),
-    0 0 40px 2px hsl(150 45% 55% / 10%);
+    inset 0 0 0 2px hsl(231 42% 55% / 92%),
+    inset 0 0 6px 0 hsl(231 44% 57% / 50%),
+    inset 0 0 16px 0 hsl(200 44% 57% / 28%),
+    0 0 2px 0 hsl(231 42% 55% / 80%),
+    0 0 7px 1px hsl(220 46% 57% / 55%),
+    0 0 16px 1px hsl(190 48% 52% / 40%),
+    0 0 30px 2px hsl(160 48% 52% / 26%),
+    0 0 52px 3px hsl(150 48% 52% / 15%);
 }
 /* Light theme renders in normal blend: plus-lighter washes out on cream. */
 .glow-card .glow-card-light { mix-blend-mode: normal; }
@@ -613,4 +613,28 @@ html.dark .glow-card .glow-card-light::before {
     0 0 10px 0 hsl(0 0% 92% / 35%),
     0 0 22px 1px hsl(0 0% 90% / 22%),
     0 0 40px 2px hsl(0 0% 88% / 12%);
+}
+
+/* ---------- Interactive-stories demo card (homepage) ----------
+   Very subtle vertical drift on the whole card, plus an alternating
+   "breathing" pulse on the two choices so the reader understands they
+   must pick one OR the other. Deliberately small amplitudes. */
+@keyframes lr-drift {
+  0%, 100% { transform: rotate(0.6deg) translateY(0); }
+  50% { transform: rotate(0.6deg) translateY(-7px); }
+}
+.choice-card-drift { animation: lr-drift 6s ease-in-out infinite; }
+
+@keyframes lr-choice-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.045); }
+}
+/* Same 5.2s cycle, offset by half so they alternate. */
+.choice-pulse-a { animation: lr-choice-pulse 5.2s ease-in-out infinite; }
+.choice-pulse-b { animation: lr-choice-pulse 5.2s ease-in-out 2.6s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .choice-card-drift,
+  .choice-pulse-a,
+  .choice-pulse-b { animation: none; }
 }

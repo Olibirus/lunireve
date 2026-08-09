@@ -5,7 +5,6 @@ export const revalidate = 3600;
 
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Accordion } from "@/components/ui/Accordion";
-import { NewsletterBand } from "@/components/marketing/NewsletterBand";
 import { FAQ_FR, FAQ_EN } from "@/data/faq";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { seoAlternates } from "@/lib/seo";
@@ -80,8 +79,6 @@ export default async function FaqPage({
           </a>
         </p>
       </section>
-
-      <NewsletterBand />
     </>
   );
 }

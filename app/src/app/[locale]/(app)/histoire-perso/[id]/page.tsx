@@ -3,13 +3,19 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { Link } from "@/i18n/navigation";
-import { findCustomStory, setCustomStoryImage, type CustomStory } from "@/lib/customStories";
+import { Link, useRouter } from "@/i18n/navigation";
+import {
+  findCustomStory,
+  setCustomStoryImage,
+  replaceCustomStoryId,
+  type CustomStory,
+} from "@/lib/customStories";
 import { getActiveProfileId } from "@/lib/profiles";
 import {
   fetchCustomStory,
   ensureCustomStoryImage,
   recordStoryFeedback,
+  saveCustomStoryToDb,
 } from "@/app/actions/customStories";
 import { AudioPlayer } from "@/components/story/AudioPlayer";
 import { DownloadButtons } from "@/components/story/DownloadButtons";
@@ -60,6 +66,42 @@ const DECOY_COMPANIONS = [
   "Une tortue pressée",
   "Personne du tout",
 ];
+const DECOY_MORALS = [
+  "Qu'il faut toujours gagner",
+  "Qu'on peut partir sans rien dire",
+  "Qu'il vaut mieux rester seul",
+  "Que les autres ont toujours tort",
+  "Qu'il ne faut jamais essayer",
+];
+
+/** Child-facing wording for the theme and mood questions (longer stories). */
+const THEME_ANSWERS: Record<string, string> = {
+  aventure: "D'une grande aventure",
+  amitie: "De l'amitié",
+  emotions: "Des émotions",
+  nature: "De la nature",
+  fantastique: "De magie",
+  humour: "De choses rigolotes",
+  courage: "Du courage",
+  decouverte: "D'une découverte",
+  noel: "De Noël",
+  anniversaire: "D'un anniversaire",
+  ecole: "De l'école",
+  voyage: "D'un voyage",
+  animaux: "Des animaux",
+  espace: "De l'espace",
+  mer: "De la mer",
+  saisons: "Des saisons",
+  sport: "Du sport",
+  famille: "De la famille",
+};
+const MOOD_ANSWERS: Record<string, string> = {
+  drole: "Drôle",
+  mysterieux: "Mystérieuse",
+  touchant: "Touchante",
+  palpitant: "Palpitante",
+  doux: "Douce",
+};
 
 /** Tiny deterministic RNG (mulberry32) seeded from the story id. */
 function seededRandom(seedText: string): () => number {
@@ -104,11 +146,31 @@ function shuffledQuestion(
   return { question, choices, answer: choices.indexOf(correct), explanation };
 }
 
-/** Param-based quiz until the pipeline generates one with the story. */
+/**
+ * How many questions this story deserves: 3 for a short bedtime read, up to 7
+ * for a long one. Length drives it (a 4-year-old's story is short, a
+ * 10-year-old's is long), with the reading age nudging it so a long story for
+ * a little one still stays short to answer.
+ */
+function quizLength(story: CustomStory): number {
+  const words = story.body.join(" ").split(/\s+/).filter(Boolean).length;
+  const byWords = words < 350 ? 3 : words < 600 ? 4 : words < 900 ? 5 : words < 1300 ? 6 : 7;
+  const age = story.params.readingAge ?? story.params.heroAge ?? 6;
+  const ageCap = age <= 4 ? 4 : age <= 6 ? 5 : age <= 8 ? 6 : 7;
+  return Math.max(3, Math.min(byWords, ageCap));
+}
+
+/**
+ * Param-based quiz until the pipeline generates one with the story. Questions
+ * are ordered easiest first and truncated to quizLength(), so a short story
+ * asks the 3 essentials and a long one goes further into the details.
+ */
 function buildQuiz(story: CustomStory): QuizQuestion[] {
-  const { heroName, place, friend } = story.params;
+  const { heroName, place, friend, theme, mood, moral, subTheme } = story.params;
   const rand = seededRandom(story.id);
-  return [
+  const companions = (story.params.companions ?? []).filter((c) => c.name?.trim());
+
+  const pool: (QuizQuestion | null)[] = [
     shuffledQuestion(
       "Comment s'appelle le héros de cette histoire ?",
       heroName,
@@ -134,7 +196,59 @@ function buildQuiz(story: CustomStory): QuizQuestion[] {
         : "Une luciole nommée Lumi guide le héros.",
       rand
     ),
+    // 4+ — only reached by longer stories
+    theme
+      ? shuffledQuestion(
+          "De quoi parle surtout cette histoire ?",
+          THEME_ANSWERS[theme] ?? theme,
+          pickDecoys(
+            Object.values(THEME_ANSWERS),
+            2,
+            rand,
+            THEME_ANSWERS[theme] ?? theme
+          ),
+          `Cette histoire parle avant tout de ${(THEME_ANSWERS[theme] ?? theme).toLowerCase()}.`,
+          rand
+        )
+      : null,
+    companions[1]
+      ? shuffledQuestion(
+          "Qui d'autre apparaît dans l'histoire ?",
+          companions[1].name,
+          pickDecoys(DECOY_NAMES, 2, rand, companions[1].name),
+          `${companions[1].name} fait aussi partie de l'aventure.`,
+          rand
+        )
+      : null,
+    mood
+      ? shuffledQuestion(
+          "Quelle est l'ambiance de cette histoire ?",
+          MOOD_ANSWERS[mood] ?? "Douce",
+          pickDecoys(Object.values(MOOD_ANSWERS), 2, rand, MOOD_ANSWERS[mood] ?? "Douce"),
+          `L'ambiance de l'histoire est ${(MOOD_ANSWERS[mood] ?? "douce").toLowerCase()}.`,
+          rand
+        )
+      : null,
+    moral
+      ? shuffledQuestion(
+          "Que nous apprend cette histoire ?",
+          moral,
+          pickDecoys(DECOY_MORALS, 2, rand, moral),
+          `La leçon de l'histoire : ${moral.toLowerCase()}.`,
+          rand
+        )
+      : subTheme
+      ? shuffledQuestion(
+          "Autour de quoi tourne l'histoire ?",
+          subTheme,
+          pickDecoys(DECOY_PLACES, 2, rand, subTheme),
+          `L'histoire tourne autour de : ${subTheme.toLowerCase()}.`,
+          rand
+        )
+      : null,
   ];
+
+  return pool.filter((q): q is QuizQuestion => q !== null).slice(0, quizLength(story));
 }
 
 type Glossary = { word: string; definition: string }[];
@@ -200,6 +314,7 @@ function renderParagraph(text: string, glossary: Glossary): ReactNode[] {
 
 export default function CustomStoryPage() {
   const t = useTranslations();
+  const router = useRouter();
   const params = useParams<{ id: string }>();
   const [story, setStory] = useState<CustomStory | null | undefined>(undefined);
   const [copied, setCopied] = useState(false);
@@ -234,6 +349,34 @@ export default function CustomStoryPage() {
       cancelled = true;
     };
   }, [params.id]);
+
+  /**
+   * Self-repair: a story whose id is not a `PS-` one never made it into the
+   * database (it was created while Supabase was unreachable), so it has no
+   * illustration, no audio and no shareable link. Push it up now, then move
+   * to its real id, which unlocks all three.
+   */
+  useEffect(() => {
+    if (!story || story.id.startsWith("PS-")) return;
+    let cancelled = false;
+    saveCustomStoryToDb({
+      title: story.title,
+      body: story.body,
+      params: story.params,
+      profileId: story.profileId,
+    })
+      .then((res) => {
+        if (cancelled || !res.ok) return;
+        replaceCustomStoryId(story.id, res.id);
+        router.replace({ pathname: "/histoire-perso/[id]", params: { id: res.id } });
+      })
+      .catch(() => {
+        /* still readable from the local copy; retried on the next visit */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [story, router]);
 
   // Illustration: DB-backed stories (PS- ids) get a real generated image,
   // created on first view then cached on the story row for everyone.

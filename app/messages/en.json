@@ -801,6 +801,9 @@
     "extraInfoPlaceholder": "plot point, detail…",
     "finalTitle": "Final settings",
     "finalHint": "Choose the visual universe, then check the recap before launching the creation.",
+    "authorTitle": "Created by",
+    "authorHint": "The story will be filed under this space on the dashboard.",
+    "authorParent": "Me (parent)",
     "styleLockedNote": "Access to all visual universes is reserved for paid plans.",
     "skinTone": "Characters' skin tone",
     "skinToneHint": "Optional: helps represent the characters better in the illustrations.",
@@ -1031,7 +1034,22 @@
       "characters": "My characters",
       "create": "Create a story",
       "profiles": "Who's reading tonight?"
-    }
+    },
+    "storiesCount": "{count, plural, =0 {No stories} =1 {1 story} other {# stories}}",
+    "sortLabel": "Sort",
+    "sortNewest": "Newest first",
+    "sortOldest": "Oldest first",
+    "sortTitle": "Title (A-Z)",
+    "filterAuthor": "Created by",
+    "filterAll": "Everyone",
+    "storyBy": "Created by {name}",
+    "storyAge": "age {age}",
+    "storyCharacters": "Characters",
+    "storyRead": "Read",
+    "storyNextChapter": "Next chapter",
+    "noResults": "No story matches this filter.",
+    "deleteStory": "Delete this story",
+    "deleteStoryConfirm": "Delete {title}? This story will be permanently removed from your library."
   },
   "search": {
     "label": "Search for a story",

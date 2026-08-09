@@ -10,7 +10,6 @@ import {
   profileLimit,
   type ChildProfile,
 } from "@/lib/profiles";
-import { FoxMark } from "@/components/brand/FoxCloud";
 import { ChildAvatar } from "@/components/brand/ChildAvatar";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Flame, Lock, Plus, User } from "lucide-react";
@@ -43,7 +42,14 @@ export default function ProfileSelectorPage() {
       <div className="absolute right-5 top-5 md:right-8 md:top-8">
         <LanguageSwitcher />
       </div>
-      <FoxMark className="h-12 w-12" />
+      {/* The real fox portrait, not the flat SVG mark */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/children/red.webp"
+        alt=""
+        aria-hidden
+        className="h-24 w-24 md:h-28 md:w-28 object-contain"
+      />
       <h1
         className="mt-6 text-center font-serif text-3xl md:text-5xl tracking-tight"
         style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 70, 'wght' 500" }}
@@ -110,12 +116,20 @@ export default function ProfileSelectorPage() {
         )}
       </div>
 
+      {/* Parent entry: a proper pill, not a tiny link lost under the big cards */}
       <Link
         href="/compte"
         onClick={() => clearActiveProfile()}
-        className="mt-12 inline-flex items-center gap-2 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-5 py-2.5 text-sm text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
+        className={cn(
+          "mt-12 inline-flex items-center gap-3 rounded-full border border-[var(--color-ink-100)]",
+          "bg-[var(--color-cream-50)] py-4 pl-4 pr-7 text-base font-medium text-[var(--color-ink-700)]",
+          "shadow-[var(--shadow-soft)] transition-colors",
+          "hover:border-[var(--color-mint-500)] hover:bg-[var(--color-cream-100)] hover:shadow-[var(--shadow-card)]"
+        )}
       >
-        <User className="h-4 w-4" />
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-indigo-soft-100)]">
+          <User className="h-5 w-5 text-[var(--color-indigo-soft-600)]" />
+        </span>
         {t("me")}
       </Link>
     </section>

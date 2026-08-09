@@ -317,7 +317,7 @@ export function Header() {
             href="/creer"
             className="ml-1 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-ink-800)] px-4 py-2 text-sm font-medium text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)] transition-colors"
           >
-            <Wand2 className="h-4 w-4 text-[var(--color-mint-400)]" />
+            <Wand2 className="h-4 w-4 text-[var(--color-create-icon)]" />
             {t("nav.create")}
           </Link>
         </nav>
@@ -466,7 +466,7 @@ export function Header() {
               onClick={() => setMobileOpen(false)}
               className="flex items-center gap-2.5 rounded-xl bg-[var(--color-ink-800)] px-4 py-2.5 text-sm text-[var(--color-cream-50)]"
             >
-              <Wand2 className="h-4 w-4 text-[var(--color-mint-400)]" />
+              <Wand2 className="h-4 w-4 text-[var(--color-create-icon)]" />
               {t("nav.create")}
             </Link>
             {logged ? (

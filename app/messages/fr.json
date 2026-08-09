@@ -801,6 +801,9 @@
     "extraInfoPlaceholder": "intrigue, précision…",
     "finalTitle": "Derniers réglages",
     "finalHint": "Choisissez l'univers visuel puis vérifiez le récapitulatif avant de lancer la création.",
+    "authorTitle": "Créée par",
+    "authorHint": "L'histoire sera rangée dans cet espace sur le tableau de bord.",
+    "authorParent": "Moi (parent)",
     "styleLockedNote": "L'accès à tous les univers visuels est réservé aux forfaits payants.",
     "skinTone": "Teinte de peau des personnages",
     "skinToneHint": "Optionnel : sert à mieux représenter les personnages dans les illustrations.",
@@ -1031,7 +1034,22 @@
       "characters": "Mes personnages",
       "create": "Créer une histoire",
       "profiles": "Qui lit ce soir ?"
-    }
+    },
+    "storiesCount": "{count, plural, =0 {Aucune histoire} =1 {1 histoire} other {# histoires}}",
+    "sortLabel": "Trier",
+    "sortNewest": "Plus récentes",
+    "sortOldest": "Plus anciennes",
+    "sortTitle": "Titre (A-Z)",
+    "filterAuthor": "Créée par",
+    "filterAll": "Tout le monde",
+    "storyBy": "Créée par {name}",
+    "storyAge": "{age} ans",
+    "storyCharacters": "Personnages",
+    "storyRead": "Lire",
+    "storyNextChapter": "Chapitre suivant",
+    "noResults": "Aucune histoire ne correspond à ce filtre.",
+    "deleteStory": "Supprimer cette histoire",
+    "deleteStoryConfirm": "Supprimer « {title} » ? Cette histoire sera définitivement retirée de votre bibliothèque."
   },
   "search": {
     "label": "Rechercher une histoire",

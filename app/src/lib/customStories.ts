@@ -90,6 +90,28 @@ export function setCustomStoryImage(id: string, imageUrl: string): void {
   }
 }
 
+/**
+ * Re-key a local story onto the id the DB assigned it.
+ *
+ * Stories created while the database was unreachable (paused project, network
+ * blip) fall back to a random local id, and everything gated on a real row,
+ * illustration, audio, sharing, silently never happens. Promoting the story
+ * later hands it a real `PS-` id, and this swaps the local copy over so the
+ * device stops pointing at the orphan.
+ */
+export function replaceCustomStoryId(oldId: string, newId: string): void {
+  try {
+    localStorage.setItem(
+      scopedKey(KEY),
+      JSON.stringify(
+        readCustomStories().map((s) => (s.id === oldId ? { ...s, id: newId } : s))
+      )
+    );
+  } catch {
+    /* non-fatal */
+  }
+}
+
 /** Remove a personalized story from the local cache (DB removal is separate). */
 export function deleteCustomStory(id: string): void {
   try {

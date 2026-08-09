@@ -175,7 +175,10 @@ export default function CreateStoryPage() {
   const [kidProfile, setKidProfile] = useState<ChildProfile | null>(null);
   const [profiles, setProfiles] = useState<ChildProfile[]>([]);
   const [characters, setCharacters] = useState<SavedCharacter[]>([]);
+  /** Story AUTHOR: null = the parent, else the child profile id. */
   const [profileId, setProfileId] = useState<string | null>(null);
+  /** Which child profile filled the hero fields (highlight only, not the author). */
+  const [heroProfileId, setHeroProfileId] = useState<string | null>(null);
   const [used, setUsed] = useState(0);
   const [tier, setTier] = useState<CustomTier>("free");
   const [step, setStep] = useState(0);
@@ -205,7 +208,8 @@ export default function CreateStoryPage() {
   // gentle nudge that a fuller mode exists, then gone (never loops).
   const [advancedWave, setAdvancedWave] = useState(true);
   useEffect(() => {
-    const id = setTimeout(() => setAdvancedWave(false), 2600);
+    // 4 ripples (2 pairs): the single pair was over before the eye caught it.
+    const id = setTimeout(() => setAdvancedWave(false), 5200);
     return () => clearTimeout(id);
   }, []);
 
@@ -265,8 +269,12 @@ export default function CreateStoryPage() {
     // the full account shell (the active profile is cleared on /compte).
     const bubble = getActiveProfile();
     setKidProfile(bubble);
-    const active = bubble ?? all[0] ?? null;
-    if (active) applyProfile(active);
+    // AUTHOR: the child only when creating from their own bubble. A parent
+    // stays the author even though the first child's details prefill the hero
+    // (that prefill used to silently attribute the story to that child).
+    setProfileId(bubble?.id ?? null);
+    const heroSource = bubble ?? all[0] ?? null;
+    if (heroSource) applyProfile(heroSource);
 
     try {
       const sp = new URLSearchParams(window.location.search);
@@ -288,7 +296,8 @@ export default function CreateStoryPage() {
             sequelOfId: prev.id,
           };
           setParams(sequelParams);
-          if (prev.profileId) setProfileId(prev.profileId);
+          // A sequel keeps the original episode's author.
+          setProfileId(prev.profileId ?? null);
           setMode("advanced");
           setStep(3);
           setReady(true);
@@ -373,8 +382,13 @@ export default function CreateStoryPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * Use a child profile as the story's HERO. Deliberately does not touch the
+   * author (`profileId`): who the story is about and who created it are two
+   * different things, picked separately.
+   */
   function applyProfile(p: ChildProfile) {
-    setProfileId(p.id);
+    setHeroProfileId(p.id);
     setSelectedHeroId(null);
     setParams((prev) => ({
       ...prev,
@@ -942,7 +956,7 @@ export default function CreateStoryPage() {
                     <span
                       key={w}
                       className="absolute inset-0 rounded-full border border-[var(--color-mint-500)]"
-                      style={{ animation: `lunireve-wave 1.4s ease-out ${w * 0.55}s 1 both` }}
+                      style={{ animation: `lunireve-wave 1.4s ease-out ${w * 0.55}s 2 both` }}
                     />
                   ))}
                 </span>
@@ -973,7 +987,7 @@ export default function CreateStoryPage() {
                     onClick={() => applyProfile(p)}
                     className={cn(
                       "flex flex-col items-center gap-1.5 rounded-2xl border-2 px-4 py-3 transition-colors",
-                      profileId === p.id && params.heroName === p.name
+                      heroProfileId === p.id && params.heroName === p.name
                         ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]"
                         : "border-[var(--color-ink-100)] hover:border-[var(--color-ink-200)] hover:bg-[var(--color-cream-100)]"
                     )}
@@ -1182,7 +1196,7 @@ export default function CreateStoryPage() {
                         onClick={() => applyProfile(p)}
                         className={cn(
                           "flex flex-col items-center gap-1.5 rounded-2xl border-2 px-4 py-3 transition-colors",
-                          profileId === p.id && params.heroName === p.name
+                          heroProfileId === p.id && params.heroName === p.name
                             ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]"
                             : "border-[var(--color-ink-100)] hover:border-[var(--color-ink-200)] hover:bg-[var(--color-cream-100)]"
                         )}
@@ -1749,6 +1763,34 @@ export default function CreateStoryPage() {
                 <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("finalHint")}</p>
               </div>
 
+              {/* Author: who the story is filed under. Prefilled from the
+                  current space (parent, or the child whose bubble we're in). */}
+              {!isKid && (
+                <div>
+                  <Label>{t("authorTitle")}</Label>
+                  <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("authorHint")}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setProfileId(null)}
+                      className={chip(profileId === null)}
+                    >
+                      {t("authorParent")}
+                    </button>
+                    {profiles.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setProfileId(p.id)}
+                        className={chip(profileId === p.id)}
+                      >
+                        {p.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {!isKid && (
                 <div>
                   <Label>{t("style")}</Label>
@@ -1781,7 +1823,20 @@ export default function CreateStoryPage() {
                             aria-hidden
                             className="relative flex aspect-[4/3] w-full items-center justify-center bg-[var(--color-cream-100)] text-[var(--color-ink-300)]"
                           >
+                            {/* The sample art shows itself as soon as the file
+                                exists at /illustrations/style-<id>.webp; until
+                                then (and if it ever 404s) the icon stands in. */}
                             <ImageIcon className="h-8 w-8" />
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={`/illustrations/style-${s}.webp`}
+                              alt=""
+                              loading="lazy"
+                              className="absolute inset-0 h-full w-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
                             {locked && (
                               <span className="absolute right-2 top-2 rounded-full bg-black/30 p-1.5 text-white">
                                 <Lock className="h-3.5 w-3.5" />
@@ -1824,6 +1879,10 @@ export default function CreateStoryPage() {
                         HERO_TYPES.find((h) => h.id === params.heroType) ?? HERO_TYPES[0],
                         locale
                       ).toLowerCase()})`,
+                    ],
+                    !isKid && [
+                      t("authorTitle"),
+                      profiles.find((p) => p.id === profileId)?.name ?? t("authorParent"),
                     ],
                     params.sequelOf && [t("recapSequel"), params.sequelOf],
                     companions.filter((c) => c.name.trim()).length > 0 && [

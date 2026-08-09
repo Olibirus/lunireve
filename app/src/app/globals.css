@@ -61,6 +61,10 @@
   /* Semantic */
   --color-background: var(--color-cream-50);
   --color-foreground: var(--color-ink-800);
+  /* Wand icon on the navbar "Create" pill. On the light theme's deep navy pill
+     the pastel mint sings; in dark mode the pill lightens and the mint washes
+     out, so the dark block below falls back to the label's own color. */
+  --color-create-icon: var(--color-mint-400);
   --color-muted: var(--color-ink-400);
   --color-border: var(--color-ink-100);
 
@@ -143,6 +147,10 @@
     /* Indigo text steps brightened for contrast on navy */
     --color-indigo-soft-600: #9aa3cf;
     --color-indigo-soft-700: #b3bade;
+
+    /* Pastel mint loses its footing on the dark-mode pill, so the wand simply
+       takes the label's own color: whatever the pill is, the icon reads. */
+    --color-create-icon: currentColor;
 
     --shadow-whisper: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
     --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.35), 0 6px 20px -8px rgba(0, 0, 0, 0.4);
@@ -258,6 +266,8 @@
     --color-indigo-soft-600: #6670a4;
     --color-mint-400: #b7dfcc;
     --color-mint-500: #9dd1b6;
+    /* ink-800 is re-pinned to navy above, so the pastel wand reads again */
+    --color-create-icon: #b7dfcc;
   }
   html.dark .band-ink {
     background: #10193b;

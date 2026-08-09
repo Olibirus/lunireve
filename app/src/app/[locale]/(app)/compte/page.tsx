@@ -12,7 +12,7 @@ import {
   type ChildProfile,
 } from "@/lib/profiles";
 import { readCustomStories, setCustomStoryImage, type CustomStory } from "@/lib/customStories";
-import { fetchCustomStory } from "@/app/actions/customStories";
+import { fetchCustomStory, listMyCustomStories } from "@/app/actions/customStories";
 import { readFavoritesFor } from "@/lib/favorites";
 import { readHistoryFor } from "@/lib/readingHistory";
 import { mockStories, type MockStory } from "@/data/mock-stories";
@@ -183,28 +183,46 @@ export default function AccountDashboardPage() {
   useEffect(() => {
     const all = readProfiles();
     setProfiles(all);
-    const stories = [...readCustomStories()].reverse();
-    setCustomStories(stories);
-
-    // Mini stats per child: stories actually read (history entries) and
-    // personalized stories created for them.
-    setChildStats(
-      Object.fromEntries(
-        all.map((p) => [
-          p.id,
-          {
-            read: readHistoryFor(p.id).length,
-            created: stories.filter((s) => s.profileId === p.id).length,
-          },
-        ])
-      )
-    );
-
+    const childIds = new Set(all.map((p) => p.id));
+    // The parent ALWAYS comes first, then one row per child.
     const readers = [
       { id: "parent", name: t("readerParent"), avatar: null as ChildProfile["avatar"] | null },
       ...all.map((p) => ({ id: p.id, name: p.name, avatar: p.avatar as ChildProfile["avatar"] | null })),
     ];
-    const childIds = new Set(all.map((p) => p.id));
+
+    /** Rebuild everything that depends on the story list (local, then merged). */
+    const apply = (stories: CustomStory[]) => {
+      setCustomStories(stories);
+      setChildStats(
+        Object.fromEntries(
+          all.map((p) => [
+            p.id,
+            {
+              read: readHistoryFor(p.id).length,
+              created: stories.filter((s) => s.profileId === p.id).length,
+            },
+          ])
+        )
+      );
+      setStoryRows(
+        readers
+          .map((r) => ({
+            ...r,
+            // Full list, newest first: the row is a carousel (arrows page back
+            // to the oldest), not a truncated grid. Stories with no profile,
+            // or one that no longer exists, belong to the parent.
+            items: stories.filter((s) =>
+              r.id === "parent"
+                ? !s.profileId || !childIds.has(s.profileId)
+                : s.profileId === r.id
+            ),
+          }))
+          .filter((r) => r.items.length > 0)
+      );
+    };
+
+    const local = [...readCustomStories()].reverse();
+    apply(local);
 
     setFavoriteRows(
       readers
@@ -214,41 +232,43 @@ export default function AccountDashboardPage() {
         })
         .filter((r) => r.items.length > 0)
     );
-    setStoryRows(
-      readers
-        .map((r) => ({
-          ...r,
-          // Full list, newest first: the row is a carousel (arrows page back
-          // to the oldest), not a truncated grid.
-          items: stories.filter((s) =>
-            r.id === "parent"
-              ? !s.profileId || !childIds.has(s.profileId)
-              : s.profileId === r.id
-          ),
-        }))
-        .filter((r) => r.items.length > 0)
-    );
 
-    // Real covers on the cards: DB-backed stories whose illustration exists
-    // but was never cached on this device get it hydrated here (read-only
-    // lookup, never triggers a paid generation).
-    stories
-      .filter((s) => s.id.startsWith("PS-") && !s.imageUrl)
-      .forEach((s) => {
-        fetchCustomStory(s.id)
-          .then((remote) => {
-            if (!remote?.imageUrl) return;
-            setCustomStoryImage(s.id, remote.imageUrl);
-            setStoryRows((rows) =>
-              rows.map((r) => ({
-                ...r,
-                items: r.items.map((it) =>
-                  it.id === s.id ? { ...it, imageUrl: remote.imageUrl } : it
-                ),
-              }))
-            );
-          })
-          .catch(() => {});
+    // Merge the account's DB-backed stories so the dashboard matches
+    // /compte/histoires on any device, not just the one that created them.
+    listMyCustomStories()
+      .then((remote) => {
+        if (!remote.length) return local;
+        const byId = new Map<string, CustomStory>();
+        for (const s of [...local, ...remote]) byId.set(s.id, s);
+        const merged = [...byId.values()].sort(
+          (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)
+        );
+        apply(merged);
+        return merged;
+      })
+      .catch(() => local)
+      .then((stories) => {
+        // Real covers on the cards: DB-backed stories whose illustration exists
+        // but was never cached on this device get it hydrated here (read-only
+        // lookup, never triggers a paid generation).
+        stories
+          .filter((s) => s.id.startsWith("PS-") && !s.imageUrl)
+          .forEach((s) => {
+            fetchCustomStory(s.id)
+              .then((story) => {
+                if (!story?.imageUrl) return;
+                setCustomStoryImage(s.id, story.imageUrl);
+                setStoryRows((rows) =>
+                  rows.map((r) => ({
+                    ...r,
+                    items: r.items.map((it) =>
+                      it.id === s.id ? { ...it, imageUrl: story.imageUrl } : it
+                    ),
+                  }))
+                );
+              })
+              .catch(() => {});
+          });
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

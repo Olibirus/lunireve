@@ -4,7 +4,6 @@
 export const dynamic = "force-static";
 export const revalidate = 3600;
 
-import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { LibraryBrowser } from "@/components/story/LibraryBrowser";
@@ -19,9 +18,7 @@ export default async function LibraryPage({
   setRequestLocale(locale);
 
   return (
-    <Suspense>
       <LibraryBrowser />
-    </Suspense>
   );
 }
 

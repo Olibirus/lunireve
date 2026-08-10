@@ -4,7 +4,6 @@
 export const dynamic = "force-static";
 export const revalidate = 3600;
 
-import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { StoryFunnel } from "@/components/story/StoryFunnel";
@@ -25,15 +24,13 @@ export default async function AgeFunnelPage({ params }: Props) {
   const t = await getTranslations();
 
   return (
-    <Suspense>
       <StoryFunnel
-        title={t("funnel.ageTitle", { age: ageLabel(range) })}
+        title={t("funnel.ageTitle", { age: ageLabel(range, locale) })}
         subtitle={t("funnel.ageSubtitle")}
         fixed={{ age: range as AgeRange }}
         pathname="/histoires/age/[range]"
         params={{ range }}
       />
-    </Suspense>
   );
 }
 
@@ -42,8 +39,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!AGE_RANGES.includes(range as AgeRange)) return {};
   const t = await getTranslations({ locale });
   return {
-    title: t("funnel.seoAgeTitle", { age: ageLabel(range) }),
-    description: t("funnel.seoAgeDescription", { age: ageLabel(range) }),
+    title: t("funnel.seoAgeTitle", { age: ageLabel(range, locale) }),
+    description: t("funnel.seoAgeDescription", { age: ageLabel(range, locale) }),
     alternates: seoAlternates(locale, { pathname: "/histoires/age/[range]", params: { range } }),
   };
 }

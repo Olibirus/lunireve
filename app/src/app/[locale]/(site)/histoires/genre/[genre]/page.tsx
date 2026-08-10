@@ -4,7 +4,6 @@
 export const dynamic = "force-static";
 export const revalidate = 3600;
 
-import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { StoryFunnel } from "@/components/story/StoryFunnel";
@@ -25,7 +24,6 @@ export default async function GenreFunnelPage({ params }: Props) {
   const t = await getTranslations();
 
   return (
-    <Suspense>
       <StoryFunnel
         title={t(`genres.${genre}`)}
         subtitle={t("funnel.genreSubtitle")}
@@ -33,7 +31,6 @@ export default async function GenreFunnelPage({ params }: Props) {
         pathname="/histoires/genre/[genre]"
         params={{ genre }}
       />
-    </Suspense>
   );
 }
 

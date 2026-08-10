@@ -1,7 +1,7 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { useUrlQuery } from "@/lib/useUrlQuery";
 import { Link } from "@/i18n/navigation";
 import { StoryGrid } from "@/components/story/StoryGrid";
 import { EmptyResults } from "@/components/story/EmptyResults";
@@ -46,8 +46,7 @@ export function LibraryBrowser() {
   const locale = useLocale();
   const tAll = useTranslations();
   const tCats = useTranslations("filterCats");
-  const searchParams = useSearchParams();
-  const sp: Record<string, string> = Object.fromEntries(searchParams.entries());
+  const sp = useUrlQuery();
 
   const q = sp.q || undefined;
   const interactiveOnly = sp.interactive === "1";

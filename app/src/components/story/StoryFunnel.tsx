@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { useUrlQuery } from "@/lib/useUrlQuery";
 import { Link } from "@/i18n/navigation";
 import { StoryGrid } from "@/components/story/StoryGrid";
 import { EmptyResults } from "@/components/story/EmptyResults";
@@ -33,7 +33,8 @@ import { cn } from "@/lib/utils/cn";
  * query string. Links (not client state) keep every drilldown crawlable —
  * these pages are the SEO engine.
  *
- * Client component reading useSearchParams: the host pages prerender STATIC
+ * Client component reading the URL query (useUrlQuery, not useSearchParams,
+ * which would disable prerendering): the host pages prerender STATIC
  * (one CDN-cached entry per route, query variants included — Vercel ignores
  * the query string for static routes), and refinements resolve in the browser.
  * This is what turned crawler traffic on these routes from a function
@@ -61,10 +62,7 @@ export function StoryFunnel({
 }) {
   const t = useTranslations();
   const locale = useLocale();
-  const searchParams = useSearchParams();
-  const query = filtersFromSearchParams(
-    Object.fromEntries(searchParams.entries())
-  );
+  const query = filtersFromSearchParams(useUrlQuery());
   const active: StoryFilters = { ...query, ...fixed };
   const stories = applyFilters(active);
 

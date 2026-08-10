@@ -133,7 +133,7 @@ export default async function StoryDetailPage({
   const interactive = story.interactive ? interactiveTree(slug, locale) : undefined;
   const quiz = story.interactive ? interactiveQuiz(locale) : storyQuiz(slug, locale);
   const glossary = story.interactive ? interactiveGlossary(locale) : storyGlossary(slug, locale);
-  const age = ageLabel(story.ageRange);
+  const age = ageLabel(story.ageRange, locale);
   const bucket = durationBucket(story.readingMinutes);
   const heroImg = storyImageSrc(slug);
 

@@ -44,6 +44,28 @@ export async function fetchToBuffer(urlOrDataUrl: string): Promise<Buffer> {
 }
 
 /**
+ * Re-encode a generated illustration as WebP.
+ *
+ * Providers hand back 1024x1024 PNGs (~1.5 MB each); the same image as WebP is
+ * roughly a tenth of that, and every story cover is served on the dashboard,
+ * the library grid and the story page. Falls back to the original bytes if
+ * encoding fails, so a cover is never lost to an optimization.
+ */
+export async function toWebp(
+  data: Buffer,
+  quality = 82
+): Promise<{ data: Buffer; contentType: string; extension: string }> {
+  try {
+    const sharp = (await import("sharp")).default;
+    const out = await sharp(data).webp({ quality }).toBuffer();
+    return { data: out, contentType: "image/webp", extension: "webp" };
+  } catch (e) {
+    console.warn("[Lunireve] WebP conversion failed, storing the original:", e);
+    return { data, contentType: "image/png", extension: "png" };
+  }
+}
+
+/**
  * Upload bytes to a public bucket and return the stable public URL.
  * `upsert` is on: regenerating a story's asset overwrites the cached copy at
  * the same deterministic path instead of orphaning the old one.

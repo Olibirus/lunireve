@@ -281,27 +281,31 @@ export default function CustomStoriesPage() {
                       )}
 
                       {/* Actions, pinned to the bottom so cards line up */}
-                      <div className="mt-auto flex items-center gap-2 pt-4">
-                        <Button asChild variant="mint" size="sm" className="flex-1">
-                          <Link href={{ pathname: "/histoire-perso/[id]", params: { id: s.id } }}>
-                            <BookOpen className="h-4 w-4" />
-                            {t("storyRead")}
-                          </Link>
-                        </Button>
-                        <Button asChild variant="outline" size="sm" title={t("storyNextChapter")}>
+                      <div className="mt-auto space-y-2 pt-4">
+                        <div className="flex items-center gap-2">
+                          <Button asChild variant="mint" size="sm" className="flex-1">
+                            <Link href={{ pathname: "/histoire-perso/[id]", params: { id: s.id } }}>
+                              <BookOpen className="h-4 w-4" />
+                              {t("storyRead")}
+                            </Link>
+                          </Button>
+                          <button
+                            type="button"
+                            onClick={() => remove(s)}
+                            aria-label={t("deleteStory")}
+                            title={t("deleteStory")}
+                            className="shrink-0 rounded-xl border border-[var(--color-ink-100)] p-2 text-[var(--color-ink-400)] hover:border-[var(--color-fox-300)] hover:text-[var(--color-fox-700)]"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                        {/* Spelled out: an icon alone read as decoration */}
+                        <Button asChild variant="outline" size="sm" className="w-full">
                           <Link href={{ pathname: "/creer", query: { from: s.id } } as never}>
                             <Sparkles className="h-4 w-4" />
+                            {t("storyNextChapter")}
                           </Link>
                         </Button>
-                        <button
-                          type="button"
-                          onClick={() => remove(s)}
-                          aria-label={t("deleteStory")}
-                          title={t("deleteStory")}
-                          className="shrink-0 rounded-xl border border-[var(--color-ink-100)] p-2 text-[var(--color-ink-400)] hover:border-[var(--color-fox-300)] hover:text-[var(--color-fox-700)]"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
                       </div>
                     </div>
                   </li>

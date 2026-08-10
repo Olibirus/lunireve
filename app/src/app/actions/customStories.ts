@@ -6,7 +6,7 @@ import { stories } from "@/db/schema";
 import { getSession, getCurrentUserId } from "@/lib/auth/session";
 import { generateImage } from "@/lib/ai";
 import { personalizedImagePrompt } from "@/lib/ai/stylePrompts";
-import { STORAGE_BUCKETS, fetchToBuffer, uploadAsset } from "@/lib/supabase/storage";
+import { STORAGE_BUCKETS, fetchToBuffer, uploadAsset, toWebp } from "@/lib/supabase/storage";
 import {
   insertCustomStory,
   selectCustomStory,
@@ -213,12 +213,12 @@ export async function ensureCustomStoryImage(id: string): Promise<StoryImageStat
       referenceImageUrl,
       size: "1024x1024",
     });
-    const bytes = await fetchToBuffer(out.imageUrl);
+    const cover = await toWebp(await fetchToBuffer(out.imageUrl));
     const url = await uploadAsset(
       STORAGE_BUCKETS.images,
-      `${id}/hero.png`,
-      bytes,
-      "image/png"
+      `${id}/hero.${cover.extension}`,
+      cover.data,
+      cover.contentType
     );
 
     await db

@@ -1046,7 +1046,12 @@
     "storyAge": "age {age}",
     "storyCharacters": "Characters",
     "storyRead": "Read",
-    "storyNextChapter": "Next chapter",
+    "storyNextChapter": "Write the next chapter",
+    "favUnfavorite": "Remove from favourites",
+    "favMinutes": "{count} min",
+    "favRating": "{rating}/5",
+    "favPersonalized": "Personalised story",
+    "favLibrary": "Library",
     "noResults": "No story matches this filter.",
     "deleteStory": "Delete this story",
     "deleteStoryConfirm": "Delete {title}? This story will be permanently removed from your library."

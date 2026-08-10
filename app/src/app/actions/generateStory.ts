@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { stories } from "@/db/schema";
 import { generateStoryText, generateImage } from "@/lib/ai";
 import { personalizedImagePrompt, imageCast } from "@/lib/ai/stylePrompts";
-import { STORAGE_BUCKETS, fetchToBuffer, uploadAsset } from "@/lib/supabase/storage";
+import { STORAGE_BUCKETS, fetchToBuffer, uploadAsset, toWebp } from "@/lib/supabase/storage";
 import { moderateStoryFields, moderateGeneratedStory } from "@/lib/ai/safetyGate";
 import { getSession } from "@/lib/auth/session";
 import { ageToRange } from "@/data/mock-stories";
@@ -274,12 +274,12 @@ export async function generateStoryAction(
       try {
         const providerUrl = await imagePromise;
         if (providerUrl) {
-          const bytes = await fetchToBuffer(providerUrl);
+          const cover = await toWebp(await fetchToBuffer(providerUrl));
           const url = await uploadAsset(
             STORAGE_BUCKETS.images,
-            `${id}/hero.png`,
-            bytes,
-            "image/png"
+            `${id}/hero.${cover.extension}`,
+            cover.data,
+            cover.contentType
           );
           await db
             .update(stories)

@@ -1,4 +1,4 @@
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { GENRES, AGE_RANGES, ageLabel } from "@/data/mock-stories";
 import { Sparkles, Wand2 } from "lucide-react";
@@ -11,6 +11,7 @@ import { Sparkles, Wand2 } from "lucide-react";
  */
 export function Footer() {
   const t = useTranslations();
+  const locale = useLocale();
   const year = new Date().getFullYear();
 
   const linkClass =
@@ -56,7 +57,7 @@ export function Footer() {
                     href={{ pathname: "/histoires/age/[range]", params: { range: r } }}
                     className={linkClass}
                   >
-                    {ageLabel(r)}
+                    {ageLabel(r, locale)}
                   </Link>
                 </li>
               ))}

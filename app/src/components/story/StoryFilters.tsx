@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Search } from "lucide-react";
@@ -17,8 +17,9 @@ import { AGE_RANGES, ageLabel } from "@/data/mock-stories";
  */
 export function StoryFilters() {
   const t = useTranslations("library.filters");
+  const locale = useLocale();
 
-  const ages = AGE_RANGES.map((r) => ({ id: r, label: ageLabel(r) }));
+  const ages = AGE_RANGES.map((r) => ({ id: r, label: ageLabel(r, locale) }));
   const themes = [
     { id: "aventure", label: t("themeAdventure") },
     { id: "amitie", label: t("themeFriendship") },

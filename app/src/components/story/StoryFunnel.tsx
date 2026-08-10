@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { StoryCard } from "@/components/story/StoryCard";
+import { StoryGrid } from "@/components/story/StoryGrid";
 import { EmptyResults } from "@/components/story/EmptyResults";
 import { StorySearch } from "@/components/story/StorySearch";
 import { StoryBreadcrumb } from "@/components/story/StoryBreadcrumb";
@@ -60,6 +60,7 @@ export function StoryFunnel({
   params?: Record<string, string>;
 }) {
   const t = useTranslations();
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const query = filtersFromSearchParams(
     Object.fromEntries(searchParams.entries())
@@ -86,7 +87,7 @@ export function StoryFunnel({
     rails.push({
       key: "age",
       label: t("funnel.refineAge"),
-      options: AGE_RANGES.map((a) => ({ value: a, label: ageLabel(a) })),
+      options: AGE_RANGES.map((a) => ({ value: a, label: ageLabel(a, locale) })),
     });
   if (!fixed.genre)
     rails.push({
@@ -305,11 +306,7 @@ export function StoryFunnel({
         {stories.length === 0 ? (
           <EmptyResults theme={active.theme} age={active.age} character={active.character} />
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-7">
-            {stories.map((s) => (
-              <StoryCard key={s.slug} story={s} />
-            ))}
-          </div>
+          <StoryGrid stories={stories} />
         )}
       </section>
     </>

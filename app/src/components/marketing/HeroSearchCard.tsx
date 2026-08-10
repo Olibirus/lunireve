@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/navigation";
 import {
   AGE_RANGES,
@@ -19,6 +19,7 @@ import { Search, Wand2 } from "lucide-react";
  */
 export function HeroSearchCard() {
   const t = useTranslations("heroSearch");
+  const locale = useLocale();
   const tAll = useTranslations();
   const router = useRouter();
 
@@ -67,7 +68,7 @@ export function HeroSearchCard() {
           <select value={age} onChange={(e) => setAge(e.target.value)} className={`mt-1.5 ${selectClass}`}>
             <option value="">{t("any")}</option>
             {AGE_RANGES.map((a) => (
-              <option key={a} value={a}>{ageLabel(a)}</option>
+              <option key={a} value={a}>{ageLabel(a, locale)}</option>
             ))}
           </select>
         </label>

@@ -638,3 +638,46 @@ html.dark .glow-card .glow-card-light::before {
   .choice-pulse-a,
   .choice-pulse-b { animation: none; }
 }
+
+/* ---------- Shine sweep (personalized-card CTA) ----------
+   A soft light reflection travelling across the button, looping slowly.
+   Works on both themes because it is a white/transparent gradient over the
+   button's own background. */
+@keyframes lr-shine {
+  0% { transform: translateX(-130%) skewX(-18deg); }
+  55%, 100% { transform: translateX(230%) skewX(-18deg); }
+}
+.shine-cta { position: relative; overflow: hidden; isolation: isolate; }
+.shine-cta::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 35%,
+    rgba(255, 255, 255, 0.75) 50%,
+    rgba(255, 255, 255, 0.15) 65%,
+    transparent 100%
+  );
+  animation: lr-shine 4.2s ease-in-out infinite;
+}
+/* Dark mode: the mint button is still light, so keep the same white sweep
+   but a touch softer to avoid blowing out. */
+html.dark .shine-cta::after {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 35%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0.12) 65%,
+    transparent 100%
+  );
+}
+@media (prefers-reduced-motion: reduce) {
+  .shine-cta::after { animation: none; opacity: 0; }
+}

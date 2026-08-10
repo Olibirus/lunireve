@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -163,6 +163,7 @@ function MobileSection({
 
 export function Header() {
   const t = useTranslations();
+  const locale = useLocale();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [logged, setLogged] = useState(false);
@@ -295,7 +296,7 @@ export function Header() {
                 </p>
                 {AGE_RANGES.map((r) => (
                   <MenuLink key={r} href={{ pathname: "/histoires/age/[range]", params: { range: r } }}>
-                    {ageLabel(r)}
+                    {ageLabel(r, locale)}
                   </MenuLink>
                 ))}
               </div>
@@ -434,7 +435,7 @@ export function Header() {
                 onClick={() => setMobileOpen(false)}
                 className="rounded-full border border-[var(--color-ink-100)] px-3 py-1.5 text-xs text-[var(--color-ink-600)]"
               >
-                {ageLabel(r)}
+                {ageLabel(r, locale)}
               </Link>
             ))}
           </MobileSection>

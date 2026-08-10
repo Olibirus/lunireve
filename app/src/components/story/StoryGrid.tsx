@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils/cn";
  * short until the reader asks for more.
  */
 const FIRST = 12; // 4 rows x 3 columns on desktop
-const COLS = 3; // desktop columns
 
 const GRID = "grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6";
 
@@ -24,10 +23,11 @@ export function StoryGrid({ stories }: { stories: MockStory[] }) {
   const t = useTranslations("library");
   const [expanded, setExpanded] = useState(false);
 
-  // Build the full cell list, then drop the promo card into the MIDDLE of the
-  // 2nd row (3-col desktop). With only one row of stories, place it at the end.
+  // Build the full cell list, then drop the promo card in: LAST when there
+  // are 6 stories or fewer (it closes a short list), otherwise 5th so it sits
+  // high enough to be seen without pushing real stories out of view.
   const cells: ReactNode[] = stories.map((s) => <StoryCard key={s.slug} story={s} />);
-  const insertAt = stories.length <= COLS ? cells.length : Math.min(COLS + 1, cells.length);
+  const insertAt = stories.length <= 6 ? cells.length : 4;
   cells.splice(insertAt, 0, <PersonalizedStoryCard key="personalized-card" />);
 
   if (cells.length <= FIRST) {

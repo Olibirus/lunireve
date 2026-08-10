@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AGE_RANGES, ageLabel } from "@/data/mock-stories";
 import { SectionStars } from "@/components/marketing/SectionStars";
@@ -23,6 +23,7 @@ const AGE_COVER: Record<string, string> = {
 
 export function AgeGrid() {
   const t = useTranslations("homeV2");
+  const locale = useLocale();
 
   return (
     <section className="relative isolate overflow-hidden py-14 md:py-20">
@@ -70,7 +71,7 @@ export function AgeGrid() {
                 className="font-serif text-xl md:text-2xl tracking-tight text-[var(--color-ink-800)] group-hover:text-[var(--color-indigo-soft-600)] transition-colors"
                 style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
               >
-                {ageLabel(r)}
+                {ageLabel(r, locale)}
               </span>
             </Link>
           ))}

@@ -1,3 +1,4 @@
+import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Sparkles, Star } from "lucide-react";
@@ -15,7 +16,8 @@ import { cn } from "@/lib/utils/cn";
  * Real covers (once n8n generates them) swap into <img /> at the same aspect.
  */
 export function StoryCard({ story, size = "md" }: { story: MockStory; size?: "sm" | "md" | "lg" }) {
-  const age = ageLabel(story.ageRange);
+  const locale = useLocale();
+  const age = ageLabel(story.ageRange, locale);
   const img = storyCardImageSrc(story.slug);
 
   return (

@@ -21,6 +21,7 @@ import {
   BookHeart,
   ArrowRight,
   Repeat,
+  ChevronDown,
 } from "lucide-react";
 
 /**
@@ -40,10 +41,10 @@ export default async function PersonalizedStoryPage({
   const gets = ["get1", "get2", "get3", "get4"] as const;
 
   const steps = [
-    { icon: User, title: "step1Title", desc: "step1Desc", cover: "cover-indigo" },
-    { icon: MapPin, title: "step2Title", desc: "step2Desc", cover: "cover-meadow" },
-    { icon: Palette, title: "step3Title", desc: "step3Desc", cover: "cover-peach" },
-    { icon: Wand2, title: "step4Title", desc: "step4Desc", cover: "cover-sea" },
+    { id: "step-1-hero", icon: User, title: "step1Title", desc: "step1Desc", cover: "cover-indigo" },
+    { id: "step-2-world", icon: MapPin, title: "step2Title", desc: "step2Desc", cover: "cover-meadow" },
+    { id: "step-3-style", icon: Palette, title: "step3Title", desc: "step3Desc", cover: "cover-peach" },
+    { id: "step-4-magic", icon: Wand2, title: "step4Title", desc: "step4Desc", cover: "cover-sea" },
   ] as const;
 
   const whys = [
@@ -126,21 +127,29 @@ export default async function PersonalizedStoryPage({
             return (
               <li key={s.title}>
                 <div className="grid items-center gap-6 md:grid-cols-2 md:gap-12">
-                  {/* Picture */}
+                  {/* Picture: real illustration when present (/img/steps/<id>.webp),
+                      gradient + icon as the fallback. */}
                   <div className={cn(pictureLeft ? "md:order-1" : "md:order-2")}>
                     <div
                       className={cn(
                         s.cover,
-                        "relative flex aspect-[4/3] items-center justify-center rounded-3xl shadow-[var(--shadow-card)]"
+                        "relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-3xl shadow-[var(--shadow-card)]"
                       )}
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`/img/steps/${s.id}.webp`}
+                        alt=""
+                        aria-hidden
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
                       <span
-                        className="absolute left-5 top-4 font-serif text-5xl leading-none text-white/85"
+                        className="absolute left-5 top-4 font-serif text-5xl leading-none text-white/85 drop-shadow"
                         style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 80" }}
                       >
                         {i + 1}
                       </span>
-                      <span className="rounded-full bg-white/25 p-5 backdrop-blur-sm">
+                      <span className="relative rounded-full bg-white/25 p-5 backdrop-blur-sm">
                         <Icon className="h-9 w-9 text-white" />
                       </span>
                     </div>
@@ -162,29 +171,11 @@ export default async function PersonalizedStoryPage({
                   </div>
                 </div>
 
-                {/* Curved dashed connector to the next step (desktop only) */}
+                {/* Simple vertical connector between steps (desktop only) */}
                 {i < steps.length - 1 && (
-                  <div className="hidden md:block" aria-hidden>
-                    <svg
-                      viewBox="0 0 200 90"
-                      className="mx-auto my-2 h-20 w-56 text-[var(--color-indigo-soft-400)]"
-                      fill="none"
-                      style={{ transform: pictureLeft ? "scaleX(-1)" : undefined }}
-                    >
-                      <path
-                        d="M40 6 C 120 14, 150 40, 90 56 C 50 67, 80 80, 150 84"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeDasharray="3 9"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M150 84 l -11 -5 M150 84 l -4 -11"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                      />
-                    </svg>
+                  <div className="hidden md:flex flex-col items-center py-6" aria-hidden>
+                    <span className="h-14 w-px border-l-2 border-dotted border-[var(--color-indigo-soft-300)]" />
+                    <ChevronDown className="-mt-1 h-5 w-5 text-[var(--color-indigo-soft-400)]" />
                   </div>
                 )}
               </li>
@@ -192,41 +183,52 @@ export default async function PersonalizedStoryPage({
           })}
         </ol>
 
-        {/* Bonus step — optional, so styled apart from the 4 core steps:
-            a glowing full-width card instead of the alternating layout. */}
-        <div className="relative mt-14" aria-hidden={false}>
-          <div
-            aria-hidden
-            className="absolute inset-0 -m-3 rounded-[2.5rem] opacity-70 blur-xl"
-            style={{
-              background:
-                "radial-gradient(circle at 20% 30%, rgba(183,223,204,0.55) 0%, transparent 55%), radial-gradient(circle at 85% 70%, rgba(248,180,135,0.4) 0%, transparent 50%)",
-            }}
-          />
-          <div className="relative overflow-hidden rounded-[2rem] border-2 border-dashed border-[var(--color-mint-500)] bg-[var(--color-mint-50)] p-8 md:p-10">
-            <Sparkles
-              aria-hidden
-              className="absolute -right-4 -top-4 h-28 w-28 text-[var(--color-mint-500)] opacity-15"
-            />
-            <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:gap-10">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-mint-400)] shadow-[var(--shadow-soft)]">
-                <Repeat className="h-8 w-8 text-[#17224a]" />
-              </div>
-              <div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-mint-400)]/40 px-3 py-1 text-[11px] font-medium uppercase tracking-widest text-[var(--color-ink-700)]">
-                  <Sparkles className="h-3 w-3" />
-                  {t("bonusBadge")}
-                </span>
-                <h3
-                  className="mt-3 font-serif text-2xl md:text-3xl tracking-tight leading-snug"
-                  style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
+        {/* Bonus step 5 — same rhythm as the four steps above (numbered
+            picture + text), but framed in dashed mint and badged so it reads
+            as optional rather than required. */}
+        <div className="hidden md:flex flex-col items-center py-6" aria-hidden>
+          <span className="h-14 w-px border-l-2 border-dotted border-[var(--color-mint-500)]" />
+          <ChevronDown className="-mt-1 h-5 w-5 text-[var(--color-mint-500)]" />
+        </div>
+
+        <div className="relative mt-6 rounded-[2rem] border-2 border-dashed border-[var(--color-mint-500)] bg-[var(--color-mint-50)] p-6 md:mt-0 md:p-8">
+          <div className="grid items-center gap-6 md:grid-cols-2 md:gap-12">
+            {/* Picture */}
+            <div>
+              <div className="cover-mint relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-3xl shadow-[var(--shadow-card)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/img/steps/step-5-sequel.webp"
+                  alt=""
+                  aria-hidden
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <span
+                  className="absolute left-5 top-4 font-serif text-5xl leading-none text-white/85 drop-shadow"
+                  style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 80" }}
                 >
-                  {t("bonusTitle")}
-                </h3>
-                <p className="mt-3 max-w-2xl text-[var(--color-ink-600)] leading-relaxed">
-                  {t("bonusDesc")}
-                </p>
+                  5
+                </span>
+                <span className="relative rounded-full bg-white/25 p-5 backdrop-blur-sm">
+                  <Repeat className="h-9 w-9 text-white" />
+                </span>
               </div>
+            </div>
+            {/* Text */}
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-mint-400)]/40 px-3 py-1 text-[11px] font-medium uppercase tracking-widest text-[var(--color-ink-700)]">
+                <Sparkles className="h-3 w-3" />
+                {t("bonusBadge")}
+              </span>
+              <h3
+                className="mt-3 font-serif text-2xl tracking-tight leading-snug"
+                style={{ fontVariationSettings: "'opsz' 48, 'SOFT' 40, 'wght' 500" }}
+              >
+                {t("bonusTitle")}
+              </h3>
+              <p className="mt-3 text-[var(--color-ink-600)] leading-relaxed">
+                {t("bonusDesc")}
+              </p>
             </div>
           </div>
         </div>

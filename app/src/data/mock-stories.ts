@@ -24,8 +24,9 @@ export const AGE_RANGES = ["1-2", "3-4", "5-6", "7-8", "9-10", "11-12"] as const
 export type AgeRange = (typeof AGE_RANGES)[number];
 
 /** "1-2" → "1–2 ans" (display). */
-export function ageLabel(range: AgeRange | string): string {
-  return `${String(range).replace("-", "–")} ans`;
+export function ageLabel(range: AgeRange | string, locale?: string): string {
+  const span = String(range).replace("-", "–");
+  return locale === "en" ? `${span} years` : `${span} ans`;
 }
 
 /** Child profile age (1–16) → closest content bucket. */

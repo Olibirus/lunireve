@@ -38,7 +38,7 @@ export function HeroV2() {
 
       <div className="relative mx-auto max-w-7xl px-5 md:px-8 pt-12 md:pt-20 pb-16 md:pb-24">
         <div className="grid lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-8 items-center">
-          <div className="order-2 lg:order-1">
+          <div className="order-1">
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)]/80 backdrop-blur px-3 py-1.5 text-xs tracking-wide text-[var(--color-ink-600)]">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-mint-600)]" />
               {t("heroKicker")}
@@ -88,7 +88,7 @@ export function HeroV2() {
           </div>
 
           {/* Search / filter card — audio is implicit (every story has audio) */}
-          <div className="order-1 lg:order-2 relative">
+          <div className="order-2 relative">
             <div
               className="absolute inset-0 -m-6 rounded-[48%] opacity-60 blur-2xl"
               aria-hidden

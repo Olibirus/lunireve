@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Wand2, ArrowRight } from "lucide-react";
+import { GlowCard } from "@/components/marketing/GlowCard";
 
 /**
  * Personalized-story promo card. Same grid footprint as a StoryCard but a
@@ -14,9 +15,10 @@ export function PersonalizedStoryCard() {
   const t = useTranslations("personalizedCard");
 
   return (
-    <Link
+    <GlowCard className="h-full rounded-3xl">
+      <Link
       href="/creer"
-      className="group relative flex min-h-[20rem] flex-col items-center justify-center overflow-hidden rounded-3xl p-6 text-center shadow-[var(--shadow-card)] transition-transform hover:scale-[1.02]"
+      className="group relative flex h-full min-h-[20rem] flex-col items-center justify-center overflow-hidden rounded-3xl p-6 text-center shadow-[var(--shadow-card)]"
       style={{
         background: "linear-gradient(155deg, #1f2d52 0%, #2c3a66 55%, #3b4a7a 100%)",
         color: "#faf5eb",
@@ -59,13 +61,14 @@ export function PersonalizedStoryCard() {
           {t("body")}
         </p>
         <span
-          className="mt-6 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold transition-colors"
+          className="shine-cta mt-6 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold"
           style={{ background: "#b7dfcc", color: "#17224a" }}
         >
           {t("cta")}
           <ArrowRight className="h-4 w-4" />
         </span>
       </div>
-    </Link>
+      </Link>
+    </GlowCard>
   );
 }

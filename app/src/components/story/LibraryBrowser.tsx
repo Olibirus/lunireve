@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { StoryGrid } from "@/components/story/StoryGrid";
 import { EmptyResults } from "@/components/story/EmptyResults";
@@ -43,6 +43,7 @@ import { cn } from "@/lib/utils/cn";
  */
 export function LibraryBrowser() {
   const t = useTranslations("library");
+  const locale = useLocale();
   const tAll = useTranslations();
   const tCats = useTranslations("filterCats");
   const searchParams = useSearchParams();
@@ -149,7 +150,7 @@ export function LibraryBrowser() {
   const ageRail = {
     key: "age",
     label: t("filters.ageTitle"),
-    options: AGE_RANGES.map((a) => ({ value: a, label: ageLabel(a) })),
+    options: AGE_RANGES.map((a) => ({ value: a, label: ageLabel(a, locale) })),
   } as const;
 
   const hasFilters =

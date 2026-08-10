@@ -80,6 +80,9 @@ importers:
       react-hook-form:
         specifier: ^7.73.1
         version: 7.73.1(react@19.2.4)
+      sharp:
+        specifier: ^0.35.3
+        version: 0.35.3(@types/node@20.19.39)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -114,9 +117,6 @@ importers:
       drizzle-kit:
         specifier: ^0.31.10
         version: 0.31.10
-      sharp:
-        specifier: ^0.35.3
-        version: 0.35.3(@types/node@20.19.39)
       tailwindcss:
         specifier: ^4
         version: 4.2.3

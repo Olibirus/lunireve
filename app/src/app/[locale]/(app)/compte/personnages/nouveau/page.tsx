@@ -49,7 +49,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { OptionCard, Chip, Section, MiniSlot, SurpriseButton } from "./OptionCards";
+import { OptionCard, Chip, Section, SurpriseButton } from "./OptionCards";
 import { ArrowLeft, Check, ChevronRight, Dices, Lock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -636,7 +636,7 @@ export default function NewCharacterWizard() {
                   want to compose their own. */}
               {!traitsAdvanced ? (
                 <>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {ARCHETYPES.map((a) => {
                       const on = activeArchetype?.id === a.id;
                       return (
@@ -646,20 +646,48 @@ export default function NewCharacterWizard() {
                           onClick={() => pickArchetype(a.id)}
                           aria-pressed={on}
                           className={cn(
-                            "rounded-3xl border-2 p-4 text-left transition-colors",
+                            "group overflow-hidden rounded-3xl border-2 text-left transition-colors",
                             on
                               ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]"
                               : "border-[var(--color-ink-100)] bg-[var(--color-cream-50)] hover:border-[var(--color-ink-200)] hover:bg-[var(--color-cream-100)]"
                           )}
                         >
-                          <span className="flex items-center gap-2">
-                            <span aria-hidden className="text-xl">{a.emoji}</span>
-                            <span className="font-serif text-base leading-tight tracking-tight">
+                          {/* The fox portrait swaps itself in as soon as
+                              /illustrations/archetype-<id>.webp exists; the
+                              emoji stands in until then. */}
+                          <span
+                            aria-hidden
+                            className="relative flex aspect-square w-full items-center justify-center bg-[var(--color-cream-100)] text-3xl"
+                          >
+                            {a.emoji}
+                            {/* Revealed on LOAD rather than hidden on error:
+                                an error handler attached after the request has
+                                already failed never fires, and the card would
+                                show a broken-image glyph. */}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={`/illustrations/archetype-${a.id}.webp`}
+                              alt=""
+                              loading="lazy"
+                              style={{ opacity: 0 }}
+                              onLoad={(e) => {
+                                e.currentTarget.style.opacity = "1";
+                              }}
+                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                            />
+                            {on && (
+                              <span className="absolute right-2 top-2 rounded-full bg-[var(--color-mint-500)] p-1 text-[#17224a]">
+                                <Check className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                          </span>
+                          <span className="block p-3">
+                            <span className="block font-serif text-sm leading-tight tracking-tight md:text-base">
                               {optLabel(a, locale)}
                             </span>
-                          </span>
-                          <span className="mt-1.5 block text-xs leading-relaxed text-[var(--color-ink-500)]">
-                            {archetypeTraitLabels(a, locale)}
+                            <span className="mt-1 block text-[11px] leading-relaxed text-[var(--color-ink-500)]">
+                              {archetypeTraitLabels(a, locale)}
+                            </span>
                           </span>
                         </button>
                       );
@@ -755,8 +783,10 @@ export default function NewCharacterWizard() {
           <p className="text-xs uppercase tracking-widest text-[var(--color-ink-400)]">
             {t("previewTitle")}
           </p>
-          <MiniSlot slotId="char-preview" className="mt-3 aspect-[3/4] w-full" />
-          <p className="mt-4 font-serif text-xl tracking-tight">
+          {/* V1 ships the written portrait only. The illustrated avatar (a
+              layered SVG built from the picked options) lands in V2 — see
+              V2_CHARACTER_AVATAR.md. */}
+          <p className="mt-3 font-serif text-xl tracking-tight">
             {name.trim() || t("previewEmptyName")}
           </p>
           {type && (

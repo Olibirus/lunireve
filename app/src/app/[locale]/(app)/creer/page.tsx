@@ -1827,15 +1827,19 @@ export default function CreateStoryPage() {
                                 exists at /illustrations/style-<id>.webp; until
                                 then (and if it ever 404s) the icon stands in. */}
                             <ImageIcon className="h-8 w-8" />
+                            {/* Revealed on LOAD, not hidden on error: a handler
+                                attached after the request already failed never
+                                fires, leaving a broken-image glyph. */}
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={`/illustrations/style-${s}.webp`}
                               alt=""
                               loading="lazy"
-                              className="absolute inset-0 h-full w-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
+                              style={{ opacity: 0 }}
+                              onLoad={(e) => {
+                                e.currentTarget.style.opacity = "1";
                               }}
+                              className="absolute inset-0 h-full w-full object-cover"
                             />
                             {locked && (
                               <span className="absolute right-2 top-2 rounded-full bg-black/30 p-1.5 text-white">

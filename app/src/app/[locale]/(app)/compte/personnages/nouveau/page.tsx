@@ -5,6 +5,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import {
   createCharacter,
+  findCharacter,
+  updateCharacter,
   slotsLeft,
   characterLimits,
   type CharacterAppearance,
@@ -33,6 +35,10 @@ import {
   ANIMAL_SIZES,
   ANIMAL_ACCESSORIES,
   TRAIT_GROUPS,
+  ARCHETYPES,
+  archetypeTraitLabels,
+  randomAppearance,
+  randomTraits,
   MAX_TRAITS,
   MAX_ACCESSORIES,
   MAX_MOBILITY,
@@ -43,8 +49,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { OptionCard, Chip, Section, MiniSlot } from "./OptionCards";
-import { ArrowLeft, Check, Lock, Sparkles } from "lucide-react";
+import { OptionCard, Chip, Section, MiniSlot, SurpriseButton } from "./OptionCards";
+import { ArrowLeft, Check, ChevronRight, Dices, Lock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -69,9 +75,30 @@ export default function NewCharacterWizard() {
   const [app, setApp] = useState<CharacterAppearance>({});
   const [traits, setTraits] = useState<string[]>([]);
   const [slots, setSlots] = useState<{ main: number; secondary: number } | null>(null);
+  /** Step 4 shows ready-made personalities first; the full list on demand. */
+  const [traitsAdvanced, setTraitsAdvanced] = useState(false);
+
+  /** Set when arriving via ?edit=<id>: the wizard saves in place instead. */
+  const [editId, setEditId] = useState<string | null>(null);
 
   useEffect(() => {
     setSlots({ main: slotsLeft("main"), secondary: slotsLeft("secondary") });
+    try {
+      const id = new URLSearchParams(window.location.search).get("edit");
+      if (!id) return;
+      const existing = findCharacter(id);
+      if (!existing) return;
+      setEditId(id);
+      setType(existing.type);
+      setRole(existing.role ?? "main");
+      setName(existing.name);
+      setGender(existing.gender);
+      if (typeof existing.age === "number") setAge(existing.age);
+      setApp(existing.appearance ?? {});
+      setTraits(existing.traits ?? []);
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const setA = <K extends keyof CharacterAppearance>(k: K, v: CharacterAppearance[K]) =>
@@ -91,6 +118,32 @@ export default function NewCharacterWizard() {
     setApp({});
     setAge(next === "enfant" ? 6 : next === "adulte" ? 30 : 3);
   }
+
+  /** "Surprenez-moi" on step 3: a whole coherent look, still editable after. */
+  function surpriseAppearance() {
+    setApp(randomAppearance(type === "animal"));
+  }
+
+  /** "Surprenez-moi" on step 4: one archetype's traits. */
+  function surpriseTraits() {
+    setTraits(randomTraits());
+  }
+
+  /** Archetype card: replaces the current selection with its 3 traits. */
+  function pickArchetype(id: string) {
+    const a = ARCHETYPES.find((x) => x.id === id);
+    if (!a) return;
+    setTraits((prev) =>
+      a.traits.every((t) => prev.includes(t)) && prev.length === a.traits.length
+        ? []
+        : [...a.traits]
+    );
+  }
+
+  /** The archetype currently reflected by the selection, when it matches one. */
+  const activeArchetype = ARCHETYPES.find(
+    (a) => a.traits.length === traits.length && a.traits.every((t) => traits.includes(t))
+  );
 
   function toggleTrait(id: string) {
     setTraits((prev) =>
@@ -116,8 +169,8 @@ export default function NewCharacterWizard() {
     step === 0 ? type !== null : step === 1 ? name.trim().length >= 2 : true;
 
   function create() {
-    if (!type || name.trim().length < 2 || roleLeft <= 0) return;
-    const created = createCharacter({
+    if (!type || name.trim().length < 2) return;
+    const payload = {
       name: name.trim(),
       type,
       role,
@@ -126,8 +179,15 @@ export default function NewCharacterWizard() {
       description: describeCharacter({ type, appearance: app }, locale),
       traits,
       appearance: app,
-    });
-    if (created) router.push("/compte/personnages");
+    };
+    // Editing overwrites in place and never consumes a slot.
+    if (editId) {
+      updateCharacter(editId, payload);
+      router.push("/compte/personnages");
+      return;
+    }
+    if (roleLeft <= 0) return;
+    if (createCharacter(payload)) router.push("/compte/personnages");
   }
 
   const typeLabel = type ? optLabel(WIZARD_TYPES.find((x) => x.id === type)!, locale) : "";
@@ -148,7 +208,7 @@ export default function NewCharacterWizard() {
       {/* Step indicator: 01-04, completed steps clickable */}
       <ol className="mt-5 flex flex-wrap items-center gap-2 text-xs">
         {steps.map((label, i) => (
-          <li key={label}>
+          <li key={label} className="flex items-center gap-2">
             <button
               type="button"
               disabled={i > step}
@@ -165,6 +225,10 @@ export default function NewCharacterWizard() {
               {i < step ? <Check className="h-3 w-3" /> : <span className="font-mono">0{i + 1}</span>}
               {label}
             </button>
+            {/* Reads as a path rather than four loose chips */}
+            {i < steps.length - 1 && (
+              <ChevronRight aria-hidden className="h-3.5 w-3.5 text-[var(--color-ink-300)]" />
+            )}
           </li>
         ))}
         <li className="ml-auto text-[var(--color-ink-400)]">{t("stepOf", { current: step + 1 })}</li>
@@ -264,9 +328,12 @@ export default function NewCharacterWizard() {
 
           {step === 2 && type && type !== "animal" && (
             <div className="space-y-8">
-              <div>
-                <h2 className="font-serif text-xl tracking-tight">{t("appearanceTitle")}</h2>
-                <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("appearanceHint")}</p>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-serif text-xl tracking-tight">{t("appearanceTitle")}</h2>
+                  <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("appearanceHint")}</p>
+                </div>
+                <SurpriseButton label={t("surpriseMe")} hint={t("surpriseHint")} onClick={surpriseAppearance} />
               </div>
 
               <Section title={t("skinTitle")}>
@@ -456,9 +523,12 @@ export default function NewCharacterWizard() {
 
           {step === 2 && type === "animal" && (
             <div className="space-y-8">
-              <div>
-                <h2 className="font-serif text-xl tracking-tight">{t("appearanceTitle")}</h2>
-                <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("animalAppearanceHint")}</p>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-serif text-xl tracking-tight">{t("appearanceTitle")}</h2>
+                  <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("animalAppearanceHint")}</p>
+                </div>
+                <SurpriseButton label={t("surpriseMe")} hint={t("surpriseHint")} onClick={surpriseAppearance} />
               </div>
 
               <Section title={t("familyTitle")}>
@@ -539,45 +609,103 @@ export default function NewCharacterWizard() {
 
           {step === 3 && (
             <div className="space-y-7">
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="font-serif text-xl tracking-tight">{t("personalityTitle")}</h2>
-                  <p className="mt-1 text-sm text-[var(--color-ink-500)]">{t("personalityHint")}</p>
+                  <p className="mt-1 text-sm text-[var(--color-ink-500)]">
+                    {traitsAdvanced ? t("personalityHint") : t("archetypeHint")}
+                  </p>
                 </div>
-                <span
-                  className={cn(
-                    "rounded-full px-3 py-1 text-xs",
-                    traits.length >= MAX_TRAITS
-                      ? "bg-[var(--color-mint-200)] text-[var(--color-ink-800)]"
-                      : "bg-[var(--color-cream-200)] text-[var(--color-ink-500)]"
-                  )}
-                >
-                  {t("traitsCount", { count: traits.length, max: MAX_TRAITS })}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "rounded-full px-3 py-1 text-xs",
+                      traits.length >= MAX_TRAITS
+                        ? "bg-[var(--color-mint-200)] text-[var(--color-ink-800)]"
+                        : "bg-[var(--color-cream-200)] text-[var(--color-ink-500)]"
+                    )}
+                  >
+                    {t("traitsCount", { count: traits.length, max: MAX_TRAITS })}
+                  </span>
+                  <SurpriseButton label={t("surpriseMe")} hint={t("surpriseHint")} onClick={surpriseTraits} />
+                </div>
               </div>
 
-              {TRAIT_GROUPS.map((group) => (
-                <div key={group.id}>
-                  <p className="text-sm font-medium text-[var(--color-ink-700)]">
-                    {optLabel(group, locale)}
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {group.traits.map((tr) => {
-                      const on = traits.includes(tr.id);
+              {/* Ready-made personalities: 3 coherent traits in one tap. The
+                  full 50-chip catalogue is one click away for parents who
+                  want to compose their own. */}
+              {!traitsAdvanced ? (
+                <>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {ARCHETYPES.map((a) => {
+                      const on = activeArchetype?.id === a.id;
                       return (
-                        <Chip
-                          key={tr.id}
-                          selected={on}
-                          disabled={!on && traits.length >= MAX_TRAITS}
-                          onClick={() => toggleTrait(tr.id)}
+                        <button
+                          key={a.id}
+                          type="button"
+                          onClick={() => pickArchetype(a.id)}
+                          aria-pressed={on}
+                          className={cn(
+                            "rounded-3xl border-2 p-4 text-left transition-colors",
+                            on
+                              ? "border-[var(--color-mint-500)] bg-[var(--color-mint-50)]"
+                              : "border-[var(--color-ink-100)] bg-[var(--color-cream-50)] hover:border-[var(--color-ink-200)] hover:bg-[var(--color-cream-100)]"
+                          )}
                         >
-                          <span aria-hidden>{tr.emoji}</span> {optLabel(tr, locale)}
-                        </Chip>
+                          <span className="flex items-center gap-2">
+                            <span aria-hidden className="text-xl">{a.emoji}</span>
+                            <span className="font-serif text-base leading-tight tracking-tight">
+                              {optLabel(a, locale)}
+                            </span>
+                          </span>
+                          <span className="mt-1.5 block text-xs leading-relaxed text-[var(--color-ink-500)]">
+                            {archetypeTraitLabels(a, locale)}
+                          </span>
+                        </button>
                       );
                     })}
                   </div>
-                </div>
-              ))}
+                  <button
+                    type="button"
+                    onClick={() => setTraitsAdvanced(true)}
+                    className="text-sm text-[var(--color-indigo-soft-600)] underline underline-offset-2 hover:text-[var(--color-ink-800)]"
+                  >
+                    {t("archetypeAdvanced")}
+                  </button>
+                </>
+              ) : (
+                <>
+                  {TRAIT_GROUPS.map((group) => (
+                    <div key={group.id}>
+                      <p className="text-sm font-medium text-[var(--color-ink-700)]">
+                        {optLabel(group, locale)}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {group.traits.map((tr) => {
+                          const on = traits.includes(tr.id);
+                          return (
+                            <Chip
+                              key={tr.id}
+                              selected={on}
+                              disabled={!on && traits.length >= MAX_TRAITS}
+                              onClick={() => toggleTrait(tr.id)}
+                            >
+                              <span aria-hidden>{tr.emoji}</span> {optLabel(tr, locale)}
+                            </Chip>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setTraitsAdvanced(false)}
+                    className="text-sm text-[var(--color-indigo-soft-600)] underline underline-offset-2 hover:text-[var(--color-ink-800)]"
+                  >
+                    {t("archetypeBack")}
+                  </button>
+                </>
+              )}
 
               {roleLeft <= 0 && slots && (
                 <p className="flex items-center gap-2 rounded-xl bg-[var(--color-cream-100)] px-4 py-3 text-sm text-[var(--color-ink-500)]">
@@ -612,7 +740,7 @@ export default function NewCharacterWizard() {
               <Button
                 variant="mint"
                 size="md"
-                disabled={!type || name.trim().length < 2 || roleLeft <= 0}
+                disabled={!type || name.trim().length < 2 || (!editId && roleLeft <= 0)}
                 onClick={create}
               >
                 <Sparkles className="h-4 w-4" />

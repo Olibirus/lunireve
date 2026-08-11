@@ -148,6 +148,13 @@
     --color-indigo-soft-600: #9aa3cf;
     --color-indigo-soft-700: #b3bade;
 
+    /* The pale indigo SURFACES have to darken with everything else: the text
+       steps above are now light, so a light chip background would print
+       light-on-light (the unreadable "Secondaire" / "Bibliothèque" pills). */
+    --color-indigo-soft-50: #1c2547;
+    --color-indigo-soft-100: #26305a;
+    --color-indigo-soft-200: #303b6b;
+
     /* Pastel mint loses its footing on the dark-mode pill, so the wand simply
        takes the label's own color: whatever the pill is, the icon reads. */
     --color-create-icon: currentColor;

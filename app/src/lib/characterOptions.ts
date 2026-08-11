@@ -325,6 +325,8 @@ export const TRAIT_GROUPS: TraitGroup[] = [
       { id: "naif", fr: "Naïf", en: "Naive", emoji: "🐣" },
       { id: "peureux", fr: "Peureux", en: "Fearful", emoji: "😨" },
       { id: "tetu", fr: "Têtu", en: "Stubborn", emoji: "🐑" },
+      { id: "turbulent", fr: "Turbulent", en: "Boisterous", emoji: "🌪️" },
+      { id: "rebelle", fr: "Rebelle", en: "Rebellious", emoji: "⚡" },
       { id: "impatient", fr: "Impatient", en: "Impatient", emoji: "⏳" },
       { id: "arrogant", fr: "Arrogant", en: "Arrogant", emoji: "😤" },
       { id: "jaloux", fr: "Jaloux", en: "Jealous", emoji: "😒" },
@@ -390,6 +392,77 @@ export const TRAIT_GROUPS: TraitGroup[] = [
 const ALL_TRAITS: Record<string, Opt> = Object.fromEntries(
   TRAIT_GROUPS.flatMap((g) => g.traits).map((t) => [t.id, t])
 );
+
+/* ------------------------------------------------------------------ */
+/* Personality archetypes                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Ready-made personalities: one tap sets 3 coherent traits, so a parent is not
+ * asked to read 50 chips to describe their child's hero. Deliberately
+ * gender-neutral. The full trait list stays one click away for parents who
+ * want to compose their own.
+ */
+export type Archetype = Opt & { emoji: string; traits: string[] };
+
+export const ARCHETYPES: Archetype[] = [
+  {
+    id: "aventurier",
+    fr: "L'Esprit Aventurier",
+    en: "The Adventurous Spirit",
+    emoji: "🧭",
+    traits: ["courageux", "curieux", "aventureux"],
+  },
+  {
+    id: "creative",
+    fr: "L'Âme Créative",
+    en: "The Creative Soul",
+    emoji: "🎨",
+    traits: ["imaginatif", "sensible", "reveur"],
+  },
+  {
+    id: "boute-en-train",
+    fr: "Le Boute-en-train",
+    en: "The Life of the Party",
+    emoji: "😂",
+    traits: ["joyeux", "blagueur", "sociable"],
+  },
+  {
+    id: "coeur-fidele",
+    fr: "Le Cœur Fidèle",
+    en: "The Loyal Heart",
+    emoji: "🤝",
+    traits: ["empathique", "loyal", "protecteur"],
+  },
+  {
+    id: "force-tranquille",
+    fr: "La Force Tranquille",
+    en: "The Quiet Strength",
+    emoji: "😌",
+    traits: ["calme", "logique", "consciencieux"],
+  },
+  {
+    id: "esprit-libre",
+    fr: "L'Esprit Libre",
+    en: "The Free Spirit",
+    emoji: "🌈",
+    traits: ["independant", "fantasque", "debrouillard"],
+  },
+  {
+    id: "tourbillon",
+    fr: "Le Tourbillon",
+    en: "The Whirlwind",
+    emoji: "🌪️",
+    traits: ["turbulent", "rebelle", "tetu"],
+  },
+];
+
+/** Traits of an archetype, as human labels ("Courageux, Curieux, Aventureux"). */
+export function archetypeTraitLabels(a: Archetype, locale: string): string {
+  return a.traits
+    .map((id) => (ALL_TRAITS[id] ? optLabel(ALL_TRAITS[id], locale) : id))
+    .join(", ");
+}
 
 /** Label for a trait id; falls back to the raw string (legacy characters). */
 export function traitLabel(id: string, locale: string): string {
@@ -479,4 +552,83 @@ export function describeCharacter(
   if (wear.length) parts.push((fr ? "porte " : "wears ") + wear.join(", "));
 
   return parts.join(", ");
+}
+
+/* ------------------------------------------------------------------ */
+/* "Surprenez-moi" randomizers                                         */
+/* ------------------------------------------------------------------ */
+
+function pick<T>(list: readonly T[]): T {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+/** n distinct entries from a list (fewer if the list is shorter). */
+function pickSome<T>(list: readonly T[], n: number): T[] {
+  const pool = [...list];
+  const out: T[] = [];
+  while (out.length < n && pool.length) {
+    out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  }
+  return out;
+}
+
+/**
+ * A complete, coherent appearance for parents who would rather not pick
+ * through six sections. Human and animal characters draw from their own
+ * option sets; everything stays editable afterwards.
+ */
+export function randomAppearance(isAnimal: boolean): CharacterAppearanceDraft {
+  if (isAnimal) {
+    const family = pick(ANIMAL_FAMILIES).id;
+    const species = ANIMAL_SPECIES[family] ?? [];
+    return {
+      family,
+      species: species.length ? pick(species).id : undefined,
+      coat: pick(COAT_OPTIONS).id,
+      size: pick(ANIMAL_SIZES).id,
+      // Keep it light: 0 or 1 accessory, never a cluttered animal.
+      accessories: Math.random() < 0.5 ? [pick(ANIMAL_ACCESSORIES).id] : [],
+    };
+  }
+  // Hair: mostly a normal cut, occasionally a headscarf/bald option.
+  const special = Math.random() < 0.15;
+  return {
+    skin: pick(SKIN_OPTIONS).id,
+    hairStyle: special ? pick(HAIR_SPECIALS).id : pick(HAIR_STYLES).id,
+    hairColor: special ? undefined : pick(HAIR_COLORS).id,
+    eyes: pick(EYE_OPTIONS).id,
+    glasses: Math.random() < 0.25 ? pick(GLASSES_OPTIONS).id : undefined,
+    build: pick(BUILD_OPTIONS).id,
+    mobility: [],
+    hat: Math.random() < 0.3 ? pick(HAT_OPTIONS).id : undefined,
+    clothing: pickSome(CLOTHING_OPTIONS, Math.random() < 0.5 ? 1 : 2).map((o) => o.id),
+    extras: Math.random() < 0.35 ? [pick(EXTRA_OPTIONS).id] : [],
+  };
+}
+
+/** Shape returned by randomAppearance (matches CharacterAppearance loosely). */
+export type CharacterAppearanceDraft = {
+  skin?: string;
+  hairColor?: string;
+  hairStyle?: string;
+  eyes?: string;
+  glasses?: string;
+  build?: string;
+  mobility?: string[];
+  hat?: string;
+  clothing?: string[];
+  extras?: string[];
+  family?: string;
+  species?: string;
+  coat?: string;
+  size?: string;
+  accessories?: string[];
+};
+
+/**
+ * A random personality: one archetype's 3 traits, so the result always reads
+ * as a coherent character rather than three contradictory chips.
+ */
+export function randomTraits(): string[] {
+  return [...pick(ARCHETYPES).traits];
 }

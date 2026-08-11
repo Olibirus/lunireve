@@ -126,6 +126,36 @@ export function Chip({
   );
 }
 
+/**
+ * "Surprenez-moi" — fills the current step with a random but coherent set.
+ * Everything it picks stays editable, so it is a starting point, not a lock.
+ */
+export function SurpriseButton({
+  label,
+  hint,
+  onClick,
+}: {
+  label: string;
+  hint?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={hint}
+      className={cn(
+        "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors",
+        "border-[var(--color-mint-500)] bg-[var(--color-mint-50)] text-[var(--color-ink-800)]",
+        "hover:bg-[var(--color-mint-100)]"
+      )}
+    >
+      <span aria-hidden>🎲</span>
+      {label}
+    </button>
+  );
+}
+
 /** Titled section with an optional hint line. */
 export function Section({
   title,

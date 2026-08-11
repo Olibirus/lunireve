@@ -119,3 +119,35 @@ export function createCharacter(
 export function deleteCharacter(id: string) {
   write(readCharacters().filter((c) => c.id !== id));
 }
+
+export function findCharacter(id: string): SavedCharacter | undefined {
+  return readCharacters().find((c) => c.id === id);
+}
+
+/** Edit an existing character in place (the wizard reuses this on save). */
+export function updateCharacter(
+  id: string,
+  patch: Partial<Omit<SavedCharacter, "id" | "createdAt">>
+): void {
+  write(readCharacters().map((c) => (c.id === id ? { ...c, ...patch } : c)));
+}
+
+/**
+ * Copy a character so a parent can branch a variant (same hero, different
+ * look) without losing the original. Returns null when the role's slots are
+ * full, so the caller can explain rather than silently do nothing.
+ */
+export function duplicateCharacter(id: string, copyName: string): SavedCharacter | null {
+  const source = readCharacters().find((c) => c.id === id);
+  if (!source) return null;
+  return createCharacter({
+    name: copyName,
+    type: source.type,
+    role: source.role,
+    gender: source.gender,
+    age: source.age,
+    description: source.description,
+    traits: [...source.traits],
+    appearance: source.appearance ? { ...source.appearance } : undefined,
+  });
+}

@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import {
   readCharacters,
   deleteCharacter,
+  duplicateCharacter,
   slotsLeft,
   characterLimits,
   type SavedCharacter,
@@ -13,7 +14,7 @@ import {
 import { traitLabel } from "@/lib/characterOptions";
 import { readTier } from "@/lib/tier";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, UserSquare, Wand2 } from "lucide-react";
+import { Copy, Pencil, Plus, Trash2, UserSquare, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -32,11 +33,20 @@ export default function CharactersPage() {
     setSlots({ main: slotsLeft("main"), secondary: slotsLeft("secondary") });
   }, []);
 
+  function refresh() {
+    setCharacters(readCharacters());
+    setSlots({ main: slotsLeft("main"), secondary: slotsLeft("secondary") });
+  }
+
   function remove(c: SavedCharacter) {
     if (!window.confirm(t("deleteConfirm", { name: c.name }))) return;
     deleteCharacter(c.id);
-    setCharacters(readCharacters());
-    setSlots({ main: slotsLeft("main"), secondary: slotsLeft("secondary") });
+    refresh();
+  }
+
+  /** Branch a variant without losing the original. No-op when slots are full. */
+  function duplicate(c: SavedCharacter) {
+    if (duplicateCharacter(c.id, t("duplicateSuffix", { name: c.name }).slice(0, 40))) refresh();
   }
 
   return (
@@ -123,14 +133,39 @@ export default function CharactersPage() {
                   </p>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={() => remove(c)}
-                aria-label={t("delete")}
-                className="shrink-0 rounded-lg p-1.5 text-[var(--color-ink-400)] hover:text-[var(--color-fox-700)]"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+              <div className="flex shrink-0 items-center gap-0.5">
+                <Link
+                  href={{ pathname: "/compte/personnages/nouveau", query: { edit: c.id } } as never}
+                  aria-label={t("editCharacter")}
+                  title={t("editCharacter")}
+                  className="rounded-lg p-1.5 text-[var(--color-ink-400)] hover:text-[var(--color-ink-800)]"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Link>
+                {/* Disabled at quota, with the reason on hover rather than a
+                    button that silently does nothing. */}
+                <button
+                  type="button"
+                  onClick={() => duplicate(c)}
+                  disabled={(slots?.[c.role ?? "secondary"] ?? 0) <= 0}
+                  aria-label={t("duplicate")}
+                  title={
+                    (slots?.[c.role ?? "secondary"] ?? 0) <= 0 ? t("duplicateFull") : t("duplicate")
+                  }
+                  className="rounded-lg p-1.5 text-[var(--color-ink-400)] hover:text-[var(--color-ink-800)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-[var(--color-ink-400)]"
+                >
+                  <Copy className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => remove(c)}
+                  aria-label={t("delete")}
+                  title={t("delete")}
+                  className="rounded-lg p-1.5 text-[var(--color-ink-400)] hover:text-[var(--color-fox-700)]"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             </div>
             {c.traits.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-1">
@@ -150,7 +185,7 @@ export default function CharactersPage() {
                 href={{ pathname: "/creer", query: { hero: c.id } }}
                 className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-ink-800)] px-3.5 py-1.5 text-xs font-medium text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)] transition-colors"
               >
-                <Wand2 className="h-3.5 w-3.5 text-[var(--color-mint-400)]" />
+                <Wand2 className="h-3.5 w-3.5 text-[var(--color-create-icon)]" />
                 {t("createStoryWith", { name: c.name })}
               </Link>
             )}

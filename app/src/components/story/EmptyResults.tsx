@@ -31,7 +31,9 @@ export function EmptyResults({
         href={{ pathname: "/creer", query }}
         className="mt-6 inline-flex items-center gap-2 rounded-full bg-[var(--color-ink-800)] px-6 py-3 text-sm font-medium text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)] transition-colors"
       >
-        <Wand2 className="h-4 w-4 text-[var(--color-mint-400)]" />
+        {/* Same token as the navbar Create pill: pastel mint in light mode,
+            the label's own colour in dark mode where the mint disappears. */}
+        <Wand2 className="h-4 w-4 text-[var(--color-create-icon)]" />
         {t("emptyCreateCta")}
       </Link>
     </div>

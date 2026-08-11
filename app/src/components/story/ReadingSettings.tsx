@@ -9,13 +9,18 @@ type Size = "s" | "m" | "l";
 
 /**
  * Reading comfort controls — text size (S/M/L) and dyslexia font, both
- * fully working (item #20). Applies classes to #story-body and persists
- * the choice; with accounts, this maps to users.text_size/dyslexia_font.
+ * fully working (item #20). The preference lives on <html> as data
+ * attributes (written before paint by the inline script in [locale]/layout,
+ * so a saved choice never flashes) and is mirrored to localStorage; with
+ * accounts, this maps to users.text_size/dyslexia_font.
  */
 export function ReadingSettings() {
   const t = useTranslations("story");
   const [size, setSize] = useState<Size>("m");
   const [dyslexia, setDyslexia] = useState(false);
+  // Guards the apply effect: without it the first pass would write the
+  // component defaults over the pre-paint values and cause the flash again.
+  const [ready, setReady] = useState(false);
 
   // Restore persisted preferences
   useEffect(() => {
@@ -23,22 +28,22 @@ export function ReadingSettings() {
     const storedDys = localStorage.getItem("lunireve:dyslexia") === "1";
     if (storedSize === "s" || storedSize === "m" || storedSize === "l") setSize(storedSize);
     if (storedDys) setDyslexia(true);
+    setReady(true);
   }, []);
 
-  // Apply to the article
+  // Apply to the document (CSS scopes the attributes down to #story-body)
   useEffect(() => {
-    const body = document.getElementById("story-body");
-    if (!body) return;
-    body.classList.remove("reading-size-s", "reading-size-m", "reading-size-l");
-    body.classList.add(`reading-size-${size}`);
-    body.classList.toggle("reading-dyslexia", dyslexia);
+    if (!ready) return;
+    const root = document.documentElement;
+    root.setAttribute("data-reading-size", size);
+    root.setAttribute("data-reading-dyslexia", dyslexia ? "1" : "0");
     try {
       localStorage.setItem("lunireve:textSize", size);
       localStorage.setItem("lunireve:dyslexia", dyslexia ? "1" : "0");
     } catch {
       /* non-fatal */
     }
-  }, [size, dyslexia]);
+  }, [size, dyslexia, ready]);
 
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">

@@ -86,10 +86,13 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Theme set before paint to avoid a light flash in dark mode */}
+        {/* Theme set before paint to avoid a light flash in dark mode.
+            Reading comfort (text size + dyslexia font) is applied the same way:
+            the saved preference lands on <html> before the story paints, so a
+            reader never sees one frame of the wrong font. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem("lunireve-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`,
+            __html: `try{var t=localStorage.getItem("lunireve-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}try{var s=localStorage.getItem("lunireve:textSize");document.documentElement.setAttribute("data-reading-size",s==="s"||s==="l"?s:"m");document.documentElement.setAttribute("data-reading-dyslexia",localStorage.getItem("lunireve:dyslexia")==="1"?"1":"0")}catch(e){}`,
           }}
         />
       </head>

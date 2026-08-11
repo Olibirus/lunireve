@@ -381,15 +381,25 @@
   .prose-reading.reading-size-m, .reading-size-m { font-size: 1.1875rem; }
   .prose-reading.reading-size-l, .reading-size-l { font-size: 1.5rem; }
 
+  /* Same steps, driven by the attribute the pre-paint script writes on <html>
+     from localStorage. Higher specificity than the SSR default class above, so
+     a saved size applies on the very first frame (no flash, no reload). */
+  html[data-reading-size="s"] #story-body { font-size: 1rem; }
+  html[data-reading-size="m"] #story-body { font-size: 1.1875rem; }
+  html[data-reading-size="l"] #story-body { font-size: 1.5rem; }
+
   /* Dyslexia mode — swaps the reading font, loosens spacing */
   .reading-dyslexia,
-  .reading-dyslexia p {
+  .reading-dyslexia p,
+  html[data-reading-dyslexia="1"] #story-body,
+  html[data-reading-dyslexia="1"] #story-body p {
     font-family: "OpenDyslexic", var(--font-sans) !important;
     letter-spacing: 0.025em;
     word-spacing: 0.14em;
     line-height: 1.9;
   }
-  .reading-dyslexia p:first-letter {
+  .reading-dyslexia p:first-letter,
+  html[data-reading-dyslexia="1"] #story-body p:first-letter {
     font-family: "OpenDyslexic", var(--font-sans);
     font-size: 1.2em;
     float: none;

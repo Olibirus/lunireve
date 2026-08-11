@@ -10,6 +10,8 @@ import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import {
   findStory,
+  storyTitle,
+  storyExcerpt,
   mockStories,
   storyBody,
   storyQuiz,
@@ -97,7 +99,10 @@ function applyGlossary(
 function renderParagraph(text: string, glossary: GlossaryEntry[]): ReactNode[] {
   const used = new Set<string>();
   const out: ReactNode[] = [];
-  const re = /«[^»]*»/g;
+  // French guillemets and English curly quotes both mark spoken lines, so the
+  // dialogue styling applies in either language (straight quotes are left out:
+  // an apostrophe would swallow half a paragraph).
+  const re = /«[^»]*»|“[^”]*”/g;
   let last = 0;
   let m: RegExpExecArray | null;
   let key = 0;
@@ -126,6 +131,8 @@ export default async function StoryDetailPage({
 
   const story = findStory(slug);
   if (!story) notFound();
+  const title = storyTitle(story, locale);
+  const excerpt = storyExcerpt(story, locale);
 
   const body = storyBody(slug, locale);
   // Interactive stories carry their own branching tree, quiz and glossary so
@@ -153,9 +160,9 @@ export default async function StoryDetailPage({
         data={{
           "@context": "https://schema.org",
           "@type": "ShortStory",
-          name: story.title,
-          headline: story.title,
-          description: story.excerpt,
+          name: title,
+          headline: title,
+          description: excerpt,
           url: storyUrl,
           inLanguage: locale === "en" ? "en" : "fr",
           datePublished: story.publishedAt,
@@ -200,7 +207,7 @@ export default async function StoryDetailPage({
                 params: { genre: story.genre },
               }),
             },
-            { "@type": "ListItem", position: 3, name: story.title, item: storyUrl },
+            { "@type": "ListItem", position: 3, name: title, item: storyUrl },
           ],
         }}
       />
@@ -226,7 +233,7 @@ export default async function StoryDetailPage({
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         {/* Click the hero to open the illustration fullscreen */}
         {heroImg && (
-          <HeroImageZoom src={heroImg} alt={story.title} label={t("openIllustration")} />
+          <HeroImageZoom src={heroImg} alt={title} label={t("openIllustration")} />
         )}
         {/* Breadcrumb sits ON the illustration (#33), styled like the old
             back-to-library button which it replaces. */}
@@ -235,7 +242,7 @@ export default async function StoryDetailPage({
             onImage
             trail={[
               { label: tAll(`genres.${story.genre}`), href: { pathname: "/histoires/genre/[genre]", params: { genre: story.genre } } },
-              { label: story.title },
+              { label: title },
             ]}
           />
         </div>
@@ -284,10 +291,10 @@ export default async function StoryDetailPage({
             className="mt-4 font-serif text-4xl md:text-6xl lg:text-7xl text-white tracking-tight leading-[1.02] max-w-3xl drop-shadow-sm"
             style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 80, 'wght' 500" }}
           >
-            {story.title}
+            {title}
           </h1>
           <p className="mt-4 max-w-2xl text-base md:text-lg text-white/85 leading-relaxed">
-            {story.excerpt}
+            {excerpt}
           </p>
         </div>
       </section>
@@ -304,7 +311,7 @@ export default async function StoryDetailPage({
             <div className="flex justify-center">
               <AudioPlayer
                 round
-                title={story.title}
+                title={title}
                 audioUrl={story.audioUrl}
                 language={story.language}
                 chapterCount={3}
@@ -317,7 +324,7 @@ export default async function StoryDetailPage({
                 stacked
                 locale={locale}
                 pdf={{
-                title: story.title,
+                title: title,
                 meta: `${tAll(`genres.${story.genre}`)} · ${age} · ${story.readingMinutes} min`,
                 // Full content goes to the PDF regardless of what's shown on
                 // screen: interactive stories export every branch, linear
@@ -356,10 +363,10 @@ export default async function StoryDetailPage({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={heroImg}
-              alt={`Illustration : ${story.title}`}
+              alt={`Illustration : ${title}`}
               className="h-full w-full rounded-3xl object-cover shadow-[var(--shadow-card)]"
             />
-            <HeroImageZoom src={heroImg} alt={story.title} label={t("openIllustration")} />
+            <HeroImageZoom src={heroImg} alt={title} label={t("openIllustration")} />
           </div>
         )}
         <div id="story-body" className="prose-reading reading-size-m mx-auto">
@@ -428,7 +435,7 @@ export default async function StoryDetailPage({
             {t("sequelKicker")}
           </p>
           <h2 className="mt-2 font-serif text-xl md:text-2xl tracking-tight">
-            {t("sequelTitle", { title: story.title })}
+            {t("sequelTitle", { title: title })}
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-600)]">
             {t("sequelBody")}
@@ -541,14 +548,16 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const story = findStory(slug);
   if (!story) return {};
+  const title = storyTitle(story, locale);
+  const excerpt = storyExcerpt(story, locale);
   const image = storyImageSrc(slug);
   return {
-    title: story.title,
-    description: story.excerpt,
+    title: title,
+    description: excerpt,
     alternates: seoAlternates(locale, { pathname: "/histoires/[slug]", params: { slug } }),
     openGraph: {
-      title: story.title,
-      description: story.excerpt,
+      title: title,
+      description: excerpt,
       type: "article",
       images: image ? [image] : undefined,
     },

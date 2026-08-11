@@ -47,17 +47,25 @@ export function applyFilters(filters: StoryFilters): MockStory[] {
  * a theme with no library match surfaces the "create a story" CTA.
  */
 const STORY_THEMES = [...new Set(mockStories.map((s) => s.theme))];
+/**
+ * Themes answer "what is this about in the child's life", genres answer "what
+ * kind of story is it". They must never share a word: the old list carried
+ * aventure / fantastique / humour / decouverte, which simply repeated the
+ * aventure / fantastique / rigolote / educative genres and made the two filter
+ * rails feel like the same question asked twice. Also dropped: voyage (folded
+ * into aventure the genre) and sport (no real bedtime demand). Their i18n
+ * labels are kept so either can come back without touching messages.
+ */
 const EXTRA_THEMES = [
+  "famille",
+  "courage",
+  "ecole",
+  "animaux",
+  "mer",
+  "espace",
   "noel",
   "anniversaire",
-  "ecole",
-  "voyage",
-  "animaux",
-  "espace",
-  "mer",
   "saisons",
-  "sport",
-  "famille",
 ];
 export const THEMES = [...new Set([...STORY_THEMES, ...EXTRA_THEMES])];
 
@@ -68,20 +76,27 @@ export const THEMES = [...new Set([...STORY_THEMES, ...EXTRA_THEMES])];
  * stays server-rendered and crawlable). Labels live in messages under
  * `filterCats.*`.
  */
+/**
+ * A character chip has to be a category a parent would browse, not a prop that
+ * happened to star in one story. The "insolites" group (gateau, phare) and the
+ * one-off marchand were exactly that; reine collapsed into princesse, and
+ * grand-mere is a family relationship the `famille` theme already covers.
+ * chien / souris / groupe-enfants are added because they carry real demand.
+ */
 export const CHARACTER_GROUPS: { id: string; members: string[] }[] = [
-  { id: "animaux", members: ["renard", "ours", "lion", "lapin", "chat", "hibou", "loup", "dinosaure"] },
-  { id: "enfants", members: ["enfant-fille", "enfant-garcon", "grand-mere"] },
-  { id: "creatures", members: ["dragon", "licorne", "sirene", "fee", "sorciere"] },
-  { id: "heros", members: ["pirate", "chevalier", "princesse", "reine", "astronaute", "marchand", "robot"] },
-  { id: "insolites", members: ["gateau", "phare"] },
+  { id: "enfants", members: ["enfant-fille", "enfant-garcon", "groupe-enfants"] },
+  {
+    id: "animaux",
+    members: ["renard", "loup", "ours", "lapin", "chat", "chien", "souris", "hibou", "lion", "dinosaure"],
+  },
+  { id: "creatures", members: ["dragon", "licorne", "fee", "sirene", "sorciere"] },
+  { id: "heros", members: ["princesse", "chevalier", "pirate", "astronaute", "robot"] },
 ];
 
 export const THEME_GROUPS: { id: string; members: string[] }[] = [
-  { id: "aventures", members: ["aventure", "decouverte", "voyage", "courage"] },
-  { id: "liens", members: ["emotions", "amitie", "famille"] },
-  { id: "imaginaire", members: ["fantastique", "humour"] },
-  { id: "nature", members: ["nature", "animaux", "mer", "saisons", "espace"] },
-  { id: "quotidien", members: ["noel", "anniversaire", "ecole", "sport"] },
+  { id: "liens", members: ["emotions", "amitie", "famille", "courage"] },
+  { id: "nature", members: ["animaux", "nature", "mer", "espace"] },
+  { id: "quotidien", members: ["ecole", "noel", "anniversaire", "saisons"] },
 ];
 
 /** The group a filter value belongs to, so an active filter auto-opens it. */
@@ -125,8 +140,10 @@ export function sortStories(stories: MockStory[], sort: StorySort): MockStory[] 
       return arr.sort((a, b) => flip(b.readingMinutes - a.readingMinutes));
     case "newest":
     default:
-      // Catalogue order is newest-first; "asc" shows the oldest stories first.
-      return sort.dir === "asc" ? arr.reverse() : arr;
+      // Sort on publishedAt, not array position: the catalogue is stored
+      // oldest-first, so the old "return arr as-is" actually showed the OLDEST
+      // story under "plus récentes".
+      return arr.sort((a, b) => flip(b.publishedAt.localeCompare(a.publishedAt)));
   }
 }
 

@@ -2,7 +2,7 @@ import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Sparkles, Star } from "lucide-react";
-import { ageLabel, type MockStory } from "@/data/mock-stories";
+import { ageLabel, storyTitle, storyExcerpt, type MockStory } from "@/data/mock-stories";
 import { FavoriteHeart } from "@/components/story/FavoriteHeart";
 import { storyCardImageSrc } from "@/lib/storyImage";
 import { cn } from "@/lib/utils/cn";
@@ -80,7 +80,7 @@ export function StoryCard({ story, size = "md" }: { story: MockStory; size?: "sm
               )}
               style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 50, 'wght' 500" }}
             >
-              {story.title}
+              {storyTitle(story, locale)}
             </h3>
           </div>
         </div>
@@ -92,7 +92,7 @@ export function StoryCard({ story, size = "md" }: { story: MockStory; size?: "sm
       <div className="p-5">
         {/* Summary visible enough to judge the story (#18) */}
         <p className="text-sm text-[var(--color-ink-500)] leading-relaxed line-clamp-4">
-          {story.excerpt}
+          {storyExcerpt(story, locale)}
         </p>
 
         <div className="mt-4 flex items-center gap-4 text-xs text-[var(--color-ink-400)]">

@@ -295,7 +295,8 @@ function applyGlossary(text: string, glossary: Glossary, used: Set<string>): Rea
 function renderParagraph(text: string, glossary: Glossary): ReactNode[] {
   const used = new Set<string>();
   const out: ReactNode[] = [];
-  const re = /«[^»]*»/g;
+  // Same rule as library stories: guillemets or curly quotes mark dialogue.
+  const re = /«[^»]*»|“[^”]*”/g;
   let last = 0;
   let m: RegExpExecArray | null;
   let key = 0;

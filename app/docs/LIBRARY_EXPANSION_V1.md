@@ -56,10 +56,10 @@ exactly where that middle level lives, so V2 is a UI layer, not a re-architectur
 
 | Rule | Value |
 |---|---|
-| Word count | `WORD_RANGE_BY_AGE`: 1-2 100-200 · 3-4 250-500 · 5-6 500-800 · 7-8 800-1200 · 9-10 1200-1700 · 11-12 1500-2100 |
-| Reading minutes | 1-2 2-3 · 3-4 3-5 · 5-6 5-7 · 7-8 7-9 · 9-10 9-12 · 11-12 10-15 |
-| Paragraphs | multiples of 4 (the story page draws a chapter rule every 4th paragraph) |
-| Quiz questions | `quizLength`: 3 under 350 words, 4 under 600, 5 under 900, 6 under 1300, else 7, capped by age (≤4 → 4, ≤6 → 5, ≤8 → 6, else 7) |
+| Word count | `WORD_RANGE_BY_AGE`: 1-2 **200-320** · 3-4 250-500 · 5-6 500-800 · 7-8 800-1200 · 9-10 1200-1700 · 11-12 1500-2100 |
+| Reading minutes | 1-2 2 · 3-4 3-5 · 5-6 5-7 · 7-8 7-9 · 9-10 9-12 · 11-12 10-15 |
+| Paragraphs | multiples of 4 (the story page draws a chapter rule every 4th paragraph). 1-2 uses 12 |
+| Quiz questions | `quizLength(words)` in `data/mock-stories.ts`: **2** under 200 words, **3** under 500, **4** under 900, **5** under 1400, **6** beyond. `storyQuiz()` slices to it, so a story that grows or shrinks self-corrects |
 | Quiz shape | 3 choices + an explanation per question |
 | Glossary | 3 entries, each word appearing **literally** in the body or no tooltip renders |
 | Dialogue | `« … »` in FR, `“ … ”` in EN: both render italic in `--color-indigo-soft-700` |

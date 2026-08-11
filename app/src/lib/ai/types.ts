@@ -29,7 +29,9 @@ export interface AgeLengthSpec {
  * of truth for both the app and the n8n library pipeline.
  */
 export const WORD_RANGE_BY_AGE: Record<AgeRange, AgeLengthSpec> = {
-  "1-2": { min: 100, max: 200, target: 150 },
+  // Raised from 100-200: at that size the toddler stories read as a caption,
+  // not a bedtime story, and the "2 min" label was not honest either.
+  "1-2": { min: 200, max: 320, target: 250 },
   "3-4": { min: 250, max: 500, target: 375 },
   "5-6": { min: 500, max: 800, target: 650 },
   "7-8": { min: 800, max: 1200, target: 1000 },

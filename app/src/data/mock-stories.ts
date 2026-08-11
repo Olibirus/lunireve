@@ -391,7 +391,7 @@ export const mockStories: MockStory[] = [
     titleEn: "Nino's cuddly toy",
     language: "fr",
     ageRange: "1-2",
-    readingMinutes: 3,
+    readingMinutes: 2,
     genre: "educative",
     theme: "famille",
     subTheme: "objet-perdu",
@@ -437,7 +437,7 @@ export const mockStories: MockStory[] = [
     titleEn: "The owl who counts the stars",
     language: "fr",
     ageRange: "1-2",
-    readingMinutes: 3,
+    readingMinutes: 2,
     genre: "conte",
     theme: "nature",
     subTheme: "ciel-de-nuit",
@@ -483,7 +483,7 @@ export const mockStories: MockStory[] = [
     titleEn: "The fox cub's first snowflake",
     language: "fr",
     ageRange: "1-2",
-    readingMinutes: 3,
+    readingMinutes: 2,
     genre: "conte",
     theme: "saisons",
     subTheme: "premiere-neige",
@@ -506,7 +506,7 @@ export const mockStories: MockStory[] = [
     titleEn: "Mimi's birthday cake",
     language: "fr",
     ageRange: "1-2",
-    readingMinutes: 3,
+    readingMinutes: 2,
     genre: "fete",
     theme: "anniversaire",
     subTheme: "premier-gateau",
@@ -552,7 +552,7 @@ export const mockStories: MockStory[] = [
     titleEn: "Lila's red boots",
     language: "fr",
     ageRange: "1-2",
-    readingMinutes: 3,
+    readingMinutes: 2,
     genre: "educative",
     theme: "saisons",
     subTheme: "pluie-dautomne",
@@ -779,6 +779,12 @@ const STORY_CONTENT: Record<string, StoryContent> = {
         answer: 1,
         explanation: "Elle souffle un grand jet d'écume avant de s'enfoncer dans le bleu.",
       },
+          {
+        question: "Pourquoi Vaïa aide-t-elle les humains ?",
+        choices: ["Un humain l'a libérée d'un filet quand elle était baleineau", "Elle s'ennuie toute seule dans l'océan", "Elle espère qu'on lui donne à manger"],
+        answer: 0,
+        explanation: "Quand elle était baleineau, un humain a coupé le filet où elle était prise. Depuis, elle ramène chaque humain que la mer lui confie.",
+      },
     ],
     glossary: [
       { word: "rafale", definition: "Un coup de vent soudain et très fort." },
@@ -873,6 +879,12 @@ const STORY_CONTENT: Record<string, StoryContent> = {
         answer: 1,
         explanation: "« Le courage, ce n'est pas de ne pas avoir peur. C'est d'aller voir quand même. »",
       },
+          {
+        question: "Comment s'appelle le dragon de la clairière ?",
+        choices: ["Gaspard", "Argoat", "Timothée"],
+        answer: 0,
+        explanation: "Le dragon s'appelle Gaspard, et il vit seul dans sa clairière depuis quarante-sept printemps.",
+      },
     ],
     glossary: [
       { word: "clairière", definition: "Un endroit sans arbres au milieu d'une forêt, comme une pièce à ciel ouvert." },
@@ -884,12 +896,16 @@ const STORY_CONTENT: Record<string, StoryContent> = {
     body: [
       "Petit Ours regarde par la fenêtre. Dehors, tout est blanc. « Maman, c'est quand le printemps ? »",
       "« Bientôt, mon ourson. Quand la neige aura fondu. » Petit Ours souffle sur la vitre. « Mais c'est long, bientôt ! »",
-      "Maman Ours sourit. « Viens, je connais un truc magique pour faire passer l'attente. » Elle prend un pot, de la terre, et une petite graine de tournesol.",
+      "Il s'assoit devant la fenêtre et attend. Une minute. Deux minutes. La neige ne fond pas du tout.",
+      "Maman Ours sourit. « Viens, je connais un truc magique pour faire passer l'attente. »",
+      "Elle prend un pot, de la terre, et une petite graine de tournesol toute rayée.",
       "« Plante-la. Arrose-la chaque matin. Quand la fleur sera aussi haute que toi, le printemps sera là. »",
-      "Alors Petit Ours arrose. Chaque matin, une petite tasse d'eau. Un jour, deux jours, beaucoup de jours. Et un matin : une pousse verte !",
-      "La pousse grandit, grandit. Petit Ours aussi attend, mais maintenant, attendre c'est moins long : il a quelque chose à regarder pousser.",
-      "Et un matin, la fleur touche son museau, toute jaune, et dehors... la neige a disparu ! « Maman ! Le printemps est arrivé ! En même temps que ma fleur ! »",
-      "Maman Ours fait un clin d'œil. Le truc magique, ce n'était pas la graine. C'était d'attendre en prenant soin de quelque chose. Mais ça, Petit Ours le comprendra quand il sera Grand Ours.",
+      "Alors Petit Ours arrose. Chaque matin, une petite tasse d'eau. Un jour, deux jours, beaucoup de jours.",
+      "Au début, il ne se passe rien du tout. La terre reste de la terre. « Ça ne marche pas », dit Petit Ours.",
+      "« Ça pousse en dessous », répond Maman Ours. « Les choses importantes commencent toujours là où on ne voit pas. »",
+      "Et un matin : une pousse verte ! Toute petite, toute droite, avec deux feuilles minuscules.",
+      "La pousse grandit, grandit. Petit Ours attend toujours, mais maintenant, attendre c'est moins long : il a quelque chose à regarder pousser.",
+      "Et un matin, la fleur touche son museau, toute jaune, et dehors la neige a disparu. Le truc magique, ce n'était pas la graine : c'était d'attendre en prenant soin de quelque chose.",
     ],
     quiz: [
       {
@@ -997,6 +1013,12 @@ const STORY_CONTENT: Record<string, StoryContent> = {
         answer: 2,
         explanation: "Elle se souvient qu'un rêve inachevé promet n'importe quoi pour entrer dans une tête.",
       },
+          {
+        question: "Comment Yasmine arrive-t-elle à suivre le rêve dans la foule ?",
+        choices: ["En regardant ses reflets", "En le fixant sans cligner des yeux", "En fermant les yeux pour l'écouter"],
+        answer: 0,
+        explanation: "Monsieur Slimane lui crie de ne pas le fixer mais de regarder ses REFLETS : elle le suit dans les plats de cuivre et les vitres.",
+      },
     ],
     glossary: [
       { word: "souk", definition: "Un grand marché couvert, dans les pays du Maghreb et du Moyen-Orient." },
@@ -1048,6 +1070,12 @@ const STORY_CONTENT: Record<string, StoryContent> = {
         ],
         answer: 1,
         explanation: "Cinquante lampions dessinent dans l'herbe la courbe que la comète doit suivre.",
+      },
+          {
+        question: "Avec quoi les jumeaux dessinent-ils la piste dans le jardin ?",
+        choices: ["Cinquante lampions de la fête du village", "Des bougies d'anniversaire", "Des lampes de poche"],
+        answer: 0,
+        explanation: "Émile démonte les lampions de la fête du village pour dessiner une grande courbe de lumière dans l'herbe.",
       },
     ],
     glossary: [
@@ -1135,6 +1163,12 @@ const STORY_CONTENT: Record<string, StoryContent> = {
         answer: 0,
         explanation: "C'est la phrase qui rend Loïk si fier depuis cette nuit-là.",
       },
+          {
+        question: "Quel signal Loïk envoie-t-il au pêcheur ?",
+        choices: ["Trois coups courts, trois longs, trois courts", "Il tourne deux fois plus vite", "Il éteint sa lampe"],
+        answer: 0,
+        explanation: "Au lieu de tourner, Loïk clignote : trois coups courts, trois longs, trois courts, le signal que tous les marins connaissent.",
+      },
     ],
     glossary: [
       { word: "faisceaux", definition: "Les grands rayons de lumière que les phares envoient sur la mer." },
@@ -1185,6 +1219,12 @@ const STORY_CONTENT: Record<string, StoryContent> = {
         answer: 1,
         explanation: "Il sème les spores d'or dans toute la forêt, plus vite que personne.",
       },
+          {
+        question: "Qui avait pris le coffre de noisette ?",
+        choices: ["Casse-Noix l'écureuil", "Nour la fourmi détective", "Une taupe des galeries"],
+        answer: 0,
+        explanation: "Casse-Noix n'avait rien volé : il avait rangé le coffre pour l'hiver, en le prenant pour une grosse noisette.",
+      },
     ],
     glossary: [
       { word: "spores", definition: "Les minuscules graines invisibles grâce auxquelles les champignons se multiplient." },
@@ -1194,14 +1234,18 @@ const STORY_CONTENT: Record<string, StoryContent> = {
   },
   "bonne-nuit-petit-lapin": {
     body: [
-      "Le soir tombe sur le terrier. Maman Lapin borde Pilou. « Il est l'heure de dormir, mon tout petit. »",
+      "Le soir tombe sur le terrier. Maman Lapin borde Pilou avec la couverture de laine, celle qui gratte un peu mais qui sent bon. « Il est l'heure de dormir, mon tout petit. »",
       "Pilou ouvre grand les yeux. « Attends ! Je n'ai pas dit bonne nuit. »",
       "« À qui, mon Pilou ? » demande Maman Lapin. « À tout le monde », répond Pilou, très sérieux.",
-      "Alors Pilou commence. « Bonne nuit, la porte. Bonne nuit, le tapis. Bonne nuit, mes bottes. »",
-      "Il chuchote, parce que la nuit, on parle tout doucement. « Bonne nuit, la lampe. Bonne nuit, la cuillère. »",
-      "« Bonne nuit, la carotte du dîner », dit Pilou. Maman Lapin rit derrière sa patte.",
-      "Ses moustaches bougent de moins en moins vite. « Bonne nuit, la lune... bonne nuit, maman... »",
-      "Et Pilou s'endort. Maman Lapin souffle la lampe. Dire bonne nuit à tout ce qu'on aime, c'est déjà commencer à faire de beaux rêves.",
+      "Il s'assoit dans son lit, parce que c'est un travail important et qu'on ne fait pas ça couché.",
+      "Alors Pilou commence par ce qu'il voit. « Bonne nuit, la porte. Bonne nuit, le tapis. Bonne nuit, mes bottes, toutes les deux. »",
+      "Il chuchote, parce que la nuit, on parle tout doucement. « Bonne nuit, la lampe. Bonne nuit, la cuillère du dîner. »",
+      "« Bonne nuit, la carotte », dit Pilou. Maman Lapin rit derrière sa patte. « La carotte est déjà dans ton ventre. » « Alors bonne nuit, mon ventre. »",
+      "Ensuite, il dit bonne nuit à ce qu'il ne voit pas. « Bonne nuit, le jardin. Bonne nuit, la pluie de tout à l'heure. »",
+      "« Bonne nuit, les copains du terrier d'à côté. Bonne nuit, le vent dans les herbes hautes. »",
+      "Maman Lapin s'assoit au bord du lit et ne dit plus rien. Dehors, la nuit est douce et ronde comme un galet.",
+      "Les moustaches de Pilou bougent de moins en moins vite. « Bonne nuit, les étoiles... bonne nuit, la lune... et bonne nuit, maman... »",
+      "Maman Lapin souffle la lampe. Dire bonne nuit à tout ce qu'on aime, c'est déjà commencer à faire de beaux rêves.",
     ],
     quiz: [
       {
@@ -1231,14 +1275,18 @@ const STORY_CONTENT: Record<string, StoryContent> = {
   },
   "le-doudou-de-nino": {
     body: [
-      "C'est l'heure du lit. Nino cherche partout. « Mon doudou ! Où est mon doudou ? »",
+      "C'est l'heure du lit. Nino a mis son pyjama, bu son verre d'eau et écouté son histoire. Il ne manque qu'une chose.",
+      "« Mon doudou ! Où est mon doudou ? »",
+      "Le doudou de Nino est un petit lapin gris, avec une oreille plus longue que l'autre. Sans lui, la nuit est beaucoup trop grande.",
       "Papa regarde sous le lit. Il trouve une chaussette et deux petites voitures. Mais pas de doudou.",
-      "Maman ouvre le tiroir. Elle trouve un pyjama et un bonnet. Mais pas de doudou.",
-      "Grande sœur regarde derrière le rideau. Elle trouve le chat, qui dormait très bien. Mais pas de doudou.",
+      "Maman ouvre le tiroir. Elle trouve un pyjama propre, un bonnet et trois crayons. Mais pas de doudou.",
+      "Grande sœur regarde derrière le rideau. Elle trouve le chat, qui dormait très bien et qui n'est pas content du tout. Mais pas de doudou.",
       "Nino a les yeux qui piquent un peu. « Il est perdu pour toujours ? »",
-      "« On cherche encore », dit Papa. Alors toute la famille cherche : la cuisine, le canapé, le panier du chat.",
-      "Et puis Nino grimpe sur son lit. Il soulève son oreiller. Et là... le doudou ! Il dormait déjà, tout seul.",
-      "Nino serre son doudou très fort. Ce n'est pas lui qui avait perdu son doudou : c'est son doudou qui l'attendait au bon endroit. Bonne nuit, tous les deux.",
+      "« On cherche encore », dit Papa. Alors toute la famille cherche, dans toute la maison.",
+      "La cuisine : sous la table, dans le placard des casseroles. Rien du tout.",
+      "Le salon : sous les coussins du canapé, derrière la grande plante. Rien du tout.",
+      "Et puis Nino grimpe sur son lit, tout doucement, et soulève son oreiller. Et là... le doudou ! Il dormait déjà, tout seul, l'oreille en travers.",
+      "Nino le serre très fort contre lui. Ce n'est pas lui qui avait perdu son doudou : c'est son doudou qui l'attendait au bon endroit depuis le début. Bonne nuit, tous les deux.",
     ],
     quiz: [
       {
@@ -1268,13 +1316,17 @@ const STORY_CONTENT: Record<string, StoryContent> = {
   },
   "coucou-petit-chat": {
     body: [
-      "Moustache le chat adore jouer à cache-cache. « Compte jusqu'à trois ! » dit-il.",
-      "Un... deux... trois. Moustache a disparu ! Enfin, presque.",
-      "Derrière le rideau, il y a une petite queue rayée qui dépasse. Coucou, petit chat !",
-      "Moustache change de cachette. Il se glisse dans le panier à linge. Très malin.",
+      "Moustache le chat adore jouer à cache-cache. C'est son jeu préféré, avant même la sieste.",
+      "« Compte jusqu'à trois ! » dit-il à Lila. Un... deux... trois.",
+      "Moustache a disparu ! Enfin, presque.",
+      "Derrière le rideau, il y a une petite queue rayée qui dépasse. Elle bouge un peu, à droite, à gauche. Coucou, petit chat !",
+      "Moustache change de cachette. Il se glisse dans le panier à linge, sous une serviette. Très malin.",
       "Mais la queue rayée dépasse encore. Elle bouge, elle bouge. Coucou, petit chat !",
-      "Moustache essaie sous la table. Puis derrière la plante. Puis dans le carton.",
+      "Moustache essaie sous la table, entre les chaises. La queue dépasse.",
+      "Il essaie derrière la grande plante verte. La queue dépasse.",
+      "Il essaie dans le carton du déménagement, tout au fond. La queue dépasse encore, et en plus, elle remue de contentement.",
       "À chaque fois, la queue dit bonjour avant lui. Moustache ne comprend pas du tout pourquoi on le trouve si vite.",
+      "« Tu es le champion des cachettes », dit Lila en le chatouillant sous le menton. Moustache est très fier.",
       "Alors il se roule en boule sur les genoux de Lila et se met à ronronner. Se cacher, c'est amusant, mais être trouvé par quelqu'un qu'on aime, c'est encore mieux.",
     ],
     quiz: [
@@ -1305,13 +1357,17 @@ const STORY_CONTENT: Record<string, StoryContent> = {
   },
   "le-hibou-qui-compte-les-etoiles": {
     body: [
-      "Hulotte le hibou a un travail très important. Chaque soir, elle compte les étoiles.",
-      "Elle se pose sur sa branche préférée et regarde le ciel. « Une, deux, trois... »",
-      "Les étoiles sortent doucement, une par une, comme des petites lampes qu'on allume.",
-      "« Vingt, vingt et une, vingt-deux... » Le vent passe. Hulotte remonte ses plumes.",
-      "« Cinquante... soixante... » Ses paupières deviennent lourdes comme deux cailloux.",
-      "Elle bâille un grand bâillement de hibou. « Soixante et un... soixante... euh... »",
-      "Et hop, Hulotte s'endort sur sa branche, la tête dans les plumes.",
+      "Hulotte le hibou a un travail très important, le plus important de toute la forêt. Chaque soir, elle compte les étoiles.",
+      "Elle se pose sur sa branche préférée, celle qui craque un peu quand elle bouge, et elle regarde le grand ciel noir.",
+      "« Une, deux, trois... » Les étoiles sortent doucement, une par une, comme des petites lampes qu'on allume dans les maisons.",
+      "« Dix, onze, douze... » En bas, la forêt s'endort. Le ruisseau parle tout seul et les feuilles ne bougent presque plus.",
+      "« Vingt, vingt et une, vingt-deux... » Le vent passe entre les arbres. Hulotte remonte ses plumes bien serrées autour de son cou.",
+      "« Trente-cinq, trente-six... » Une chauve-souris la salue en passant, la tête à l'envers. Hulotte ne répond pas : quand on compte, on ne parle pas.",
+      "« Quarante-huit, quarante-neuf, cinquante... » Ses paupières deviennent lourdes comme deux gros cailloux de rivière.",
+      "« Cinquante-huit... cinquante-neuf... soixante... » Sa voix devient toute petite.",
+      "Elle bâille un grand bâillement de hibou, si grand qu'on voit tout au fond de son bec.",
+      "« Soixante et un... soixante... euh... soixante quelque chose... » Elle a déjà oublié où elle en était.",
+      "Et hop, Hulotte s'endort sur sa branche, la tête rentrée dans les plumes, une patte repliée sous elle.",
       "Demain soir, elle recommencera à une. Certaines choses sont trop grandes pour être finies, et c'est très bien : elles nous font de beaux rêves toutes les nuits.",
     ],
     quiz: [
@@ -1342,14 +1398,18 @@ const STORY_CONTENT: Record<string, StoryContent> = {
   },
   "un-calin-pour-papa-ours": {
     body: [
-      "Ce soir, Papa Ours est assis dans le noir. Il ne dit rien du tout.",
-      "Petit Ours s'approche. « Papa, tu es grognon ? »",
-      "« Non, mon ourson. Je suis juste fatigué. » Papa Ours pousse un très gros soupir.",
-      "Petit Ours réfléchit très fort. Quand lui est triste, maman fait quelque chose de magique.",
-      "Alors il grimpe sur le fauteuil. Il pose sa tête contre l'épaule de Papa Ours.",
-      "Et il fait un câlin. Un long, long câlin d'ourson, avec les deux bras.",
-      "Papa Ours ne dit toujours rien. Mais ses épaules redescendent, et il sourit un peu.",
-      "« Merci, mon ourson. » Petit Ours est content : on n'a pas besoin d'être grand pour consoler quelqu'un.",
+      "Ce soir, Papa Ours est assis dans le noir, tout au bout du fauteuil. Il ne dit rien du tout et il ne bouge presque pas.",
+      "D'habitude, il raconte des histoires. D'habitude, il fait des voix rigolotes et il se trompe exprès. Pas ce soir.",
+      "Petit Ours s'approche sans faire de bruit, sur la pointe des pattes. « Papa, tu es grognon ? »",
+      "« Non, mon ourson. Je suis juste fatigué. » Papa Ours pousse un très gros soupir, long comme un soir d'hiver.",
+      "Petit Ours s'assoit par terre, contre le fauteuil, et réfléchit très fort. Il connaît bien ce genre de soir.",
+      "Quand lui est triste, maman fait quelque chose de magique. Elle ne parle pas. Elle ne pose pas de questions. Elle ne dit même pas que ça va passer.",
+      "Alors Petit Ours grimpe sur le fauteuil, une patte après l'autre, tout doucement pour ne pas déranger.",
+      "Il pose sa tête contre l'épaule de Papa Ours, juste là où la fourrure est la plus douce et la plus chaude.",
+      "Et il fait un câlin. Un long, long câlin d'ourson, avec les deux bras, en serrant aussi fort qu'il peut.",
+      "Papa Ours ne dit toujours rien. Mais ses épaules redescendent, tout doucement, comme la neige qui glisse d'une branche.",
+      "Et puis il sourit un peu, dans le noir, et pose sa grosse patte sur le dos de Petit Ours. « Merci, mon ourson. »",
+      "Petit Ours est content. On n'a pas besoin d'être grand, ni de trouver les bons mots, pour consoler quelqu'un.",
     ],
     quiz: [
       {
@@ -1379,13 +1439,17 @@ const STORY_CONTENT: Record<string, StoryContent> = {
   },
   "le-premier-flocon-du-renardeau": {
     body: [
-      "Petit Roux le renardeau sort du terrier. Le monde est tout blanc.",
+      "Petit Roux le renardeau sort du terrier en se frottant les yeux. Et il s'arrête net.",
+      "Le monde est tout blanc. La souche est blanche. Les fougères sont blanches. Même le rocher est blanc.",
       "« Maman ! Quelqu'un a repeint la forêt ! »",
-      "Maman Renard rit. « C'est la neige, mon petit. Elle vient chaque hiver. »",
-      "Petit Roux avance une patte. Crounch. La neige fait de la musique sous ses pas.",
-      "Il lève la tête. Un flocon descend, tourne, hésite... et se pose sur son museau.",
+      "Maman Renard sort à son tour et rit. « C'est la neige, mon petit. Elle vient chaque hiver. »",
+      "« Chaque hiver ? Et moi je ne l'ai jamais vue ? » « C'est ton premier », dit Maman Renard.",
+      "Petit Roux avance une patte, très prudemment. Crounch. La neige fait de la musique sous ses pas.",
+      "Il en fait une deuxième. Crounch. Puis il court en rond, juste pour le bruit. Crounch, crounch, crounch !",
+      "Puis il lève la tête. Un flocon descend, tourne, hésite... et se pose sur son museau.",
       "C'est froid ! Petit Roux éternue, et le flocon disparaît. « Oh ! Il est parti ! »",
-      "« Regarde », dit Maman Renard. Et le ciel entier se met à en envoyer des milliers.",
+      "Il attend, le nez en l'air, mais rien ne revient. Sa queue retombe un peu.",
+      "« Regarde », dit Maman Renard. Et le ciel entier se met à en envoyer des milliers, doucement, sans se presser.",
       "Petit Roux tourne sur lui-même, la langue dehors. Les plus jolies choses ne durent qu'un instant, mais l'hiver, lui, en offre toute une forêt.",
     ],
     quiz: [
@@ -1416,13 +1480,17 @@ const STORY_CONTENT: Record<string, StoryContent> = {
   },
   "le-gateau-danniversaire-de-mimi": {
     body: [
-      "Aujourd'hui, Mimi la souris a un an. « Je veux un gâteau ! » dit-elle.",
-      "Elle prend une cuillère de farine. Une souris, ça ne mange pas beaucoup.",
-      "Elle ajoute une goutte de lait et une miette de sucre. Elle mélange, mélange, mélange.",
-      "Le gâteau cuit dans un dé à coudre. Ça sent tout bon dans le trou de la souris.",
-      "Mimi plante une bougie dessus. Enfin, une allumette, parce qu'une bougie, c'est trop grand.",
-      "Tous ses amis arrivent : deux souris, un escargot, et une coccinelle un peu timide.",
-      "« Joyeux anniversaire, Mimi ! » Ils soufflent tous ensemble. Pouf ! La lumière s'éteint.",
+      "Aujourd'hui, Mimi la souris a un an. C'est écrit sur le mur de son trou, en tout petits traits gris.",
+      "« Je veux un gâteau ! » dit-elle en sautant du lit. « Un vrai gâteau, avec une bougie dessus. »",
+      "Alors Mimi sort son plus petit bol, son plus petit fouet, et son plus petit tablier. Et elle se met au travail.",
+      "Elle prend une cuillère de farine, pas plus. Une souris, ça ne mange pas beaucoup, même le jour de sa fête.",
+      "Elle ajoute une goutte de lait, une miette de sucre et un tout petit bout de beurre gros comme un pois.",
+      "Elle mélange, mélange, mélange, jusqu'à ce que ses deux bras soient fatigués et que la pâte soit toute lisse.",
+      "Le gâteau cuit dans un dé à coudre posé près de la bougie. Ça sent tout bon dans le trou, et même dans le couloir d'à côté.",
+      "Mimi plante une bougie dessus. Enfin, une allumette, parce qu'une vraie bougie serait plus haute que la maison.",
+      "Tous ses amis arrivent : deux souris du grenier, un escargot très en retard, et une coccinelle un peu timide qui reste près de la porte.",
+      "« Joyeux anniversaire, Mimi ! » Ils chantent tous ensemble, un peu faux, et l'escargot chante encore quand les autres ont fini.",
+      "Puis ils soufflent tous ensemble. Pouf ! La lumière s'éteint d'un coup et tout le monde rit dans le noir.",
       "Le gâteau fait exactement une bouchée pour chacun. Un gâteau minuscule partagé avec ses amis, ça remplit un très grand cœur.",
     ],
     quiz: [
@@ -1453,13 +1521,17 @@ const STORY_CONTENT: Record<string, StoryContent> = {
   },
   "le-petit-lion-qui-baille": {
     body: [
-      "Le soleil se couche sur la savane. Nala le petit lion ouvre une grande bouche.",
-      "Aaaah ! Un bâillement gros comme une montagne.",
-      "La girafe le voit. Elle essaie de résister. Elle ne peut pas. Aaaah !",
-      "Le zèbre voit la girafe. Aaaah ! Le singe voit le zèbre. Aaaah !",
-      "Même l'éléphant, qui est très sérieux, ouvre sa grande bouche. Aaaaaaah !",
-      "Le bâillement fait tout le tour de la savane, et il revient jusqu'à Nala.",
-      "« Oh non », dit Nala. Et il bâille encore une fois, deux fois, trois fois.",
+      "Le soleil se couche sur la savane. Tout devient orange, puis rose, puis presque violet, et l'air se rafraîchit.",
+      "Nala le petit lion est allongé dans l'herbe tiède, entre les pattes de sa maman. Il ouvre une grande bouche.",
+      "Aaaah ! Un bâillement gros comme une montagne, avec de toutes petites dents pointues au milieu.",
+      "La girafe le voit depuis là-haut, tout en haut de son cou. Elle essaie de résister. Elle serre les dents très fort.",
+      "Elle ne peut pas. Aaaah ! Un bâillement long comme son cou, qui descend jusqu'en bas.",
+      "Le zèbre voit la girafe bâiller. Aaaah ! Un bâillement à rayures noires et blanches.",
+      "Le singe voit le zèbre. Aaaah ! Un bâillement qui manque de le faire tomber de sa branche.",
+      "Même l'éléphant, qui est très sérieux et qui ne bâille jamais devant les autres, ouvre sa grande bouche. Aaaaaaah !",
+      "Le bâillement continue son voyage à travers la savane. Les gazelles, une par une. Les flamants roses, tous ensemble.",
+      "Il réveille même le vieux crocodile de la rivière, qui bâille en montrant beaucoup trop de dents.",
+      "Il fait tout le tour de la savane, passe par le baobab, et revient jusqu'à Nala. « Oh non », dit Nala. Et il bâille encore une fois, deux fois, trois fois.",
       "Alors toute la savane s'allonge dans l'herbe tiède. Un bâillement, ça se donne comme un cadeau : ça finit toujours par revenir.",
     ],
     quiz: [
@@ -1490,14 +1562,18 @@ const STORY_CONTENT: Record<string, StoryContent> = {
   },
   "les-bottes-rouges-de-lila": {
     body: [
-      "Il pleut sur la ville. Lila regarde par la fenêtre. « On sort quand même ? »",
-      "Maman apporte deux bottes toutes neuves. Rouges comme des pommes.",
-      "Une botte, deux bottes. Un manteau. Un chapeau jaune. Et hop, dehors !",
-      "Devant la porte, il y a une flaque. Une petite. Lila met un pied dedans.",
-      "Splash ! L'éclaboussure monte jusqu'à ses genoux. Lila rit très fort.",
-      "Alors elle cherche la flaque suivante. Puis une plus grande. Puis la plus grande de toutes.",
-      "Splash, splash, splash ! Les bottes rouges deviennent des bottes marron.",
-      "À la maison, on les lave, et elles redeviennent rouges. Un jour de pluie n'est pas un jour perdu : il faut juste les bonnes bottes.",
+      "Il pleut sur la ville depuis ce matin. Lila regarde par la fenêtre, le nez écrasé contre la vitre froide.",
+      "« On sort quand même ? » demande-t-elle. Dehors, les gouttes font des ronds qui grandissent sur le trottoir.",
+      "Maman arrive avec un paquet sous le bras. Dedans, il y a deux bottes toutes neuves. Rouges comme des pommes.",
+      "Une botte, deux bottes. Un manteau bien fermé. Un chapeau jaune sur les oreilles. Et hop, dehors !",
+      "Devant la porte, il y a une flaque. Une toute petite, à peine plus grande qu'une assiette.",
+      "Lila met un pied dedans, très doucement, juste pour voir ce qui va se passer. Splash !",
+      "L'éclaboussure monte jusqu'à ses genoux. Lila rit très fort, si fort qu'un pigeon s'envole.",
+      "Alors elle cherche la flaque suivante. Celle du trottoir, devant la boulangerie qui sent le pain chaud.",
+      "Puis une plus grande, au bord du caniveau, avec une feuille qui flotte dessus comme un bateau.",
+      "Puis la plus grande de toutes, devant le parc, celle qui fait presque une petite mer.",
+      "Splash, splash, splash ! Les bottes rouges deviennent des bottes marron, et Maman rit sous son parapluie en faisant semblant de ne pas voir.",
+      "À la maison, on lave les bottes et elles redeviennent rouges. Un jour de pluie n'est pas un jour perdu : il faut juste les bonnes bottes.",
     ],
     quiz: [
       {
@@ -1605,12 +1681,12 @@ const FALLBACK_CONTENT_EN: StoryContent = {
 const STORY_CONTENT_EN: Record<string, StoryContent> = {
   "le-renard-qui-ne-voulait-pas-dormir": {
     body: [
-      "Filo the little fox did not want to sleep. Ever. 'Five more minutes!' he said every night. Then five more. And five more again.",
+      "Filo the little fox did not want to sleep. Ever. “Five more minutes!” he said every night. Then five more. And five more again.",
       "That evening, his mum blew out the candle and kissed him between the ears. But the moment she left the den, Filo opened his eyes wide again. Sleep, really? While outside the night was doing mysterious things without him?",
-      "He poked his snout out of the den. The sky was huge and pricked with stars. And there, right at the top, the moon was watching him. 'Not asleep, little fox?' she asked, in a voice as soft as an eiderdown.",
-      "'I don't want to sleep,' said Filo. 'If I sleep, I'll miss everything!' The moon smiled. 'Miss everything? Come, let me show you a secret.'",
+      "He poked his snout out of the den. The sky was huge and pricked with stars. And there, right at the top, the moon was watching him. “Not asleep, little fox?” she asked, in a voice as soft as an eiderdown.",
+      "“I don't want to sleep,” said Filo. “If I sleep, I'll miss everything!” The moon smiled. “Miss everything? Come, let me show you a secret.”",
       "She lit up the sleeping forest. Filo saw the closed flowers getting their colours ready for tomorrow. He saw the huddled birds mending their songs. He even saw the wind, lying down in the branches, gathering strength to blow the morning clouds.",
-      "'You see, whispered the moon. At night, no one misses anything. Everyone is getting ready for tomorrow. The most beautiful things of the day are made while we sleep.'",
+      "“You see,” whispered the moon. “At night, no one misses anything. Everyone is getting ready for tomorrow. The most beautiful things of the day are made while we sleep.”",
       "Filo gave a great big foxy yawn. If even the wind was having a nap, then maybe... He curled back up in the den, his tail wrapped around his nose.",
       "And that night, Filo slept deeply, to get ready, like everyone else, for a very big day. Good night, little fox.",
     ],
@@ -1641,14 +1717,18 @@ const STORY_CONTENT_EN: Record<string, StoryContent> = {
   },
   "bonne-nuit-petit-lapin": {
     body: [
-      "Evening falls on the burrow. Mummy Rabbit tucks Pilou in. “Time to sleep, my little one.”",
+      "Evening falls on the burrow. Mummy Rabbit tucks Pilou in with the woolly blanket, the scratchy one that smells so good. “Time to sleep, my little one.”",
       "Pilou opens his eyes wide. “Wait! I haven't said good night.”",
       "“To whom, my Pilou?” asks Mummy Rabbit. “To everyone,” says Pilou, very seriously.",
-      "So Pilou begins. “Good night, door. Good night, rug. Good night, my boots.”",
-      "He whispers, because at night we speak very softly. “Good night, lamp. Good night, spoon.”",
-      "“Good night, dinner carrot,” says Pilou. Mummy Rabbit laughs behind her paw.",
-      "His whiskers move slower and slower. “Good night, moon... good night, mummy...”",
-      "And Pilou falls asleep. Mummy Rabbit blows out the lamp. Saying good night to everything you love is already the start of beautiful dreams.",
+      "He sits up in bed, because this is important work and you cannot do it lying down.",
+      "So Pilou starts with the things he can see. “Good night, door. Good night, rug. Good night, my boots, both of you.”",
+      "He whispers, because at night we speak very softly. “Good night, lamp. Good night, dinner spoon.”",
+      "“Good night, carrot,” says Pilou. Mummy Rabbit laughs behind her paw. “The carrot is already in your tummy.” “Then good night, tummy.”",
+      "Next he says good night to the things he cannot see. “Good night, garden. Good night, rain from earlier.”",
+      "“Good night, friends in the burrow next door. Good night, wind in the tall grass.”",
+      "Mummy Rabbit sits on the edge of the bed and says nothing at all. Outside, the night is soft and round like a pebble.",
+      "Pilou's whiskers move slower and slower. “Good night, stars... good night, moon... and good night, mummy...”",
+      "Mummy Rabbit blows out the lamp. Saying good night to everything you love is already the start of beautiful dreams.",
     ],
     quiz: [
       {
@@ -1678,14 +1758,18 @@ const STORY_CONTENT_EN: Record<string, StoryContent> = {
   },
   "le-doudou-de-nino": {
     body: [
-      "It is bedtime. Nino looks everywhere. “My cuddly toy! Where is my cuddly toy?”",
+      "It is bedtime. Nino has put on his pyjamas, drunk his glass of water and listened to his story. Only one thing is missing.",
+      "“My cuddly toy! Where is my cuddly toy?”",
+      "Nino's cuddly toy is a little grey rabbit with one ear longer than the other. Without him, the night is far too big.",
       "Dad looks under the bed. He finds one sock and two little cars. But no cuddly toy.",
-      "Mum opens the drawer. She finds pyjamas and a woolly hat. But no cuddly toy.",
-      "Big sister looks behind the curtain. She finds the cat, sleeping very nicely. But no cuddly toy.",
-      "Nino's eyes sting a little. “Is it lost for ever?”",
-      "“We keep looking,” says Dad. So the whole family searches: the kitchen, the sofa, the cat's basket.",
-      "Then Nino climbs onto his bed. He lifts his pillow. And there... the cuddly toy! Already asleep, all by itself.",
-      "Nino hugs his cuddly toy tight. He had not lost it after all: it was waiting for him in exactly the right place. Good night, you two.",
+      "Mum opens the drawer. She finds clean pyjamas, a woolly hat and three pencils. But no cuddly toy.",
+      "Big sister looks behind the curtain. She finds the cat, who was sleeping very nicely and is not pleased at all. But no cuddly toy.",
+      "Nino's eyes sting a little. “Is he lost for ever?”",
+      "“We keep looking,” says Dad. So the whole family searches the whole house.",
+      "The kitchen: under the table, inside the saucepan cupboard. Nothing at all.",
+      "The living room: under the sofa cushions, behind the big plant. Nothing at all.",
+      "Then Nino climbs onto his bed, very slowly, and lifts his pillow. And there... the cuddly toy! Already asleep, all by himself, one ear folded over.",
+      "Nino hugs him tight. He had not lost his cuddly toy after all: his cuddly toy had been waiting in exactly the right place the whole time. Good night, you two.",
     ],
     quiz: [
       {
@@ -1715,13 +1799,17 @@ const STORY_CONTENT_EN: Record<string, StoryContent> = {
   },
   "coucou-petit-chat": {
     body: [
-      "Moustache the cat loves playing hide-and-seek. “Count to three!” he says.",
-      "One... two... three. Moustache has vanished! Well, almost.",
-      "Behind the curtain there is a little striped tail sticking out. Peekaboo, little cat!",
-      "Moustache finds a new hiding place. He slips into the laundry basket. Very clever.",
+      "Moustache the cat loves playing hide-and-seek. It is his favourite game, even better than napping.",
+      "“Count to three!” he tells Lila. One... two... three.",
+      "Moustache has vanished! Well, almost.",
+      "Behind the curtain there is a little striped tail sticking out. It wiggles a bit, left, then right. Peekaboo, little cat!",
+      "Moustache finds a new hiding place. He slips into the laundry basket, under a towel. Very clever.",
       "But the striped tail is still sticking out. It wiggles and wiggles. Peekaboo, little cat!",
-      "Moustache tries under the table. Then behind the plant. Then inside the box.",
+      "Moustache tries under the table, between the chairs. The tail sticks out.",
+      "He tries behind the big green plant. The tail sticks out.",
+      "He tries inside the moving box, right at the bottom. The tail still sticks out, and now it is wagging happily too.",
       "Every time, his tail says hello before he does. Moustache cannot understand why he is found so fast.",
+      "“You are the champion of hiding places,” says Lila, tickling him under the chin. Moustache is very proud.",
       "So he curls up on Lila's lap and starts to purr. Hiding is fun, but being found by someone who loves you is even better.",
     ],
     quiz: [
@@ -1752,13 +1840,17 @@ const STORY_CONTENT_EN: Record<string, StoryContent> = {
   },
   "le-hibou-qui-compte-les-etoiles": {
     body: [
-      "Hulotte the owl has a very important job. Every evening, she counts the stars.",
-      "She settles on her favourite branch and looks at the sky. “One, two, three...”",
-      "The stars come out slowly, one by one, like little lamps being switched on.",
-      "“Twenty, twenty-one, twenty-two...” The wind goes by. Hulotte fluffs up her feathers.",
-      "“Fifty... sixty...” Her eyelids grow as heavy as two pebbles.",
-      "She gives a great big owly yawn. “Sixty-one... sixty... erm...”",
-      "And off she goes, asleep on her branch, her head tucked into her feathers.",
+      "Hulotte the owl has a very important job, the most important in the whole forest. Every evening, she counts the stars.",
+      "She settles on her favourite branch, the one that creaks a little when she moves, and looks up at the big dark sky.",
+      "“One, two, three...” The stars come out slowly, one by one, like little lamps being switched on inside houses.",
+      "“Ten, eleven, twelve...” Down below, the forest falls asleep. The stream talks to itself and the leaves barely move.",
+      "“Twenty, twenty-one, twenty-two...” The wind slips between the trees. Hulotte fluffs her feathers tightly around her neck.",
+      "“Thirty-five, thirty-six...” A bat waves as it passes, hanging upside down. Hulotte does not answer: when you are counting, you do not talk.",
+      "“Forty-eight, forty-nine, fifty...” Her eyelids grow as heavy as two big river pebbles.",
+      "“Fifty-eight... fifty-nine... sixty...” Her voice goes very small.",
+      "She gives a great big owly yawn, so big you can see all the way down her beak.",
+      "“Sixty-one... sixty... erm... sixty something...” She has already forgotten where she was.",
+      "And off she goes, asleep on her branch, head tucked into her feathers, one foot folded up beneath her.",
       "Tomorrow evening she will start again at one. Some things are too big to ever finish, and that is quite all right: they give us beautiful dreams every night.",
     ],
     quiz: [
@@ -1789,14 +1881,18 @@ const STORY_CONTENT_EN: Record<string, StoryContent> = {
   },
   "un-calin-pour-papa-ours": {
     body: [
-      "This evening, Daddy Bear is sitting in the dark. He says nothing at all.",
-      "Little Bear comes closer. “Daddy, are you grumpy?”",
-      "“No, my little cub. I am just tired.” Daddy Bear lets out a very big sigh.",
-      "Little Bear thinks very hard. When he is sad, mummy does something magic.",
-      "So he climbs onto the armchair. He rests his head against Daddy Bear's shoulder.",
-      "And he gives a hug. A long, long bear-cub hug, with both arms.",
-      "Daddy Bear still says nothing. But his shoulders come down, and he smiles a little.",
-      "“Thank you, my little cub.” Little Bear is happy: you don't have to be big to comfort someone.",
+      "This evening, Daddy Bear is sitting in the dark, right at the end of the armchair. He says nothing at all and barely moves.",
+      "Usually he tells stories. Usually he does the funny voices and gets them wrong on purpose. Not tonight.",
+      "Little Bear comes closer without making a sound, on tiptoe paws. “Daddy, are you grumpy?”",
+      "“No, my little cub. I am just tired.” Daddy Bear lets out a very big sigh, as long as a winter evening.",
+      "Little Bear sits down on the floor, against the armchair, and thinks very hard. He knows this kind of evening well.",
+      "When he is sad, mummy does something magic. She does not talk. She does not ask questions. She does not even say it will pass.",
+      "So Little Bear climbs onto the armchair, one paw after the other, very slowly so as not to disturb.",
+      "He rests his head against Daddy Bear's shoulder, right where the fur is softest and warmest.",
+      "And he gives a hug. A long, long bear-cub hug, with both arms, squeezing as tight as he can.",
+      "Daddy Bear still says nothing. But his shoulders come down, very slowly, like snow sliding off a branch.",
+      "And then he smiles a little, there in the dark, and rests his big paw on Little Bear's back. “Thank you, my little cub.”",
+      "Little Bear is happy. You do not have to be big, or find the right words, to comfort someone.",
     ],
     quiz: [
       {
@@ -1826,13 +1922,17 @@ const STORY_CONTENT_EN: Record<string, StoryContent> = {
   },
   "le-premier-flocon-du-renardeau": {
     body: [
-      "Little Rusty the fox cub comes out of the burrow. The world is all white.",
+      "Little Rusty the fox cub comes out of the burrow rubbing his eyes. And he stops dead.",
+      "The world is all white. The tree stump is white. The ferns are white. Even the big rock is white.",
       "“Mummy! Somebody has repainted the forest!”",
-      "Mummy Fox laughs. “That is snow, my little one. It comes every winter.”",
-      "Little Rusty puts out one paw. Crunch. The snow makes music under his steps.",
-      "He lifts his head. A snowflake floats down, spins, hesitates... and lands on his nose.",
+      "Mummy Fox comes out too and laughs. “That is snow, my little one. It comes every winter.”",
+      "“Every winter? And I have never seen it?” “This is your first,” says Mummy Fox.",
+      "Little Rusty puts out one paw, very carefully. Crunch. The snow makes music under his steps.",
+      "He puts out a second one. Crunch. Then he runs in circles, just for the sound. Crunch, crunch, crunch!",
+      "Then he lifts his head. A snowflake floats down, spins, hesitates... and lands on his nose.",
       "It is cold! Little Rusty sneezes, and the snowflake disappears. “Oh! It's gone!”",
-      "“Look,” says Mummy Fox. And the whole sky begins to send thousands more.",
+      "He waits, nose in the air, but nothing comes back. His tail droops a little.",
+      "“Look,” says Mummy Fox. And the whole sky begins to send thousands more, gently, in no hurry at all.",
       "Little Rusty spins around with his tongue out. The prettiest things only last a moment, but winter hands you a whole forest of them.",
     ],
     quiz: [
@@ -1863,13 +1963,17 @@ const STORY_CONTENT_EN: Record<string, StoryContent> = {
   },
   "le-gateau-danniversaire-de-mimi": {
     body: [
-      "Today, Mimi the mouse is one year old. “I want a cake!” she says.",
-      "She takes one spoonful of flour. A mouse does not eat very much.",
-      "She adds a drop of milk and a crumb of sugar. She stirs and stirs and stirs.",
-      "The cake bakes inside a thimble. The mouse hole smells wonderful.",
-      "Mimi puts a candle on top. Well, a matchstick, because a candle would be far too big.",
-      "All her friends arrive: two mice, a snail, and one rather shy ladybird.",
-      "“Happy birthday, Mimi!” They all blow together. Poof! The light goes out.",
+      "Today, Mimi the mouse is one year old. It is written on the wall of her hole, in tiny grey marks.",
+      "“I want a cake!” she says, jumping out of bed. “A real cake, with a candle on top.”",
+      "So Mimi takes out her smallest bowl, her smallest whisk and her smallest apron. And she gets to work.",
+      "She takes one spoonful of flour, no more. A mouse does not eat very much, even on her birthday.",
+      "She adds a drop of milk, a crumb of sugar and a tiny piece of butter the size of a pea.",
+      "She stirs and stirs and stirs, until both her arms are tired and the batter is perfectly smooth.",
+      "The cake bakes inside a thimble set beside the candle. The hole smells wonderful, and so does the corridor next door.",
+      "Mimi puts a candle on top. Well, a matchstick, because a real candle would be taller than the house.",
+      "All her friends arrive: two mice from the attic, one very late snail, and a rather shy ladybird who stays near the door.",
+      "“Happy birthday, Mimi!” They all sing together, slightly out of tune, and the snail is still singing when the others have finished.",
+      "Then they all blow together. Poof! The light goes out at once and everyone laughs in the dark.",
       "The cake is exactly one mouthful each. A tiny cake shared with friends fills a very big heart.",
     ],
     quiz: [
@@ -1900,13 +2004,17 @@ const STORY_CONTENT_EN: Record<string, StoryContent> = {
   },
   "le-petit-lion-qui-baille": {
     body: [
-      "The sun is setting over the savannah. Nala the little lion opens a great big mouth.",
-      "Aaaah! A yawn as big as a mountain.",
-      "The giraffe sees it. She tries to resist. She cannot. Aaaah!",
-      "The zebra sees the giraffe. Aaaah! The monkey sees the zebra. Aaaah!",
-      "Even the elephant, who is very serious, opens his great big mouth. Aaaaaaah!",
-      "The yawn travels all the way around the savannah, and it comes back to Nala.",
-      "“Oh no,” says Nala. And he yawns again, twice, three times.",
+      "The sun is setting over the savannah. Everything turns orange, then pink, then almost purple, and the air grows cool.",
+      "Nala the little lion is lying in the warm grass, between his mother's paws. He opens a great big mouth.",
+      "Aaaah! A yawn as big as a mountain, with tiny pointed teeth in the middle.",
+      "The giraffe sees it from up there, right at the top of her neck. She tries to resist. She clenches her teeth hard.",
+      "She cannot. Aaaah! A yawn as long as her neck, travelling all the way down.",
+      "The zebra sees the giraffe yawn. Aaaah! A yawn with black and white stripes.",
+      "The monkey sees the zebra. Aaaah! A yawn that nearly knocks him off his branch.",
+      "Even the elephant, who is very serious and never yawns in front of others, opens his great big mouth. Aaaaaaah!",
+      "The yawn carries on its journey across the savannah. The gazelles, one by one. The pink flamingos, all together.",
+      "It even wakes the old crocodile in the river, who yawns showing far too many teeth.",
+      "It travels all the way around the savannah, past the baobab, and comes back to Nala. “Oh no,” says Nala. And he yawns again, twice, three times.",
       "So the whole savannah lies down in the warm grass. A yawn is something you give away like a present: it always comes back to you.",
     ],
     quiz: [
@@ -1937,14 +2045,18 @@ const STORY_CONTENT_EN: Record<string, StoryContent> = {
   },
   "les-bottes-rouges-de-lila": {
     body: [
-      "It is raining over the town. Lila looks out of the window. “Can we still go out?”",
-      "Mum brings two brand new boots. Red like apples.",
-      "One boot, two boots. A coat. A yellow hat. And off they go!",
-      "In front of the door there is a puddle. A small one. Lila puts one foot in it.",
-      "Splash! The splash goes all the way up to her knees. Lila laughs out loud.",
-      "So she looks for the next puddle. Then a bigger one. Then the biggest of them all.",
-      "Splash, splash, splash! The red boots turn into brown boots.",
-      "Back home they are washed, and they turn red again. A rainy day is not a wasted day: you just need the right boots.",
+      "It has been raining over the town since this morning. Lila looks out of the window, her nose squashed against the cold glass.",
+      "“Can we still go out?” she asks. Outside, the raindrops make circles that grow wider on the pavement.",
+      "Mum arrives with a parcel under her arm. Inside, there are two brand new boots. Red like apples.",
+      "One boot, two boots. A coat done right up. A yellow hat over her ears. And off they go!",
+      "In front of the door there is a puddle. A very small one, barely bigger than a plate.",
+      "Lila puts one foot in it, very slowly, just to see what will happen. Splash!",
+      "The splash goes all the way up to her knees. Lila laughs out loud, so loud that a pigeon flies away.",
+      "So she looks for the next puddle. The one on the pavement, outside the bakery that smells of warm bread.",
+      "Then a bigger one, by the gutter, with a leaf floating on it like a little boat.",
+      "Then the biggest of them all, outside the park, the one that is almost a small sea.",
+      "Splash, splash, splash! The red boots turn into brown boots, and Mum laughs under her umbrella, pretending not to notice.",
+      "Back home the boots are washed and they turn red again. A rainy day is not a wasted day: you just need the right boots.",
     ],
     quiz: [
       {
@@ -1982,8 +2094,25 @@ function contentFor(slug: string, locale: string): StoryContent {
   return STORY_CONTENT[slug] ?? FALLBACK_CONTENT;
 }
 
+/**
+ * How many quiz questions a story deserves, driven by its actual length: a
+ * short bedtime read gets 2 or 3, a long one goes up to 6. Mirrors
+ * `quizLength()` on the personalized story page so both libraries behave the
+ * same. Single source of truth: `storyQuiz` slices to this, so a story whose
+ * body grows or shrinks gets the right number without touching the data.
+ */
+export function quizLength(words: number): number {
+  if (words < 200) return 2;
+  if (words < 500) return 3;
+  if (words < 900) return 4;
+  if (words < 1400) return 5;
+  return 6;
+}
+
 export function storyQuiz(slug: string, locale: string = "fr"): QuizQuestion[] {
-  return contentFor(slug, locale).quiz;
+  const content = contentFor(slug, locale);
+  const words = content.body.join(" ").split(/\s+/).filter(Boolean).length;
+  return content.quiz.slice(0, quizLength(words));
 }
 
 export type GlossaryEntry = { word: string; definition: string };

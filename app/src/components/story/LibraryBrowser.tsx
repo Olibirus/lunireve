@@ -390,7 +390,7 @@ function GroupedRail({
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs transition-colors",
                   isOpen || holdsActive
-                    ? "bg-[var(--color-indigo-soft-100)] border-[var(--color-indigo-soft-300)] font-medium text-[#232f5c]"
+                    ? "bg-[var(--color-indigo-soft-100)] border-[var(--color-indigo-soft-300)] font-medium text-[var(--color-catpill-fg)]"
                     : "border-[var(--color-ink-100)] text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
                 )}
               >

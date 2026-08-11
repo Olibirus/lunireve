@@ -65,6 +65,10 @@
      the pastel mint sings; in dark mode the pill lightens and the mint washes
      out, so the dark block below falls back to the label's own color. */
   --color-create-icon: var(--color-mint-400);
+  /* Label of an OPEN filter category pill ("Enfants & famille"), which sits on
+     an indigo-soft-100 fill. That fill is pale in light mode and deep navy in
+     dark mode, so the label cannot be a fixed navy or it vanishes in one theme. */
+  --color-catpill-fg: #232f5c;
   --color-muted: var(--color-ink-400);
   --color-border: var(--color-ink-100);
 
@@ -158,6 +162,12 @@
     /* Pastel mint loses its footing on the dark-mode pill, so the wand simply
        takes the label's own color: whatever the pill is, the icon reads. */
     --color-create-icon: currentColor;
+
+    /* indigo-soft-100 just became deep navy, so the open-category label has to
+       flip light. NOT cream-50: the cream scale is inverted in dark mode
+       (cream-50 IS the dark page background), which would keep it navy on navy.
+       ink-800 is the one that resolves light here. */
+    --color-catpill-fg: var(--color-ink-800);
 
     --shadow-whisper: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
     --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.35), 0 6px 20px -8px rgba(0, 0, 0, 0.4);
@@ -275,6 +285,8 @@
     --color-mint-500: #9dd1b6;
     /* ink-800 is re-pinned to navy above, so the pastel wand reads again */
     --color-create-icon: #b7dfcc;
+    /* indigo-soft-100 is pinned back to pale here, so the label goes navy again */
+    --color-catpill-fg: #232f5c;
   }
   html.dark .band-ink {
     background: #10193b;

@@ -34,8 +34,13 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4",
-        "bg-[var(--color-cream-50)] p-6 shadow-[var(--shadow-float)] rounded-3xl border border-[var(--color-ink-100)]",
+        // `w-full` used to mean exactly the viewport width, so on a phone the
+        // panel had no side gutter and any wide child pushed it off screen.
+        // Also cap the height: a tall dialog scrolls inside itself instead of
+        // running past the bottom of the viewport.
+        "fixed left-1/2 top-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4",
+        "max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain",
+        "bg-[var(--color-cream-50)] p-5 sm:p-6 shadow-[var(--shadow-float)] rounded-3xl border border-[var(--color-ink-100)]",
         className
       )}
       {...props}

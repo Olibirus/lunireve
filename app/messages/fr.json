@@ -958,6 +958,8 @@
   },
   "account": {
     "title": "Votre espace famille",
+    "navLabel": "Votre espace",
+    "closeNav": "Fermer le menu",
     "subtitle": "Gérez les profils, suivez les lectures, créez des histoires.",
     "logout": "Se déconnecter",
     "backToStories": "Toutes les histoires",

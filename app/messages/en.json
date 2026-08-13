@@ -958,6 +958,8 @@
   },
   "account": {
     "title": "Your family space",
+    "navLabel": "Your area",
+    "closeNav": "Close menu",
     "subtitle": "Manage profiles, follow reading, create stories.",
     "logout": "Log out",
     "createStory": "Create a story",

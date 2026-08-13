@@ -13,9 +13,11 @@ export function InteractiveBand() {
   const t = useTranslations("interactiveBand");
   return (
     <section className="mx-auto max-w-7xl px-5 md:px-8 py-8 md:py-12">
-      <div className="grid items-center gap-10 rounded-[2rem] border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-8 md:grid-cols-2 md:p-14">
-        {/* Pitch */}
-        <div>
+      <div className="grid items-center gap-10 rounded-[2rem] border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-6 sm:p-8 md:grid-cols-2 md:p-14">
+        {/* Pitch. min-w-0: a grid child defaults to min-width:auto, so the
+            nowrap CTA below set the column's floor and pushed the section wider
+            than a 320px screen. */}
+        <div className="min-w-0">
           <p className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-[var(--color-fox-700)]">
             <GitBranch className="h-3.5 w-3.5" />
             {t("kicker")}
@@ -29,7 +31,7 @@ export function InteractiveBand() {
           <p className="mt-4 max-w-xl text-[var(--color-ink-500)] leading-relaxed">
             {t("body")}
           </p>
-          <Button asChild variant="primary" size="lg" className="mt-7">
+          <Button asChild variant="primary" size="lg" className="mt-7 whitespace-normal text-center">
             <Link href={{ pathname: "/histoires", query: { interactive: "1" } }}>
               <Sparkles className="h-4 w-4 text-[var(--color-mint-400)]" />
               {t("cta")}
@@ -59,9 +61,12 @@ export function InteractiveBand() {
               {t("demoHint")}
             </p>
           </div>
-          {/* Soft glow behind the card */}
+          {/* Soft glow behind the card. Only bleeds vertically: the old -m-6
+              pushed it 24px past each side too, which was enough to make the
+              whole homepage scroll sideways on a 375px screen. */}
           <div
-            className="absolute inset-0 -z-10 -m-6 rounded-[3rem] opacity-60 blur-2xl"
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 -inset-y-6 -z-10 rounded-[3rem] opacity-60 blur-2xl"
             style={{
               background:
                 "radial-gradient(circle at 30% 30%, rgba(183,223,204,0.7) 0%, transparent 60%), radial-gradient(circle at 75% 75%, rgba(133,143,193,0.35) 0%, transparent 55%)",

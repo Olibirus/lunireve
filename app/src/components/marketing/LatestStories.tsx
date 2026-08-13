@@ -86,7 +86,7 @@ export function LatestStories() {
 
         <div className="mt-8">
           <Link
-            href={{ pathname: "/histoires", query: { age: "3-4" } }}
+            href="/histoires"
             className="inline-flex items-center gap-2 rounded-full border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-5 py-2.5 text-sm font-medium text-[var(--color-ink-700)] hover:bg-[var(--color-cream-100)] transition-colors"
           >
             {t("homeV2.latestCta")}

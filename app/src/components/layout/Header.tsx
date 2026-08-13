@@ -23,6 +23,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Rocket,
   ShieldCheck,
   Sparkles,
   User,
@@ -45,6 +46,7 @@ function NavDropdown({
   align = "left",
   href,
   contentClassName,
+  className,
 }: {
   label: React.ReactNode;
   children: React.ReactNode;
@@ -53,6 +55,8 @@ function NavDropdown({
   href?: string;
   /** Override the panel width/layout (e.g. compact age menu, #3). */
   contentClassName?: string;
+  /** Wrapper classes, e.g. hiding the whole dropdown below a breakpoint. */
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -75,7 +79,7 @@ function NavDropdown({
   return (
     <div
       ref={ref}
-      className="relative"
+      className={cn("relative", className)}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
@@ -177,6 +181,38 @@ export function Header() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Lock the page behind the open burger. `position: fixed` rather than
+  // `overflow: hidden` because iOS Safari ignores the latter, and the scroll
+  // offset is restored on close so the page does not jump to the top.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const y = window.scrollY;
+    const { body } = document;
+    const previous = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflowY: body.style.overflowY,
+    };
+    body.style.position = "fixed";
+    body.style.top = `-${y}px`;
+    body.style.width = "100%";
+    body.style.overflowY = "scroll"; // keeps the scrollbar gutter, no width jump
+    return () => {
+      Object.assign(body.style, previous);
+      window.scrollTo(0, y);
+    };
+  }, [mobileOpen]);
+
+  // A resize past the lg breakpoint leaves the panel mounted but invisible,
+  // with the body still locked. Close it when the desktop nav takes over.
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => mq.matches && setMobileOpen(false);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
   const [streak, setStreak] = useState<number | null>(null);
@@ -323,22 +359,33 @@ export function Header() {
           </Link>
         </nav>
 
-        {/* Right side */}
+        {/* Right side. Below lg only the theme toggle and the burger survive:
+            the full cluster (streak, bell, search, language, account) measured
+            334px on a 375px viewport and was what pushed the whole page into
+            horizontal scroll. Everything hidden here reappears in the panel. */}
         <div className="flex items-center gap-1.5 md:gap-2">
           {streak !== null && (
             <Link
               href="/histoires"
               title={t("nav.streakTitle")}
-              className="inline-flex items-center gap-1 rounded-full bg-[var(--color-fox-300)]/25 px-2.5 py-1.5 text-xs font-medium text-[var(--color-fox-700)] hover:bg-[var(--color-fox-300)]/40"
+              className="hidden lg:inline-flex items-center gap-1 rounded-full bg-[var(--color-fox-300)]/25 px-2.5 py-1.5 text-xs font-medium text-[var(--color-fox-700)] hover:bg-[var(--color-fox-300)]/40"
             >
               <Flame className="h-3.5 w-3.5" />
               {streak}
             </Link>
           )}
-          {logged && <NotificationBell />}
-          <NavSearch />
+          {logged && (
+            <span className="hidden lg:inline-flex">
+              <NotificationBell />
+            </span>
+          )}
+          <span className="hidden lg:inline-flex">
+            <NavSearch />
+          </span>
           <ThemeToggle />
-          <LanguageSwitcher />
+          <span className="hidden lg:inline-flex">
+            <LanguageSwitcher />
+          </span>
 
           {logged && isAdmin ? (
             /* Admin on the public site: ONE clickable pill straight to the
@@ -346,7 +393,7 @@ export function Header() {
                family area; each user only ever reaches their own profile). */
             <Link
               href={"/admin" as never}
-              className="inline-flex items-center gap-2 rounded-full bg-[var(--color-ink-800)] px-4 py-2 text-sm font-medium text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)] transition-colors"
+              className="hidden lg:inline-flex items-center gap-2 rounded-full bg-[var(--color-ink-800)] px-4 py-2 text-sm font-medium text-[var(--color-cream-50)] hover:bg-[var(--color-ink-700)] transition-colors"
             >
               <ShieldCheck className="h-4 w-4 text-[var(--color-mint-400)]" />
               <span className="flex flex-col items-start leading-tight text-left">
@@ -358,6 +405,7 @@ export function Header() {
             </Link>
           ) : logged ? (
             <NavDropdown
+              className="hidden lg:block"
               label={
                 <span className="flex flex-col items-start leading-tight text-left">
                   <span className="text-[10px] uppercase tracking-wide text-[var(--color-ink-400)]">
@@ -388,7 +436,12 @@ export function Header() {
               </button>
             </NavDropdown>
           ) : (
-            <Button variant="primary" size="sm" onClick={() => setAuthOpen(true)}>
+            <Button
+              variant="primary"
+              size="sm"
+              className="hidden lg:inline-flex"
+              onClick={() => setAuthOpen(true)}
+            >
               <User className="h-4 w-4" />
               {t("nav.authButton")}
             </Button>
@@ -470,39 +523,93 @@ export function Header() {
               <Wand2 className="h-4 w-4 text-[var(--color-create-icon)]" />
               {t("nav.create")}
             </Link>
-            {logged ? (
+          </div>
+
+          {/* ---- Account. Deliberately a separate tinted block: everything
+               above is "the library", everything below is "your account", and
+               on mobile the two used to blur into one flat list. ---- */}
+          <div className="mt-6 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-2">
+            {logged && !isAdmin ? (
               <>
-                {isAdmin ? (
-                  <Link
-                    href={"/admin" as never}
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl bg-[var(--color-ink-800)] px-4 py-2.5 text-sm text-[var(--color-cream-50)]"
-                  >
-                    <ShieldCheck className="h-4 w-4 text-[var(--color-mint-400)]" />
-                    Espace admin
-                  </Link>
-                ) : (
-                  <Link
-                    href="/profils"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl border border-[var(--color-ink-100)] px-4 py-2.5 text-sm"
-                  >
-                    <Users className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
-                    {t("nav.menuProfiles")}
-                  </Link>
+                <button
+                  type="button"
+                  aria-expanded={mobileSection === "account"}
+                  onClick={() => setMobileSection(mobileSection === "account" ? null : "account")}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-ink-800)] text-[var(--color-cream-50)]">
+                    <User className="h-4 w-4" />
+                  </span>
+                  <span className="flex min-w-0 flex-col leading-tight">
+                    <span className="text-[10px] uppercase tracking-wide text-[var(--color-ink-400)]">
+                      {t("nav.account")}
+                    </span>
+                    <span className="truncate text-sm font-medium text-[var(--color-ink-800)]">
+                      {accountName ?? t("nav.account")}
+                    </span>
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "ml-auto h-4 w-4 shrink-0 text-[var(--color-ink-500)] transition-transform",
+                      mobileSection === "account" && "rotate-180"
+                    )}
+                  />
+                </button>
+                {mobileSection === "account" && (
+                  <div className="grid gap-0.5 border-t border-[var(--color-ink-100)] pt-2">
+                    {[
+                      { href: "/compte", label: t("nav.menuDashboard"), icon: LayoutDashboard },
+                      { href: "/profils", label: t("nav.menuProfiles"), icon: Users },
+                      { href: "/compte/histoires", label: t("account.menu.customStories"), icon: BookOpen },
+                      { href: "/compte/favoris", label: t("account.menu.favorites"), icon: Sparkles },
+                      { href: "/compte/abonnement", label: t("nav.pricing"), icon: Rocket },
+                    ].map(({ href, label, icon: Icon }) => (
+                      <Link
+                        key={href}
+                        href={href as never}
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-[var(--color-ink-700)]"
+                      >
+                        <Icon className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
+                        {label}
+                      </Link>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileOpen(false);
+                        void onLogout();
+                      }}
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-[var(--color-ink-700)]"
+                    >
+                      <LogOut className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
+                      {t("nav.logout")}
+                    </button>
+                  </div>
                 )}
+              </>
+            ) : logged && isAdmin ? (
+              <div className="grid gap-0.5">
+                <Link
+                  href={"/admin" as never}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2.5 rounded-xl bg-[var(--color-ink-800)] px-4 py-2.5 text-sm text-[var(--color-cream-50)]"
+                >
+                  <ShieldCheck className="h-4 w-4 text-[var(--color-mint-400)]" />
+                  Espace admin
+                </Link>
                 <button
                   type="button"
                   onClick={() => {
                     setMobileOpen(false);
                     void onLogout();
                   }}
-                  className="flex items-center gap-2.5 rounded-xl border border-[var(--color-ink-100)] px-4 py-2.5 text-sm text-left"
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-[var(--color-ink-700)]"
                 >
                   <LogOut className="h-4 w-4 text-[var(--color-indigo-soft-500)]" />
                   {t("nav.logout")}
                 </button>
-              </>
+              </div>
             ) : (
               <Button
                 variant="primary"
@@ -511,12 +618,19 @@ export function Header() {
                   setMobileOpen(false);
                   setAuthOpen(true);
                 }}
-                className="justify-center"
+                className="w-full justify-center"
               >
                 <User className="h-4 w-4" />
                 {t("nav.authButton")}
               </Button>
             )}
+          </div>
+
+          {/* Search + language live in the navbar on desktop only, so they need
+              a home here (the theme toggle stays in the bar itself). */}
+          <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--color-ink-100)] pt-4">
+            <NavSearch />
+            <LanguageSwitcher />
           </div>
         </nav>
       )}

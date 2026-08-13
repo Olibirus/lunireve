@@ -341,6 +341,11 @@
   }
   .prose-reading p + p { margin-top: 1.35em; }
 
+  /* Belt and braces for the glossary tooltip: `clip` (not `hidden`) stops a
+     wide tooltip from scrolling the page without creating a scroll container,
+     so the sticky navbar and the reading progress bar keep working. */
+  #story-body { overflow-x: clip; }
+
   /* Drop cap ONLY where explicitly asked (first paragraph of the story),
      via .drop-cap — not on every paragraph (feedback #3). */
   .drop-cap:first-letter {
@@ -433,7 +438,9 @@
     transform: translateX(-50%);
     z-index: 30;
     width: max-content;
-    max-width: 280px;
+    /* On a phone a 280px card centred on a word near the right margin hung off
+       the screen and made the whole story page scroll sideways. */
+    max-width: min(280px, calc(100vw - 2.5rem));
     padding: 10px 14px;
     border-radius: 14px;
     /* Fixed colors (not theme tokens): in dark mode the cream/ink tokens flip,

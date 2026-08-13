@@ -17,7 +17,9 @@ import { cn } from "@/lib/utils/cn";
  */
 const FIRST = 12; // 4 rows x 3 columns on desktop
 
-const GRID = "grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6";
+// One card per row on phones: at 375px two columns left the cover ~160px wide
+// and the title wrapped to four lines.
+const GRID = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6";
 
 export function StoryGrid({ stories }: { stories: MockStory[] }) {
   const t = useTranslations("library");

@@ -11,7 +11,12 @@ import {
   profileLimit,
   type ChildProfile,
 } from "@/lib/profiles";
-import { readCustomStories, setCustomStoryImage, type CustomStory } from "@/lib/customStories";
+import {
+  readCustomStories,
+  setCustomStoryImage,
+  reassignStoriesToParent,
+  type CustomStory,
+} from "@/lib/customStories";
 import { fetchCustomStory, listMyCustomStories } from "@/app/actions/customStories";
 import { readFavoritesFor } from "@/lib/favorites";
 import { readHistoryFor } from "@/lib/readingHistory";
@@ -280,8 +285,31 @@ export default function AccountDashboardPage() {
 
   function removeChild(p: ChildProfile) {
     if (!window.confirm(t("deleteConfirm", { name: p.name }))) return;
+    // The child's stories survive the profile: they move to the parent's
+    // shelf rather than being destroyed with it.
+    reassignStoriesToParent(p.id);
     deleteProfile(p.id);
-    setProfiles(readProfiles());
+    const left = readProfiles();
+    setProfiles(left);
+    const remaining = [...readCustomStories()].reverse();
+    setCustomStories(remaining);
+    // Rebuild the rows rather than patching them: the parent row may not have
+    // existed at all before (no stories of their own), and the freed stories
+    // have to land somewhere.
+    const childIds = new Set(left.map((c) => c.id));
+    setStoryRows(
+      [
+        { id: "parent", name: t("readerParent"), avatar: null as ChildProfile["avatar"] | null },
+        ...left.map((c) => ({ id: c.id, name: c.name, avatar: c.avatar as ChildProfile["avatar"] | null })),
+      ]
+        .map((r) => ({
+          ...r,
+          items: remaining.filter((s) =>
+            r.id === "parent" ? !s.profileId || !childIds.has(s.profileId) : s.profileId === r.id
+          ),
+        }))
+        .filter((r) => r.items.length > 0)
+    );
   }
 
   const limitReached = (profiles?.length ?? 0) >= profileLimit();

@@ -3,11 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
-import {
-  getActiveProfile,
-  clearActiveProfile,
-  type ChildProfile,
-} from "@/lib/profiles";
+import { getActiveProfile, type ChildProfile } from "@/lib/profiles";
 import { mockStories, ageToRange, type MockStory } from "@/data/mock-stories";
 import { readCustomStories, type CustomStory } from "@/lib/customStories";
 import { readFavorites } from "@/lib/favorites";
@@ -15,9 +11,8 @@ import { readHistory } from "@/lib/readingHistory";
 import { pickDailyStory } from "@/lib/dailyPick";
 import { storyImageSrc } from "@/lib/storyImage";
 import { StoryCard } from "@/components/story/StoryCard";
-import { ChildAvatar } from "@/components/brand/ChildAvatar";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { BookOpen, Flame, LogOut, Moon, Sparkles, Wand2 } from "lucide-react";
+import { ChildTopBar } from "@/components/layout/ChildTopBar";
+import { BookOpen, Moon, Sparkles, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -79,37 +74,10 @@ export default function ChildBubblePage() {
     })
     .slice(0, 6);
 
-  function exit() {
-    clearActiveProfile();
-    router.push("/profils");
-  }
-
   return (
     <>
-      {/* Child top bar */}
-      <header className="sticky top-0 z-40 border-b border-[var(--color-ink-100)] bg-[var(--color-cream-50)]/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-8">
-          <div className="flex items-center gap-3">
-            <ChildAvatar color={profile.avatar} className="h-10 w-10" />
-            <span className="font-serif text-lg tracking-tight">{profile.name}</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-fox-300)]/25 px-2.5 py-0.5 text-xs text-[var(--color-fox-700)]">
-              <Flame className="h-3 w-3" />
-              {profile.streak}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher />
-            <button
-              type="button"
-              onClick={exit}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-ink-100)] px-3.5 py-1.5 text-sm text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              {t("exit")}
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* Same bar the child keeps on every page, story pages included */}
+      <ChildTopBar profile={profile} />
 
       <div className="mx-auto max-w-7xl px-5 md:px-8 py-10 space-y-14">
         {/* Greeting + create CTA */}
@@ -224,7 +192,7 @@ export default function ChildBubblePage() {
           )}
         </section>
 
-        {/* Personalized stories */}
+        {/* Personalized stories — big tappable cards with the real cover */}
         <section>
           <h2 className="sparkle font-serif text-2xl tracking-tight">{t("custom")}</h2>
           {custom.length === 0 ? (
@@ -239,22 +207,45 @@ export default function ChildBubblePage() {
               </Link>
             </div>
           ) : (
-            <ul className="mt-5 max-w-xl space-y-3">
+            <div className="mt-5 grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {custom.map((c) => (
-                <li
+                <Link
                   key={c.id}
-                  className="flex items-center gap-4 rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-4 shadow-[var(--shadow-soft)]"
+                  href={{ pathname: "/histoire-perso/[id]", params: { id: c.id } }}
+                  className="group flex flex-col overflow-hidden rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] shadow-[var(--shadow-soft)] transition-shadow hover:shadow-[var(--shadow-card)]"
                 >
-                  <span aria-hidden className="cover-night h-14 w-11 shrink-0 rounded-xl" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-serif text-lg">{c.title}</span>
-                    <span className="block text-xs text-[var(--color-ink-500)]">
-                      {new Date(c.createdAt).toLocaleDateString()}
+                  <span className="relative block">
+                    {c.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={c.imageUrl}
+                        alt=""
+                        loading="lazy"
+                        className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <span className="cover-night flex aspect-[4/3] w-full items-center justify-center">
+                        <Wand2 className="h-8 w-8 text-white/80 transition-transform group-hover:scale-110" />
+                      </span>
+                    )}
+                    {/* "Just for you": these are the child's own stories */}
+                    <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+                      <Sparkles className="h-3 w-3" />
+                      {t("customBadge")}
                     </span>
                   </span>
-                </li>
+                  <span className="flex flex-1 flex-col p-3.5">
+                    <span className="font-serif text-base leading-snug tracking-tight md:text-lg">
+                      {c.title}
+                    </span>
+                    <span className="mt-auto flex items-center gap-1.5 pt-3 text-sm font-semibold text-[var(--color-ink-700)] group-hover:text-[var(--color-ink-900)]">
+                      <BookOpen className="h-4 w-4" />
+                      {t("favoritesReadCta")}
+                    </span>
+                  </span>
+                </Link>
               ))}
-            </ul>
+            </div>
           )}
         </section>
 

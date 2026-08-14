@@ -11,7 +11,8 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { NavSearch } from "@/components/layout/NavSearch";
 import { logout } from "@/app/actions/auth";
 import { isLoggedIn, getRole, getUsername, broadcastLogout, onLogoutBroadcast } from "@/lib/clientAuth";
-import { getActiveProfile } from "@/lib/profiles";
+import { getActiveProfile, type ChildProfile } from "@/lib/profiles";
+import { ChildTopBar } from "@/components/layout/ChildTopBar";
 import { scopedKey } from "@/lib/userScope";
 import { GENRES, AGE_RANGES, DURATION_BUCKETS, ageLabel } from "@/data/mock-stories";
 import { Button } from "@/components/ui/button";
@@ -220,6 +221,12 @@ export function Header() {
   // child, otherwise the parent's account name.
   const [accountName, setAccountName] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  /**
+   * Set while a child profile is active. The whole navbar is then replaced by
+   * the bubble's own bar, so opening a story from the child space no longer
+   * drops the kid into the full parent navigation.
+   */
+  const [childProfile, setChildProfile] = useState<ChildProfile | null>(null);
 
   useEffect(() => {
     setLogged(isLoggedIn());
@@ -229,6 +236,7 @@ export function Header() {
     try {
       const p = getActiveProfile();
       if (p) {
+        setChildProfile(p);
         setStreak(p.streak);
         setAccountName(p.name);
         return;
@@ -273,6 +281,10 @@ export function Header() {
     setIsAdmin(false);
     router.push("/");
   }
+
+  // Reading as a child: the bubble's bar replaces the site navigation
+  // everywhere, story pages included.
+  if (childProfile) return <ChildTopBar profile={childProfile} />;
 
   return (
     <header

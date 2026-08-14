@@ -112,6 +112,31 @@ export function replaceCustomStoryId(oldId: string, newId: string): void {
   }
 }
 
+/**
+ * Hand a deleted child's stories back to the parent.
+ *
+ * Deleting a profile must never destroy the stories written for that child:
+ * they are family keepsakes, and they cost the account real generation quota.
+ * They move to the parent's shelf instead (profileId = null), which is also
+ * where an unattributed story already lives.
+ */
+export function reassignStoriesToParent(profileId: string): number {
+  const stories = readCustomStories();
+  const moved = stories.filter((s) => s.profileId === profileId).length;
+  if (!moved) return 0;
+  try {
+    localStorage.setItem(
+      scopedKey(KEY),
+      JSON.stringify(
+        stories.map((s) => (s.profileId === profileId ? { ...s, profileId: null } : s))
+      )
+    );
+  } catch {
+    /* non-fatal */
+  }
+  return moved;
+}
+
 /** Remove a personalized story from the local cache (DB removal is separate). */
 export function deleteCustomStory(id: string): void {
   try {

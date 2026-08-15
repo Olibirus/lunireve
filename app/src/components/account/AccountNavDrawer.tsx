@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { AccountSidebar } from "@/components/account/AccountSidebar";
@@ -20,6 +21,9 @@ export function AccountNavDrawer() {
   const tMenu = useTranslations("account.menu");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  // document.body only exists client-side; portal after mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // Route change closes it (the drawer is outside the navigated subtree).
   useEffect(() => setOpen(false), [pathname]);
@@ -57,6 +61,41 @@ export function AccountNavDrawer() {
   };
   const current = CURRENT[pathname] ?? t("title");
 
+  /**
+   * The overlay is portalled to <body>.
+   *
+   * The trigger sits in a sticky, backdrop-blurred strip, and a
+   * `backdrop-filter` ancestor becomes the containing block for
+   * `position: fixed` children: rendered in place, the drawer was clipped to
+   * that thin bar instead of covering the screen.
+   */
+  const overlay = open ? (
+    <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" id="account-nav-drawer">
+      <button
+        type="button"
+        aria-label={t("closeNav")}
+        onClick={() => setOpen(false)}
+        className="absolute inset-0 h-full w-full bg-black/40 backdrop-blur-sm"
+      />
+      <div className="absolute inset-y-0 left-0 flex w-[88%] max-w-sm flex-col overflow-y-auto overscroll-contain border-r border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-5 shadow-[var(--shadow-float)]">
+        <div className="mb-5 flex items-center justify-between">
+          <span className="text-xs uppercase tracking-widest text-[var(--color-ink-500)]">
+            {t("navLabel")}
+          </span>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label={t("closeNav")}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-ink-100)] text-[var(--color-ink-600)]"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <AccountSidebar />
+      </div>
+    </div>
+  ) : null;
+
   return (
     // Sticks under the account top bar (h-16) so "where am I / the menu" stays
     // reachable on a phone without scrolling back up. The negative margins let
@@ -78,32 +117,7 @@ export function AccountNavDrawer() {
         </span>
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" id="account-nav-drawer">
-          <button
-            type="button"
-            aria-label={t("closeNav")}
-            onClick={() => setOpen(false)}
-            className="absolute inset-0 h-full w-full bg-black/40 backdrop-blur-[2px]"
-          />
-          <div className="absolute inset-y-0 left-0 flex w-[85%] max-w-xs flex-col overflow-y-auto overscroll-contain border-r border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-5 shadow-[var(--shadow-float)]">
-            <div className="mb-5 flex items-center justify-between">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-ink-500)]">
-                {t("navLabel")}
-              </span>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label={t("closeNav")}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-ink-100)] text-[var(--color-ink-600)]"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <AccountSidebar />
-          </div>
-        </div>
-      )}
+      {mounted && overlay ? createPortal(overlay, document.body) : null}
     </div>
   );
 }

@@ -394,6 +394,18 @@ export function Header() {
           <span className="hidden lg:inline-flex">
             <NavSearch />
           </span>
+          {/* Phone-only shortcut to the whole library, sat to the left of the
+              theme toggle: the burger hides every other route, and "all the
+              stories" is the one destination a parent always wants one tap
+              away. */}
+          <Link
+            href="/histoires"
+            aria-label={t("nav.allStories")}
+            title={t("nav.allStories")}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-ink-100)] text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)] lg:hidden"
+          >
+            <BookOpen className="h-4 w-4" />
+          </Link>
           <ThemeToggle />
           <span className="hidden lg:inline-flex">
             <LanguageSwitcher />

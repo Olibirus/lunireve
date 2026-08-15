@@ -40,11 +40,14 @@ export function StoryBreadcrumb({
       className={cn(
         "text-xs",
         onImage
-          ? "inline-flex max-w-full rounded-full bg-black/25 px-3.5 py-1.5 text-white backdrop-blur-sm"
+          ? // rounded-2xl, not rounded-full: once the trail wraps to two or
+            // three lines the pill grows tall, and a fully round cap curves so
+            // far in that the first word sits on top of the corner.
+            "inline-flex max-w-full rounded-2xl bg-black/25 px-4 py-2 text-white backdrop-blur-sm"
           : "text-[var(--color-ink-400)]"
       )}
     >
-      <ol className="flex flex-wrap items-center gap-1.5">
+      <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
         {crumbs.map((c, i) => {
           const last = i === crumbs.length - 1;
           return (

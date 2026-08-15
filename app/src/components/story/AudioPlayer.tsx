@@ -35,7 +35,7 @@ import type { AudioTier } from "@/lib/ai";
 export function AudioPlayer({
   title,
   audioUrl,
-  chapterCount,
+  chapterOffsets = [],
   storyId,
   tier = "library",
   round = false,
@@ -43,7 +43,16 @@ export function AudioPlayer({
 }: {
   title: string;
   audioUrl: string | null;
-  chapterCount: number;
+  /**
+   * Where each chapter starts, as a fraction of the narration (0 = the very
+   * beginning). Derived from the cumulative word count of the printed chapters
+   * so a skip lands on the same break the reader sees on the page.
+   *
+   * Fewer than 3 entries means the story is too short to be worth chaptering:
+   * the transport falls back to a plain 15-second skip and the "chapter x of y"
+   * line disappears, instead of inventing chapters that do not exist.
+   */
+  chapterOffsets?: number[];
   /** When set, enables lazy first-listen generation for this story. */
   storyId?: string;
   /** Library = cheap bulk voice; personalized = warmer premium voice. */
@@ -54,6 +63,9 @@ export function AudioPlayer({
   language?: "fr" | "en";
 }) {
   const t = useTranslations("story");
+  const hasChapters = chapterOffsets.length >= 3;
+  const chapterCount = chapterOffsets.length;
+  const SKIP_SECONDS = 15;
   const [open, setOpen] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [chapter, setChapter] = useState(0);
@@ -91,6 +103,32 @@ export function AudioPlayer({
       setCurrent(value);
     }
   }
+
+  /** Move the playhead to a chapter start (this is what the arrows used to
+   *  fail to do: they only changed the displayed number). */
+  function goToChapter(index: number) {
+    const clamped = Math.max(0, Math.min(chapterCount - 1, index));
+    setChapter(clamped);
+    const el = audioRef.current;
+    if (!el || !Number.isFinite(el.duration) || el.duration <= 0) return;
+    seek(chapterOffsets[clamped] * el.duration);
+  }
+
+  function skipBy(seconds: number) {
+    const el = audioRef.current;
+    if (!el || !Number.isFinite(el.duration)) return;
+    seek(Math.max(0, Math.min(el.duration, el.currentTime + seconds)));
+  }
+
+  // Keep the displayed chapter in step with the playhead while it runs, so the
+  // label tracks the narration instead of only the buttons.
+  useEffect(() => {
+    if (!hasChapters || !duration) return;
+    const fraction = current / duration;
+    let i = 0;
+    while (i + 1 < chapterOffsets.length && chapterOffsets[i + 1] <= fraction) i++;
+    setChapter(i);
+  }, [current, duration, hasChapters, chapterOffsets]);
 
   /** Attempt playback; only mark as playing if the browser allowed it. */
   async function playNow(): Promise<void> {
@@ -238,9 +276,11 @@ export function AudioPlayer({
           {/* Pre-rendered thank-you outro, chained after the narration */}
           <audio ref={outroRef} src={outroSrc} preload="none" />
 
-          <p className="text-center text-xs uppercase tracking-widest text-[var(--color-ink-400)]">
-            {t("playerChapter", { current: chapter + 1, total: chapterCount })}
-          </p>
+          {hasChapters && (
+            <p className="text-center text-xs uppercase tracking-widest text-[var(--color-ink-400)]">
+              {t("playerChapter", { current: chapter + 1, total: chapterCount })}
+            </p>
+          )}
 
           {/* Seek bar — click or drag to move through the audio */}
           <div className="px-1">
@@ -269,12 +309,17 @@ export function AudioPlayer({
           <div className="flex items-center justify-center gap-3 py-2">
             <button
               type="button"
-              aria-label={t("playerPrev")}
-              disabled={!url || chapter === 0}
-              onClick={() => setChapter((c) => Math.max(0, c - 1))}
-              className="rounded-full border border-[var(--color-ink-100)] p-3 text-[var(--color-ink-600)] disabled:opacity-40 hover:bg-[var(--color-cream-100)]"
+              aria-label={hasChapters ? t("playerPrev") : t("playerBack15")}
+              disabled={!url || !duration || (hasChapters && chapter === 0)}
+              onClick={() => (hasChapters ? goToChapter(chapter - 1) : skipBy(-SKIP_SECONDS))}
+              className="relative rounded-full border border-[var(--color-ink-100)] p-3 text-[var(--color-ink-600)] disabled:opacity-40 hover:bg-[var(--color-cream-100)]"
             >
               <SkipBack className="h-4 w-4" />
+              {!hasChapters && (
+                <span className="absolute inset-x-0 -bottom-4 text-[9px] tabular-nums text-[var(--color-ink-400)]">
+                  {SKIP_SECONDS}s
+                </span>
+              )}
             </button>
 
             <button
@@ -298,12 +343,17 @@ export function AudioPlayer({
 
             <button
               type="button"
-              aria-label={t("playerNext")}
-              disabled={!url || chapter >= chapterCount - 1}
-              onClick={() => setChapter((c) => Math.min(chapterCount - 1, c + 1))}
-              className="rounded-full border border-[var(--color-ink-100)] p-3 text-[var(--color-ink-600)] disabled:opacity-40 hover:bg-[var(--color-cream-100)]"
+              aria-label={hasChapters ? t("playerNext") : t("playerForward15")}
+              disabled={!url || !duration || (hasChapters && chapter >= chapterCount - 1)}
+              onClick={() => (hasChapters ? goToChapter(chapter + 1) : skipBy(SKIP_SECONDS))}
+              className="relative rounded-full border border-[var(--color-ink-100)] p-3 text-[var(--color-ink-600)] disabled:opacity-40 hover:bg-[var(--color-cream-100)]"
             >
               <SkipForward className="h-4 w-4" />
+              {!hasChapters && (
+                <span className="absolute inset-x-0 -bottom-4 text-[9px] tabular-nums text-[var(--color-ink-400)]">
+                  {SKIP_SECONDS}s
+                </span>
+              )}
             </button>
           </div>
 

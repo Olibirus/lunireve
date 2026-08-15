@@ -411,7 +411,10 @@
     "personalizeTitle": "What if the hero of the next story was your child?",
     "personalizeBody": "Their name, their passions, their courage, a story written just for them, in minutes.",
     "personalizeCta": "Create a personalised story",
-    "themesLabel": "Explore"
+    "themesLabel": "Explore",
+    "relatedMore": "See all {genre} stories for ages {age}",
+    "playerBack15": "Back 15 seconds",
+    "playerForward15": "Forward 15 seconds"
   },
   "about": {
     "kicker": "Our house",

@@ -11,6 +11,7 @@ import { Link } from "@/i18n/navigation";
 import {
   findStory,
   storyTitle,
+  audioChapterOffsets,
   storyExcerpt,
   mockStories,
   storyBody,
@@ -34,11 +35,12 @@ import { RatingStars } from "@/components/story/RatingStars";
 import { ReadingProgress } from "@/components/story/ReadingProgress";
 import { ReadingSettings } from "@/components/story/ReadingSettings";
 import { StoryQuiz } from "@/components/story/StoryQuiz";
+import { StoryGlossaryPanel } from "@/components/story/StoryGlossaryPanel";
 import { InteractiveStory } from "@/components/story/InteractiveStory";
 import { AutoHideHeader } from "@/components/layout/AutoHideHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Headphones, Sparkles } from "lucide-react";
+import { ArrowRight, Clock, Headphones, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { seoAlternates, absoluteUrl, SITE_URL } from "@/lib/seo";
@@ -314,7 +316,7 @@ export default async function StoryDetailPage({
                 title={title}
                 audioUrl={story.audioUrl}
                 language={story.language}
-                chapterCount={3}
+                chapterOffsets={audioChapterOffsets(body)}
                 storyId={story.slug}
                 tier="library"
               />
@@ -440,41 +442,27 @@ export default async function StoryDetailPage({
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-600)]">
             {t("sequelBody")}
           </p>
-          <Button asChild variant="primary" size="md" className="mt-5">
+          {/* whitespace-normal: the default nowrap made this long label set a
+              width no 375px screen could honour. */}
+          <Button
+            asChild
+            variant="primary"
+            size="md"
+            className="mt-5 h-auto max-w-full whitespace-normal py-3 text-center leading-snug"
+          >
             <Link href={{ pathname: "/creer", query: { fromLib: story.slug } }}>
               {t("sequelCta")}
             </Link>
           </Button>
         </div>
 
-        {/* Glossary — open by default (#30) */}
-        <details open className="group rounded-3xl border border-[var(--color-ink-100)] bg-[var(--color-cream-50)] p-6 open:pb-4">
-          <summary className="cursor-pointer list-none">
-            <span className="font-serif text-xl tracking-tight">{t("glossaryTitle")}</span>
-            <span className="block mt-1 text-xs text-[var(--color-ink-400)]">
-              {t("glossaryHint")}
-            </span>
-          </summary>
-          <dl className="mt-4 space-y-3 border-t border-[var(--color-ink-100)] pt-4">
-            {glossary.map((g) => (
-              <div key={g.word}>
-                <dt className="font-medium text-[var(--color-ink-800)]">{g.word}</dt>
-                <dd className="text-sm text-[var(--color-ink-600)]">{g.definition}</dd>
-              </div>
-            ))}
-          </dl>
-        </details>
+        {/* Glossary — open on desktop, collapsed on phones where it pushed the
+            related stories a full screen down (#30 + mobile feedback). */}
+        <StoryGlossaryPanel title={t("glossaryTitle")} hint={t("glossaryHint")} entries={glossary} />
 
-        {/* Print prompt */}
-        <div className="rounded-3xl border border-[var(--color-mint-300)] bg-[var(--color-mint-100)] p-6">
-          <h3 className="font-serif text-lg tracking-tight">{t("printPromptTitle")}</h3>
-          <p className="text-sm text-[var(--color-ink-600)] mt-2 leading-relaxed">
-            {t("printPromptBody")}
-          </p>
-          <Button variant="mint" size="sm" className="mt-4">
-            {t("printCta")}
-          </Button>
-        </div>
+        {/* The "commander le livre imprimé" block lived here. Pulled until the
+            print partner is set up: see app/_archive/print-prompt/README.md for
+            the exact markup and message keys to restore. */}
       </section>
 
       {/* Personalize CTA — wide (body width), bigger and centered to convert (#) */}
@@ -533,6 +521,20 @@ export default async function StoryDetailPage({
             {related.map((s) => (
               <StoryCard key={s.slug} story={s} />
             ))}
+          </div>
+          {/* Past the three picks, open the library on the same genre AND age,
+              which is exactly how `related` above was chosen. */}
+          <div className="mt-8 flex justify-center">
+            <Link
+              href={{
+                pathname: "/histoires",
+                query: { genre: story.genre, age: story.ageRange },
+              }}
+              className="inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--color-ink-200)] bg-[var(--color-cream-50)] px-5 py-3 text-center text-sm font-medium text-[var(--color-ink-700)] transition-colors hover:bg-[var(--color-cream-200)]"
+            >
+              {t("relatedMore", { genre: tAll(`genres.${story.genre}`), age })}
+              <ArrowRight className="h-4 w-4 shrink-0" />
+            </Link>
           </div>
         </div>
       </section>

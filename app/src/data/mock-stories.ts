@@ -604,6 +604,30 @@ export function findStory(slug: string): MockStory | undefined {
   return mockStories.find((s) => s.slug === slug);
 }
 
+/**
+ * Chapter start positions for the audio player, as fractions of the whole
+ * narration. Chapters are the same blocks the story page rules off (every 4th
+ * paragraph), and each start is the cumulative share of WORDS before it, which
+ * tracks a read-aloud recording far better than dividing the duration evenly.
+ *
+ * Returns fewer than 3 entries for a short story, which is the player's signal
+ * to drop the chapter UI entirely and offer a 15-second skip instead.
+ */
+export const PARAGRAPHS_PER_CHAPTER = 4;
+
+export function audioChapterOffsets(body: string[]): number[] {
+  const counts = body.map((p) => p.split(/\s+/).filter(Boolean).length);
+  const total = counts.reduce((a, b) => a + b, 0);
+  if (!total) return [];
+  const offsets: number[] = [];
+  let seen = 0;
+  for (let i = 0; i < body.length; i++) {
+    if (i % PARAGRAPHS_PER_CHAPTER === 0) offsets.push(seen / total);
+    seen += counts[i];
+  }
+  return offsets;
+}
+
 /** Title in the reader's language, falling back to French when untranslated. */
 export function storyTitle(s: MockStory, locale?: string): string {
   return locale === "en" && s.titleEn ? s.titleEn : s.title;

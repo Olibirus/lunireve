@@ -411,7 +411,10 @@
     "personalizeTitle": "Et si le héros de la prochaine histoire, c'était ton enfant ?",
     "personalizeBody": "Son prénom, ses passions, son courage, une histoire écrite rien que pour lui, en quelques minutes.",
     "personalizeCta": "Créer une histoire personnalisée",
-    "themesLabel": "Explorer"
+    "themesLabel": "Explorer",
+    "relatedMore": "Voir toutes les histoires {genre} pour les {age}",
+    "playerBack15": "Reculer de 15 secondes",
+    "playerForward15": "Avancer de 15 secondes"
   },
   "about": {
     "kicker": "Notre maison",

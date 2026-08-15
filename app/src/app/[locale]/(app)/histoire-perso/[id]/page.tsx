@@ -32,7 +32,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Copy, Lock, Pencil, Sparkles, ThumbsDown, ThumbsUp, Wand2 } from "lucide-react";
 import { profileScopedKey } from "@/lib/userScope";
 import { cn } from "@/lib/utils/cn";
-import type { QuizQuestion } from "@/data/mock-stories";
+import { audioChapterOffsets, type QuizQuestion } from "@/data/mock-stories";
 
 /**
  * Personalized story page (#14) — same reading experience as a library story:
@@ -561,7 +561,7 @@ export default function CustomStoryPage() {
                 round
                 title={story.title}
                 audioUrl={null}
-                chapterCount={1}
+                chapterOffsets={audioChapterOffsets(story.body)}
                 storyId={story.id.startsWith("PS-") ? story.id : undefined}
                 tier="personalized"
                 language={story.params.language}

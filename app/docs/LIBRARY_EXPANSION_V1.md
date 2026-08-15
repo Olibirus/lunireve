@@ -4,14 +4,15 @@ Target **60** stories. Taxonomy trimmed and approved 2026-08-11.
 
 | | Now | Target |
 |---|---|---|
-| Stories | **21** | 60 |
+| Stories | **28** | 60 |
 | Ages | 6 | 6 (unchanged) |
 | Genres | 9 | 9 (unchanged) |
 | Lengths | 3 | 3 (unchanged) |
 | Themes | **12** (was 18) | 12, five stories each |
 | Characters | **23** (was 25) | 23, two or more each |
 
-**Batch 1 (1-2 ans) is shipped.** Batches 2 to 6 are listed below and not written yet.
+**Batches 1 (1-2 ans) and 2 (3-4 ans) are shipped.** Batches 3 to 6 are listed
+below and not written yet.
 
 ---
 
@@ -88,22 +89,29 @@ Nine stories, 8 paragraphs each, 3 quiz questions, 3 glossary words, FR + EN.
 
 ---
 
-## 4. Remaining 39 stories
+## 3b. Batch 2: 3-4 ans — SHIPPED
 
-Titles are working titles. The taxonomy columns are what drive the pages and chips.
-`[I]` marks an interactive branching story (2 today, 8 at the end).
-
-### Batch 2: 3-4 ans (7 new, 3-5 min, short)
+Seven stories, 8 paragraphs each, 259-337 words, 3 quiz questions, 3 glossary
+words, FR + EN. `readingMinutes` across the whole 3-4 range was re-derived from
+word count (under 280 words = 3 min, up to 340 = 4, beyond = 5), which also
+corrected four older entries that had drifted.
 
 | Titre | Genre | Thème | Personnage | Min |
 |---|---|---|---|---|
 | La licorne qui avait perdu ses couleurs | fantastique | amitie | licorne | 4 |
 | Le loup qui voulait juste un ami | conte | amitie | loup | 4 |
 | Nino part à l'école des petits | educative | ecole | enfant-garcon | 4 |
-| Le goûter surprise de Pilou | fete | anniversaire | lapin | 3 |
+| Le goûter surprise de Pilou | fete | anniversaire | lapin | 4 |
 | Le sapin qui n'aimait pas les boules | fete | noel | fee | 4 |
-| Le dinosaure qui avait peur du tonnerre | educative | emotions | dinosaure | 4 |
-| Le chien qui gardait les chaussons | rigolote | famille | chien | 5 |
+| Le dinosaure qui avait peur du tonnerre | educative | emotions | dinosaure | 3 |
+| Le chien qui gardait les chaussons | rigolote | famille | chien | 4 |
+
+---
+
+## 4. Remaining 32 stories
+
+Titles are working titles. The taxonomy columns are what drive the pages and chips.
+`[I]` marks an interactive branching story (2 today, 8 at the end).
 
 ### Batch 3: 5-6 ans (8 new, 5-7 min)
 

@@ -4,15 +4,16 @@ Target **60** stories. Taxonomy trimmed and approved 2026-08-11.
 
 | | Now | Target |
 |---|---|---|
-| Stories | **28** | 60 |
+| Stories | **36** | 60 |
 | Ages | 6 | 6 (unchanged) |
 | Genres | 9 | 9 (unchanged) |
 | Lengths | 3 | 3 (unchanged) |
 | Themes | **12** (was 18) | 12, five stories each |
 | Characters | **23** (was 25) | 23, two or more each |
 
-**Batches 1 (1-2 ans) and 2 (3-4 ans) are shipped.** Batches 3 to 6 are listed
-below and not written yet.
+**Batches 1, 2 and 3 are shipped (1-2, 3-4 and 5-6 ans).** Batches 4 to 6 are
+listed below and not written yet. Every one of the 9 genres now has stories:
+`metier` was the last one sitting at zero.
 
 ---
 
@@ -108,23 +109,40 @@ corrected four older entries that had drifted.
 
 ---
 
-## 4. Remaining 32 stories
+## 3c. Batch 3: 5-6 ans — SHIPPED
 
-Titles are working titles. The taxonomy columns are what drive the pages and chips.
-`[I]` marks an interactive branching story (2 today, 8 at the end).
-
-### Batch 3: 5-6 ans (8 new, 5-7 min)
+Eight stories, **16 paragraphs** each (the first draft came in at 12 and landed
+around 400 words, under the 500 floor for this age), 509-580 words, 4 quiz
+questions, 3 glossary words, FR + EN. First two `metier` stories. 16 paragraphs
+also means 4 audio chapters, so the player's chapter controls switch on here.
+`readingMinutes` re-derived from word count at 100 wpm, which moved three older
+entries.
 
 | Titre | Genre | Thème | Personnage | Min |
 |---|---|---|---|---|
 | La sirène et le coquillage qui chante | fantastique | mer | sirene | 6 |
 | Le pirate qui avait le mal de mer | rigolote | mer | pirate | 6 |
 | La licorne des lanternes de Noël | fete | noel | licorne | 5 |
-| Le petit chevalier et le pont de brume `[I]` | aventure | courage | chevalier | 6 |
-| Qui a mangé les fraises du jardin ? `[I]` | mystere | animaux | dinosaure | 5 |
+| Le petit chevalier et le pont de brume | aventure | courage | chevalier | 6 |
+| Qui a mangé les fraises du jardin ? | mystere | animaux | dinosaure | 5 |
 | Le robot qui apprenait à dire bonjour | science-fiction | ecole | robot | 6 |
 | Une journée avec la boulangère | metier | famille | enfant-fille | 5 |
-| Le dragon pompier | metier | courage | dragon | 7 |
+| Le dragon pompier | metier | courage | dragon | 6 |
+
+---
+
+## 4. Remaining 24 stories
+
+Titles are working titles. The taxonomy columns are what drive the pages and chips.
+
+> **`[I]` is on hold.** `interactiveTree()` in `data/mock-stories.ts` ignores its
+> `slug` argument and returns one shared branching gamebook, so every story
+> flagged `interactive` renders the same falling-stars plot regardless of its
+> title. The two batch-3 stories the plan marked `[I]` therefore shipped as
+> regular stories. Before flagging any more, `interactiveTree` needs a per-slug
+> registry and each story needs its own tree written (a branching gamebook is a
+> different content shape from a linear story, roughly 3 to 4 times the words).
+> The two existing interactive stories already share that one tree today.
 
 ### Batch 4: 7-8 ans (7 new, 7-9 min, medium)
 

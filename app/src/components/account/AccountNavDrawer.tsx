@@ -58,7 +58,10 @@ export function AccountNavDrawer() {
   const current = CURRENT[pathname] ?? t("title");
 
   return (
-    <div className="lg:hidden">
+    // Sticks under the account top bar (h-16) so "where am I / the menu" stays
+    // reachable on a phone without scrolling back up. The negative margins let
+    // the sticky strip span the full width while the page keeps its padding.
+    <div className="lg:hidden sticky top-16 z-30 -mx-5 md:-mx-8 border-b border-[var(--color-ink-100)] bg-[var(--color-cream-50)]/90 px-5 py-2.5 backdrop-blur-md">
       <button
         type="button"
         onClick={() => setOpen(true)}

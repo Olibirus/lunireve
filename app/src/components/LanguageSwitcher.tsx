@@ -36,7 +36,18 @@ function translatePath(externalPath: string, fromLoc: string, toLoc: string): st
  * ("FR") as a small pill; click or hover opens a mini dropdown with the
  * other languages. Scales to ES and beyond without eating navbar space.
  */
-export function LanguageSwitcher({ className }: { className?: string }) {
+export function LanguageSwitcher({
+  className,
+  inline = false,
+}: {
+  className?: string;
+  /**
+   * Render every locale as a row of chips instead of a dropdown. Used inside
+   * the mobile menu, where an absolutely-positioned panel grew the scroll
+   * area and handed the whole menu a scrollbar just to show two languages.
+   */
+  inline?: boolean;
+}) {
   const locale = useLocale();
   const t = useTranslations("lang");
   const [open, setOpen] = useState(false);
@@ -74,6 +85,30 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     // in the new locale on every page type (site, account, story, wizards),
     // with no stale provider/RSC cache from the previous language.
     window.location.assign(`${target}${search}${hash}`);
+  }
+
+  // Flat list: no popup, so nothing can overflow the menu that contains it.
+  if (inline) {
+    return (
+      <div className={cn("flex items-center gap-1.5", className)}>
+        {routing.locales.map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => switchTo(l)}
+            aria-current={l === locale ? "true" : undefined}
+            className={cn(
+              "inline-flex h-9 items-center rounded-full border px-3 text-xs font-medium tracking-wide transition-colors",
+              l === locale
+                ? "border-transparent bg-[var(--color-ink-800)] text-[var(--color-cream-50)]"
+                : "border-[var(--color-ink-100)] text-[var(--color-ink-600)] hover:bg-[var(--color-cream-100)]"
+            )}
+          >
+            {l.toUpperCase()}
+          </button>
+        ))}
+      </div>
+    );
   }
 
   return (

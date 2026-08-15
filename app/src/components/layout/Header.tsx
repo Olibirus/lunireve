@@ -472,11 +472,22 @@ export function Header() {
         </div>
       </div>
 
+      {/* Dimmed, blurred page behind the open menu. Also the click-outside
+          target: tapping anywhere off the panel closes it. */}
+      {mobileOpen && (
+        <button
+          type="button"
+          aria-label={t("common.close")}
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 top-20 z-30 h-full w-full bg-black/40 backdrop-blur-sm lg:hidden"
+        />
+      )}
+
       {/* Mobile panel */}
       {mobileOpen && (
         <nav
           aria-label="Navigation mobile"
-          className="lg:hidden border-t border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-4 pb-6 pt-3 max-h-[75vh] overflow-y-auto"
+          className="relative z-40 lg:hidden border-t border-[var(--color-ink-100)] bg-[var(--color-cream-50)] px-4 pb-6 pt-3 max-h-[75vh] overflow-y-auto"
         >
           {/* Collapsible sections: tap a heading to reveal its options (#) */}
           <MobileSection id="stories" label={t("nav.stories")} open={mobileSection === "stories"} onToggle={setMobileSection}>
@@ -537,10 +548,17 @@ export function Header() {
             </Link>
           </div>
 
-          {/* ---- Account. Deliberately a separate tinted block: everything
-               above is "the library", everything below is "your account", and
-               on mobile the two used to blur into one flat list. ---- */}
-          <div className="mt-6 rounded-2xl border border-[var(--color-ink-100)] bg-[var(--color-cream-100)] p-2">
+          {/* ---- Account. Everything above is "the library", everything below
+               is "your account". A rule plus a labelled, tinted block makes
+               that break unmissable instead of one flat list. ---- */}
+          <div className="mt-6 flex items-center gap-3">
+            <span aria-hidden className="h-px flex-1 bg-[var(--color-ink-100)]" />
+            <span className="text-[10px] uppercase tracking-widest text-[var(--color-ink-400)]">
+              {t("nav.account")}
+            </span>
+            <span aria-hidden className="h-px flex-1 bg-[var(--color-ink-100)]" />
+          </div>
+          <div className="mt-3 rounded-2xl border border-[var(--color-ink-200)] bg-[var(--color-cream-200)]/60 p-2">
             {logged && !isAdmin ? (
               <>
                 <button
@@ -642,7 +660,7 @@ export function Header() {
               a home here (the theme toggle stays in the bar itself). */}
           <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--color-ink-100)] pt-4">
             <NavSearch />
-            <LanguageSwitcher />
+            <LanguageSwitcher inline />
           </div>
         </nav>
       )}

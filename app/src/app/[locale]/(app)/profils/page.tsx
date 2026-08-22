@@ -7,6 +7,7 @@ import {
   readProfiles,
   setActiveProfile,
   clearActiveProfile,
+  syncProfiles,
   profileLimit,
   type ChildProfile,
 } from "@/lib/profiles";
@@ -27,6 +28,8 @@ export default function ProfileSelectorPage() {
 
   useEffect(() => {
     setProfiles(readProfiles());
+    // Same account, any device: pull whatever was added elsewhere.
+    void syncProfiles().then(setProfiles).catch(() => {});
   }, []);
 
   function enter(profile: ChildProfile) {

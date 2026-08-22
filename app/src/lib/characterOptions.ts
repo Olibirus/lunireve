@@ -36,6 +36,7 @@ export const WIZARD_TYPES = [
   { id: "enfant", fr: "Enfant (0-12 ans)", en: "Child (0-12)" },
   { id: "adulte", fr: "Ado/Adulte (13 ans et +)", en: "Teen/Adult (13+)" },
   { id: "animal", fr: "Animal", en: "Animal" },
+  { id: "doudou", fr: "Doudou / peluche", en: "Cuddly toy" },
 ] as const;
 
 /* ------------------------------------------------------------------ */
@@ -492,7 +493,9 @@ export function describeCharacter(
   const fr = locale !== "en";
   const parts: string[] = [];
 
-  if (c.type === "animal") {
+  // A doudou is described with the same vocabulary as an animal (what it is,
+  // its colour, its size), so both share this branch.
+  if (c.type === "animal" || c.type === "doudou") {
     const species = a.family ? find(ANIMAL_SPECIES[a.family] ?? [], a.species) : undefined;
     const family = find(ANIMAL_FAMILIES, a.family);
     const base = species ?? family;

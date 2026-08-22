@@ -477,7 +477,14 @@ export default function CreateStoryPage() {
     const boys = ["copain", "frere", "papa", "grandpere", "cousin"];
     const created = createCharacter({
       name: capitalizeName(c.name.trim()),
-      type: c.relation === "animal" ? "animal" : adults.includes(c.relation) ? "adulte" : "enfant",
+      type:
+        c.relation === "animal"
+          ? "animal"
+          : c.relation === "doudou"
+          ? "doudou"
+          : adults.includes(c.relation)
+          ? "adulte"
+          : "enfant",
       role: "secondary",
       gender: girls.includes(c.relation) ? "fille" : boys.includes(c.relation) ? "garcon" : "neutre",
       description: relationLabel(c.relation, locale),

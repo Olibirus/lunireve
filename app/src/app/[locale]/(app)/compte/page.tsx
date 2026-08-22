@@ -6,6 +6,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import {
   readProfiles,
   deleteProfile,
+  syncProfiles,
   setActiveProfile,
   clearActiveProfile,
   profileLimit,
@@ -188,6 +189,9 @@ export default function AccountDashboardPage() {
   useEffect(() => {
     const all = readProfiles();
     setProfiles(all);
+    // Pull the account's profiles: a child added on another device has to
+    // appear here too. Local paints first, the server reconciles a beat later.
+    void syncProfiles().then((synced) => setProfiles(synced)).catch(() => {});
     const childIds = new Set(all.map((p) => p.id));
     // The parent ALWAYS comes first, then one row per child.
     const readers = [

@@ -3,6 +3,12 @@
 import type { FoxColor } from "@/components/brand/FoxCloud";
 import { scopedKey } from "./userScope";
 import { tierLimits } from "./tier";
+import {
+  listMyChildProfiles,
+  saveChildProfile,
+  saveChildProfiles,
+  deleteChildProfile,
+} from "@/app/actions/childProfiles";
 
 /**
  * Child profiles — Phase 1 store (localStorage, client only).
@@ -121,7 +127,45 @@ export function createProfile(
     ageSetAt: now,
   };
   write([...profiles, profile]);
+  push(profile.id);
   return profile;
+}
+
+/** Mirror one profile to the account so other devices see it. Best-effort. */
+function push(id: string) {
+  const p = readProfiles().find((x) => x.id === id);
+  if (p) void saveChildProfile(p).catch(() => {});
+}
+
+/**
+ * Reconcile this device with the account.
+ *
+ * The server is the source of truth. A device that has local profiles the
+ * server has never seen (created before sync existed, or while offline)
+ * uploads them first, so switching sync on never loses a child.
+ * Returns the reconciled list.
+ */
+export async function syncProfiles(): Promise<ChildProfile[]> {
+  const local = readProfiles();
+  let remote: ChildProfile[] = [];
+  try {
+    remote = await listMyChildProfiles();
+  } catch {
+    return local;
+  }
+  const remoteIds = new Set(remote.map((p) => p.id));
+  const unsynced = local.filter((p) => !remoteIds.has(p.id));
+  if (unsynced.length) {
+    try {
+      await saveChildProfiles(unsynced);
+      remote = [...remote, ...unsynced];
+    } catch {
+      /* keep them locally; the next sync retries */
+    }
+  }
+  // Server wins on conflicts: it is the shared copy.
+  write(remote);
+  return remote;
 }
 
 export function updateProfile(id: string, patch: Partial<ChildProfile>) {
@@ -134,11 +178,13 @@ export function updateProfile(id: string, patch: Partial<ChildProfile>) {
       return { ...p, ...patch, ...(ageChanged ? { ageSetAt: new Date().toISOString() } : {}) };
     })
   );
+  push(id);
 }
 
 export function deleteProfile(id: string) {
   write(readProfiles().filter((p) => p.id !== id));
   if (getActiveProfileId() === id) clearActiveProfile();
+  void deleteChildProfile(id).catch(() => {});
 }
 
 export function getActiveProfileId(): string | null {

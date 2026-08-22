@@ -153,7 +153,9 @@
     "duplicateSuffix": "{name} (copie)",
     "previewTitle": "Aperçu",
     "previewEmptyName": "Votre personnage",
-    "upgradeLink": "Passer à un forfait supérieur"
+    "upgradeLink": "Passer à un forfait supérieur",
+    "typeSub_doudou": "Peluche, doudou ou jouet préféré",
+    "type_doudou": "Doudou"
   },
   "submit": {
     "title": "Proposer une histoire",

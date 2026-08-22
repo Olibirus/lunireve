@@ -153,7 +153,9 @@
     "duplicateSuffix": "{name} (copy)",
     "previewTitle": "Preview",
     "previewEmptyName": "Your character",
-    "upgradeLink": "Upgrade your plan"
+    "upgradeLink": "Upgrade your plan",
+    "typeSub_doudou": "Plush, comforter or favourite toy",
+    "type_doudou": "Cuddly toy"
   },
   "submit": {
     "title": "Submit a story",

@@ -121,7 +121,7 @@ export default function NewCharacterWizard() {
 
   /** "Surprenez-moi" on step 3: a whole coherent look, still editable after. */
   function surpriseAppearance() {
-    setApp(randomAppearance(type === "animal"));
+    setApp(randomAppearance(type === "animal" || type === "doudou"));
   }
 
   /** "Surprenez-moi" on step 4: one archetype's traits. */
@@ -152,7 +152,10 @@ export default function NewCharacterWizard() {
   }
 
   const accessoriesUsed = (app.hat ? 1 : 0) + (app.clothing?.length ?? 0) + (app.extras?.length ?? 0);
-  const genders = type === "animal" ? GENDER_ANIMAL : GENDER_HUMAN;
+  // A doudou is built like an animal: what creature it is, its colour and
+  // size. Only the wording differs, so it reuses the whole animal branch.
+  const usesAnimalLook = type === "animal" || type === "doudou";
+  const genders = usesAnimalLook ? GENDER_ANIMAL : GENDER_HUMAN;
   const hairIsSpecial = HAIR_SPECIALS.some((s) => s.id === app.hairStyle);
   const preview = useMemo(
     () => (type ? describeCharacter({ type, appearance: app }, locale) : ""),
@@ -286,15 +289,18 @@ export default function NewCharacterWizard() {
                 />
               </div>
 
-              <Section title={t("ageTitle")}>
-                <div className="flex flex-wrap gap-1.5">
-                  {ageChoices.map((a) => (
-                    <Chip key={a} selected={age === a} onClick={() => setAge(a)}>
-                      {t("ageUnit", { age: a })}
-                    </Chip>
-                  ))}
-                </div>
-              </Section>
+              {/* A cuddly toy has no age: asking would be nonsense. */}
+              {type !== "doudou" && (
+                <Section title={t("ageTitle")}>
+                  <div className="flex flex-wrap gap-1.5">
+                    {ageChoices.map((a) => (
+                      <Chip key={a} selected={age === a} onClick={() => setAge(a)}>
+                        {t("ageUnit", { age: a })}
+                      </Chip>
+                    ))}
+                  </div>
+                </Section>
+              )}
 
               <Section title={t("genderTitle")}>
                 <div className="grid grid-cols-3 gap-3 max-w-md">
@@ -305,7 +311,7 @@ export default function NewCharacterWizard() {
                       selected={gender === g.id}
                       onClick={() => setGender(g.id as CharacterGender)}
                       label={optLabel(g, locale)}
-                      slotId={`char-gender-${type === "animal" ? "animal-" : ""}${g.id}`}
+                      slotId={`char-gender-${usesAnimalLook ? "animal-" : ""}${g.id}`}
                     />
                   ))}
                 </div>
@@ -326,7 +332,7 @@ export default function NewCharacterWizard() {
             </div>
           )}
 
-          {step === 2 && type && type !== "animal" && (
+          {step === 2 && type && !usesAnimalLook && (
             <div className="space-y-8">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -521,7 +527,7 @@ export default function NewCharacterWizard() {
             </div>
           )}
 
-          {step === 2 && type === "animal" && (
+          {step === 2 && usesAnimalLook && (
             <div className="space-y-8">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>

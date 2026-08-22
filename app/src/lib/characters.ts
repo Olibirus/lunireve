@@ -17,7 +17,7 @@ export function characterLimits() {
   return readTier() === "free" ? FREE_LIMITS : PAID_LIMITS;
 }
 
-export const CHARACTER_TYPES = ["enfant", "adulte", "animal", "creature"] as const;
+export const CHARACTER_TYPES = ["enfant", "adulte", "animal", "doudou", "creature"] as const;
 export type CharacterType = (typeof CHARACTER_TYPES)[number];
 
 export const CHARACTER_GENDERS = ["fille", "garcon", "neutre"] as const;

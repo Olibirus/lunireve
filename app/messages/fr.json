@@ -155,7 +155,11 @@
     "previewEmptyName": "Votre personnage",
     "upgradeLink": "Passer à un forfait supérieur",
     "typeSub_doudou": "Peluche, doudou ou jouet préféré",
-    "type_doudou": "Doudou"
+    "type_doudou": "Doudou",
+    "extraTitle": "Autre chose à savoir ? (facultatif)",
+    "extraHint": "Tout ce que les listes ci-dessus ne disent pas : une manie, une phrase fétiche, une histoire de famille.",
+    "extraPlaceholder": "Il ne se sépare jamais de son écharpe rouge…",
+    "mainChildOnly": "Avec la formule gratuite, seul un enfant peut être le héros de l'histoire. Les autres personnages jouent un rôle secondaire."
   },
   "submit": {
     "title": "Proposer une histoire",

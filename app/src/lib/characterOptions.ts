@@ -264,6 +264,19 @@ export const COAT_OPTIONS: Opt[] = [
   { id: "dore", fr: "Doré", en: "Golden", dot: "#d4a94e" },
   { id: "tachete", fr: "Tacheté", en: "Spotted", dot: "#c9a87a" },
   { id: "raye", fr: "Rayé", en: "Striped", dot: "#8a7a5f" },
+  // A plush is dyed, not born: the plain colours below only make sense for a
+  // doudou, which is why they sit after the natural coats.
+  { id: "beige", fr: "Beige", en: "Beige", dot: "#e0cdae" },
+  { id: "creme", fr: "Crème", en: "Cream", dot: "#f5ecd9" },
+  { id: "rose", fr: "Rose", en: "Pink", dot: "#f2a9c4" },
+  { id: "rouge", fr: "Rouge", en: "Red", dot: "#d2483f" },
+  { id: "orange", fr: "Orange", en: "Orange", dot: "#ef8f4c" },
+  { id: "jaune", fr: "Jaune", en: "Yellow", dot: "#f2cd5c" },
+  { id: "vert", fr: "Vert", en: "Green", dot: "#6fae72" },
+  { id: "bleu", fr: "Bleu", en: "Blue", dot: "#5b8fd4" },
+  { id: "violet", fr: "Violet", en: "Purple", dot: "#a184d2" },
+  { id: "turquoise", fr: "Turquoise", en: "Turquoise", dot: "#5cc4c0" },
+  { id: "multicolore", fr: "Multicolore", en: "Multicoloured", dot: "#c9a0dc" },
 ];
 
 export const ANIMAL_SIZES: Opt[] = [

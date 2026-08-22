@@ -155,7 +155,11 @@
     "previewEmptyName": "Your character",
     "upgradeLink": "Upgrade your plan",
     "typeSub_doudou": "Plush, comforter or favourite toy",
-    "type_doudou": "Cuddly toy"
+    "type_doudou": "Cuddly toy",
+    "extraTitle": "Anything else to know? (optional)",
+    "extraHint": "Whatever the lists above cannot say: a habit, a catchphrase, a family story.",
+    "extraPlaceholder": "Never goes anywhere without their red scarf…",
+    "mainChildOnly": "On the free plan only a child can be the story hero. Other characters play a supporting part."
   },
   "submit": {
     "title": "Submit a story",

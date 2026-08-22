@@ -46,11 +46,13 @@ import {
   optLabel,
   describeCharacter,
 } from "@/lib/characterOptions";
+import { readTier } from "@/lib/tier";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { OptionCard, Chip, Section, SurpriseButton } from "./OptionCards";
-import { ArrowLeft, Check, ChevronRight, Dices, Lock, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, ChevronRight, Dices, ImageIcon, Lock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -80,8 +82,13 @@ export default function NewCharacterWizard() {
 
   /** Set when arriving via ?edit=<id>: the wizard saves in place instead. */
   const [editId, setEditId] = useState<string | null>(null);
+  const [tier, setTier] = useState<"free" | "plus" | "max">("free");
+  /** Free plan: the STORY hero is a child. Animals, adults and cuddly toys
+   *  can still be created, they just play a supporting part. */
+  const [extra, setExtra] = useState("");
 
   useEffect(() => {
+    setTier(readTier());
     setSlots({ main: slotsLeft("main"), secondary: slotsLeft("secondary") });
     try {
       const id = new URLSearchParams(window.location.search).get("edit");
@@ -95,6 +102,7 @@ export default function NewCharacterWizard() {
       setGender(existing.gender);
       if (typeof existing.age === "number") setAge(existing.age);
       setApp(existing.appearance ?? {});
+      setExtra(existing.extra ?? "");
       setTraits(existing.traits ?? []);
     } catch {
       /* ignore */
@@ -161,7 +169,17 @@ export default function NewCharacterWizard() {
     () => (type ? describeCharacter({ type, appearance: app }, locale) : ""),
     [type, app, locale]
   );
+  // Free plan: only a child can headline a story, so only a child can hold
+  // the "main" role. Everything else is created as a supporting character.
+  const mainRoleLocked = tier === "free" && type !== null && type !== "enfant";
   const roleLeft = slots ? slots[role] : 1;
+
+  // Picking an animal/adult/doudou on the free plan drops the role rather
+  // than leaving a locked "main" selected.
+  useEffect(() => {
+    if (mainRoleLocked && role === "main") setRole("secondary");
+  }, [mainRoleLocked, role]);
+
   const ageChoices =
     type === "adulte" ? [13, 15, 18, 25, 30, 40, 50, 60, 70] : type === "animal"
       ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -182,6 +200,7 @@ export default function NewCharacterWizard() {
       description: describeCharacter({ type, appearance: app }, locale),
       traits,
       appearance: app,
+      extra: extra.trim() || undefined,
     };
     // Editing overwrites in place and never consumes a slot.
     if (editId) {
@@ -320,7 +339,13 @@ export default function NewCharacterWizard() {
               <Section title={t("role")} hint={t("roleHint")}>
                 <div className="flex flex-wrap gap-2">
                   {(["main", "secondary"] as const).map((r) => (
-                    <Chip key={r} selected={role === r} onClick={() => setRole(r)}>
+                    <Chip
+                      key={r}
+                      selected={role === r}
+                      disabled={r === "main" && mainRoleLocked}
+                      onClick={() => !(r === "main" && mainRoleLocked) && setRole(r)}
+                    >
+                      {r === "main" && mainRoleLocked && <Lock className="h-3 w-3" />}
                       {t(`role_${r}`)}
                       {slots && (
                         <span className="opacity-70">({t("slotsLeftShort", { count: slots[r] })})</span>
@@ -328,6 +353,17 @@ export default function NewCharacterWizard() {
                     </Chip>
                   ))}
                 </div>
+                {mainRoleLocked && (
+                  <p className="mt-2 flex items-start gap-1.5 text-xs text-[var(--color-ink-500)]">
+                    <Lock className="mt-0.5 h-3 w-3 shrink-0" />
+                    <span>
+                      {t("mainChildOnly")}{" "}
+                      <Link href="/compte/abonnement" className="underline hover:text-[var(--color-ink-800)]">
+                        {t("upgradeLink")}
+                      </Link>
+                    </span>
+                  </p>
+                )}
               </Section>
             </div>
           )}
@@ -663,9 +699,11 @@ export default function NewCharacterWizard() {
                               emoji stands in until then. */}
                           <span
                             aria-hidden
-                            className="relative flex aspect-square w-full items-center justify-center bg-[var(--color-cream-100)] text-3xl"
+                            className="relative flex aspect-square w-full items-center justify-center border-b border-dashed border-[var(--color-ink-200)] bg-[var(--color-cream-100)] text-[var(--color-ink-300)]"
+                            data-image-slot={`archetype-${a.id}`}
+                            title={`archetype-${a.id}`}
                           >
-                            {a.emoji}
+                            <ImageIcon className="h-7 w-7" />
                             {/* Revealed on LOAD rather than hidden on error:
                                 an error handler attached after the request has
                                 already failed never fires, and the card would
@@ -740,6 +778,25 @@ export default function NewCharacterWizard() {
                   </button>
                 </>
               )}
+
+              {/* Anything the option lists cannot express, in the parent's
+                  own words. Fed to the story prompt with the description. */}
+              <div>
+                <Label htmlFor="char-extra">{t("extraTitle")}</Label>
+                <p className="mt-0.5 text-xs text-[var(--color-ink-400)]">{t("extraHint")}</p>
+                <Textarea
+                  id="char-extra"
+                  value={extra}
+                  rows={3}
+                  maxLength={300}
+                  placeholder={t("extraPlaceholder")}
+                  onChange={(e) => setExtra(e.target.value)}
+                  className="mt-2"
+                />
+                <span className="mt-1 block text-right text-[11px] text-[var(--color-ink-300)]">
+                  {extra.length}/300
+                </span>
+              </div>
 
               {roleLeft <= 0 && slots && (
                 <p className="flex items-center gap-2 rounded-xl bg-[var(--color-cream-100)] px-4 py-3 text-sm text-[var(--color-ink-500)]">

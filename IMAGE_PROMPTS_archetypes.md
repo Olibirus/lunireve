@@ -11,7 +11,7 @@ Cards on `/compte/personnages/nouveau`, step 4 "Personnalité". Each card is a
 3. Drop it in `app/public/illustrations/`.
 4. Nothing else to do: the cards already point at
    `/illustrations/archetype-<id>.webp` and show the art the moment the file is
-   there. Until then the emoji stands in.
+   there. Until then each card shows a dashed picture placeholder.
 
 **Style:** not described on purpose. Run these through Nano Banana with your
 Lunireve logo as the style reference so all 7 match the brand fox.

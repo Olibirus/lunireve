@@ -411,6 +411,7 @@ export default function CreateStoryPage() {
     const fullDescription = [
       c.description,
       ...c.traits.map((id) => traitLabel(id, locale).replace(/^\S+\s/, "")),
+      c.extra,
     ]
       .filter(Boolean)
       .join(", ");

@@ -76,6 +76,8 @@ export type SavedCharacter = {
   description: string;
   traits: string[]; // up to 4 (trait ids from characterOptions)
   appearance?: CharacterAppearance;
+  /** Free text the parent added: anything the option lists cannot express. */
+  extra?: string;
   createdAt: string;
 };
 
@@ -149,5 +151,6 @@ export function duplicateCharacter(id: string, copyName: string): SavedCharacter
     description: source.description,
     traits: [...source.traits],
     appearance: source.appearance ? { ...source.appearance } : undefined,
+    extra: source.extra,
   });
 }
